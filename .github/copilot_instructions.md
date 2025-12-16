@@ -98,12 +98,75 @@ Avoid:
 
 ---
 
+## Development Workflow (Solo Dev)
+
+### TCTBP (Recommended Cadence)
+
+**TCTBP = Test, Commit, Tag, Bump, Push**
+
+When a change is complete and validated (e.g., the user confirms “looks good”, “works great”, “perfect”), follow this workflow.
+
+Versioning policy (repo-wide):
+- The assistant chooses the semantic version number.
+- Every commit the assistant creates should be tagged with a `vX.Y.Z` tag.
+- The git tag and the app/solution version must match (same `X.Y.Z`) to make rollbacks and audits straightforward.
+- Default to PATCH bumps (`Z`) unless the change is a new feature (MINOR / `Y`) or a breaking change (MAJOR / `X`).
+
+Important: If you are about to run git commands, ask for confirmation first (especially for tagging and pushing).
+
+1. **Test**
+	- Prefer the closest equivalent of: lint, typecheck, build, and a quick runtime check.
+	- If no automated tests exist yet, do a focused manual verification.
+2. **Commit**
+	- Make small, focused commits.
+	- Use conventional commits: `feat:`, `fix:`, `refactor:`, `chore:`, `docs:`.
+3. **Tag**
+	- Tag releases using semantic versioning: `vX.Y.Z`.
+4. **Bump**
+	- Keep versions consistent across SPFx artifacts when present, typically:
+	  - `package.json`
+	  - `config/package-solution.json` (solution version)
+	  - Any app-level version constant if the project introduces one later
+5. **Push**
+	- Push the branch and tags to the configured remote.
+
+Example (PowerShell):
+
+```powershell
+git add -A
+git commit -m "feat: short description"
+git tag vX.Y.Z
+git push --follow-tags
+```
+
+---
+
+## Modularity & File Size
+
+- Keep files small and cohesive; avoid “god files”.
+- If a file is growing quickly or covering multiple responsibilities, split proactively (components/hooks/services/helpers).
+- Use clear module boundaries and descriptive naming instead of relying on comments.
+- Treat ~300 lines as a *warning threshold* for reviewing whether a split would improve maintainability (not a hard rule).
+
+---
+
 ## When Unsure
 
 If there is ambiguity:
 - Choose the **simplest, most maintainable** option
 - Align with Microsoft 365 and SPFx guidance
 - Avoid introducing new infrastructure without justification
+
+---
+
+## AI Assistant Behaviour (Handoff)
+
+After completing a feature or significant change, provide:
+
+1. **What Was Done** – brief summary of what changed
+2. **How to Test** – concrete steps (where to click/navigate, what inputs to use)
+3. **What to Expect** – expected UI/behaviour results
+4. **Edge Cases** – only if relevant
 
 ---
 
