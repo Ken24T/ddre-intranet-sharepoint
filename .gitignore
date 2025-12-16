@@ -1,0 +1,15 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# SPFx build output (common)
+dist/
+lib/
+temp/

@@ -1,0 +1,16 @@
+openapi: 3.0.3
+info:
+  title: DDRE Intranet Vault API Proxy (Placeholder)
+  version: 0.0.0
+  description: |
+    Placeholder contract for a secure proxy to the Vault (Sales Portal) API.
+    SPFx must never call Vault directly with API keys.
+servers:
+  - url: https://example.invalid
+paths:
+  /api/v1/vault/health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK

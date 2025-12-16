@@ -1,0 +1,23 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "ddre-intranet",
+    "environment": "spo",
+    "packageManager": "npm",
+    "skipFeatureDeployment": true,
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "react",
+    "componentName": "IntranetShell",
+    "componentDescription": "DDRE Intranet shell and tool entry points",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.14.0",
+    "sdksVersions": {},
+    "version": "1.22.1",
+    "libraryName": "ddre-intranet",
+    "libraryId": "57ab61df-506d-4f2a-9e13-2131103e33c2",
+    "solutionShortDescription": "ddre-intranet description",
+    "isDomainIsolated": false
+  }
+}

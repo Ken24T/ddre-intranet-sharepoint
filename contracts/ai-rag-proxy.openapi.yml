@@ -1,0 +1,44 @@
+openapi: 3.0.3
+info:
+  title: DDRE Intranet AI RAG Proxy (Placeholder)
+  version: 0.0.0
+  description: |
+    Placeholder contract for the secure AI proxy service.
+    All AI calls must be made server-side via a proxy (no secrets in SPFx).
+servers:
+  - url: https://example.invalid
+paths:
+  /api/v1/ai/query:
+    post:
+      summary: Ask a question against the knowledge base
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question:
+                  type: string
+              required: [question]
+      responses:
+        '200':
+          description: Answer with citations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  answer:
+                    type: string
+                  citations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        title:
+                          type: string
+                        url:
+                          type: string
+                        snippet:
+                          type: string
