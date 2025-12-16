@@ -6,7 +6,7 @@
     "node": ">=22.14.0 < 23.0.0"
   },
   "scripts": {
-    "version": "0.0.2",
+    "version": "0.0.3",
     "start": "heft start --clean",
     "clean": "heft clean",
     "eject-webpack": "heft eject-webpack"
