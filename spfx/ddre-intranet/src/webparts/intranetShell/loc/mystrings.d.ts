@@ -13,7 +13,7 @@ declare interface IIntranetShellWebPartStrings {
   UnknownEnvironment: string;
 }
 
-declare module 'IntranetShellWebPartStrings' {
+declare module "IntranetShellWebPartStrings" {
   const strings: IIntranetShellWebPartStrings;
   export = strings;
 }

@@ -1,14 +1,19 @@
 {
   "name": "ddre-intranet",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "private": true,
   "engines": {
     "node": ">=22.14.0 < 23.0.0"
   },
   "scripts": {
-    "version": "0.0.3",
     "start": "heft start --clean",
     "clean": "heft clean",
+    "lint": "eslint --max-warnings=0 \"src/**/*.{ts,tsx}\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "heft test --clean",
+    "build": "heft test --clean --production && heft package-solution --production",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx}\" \"config/**/*.json\" \"*.json\" \"*.md\" \".eslintrc.js\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx}\" \"config/**/*.json\" \"*.json\" \"*.md\" \".eslintrc.js\"",
     "eject-webpack": "heft eject-webpack"
   },
   "dependencies": {
@@ -39,7 +44,8 @@
     "@types/react": "17.0.45",
     "@types/react-dom": "17.0.17",
     "eslint-plugin-react-hooks": "4.3.0",
-    "@microsoft/sp-module-interfaces": "1.22.1"
+    "@microsoft/sp-module-interfaces": "1.22.1",
+    "prettier": "^3.6.2"
   },
   "overrides": {
     "@rushstack/heft": "1.1.2"

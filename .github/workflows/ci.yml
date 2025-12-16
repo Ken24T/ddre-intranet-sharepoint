@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - chore/**
+      - feature/**
+  workflow_dispatch:
+
+jobs:
+  spfx-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: spfx/ddre-intranet
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: spfx/ddre-intranet/.nvmrc
+          cache: npm
+          cache-dependency-path: spfx/ddre-intranet/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Format Check
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build (Bundle + Package)
+        run: npm run build
