@@ -38,5 +38,8 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: E2E (Playwright)
+        run: npm run test:e2e
+
       - name: Build (Bundle + Package)
         run: npm run build

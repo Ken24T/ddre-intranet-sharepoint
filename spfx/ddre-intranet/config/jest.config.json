@@ -1,0 +1,11 @@
+{
+  "extends": "@rushstack/heft-jest-plugin/includes/jest-shared.config.json",
+  "testEnvironment": "jsdom",
+  "roots": ["<rootDir>/lib-commonjs"],
+  "testMatch": ["<rootDir>/lib-commonjs/**/*.test.{cjs,js}"],
+  "setupFilesAfterEnv": ["<rootDir>/lib-commonjs/tests/setupTests.js"],
+  "moduleNameMapper": {
+    "\\.(css|less|sass|scss)$": "identity-obj-proxy",
+    "\\.(aac|eot|gif|jpeg|jpg|m4a|mp3|mp4|oga|otf|png|svg|ttf|wav|webm|webp|woff|woff2)$": "<rootDir>/config/jest/fileMock.js"
+  }
+}
