@@ -11,6 +11,7 @@
     "lint": "eslint --max-warnings=0 \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "heft test --clean",
+    "test:coverage": "heft test --clean --config config/jest.config.coverage.json",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install",
     "build": "heft test --clean --production && heft package-solution --production",

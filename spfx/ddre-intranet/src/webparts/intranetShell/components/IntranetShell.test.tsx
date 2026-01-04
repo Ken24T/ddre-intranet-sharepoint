@@ -19,4 +19,24 @@ describe("IntranetShell", () => {
     expect(screen.getByText(/Web part property value:/i)).toBeInTheDocument();
     expect(screen.getByText(/Test description/i)).toBeInTheDocument();
   });
+
+  it("escapes user-controlled strings", () => {
+    render(
+      <IntranetShell
+        description="<i>desc</i>"
+        isDarkTheme={false}
+        environmentMessage="Local workbench"
+        hasTeamsContext={false}
+        userDisplayName="<b>John</b>"
+      />,
+    );
+
+    expect(screen.queryByText("<b>John</b>")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
+      "Well done, &lt;b&gt;John&lt;/b&gt;!",
+    );
+
+    expect(screen.queryByText("<i>desc</i>")).not.toBeInTheDocument();
+    expect(screen.getByText("&lt;i&gt;desc&lt;/i&gt;")).toBeInTheDocument();
+  });
 });
