@@ -5,6 +5,7 @@
 This repository contains the **DDRE Intranet** built on **SharePoint Online** using **SharePoint Framework (SPFx)** with **TypeScript and React**.
 
 The intranet is:
+
 - Hosted in SharePoint Online
 - Authenticated via Microsoft Entra ID (SSO)
 - Extended using SPFx web parts
@@ -35,6 +36,7 @@ When generating code, prefer:
 - **SPFx best practices** (no deprecated APIs)
 
 Avoid:
+
 - Plain JavaScript
 - Inline scripts or global CSS
 - Direct DOM manipulation
@@ -102,11 +104,12 @@ Avoid:
 
 ### TCTBP (Recommended Cadence)
 
-**TCTBP = Test, Commit, Tag, Bump, Push**
+#### TCTBP = Test, Commit, Tag, Bump, Push
 
 When a change is complete and validated (e.g., the user confirms “looks good”, “works great”, “perfect”), follow this workflow.
 
 Versioning policy (repo-wide):
+
 - The assistant chooses the semantic version number.
 - Every commit the assistant creates should be tagged with a `vX.Y.Z` tag.
 - The git tag and the app/solution version must match (same `X.Y.Z`) to make rollbacks and audits straightforward.
@@ -114,21 +117,11 @@ Versioning policy (repo-wide):
 
 Important: If you are about to run git commands, ask for confirmation first (especially for tagging and pushing).
 
-1. **Test**
-	- Prefer the closest equivalent of: lint, typecheck, build, and a quick runtime check.
-	- If no automated tests exist yet, do a focused manual verification.
-2. **Commit**
-	- Make small, focused commits.
-	- Use conventional commits: `feat:`, `fix:`, `refactor:`, `chore:`, `docs:`.
-3. **Tag**
-	- Tag releases using semantic versioning: `vX.Y.Z`.
-4. **Bump**
-	- Keep versions consistent across SPFx artifacts when present, typically:
-	  - `package.json`
-	  - `config/package-solution.json` (solution version)
-	  - Any app-level version constant if the project introduces one later
-5. **Push**
-	- Push the branch and tags to the configured remote.
+- **Test**: Prefer the closest equivalent of lint, typecheck, build, and a quick runtime check. If no automated tests exist yet, do a focused manual verification.
+- **Commit**: Make small, focused commits. Use conventional commits: `feat:`, `fix:`, `refactor:`, `chore:`, `docs:`.
+- **Tag**: Tag releases using semantic versioning: `vX.Y.Z`.
+- **Bump**: Keep versions consistent across SPFx artifacts when present: `package.json`, `config/package-solution.json` (solution version), and any app-level version constant introduced later.
+- **Push**: Push the branch and tags to the configured remote.
 
 Example (PowerShell):
 
@@ -168,6 +161,7 @@ When you ask for a release, include (or I will propose) a conventional commit me
 ## When Unsure
 
 If there is ambiguity:
+
 - Choose the **simplest, most maintainable** option
 - Align with Microsoft 365 and SPFx guidance
 - Avoid introducing new infrastructure without justification
