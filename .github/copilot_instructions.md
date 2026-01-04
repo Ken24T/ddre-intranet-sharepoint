@@ -141,6 +141,21 @@ git push --follow-tags
 
 ---
 
+### Release Trigger Phrase
+
+To avoid repeatedly typing “TCTBP”, the preferred trigger phrase is:
+
+- `release` = run TCTBP end-to-end using a PATCH bump by default
+
+Optional variants:
+
+- `release:patch` / `release:minor` / `release:major` = force the semver bump type
+- `release:dry-run` = run tests + report the proposed commit/tag/version changes, but do not modify git
+
+When you ask for a release, include (or I will propose) a conventional commit message like `docs: ...`, `feat: ...`, etc.
+
+---
+
 ## Modularity & File Size
 
 - Keep files small and cohesive; avoid “god files”.
