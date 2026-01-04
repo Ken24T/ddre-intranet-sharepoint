@@ -16,6 +16,7 @@ Deliver a modern, cloud-based intranet that supports staff communication, self-s
 **Ownership:** IT (platform) + Internal Communications (content) + Business sponsors
 
 **Delivery Responsibilities (Initial):**
+
 - **Primary Developer:** Ken Boyle (SPFx, React, TypeScript, front-end architecture, tool development)
 - **Backend & Platform Configuration:** Grey Fox (3rd-party vendor)
   - Azure resources (Functions, App Services, Key Vault)
@@ -25,7 +26,7 @@ Deliver a modern, cloud-based intranet that supports staff communication, self-s
 
 **Intranet URL (Target):** [https://intranet.dougdisher.com.au](https://intranet.dougdisher.com.au)
 
-**URL Implementation Notes (to confirm with IT)**
+### URL Implementation Notes (to confirm with IT)
 
 - DNS: `intranet.dougdisher.com.au` CNAME/alias to the SharePoint Online intranet landing page
 - Decide whether the vanity URL is:
@@ -72,13 +73,13 @@ To deliver a **clean, modern, dynamic UX** (sidebar, navbar, status bar, functio
 - **Fluent UI** (Microsoft design system) for consistent, accessible components
 - **PnPjs** for SharePoint/Graph data access ergonomics
 
-**Delivery Model**
+#### Delivery Model
 
 - SharePoint pages provide overall structure and navigation
 - SPFx web parts provide interactive tools and rich experiences
 - Power Platform used for rapid process apps (forms/approvals) where appropriate
 
-**Build & Release (Suggested)**
+#### Build & Release (Suggested)
 
 - Source control: GitHub (aligned with DDRE Intranet workflow)
 - CI/CD: GitHub Actions to package and deploy SPFx solutions
@@ -171,7 +172,7 @@ To deliver a **clean, modern, dynamic UX** (sidebar, navbar, status bar, functio
 ### Delivery RACI (Initial)
 
 | Area | Ken Boyle (Primary Dev) | Grey Fox (Vendor) | IT | Business Owners |
-|------|-------------------------|-------------------|----|-----------------|
+| ------ | ------------------------- | ------------------- | ---- | ----------------- |
 | Intranet architecture & UX | R | C | C | I |
 | SPFx / React development | R | I | I | I |
 | Backend services (APIs, Functions) | C | R | C | I |
@@ -326,14 +327,14 @@ The intranet Admin page is therefore treated as a **controlled front-end** for *
 
 To support day-to-day access changes and controlled crossover between departments, the intranet will include a **dedicated Administration area** for authorised administrators.
 
-**Purpose**
+#### Purpose
 
 - Provide visibility of intranet groups and their intent
 - Enable controlled management of group membership
 - Reduce reliance on IT for routine access changes
 - Maintain auditability and governance
 
-**Implementation Model (Recommended)**
+#### Implementation Model (Recommended)
 
 - An **Administration Hub** accessible only to authorised Admin roles
 - An **SPFx-based Admin Page** that:
@@ -344,18 +345,18 @@ To support day-to-day access changes and controlled crossover between department
 
 > *Note: The Admin page does not replace Entra ID or SharePoint security. It acts as a governed front-end to approved group operations.*
 
-**Who Can Use This Area**
+#### Who Can Use This Area
 
 - Platform Admins (IT)
 - Delegated Intranet Administrators (trusted business users)
 
-**What Can Be Managed**
+#### What Can Be Managed
 
 - Add/remove users to existing approved groups
 - Assign users to multiple department or tool groups (crossover support)
 - View effective access for a given user (where supported)
 
-**What Is Explicitly Out of Scope**
+#### What Is Explicitly Out of Scope
 
 - Creating new security groups without governance approval
 - Changing permission inheritance on sites/lists
@@ -417,14 +418,14 @@ To support day-to-day access changes and controlled crossover between department
 
 The intranet will include an **AI assistant** (chatbot) to help staff find answers about policies, processes, and procedures. The **Dante Library** (Obsidian Vault in SharePoint) will act as the **single source of truth** for business rules and internal guidance.
 
-**Primary Use Cases**
+#### Primary Use Cases
 
 - “How do I…?” guidance for procedures and internal workflows
 - Policy and process Q&A with citations/links back to source pages
 - Guided navigation to the correct form/tool/site area
 - Summarisation of long policies and step-by-step checklists
 
-**Recommended Architecture (RAG: Retrieval-Augmented Generation)**
+#### Recommended Architecture (RAG: Retrieval-Augmented Generation)
 
 - **Chat UI:** SPFx (React) web part available site-wide (and optionally surfaced in Teams via Viva Connections)
 - **AI Service Layer (Required):** Azure Functions / App Service acting as a secure proxy
@@ -436,25 +437,25 @@ The intranet will include an **AI assistant** (chatbot) to help staff find answe
   - Maintain a searchable vector/text index for fast retrieval
   - Return answers with **source citations** (links to SharePoint documents/pages)
 
-**Security & Governance Requirements**
+#### Security & Governance Requirements
 
 - Enforce **SSO** and ensure responses are **permission-trimmed** (users only see content they are allowed to access)
 - No secrets stored in SPFx (browser) code
 - Logging/auditing of queries and responses (with appropriate privacy controls)
 - Clear “AI is an assistant” disclaimer and feedback mechanism
 
-**Content Ingestion & Index Refresh (Initial Approach)**
+#### Content Ingestion & Index Refresh (Initial Approach)
 
 - Scheduled or event-driven sync from SharePoint library
 - Chunk Markdown files, extract metadata (folder/tags/frontmatter), generate embeddings, and update the index
 - Define a “published” convention (e.g., folder or frontmatter flag) to control what the AI can use
 
-**Model & Vendor Considerations**
+#### Model & Vendor Considerations
 
 - Use OpenAI (existing accounts/API keys) via a secure backend service layer
 - Keep the architecture flexible to support alternative providers later if required
 
-**Success Measures (AI-specific)**
+#### Success Measures (AI-specific)
 
 - Reduction in repetitive questions to Admin/PM/Sales leads
 - Time-to-answer for common process questions
@@ -466,7 +467,7 @@ The intranet will include an **AI assistant** (chatbot) to help staff find answe
 
 The intranet will include departmental tools such as a **PM Dashboard** (currently spreadsheet-based) and a **Sales Marketing Budget Calculator** (currently HTML/CSS/JS and using SQLite), plus additional tools as the intranet evolves.
 
-**Recommended Implementation Pattern**
+#### Recommended Implementation Pattern
 
 - Build each tool as an **SPFx (React) web part** for a consistent UX and governance-friendly deployment.
 - Reuse existing logic where possible:
@@ -474,7 +475,7 @@ The intranet will include departmental tools such as a **PM Dashboard** (current
     - Converting the UI into React components, and/or
     - Reusing existing JS calculation logic inside the SPFx web part
 
-**Data Approach (by tool type)**
+#### Data Approach (by tool type)
 
 - **Spreadsheet-like trackers (e.g., PM Dashboard):**
 
@@ -496,7 +497,7 @@ The intranet will include departmental tools such as a **PM Dashboard** (current
     3. **Keep SQLite only as a client-side cache (advanced/limited):** using a browser-compatible SQLite implementation (e.g., WebAssembly) for offline/local use, with an authoritative store still in SharePoint/Dataverse
     4. **Move the DB to Azure SQL (only if justified):** access via an API layer (Azure Functions/App Service) – SPFx does not connect directly to SQL
 
-**UX Standards**
+#### UX Standards
 
 - Common layout shell: sidebar + navbar + page header + status bar
 - Function cards for tool entry points
@@ -508,7 +509,7 @@ The organisation maintains an existing Obsidian Vault containing Markdown-format
 
 The intranet must present a **dynamic, read-only view** of this content to staff, while preserving SharePoint as the storage layer and Obsidian as the authoring experience.
 
-**Key Requirements**
+#### Key Requirements
 
 - Single source of truth remains the SharePoint-hosted Obsidian Vault
 - No duplication of content between systems
@@ -516,7 +517,7 @@ The intranet must present a **dynamic, read-only view** of this content to staff
 - Folder structure, tags, and frontmatter leveraged for navigation and search
 - Access controlled via SharePoint permissions and Microsoft Entra ID
 
-**Recommended Approaches (to validate with IT)**
+#### Recommended Approaches (to validate with IT)
 
 1. **SharePoint-Native Markdown Rendering (Preferred)**
 
@@ -536,7 +537,7 @@ The intranet must present a **dynamic, read-only view** of this content to staff
    - Content embedded into the intranet with SSO
    - Considered only if SharePoint-native rendering proves insufficient
 
-**Governance Considerations**
+#### Governance Considerations
 
 - Editorial workflow remains entirely within Obsidian
 - Draft vs published state managed via folders, metadata, or frontmatter
@@ -565,12 +566,12 @@ The intranet must present a **dynamic, read-only view** of this content to staff
 
 The intranet will integrate with the organisation’s **Vault (Sales Portal) API** from specific functional areas (e.g., sales tools, dashboards, lookups).
 
-**API Characteristics (Known)**
+#### API Characteristics (Known)
 
 - Uses an **API key + token** model
 - CORS issues have been encountered during development and must be addressed for SharePoint Online usage
 
-**Recommended Integration Pattern**
+#### Recommended Integration Pattern
 
 - **Do not embed API keys or long-lived secrets in SPFx code** (client-side code is inspectable)
 - Use a secure **API proxy layer** (preferred):
@@ -579,12 +580,12 @@ The intranet will integrate with the organisation’s **Vault (Sales Portal) API
   - SPFx calls the proxy using Entra ID auth
   - Proxy calls Vault API using key + token
 
-**CORS Strategy**
+#### CORS Strategy
 
 - Prefer the proxy approach to reduce CORS exposure and avoid placing secrets in the browser.
 - Where direct browser calls are required, the Vault API must explicitly permit SharePoint Online origins and headers.
 
-**SharePoint Online CORS Requirements (for SPFx / browser-based calls)**
+#### SharePoint Online CORS Requirements (for SPFx / browser-based calls)
 
 - Allow origins for the relevant M365 hosts (environment-specific), typically including:
   - `https://<tenant>.sharepoint.com`
@@ -595,12 +596,12 @@ The intranet will integrate with the organisation’s **Vault (Sales Portal) API
 - Support preflight requests (`OPTIONS`) reliably
 - Decide whether credentials (cookies) are required; if so, configure `Access-Control-Allow-Credentials` and avoid wildcard origins
 
-**Proxy Option CORS Requirements (preferred)**
+#### Proxy Option CORS Requirements (preferred)
 
 - Configure the proxy API to allow origins from SharePoint Online (`https://<tenant>.sharepoint.com`) and (optionally) Teams/Viva surfaces
 - Keep Vault API CORS internal to the proxy where possible (Vault only needs to trust the proxy)
 
-**Open Questions (to confirm with IT)**
+#### Open Questions (to confirm with IT)
 
 - Where the proxy will be hosted (Azure subscription, network boundaries)
 - Token acquisition/refresh strategy
@@ -657,7 +658,8 @@ This model ensures a secure, supportable intranet without introducing unmanaged 
 - **Backend services (Azure Functions, APIs, Key Vault):** Owned and maintained by Grey Fox
 - **Platform operations (tenant config, security, licensing):** Owned by IT
 
-**Handover Expectations**
+#### Handover Expectations
+
 - All backend services delivered by Grey Fox must include:
   - Architecture overview
   - Deployment documentation
@@ -724,7 +726,7 @@ This model ensures a secure, supportable intranet without introducing unmanaged 
 ## 14. Risks & Mitigations
 
 | Risk | Mitigation |
-|------|------------|
+| ------ | ------------ |
 | Low adoption | Strong launch comms, Teams integration |
 | Content sprawl | Governance and regular reviews |
 | Security gaps | Enforced policies and audits |
