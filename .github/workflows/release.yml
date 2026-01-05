@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: spfx/ddre-intranet
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: spfx/ddre-intranet/.nvmrc
+          cache: npm
+          cache-dependency-path: spfx/ddre-intranet/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Verify tag matches package version
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG" != "$PKG_VERSION" ]; then
+            echo "Tag version ($TAG) does not match package.json ($PKG_VERSION)" >&2
+            exit 1
+          fi
+
+      - name: Build (Bundle + Package)
+        run: npm run build
+
+      - name: Upload sppkg
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddre-intranet-${{ github.ref_name }}
+          path: spfx/ddre-intranet/sharepoint/solution/*.sppkg
+          if-no-files-found: error
