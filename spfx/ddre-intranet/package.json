@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "ddre-intranet",
   "version": "0.0.10",
   "private": true,
@@ -61,4 +61,3 @@
     "@types/react": "17.0.45"
   }
 }
-
