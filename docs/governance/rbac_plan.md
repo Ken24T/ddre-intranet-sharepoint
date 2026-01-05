@@ -54,6 +54,14 @@ RU means update without create/delete.
 - Use RU when: users should correct/update existing items or metadata but not
   add new items or remove content.
 
+### Decision table
+
+| Term | Create | Update | Delete | Typical SharePoint mapping | Recommended scope | Use when |
+| --- | --- | --- | --- | --- | --- | --- |
+| Read | No | No | No | Visitors with built-in Read | Site or library | Published/policy/reference content |
+| RU | No | Yes | No | Custom permission level or workflow/API | Library/list | Updates to existing items/metadata only |
+| CRUD | Yes | Yes | Yes | Members with Contribute | Library/list | Working areas where teams create/change content |
+
 ## Identity and enforcement
 
 - Identity comes from Entra ID SSO.
@@ -160,6 +168,19 @@ Option A: Custom permission level (SharePoint)
 - Apply it at the library/list level for RU resources.
 - Keep it narrow; avoid site-level custom permissions unless required.
 
+Implementation steps:
+
+1. Create a custom permission level on the hub site (for example, “RU”).
+2. Start from Contribute/Edit as a baseline, then remove capabilities that
+  enable create/delete.
+3. Apply RU at the library/list level (preferably) for RU resources.
+4. Grant the hub RU group that permission at the RU library/list.
+5. Validate with a test user:
+  - can open and edit existing items/metadata
+  - cannot add new items/files
+  - cannot delete items/files
+6. Record the custom level name and where it is used for auditing.
+
 Option B: Read in SharePoint + Update via controlled workflow/API
 
 - SharePoint grants Read.
@@ -168,12 +189,31 @@ Option B: Read in SharePoint + Update via controlled workflow/API
   - server-side API that checks group membership and applies updates.
 - This can be better when updates must be audited or validated.
 
+Implementation steps:
+
+1. Grant the hub RU group Read in SharePoint for the scope.
+2. Provide a controlled update path (workflow or server-side API) that:
+  - verifies the user is in the hub RU group
+  - writes the update using a privileged identity (not the browser)
+  - logs who requested the change and what changed
+3. Decide whether updates require approval (recommended for sensitive content).
+4. Periodically review workflow/API access logs and group membership.
+
 ## Hub blueprint (starting point)
 
 This is a recommended starting blueprint for each hub. It is designed to make
 cross-hub access and differing permissions straightforward and auditable.
 
 Principle: prefer separate libraries over folder/file unique permissions.
+
+Recommended defaults:
+
+- By default, grant `Hub-<Hub>-CRUD` Contribute to each hub's “Working” library.
+- By default, grant `Hub-<Hub>-RU` Read to each hub's “Shared” library.
+- If an RU library/list exists:
+  - grant `Hub-<Hub>-RU` RU at that library/list
+  - grant `Hub-<Hub>-CRUD` Contribute at that library/list
+- Prefer library/list permissions over site-wide permissions for hub groups.
 
 ### Administration hub
 
@@ -292,7 +332,12 @@ Sales user has CRUD in Sales and RU in Property Management:
 
 ## Open decisions
 
-- RU approach: custom permission level vs workflow/API, per hub and resource.
-- Which resources are scoped at site vs library vs folder/file.
-- Whether Administration users are Owners everywhere or limited to specific
-  hubs/resources.
+- RU approach per resource type:
+  - for simple “edit existing metadata only” cases, prefer Option A (custom)
+  - for audited/validated updates, prefer Option B (workflow/API)
+- Resource scoping:
+  - default to library/list scoping
+  - allow folder/file unique permissions only as documented exceptions
+- Administration scope:
+  - default to Owners only where required to administer content/config
+  - keep break-glass (`Intranet-God`) separate and tightly controlled
