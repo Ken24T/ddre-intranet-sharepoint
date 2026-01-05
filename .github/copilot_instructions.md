@@ -2,7 +2,9 @@
 
 ## Project Context
 
-This repository contains the **DDRE Intranet** built on **SharePoint Online** using **SharePoint Framework (SPFx)** with **TypeScript and React**.
+This repository contains the **DDRE Intranet** built on
+**SharePoint Online** using **SharePoint Framework (SPFx)** with
+**TypeScript and React**.
 
 The intranet is:
 
@@ -106,21 +108,30 @@ Avoid:
 
 #### TCTBP = Test, Commit, Tag, Bump, Push
 
-When a change is complete and validated (e.g., the user confirms “looks good”, “works great”, “perfect”), follow this workflow.
+When a change is complete and validated (e.g., the user confirms
+“looks good”, “works great”, “perfect”), follow this workflow.
 
 Versioning policy (repo-wide):
 
 - The assistant chooses the semantic version number.
 - Every commit the assistant creates should be tagged with a `vX.Y.Z` tag.
-- The git tag and the app/solution version must match (same `X.Y.Z`) to make rollbacks and audits straightforward.
-- Default to PATCH bumps (`Z`) unless the change is a new feature (MINOR / `Y`) or a breaking change (MAJOR / `X`).
+- The git tag and the app/solution version must match (same `X.Y.Z`) to make
+  rollbacks and audits straightforward.
+- Default to PATCH bumps (`Z`) unless the change is a new feature
+  (MINOR / `Y`) or a breaking change (MAJOR / `X`).
 
-Important: If you are about to run git commands, ask for confirmation first (especially for tagging and pushing).
+Important: If you are about to run git commands, ask for confirmation first
+(especially for tagging and pushing).
 
-- **Test**: Prefer the closest equivalent of lint, typecheck, build, and a quick runtime check. If no automated tests exist yet, do a focused manual verification.
-- **Commit**: Make small, focused commits. Use conventional commits: `feat:`, `fix:`, `refactor:`, `chore:`, `docs:`.
+- **Test**: Prefer the closest equivalent of lint, typecheck, build, and a
+  quick runtime check. If no automated tests exist yet, do a focused manual
+  verification.
+- **Commit**: Make small, focused commits. Use conventional commits: `feat:`,
+  `fix:`, `refactor:`, `chore:`, `docs:`.
 - **Tag**: Tag releases using semantic versioning: `vX.Y.Z`.
-- **Bump**: Keep versions consistent across SPFx artifacts when present: `package.json`, `config/package-solution.json` (solution version), and any app-level version constant introduced later.
+- **Bump**: Keep versions consistent across SPFx artifacts when present:
+  `package.json`, `config/package-solution.json` (solution version), and any
+  app-level version constant introduced later.
 - **Push**: Push the branch and tags to the configured remote.
 
 Example (PowerShell):
@@ -140,25 +151,41 @@ To avoid repeatedly typing “TCTBP”, the preferred trigger phrase is:
 
 - `release` = run TCTBP end-to-end using a PATCH bump by default
 
-Important: `release` must **not** merge or rebase anything into `main` unless the user explicitly asks (e.g., “merge to main”). A release should operate on the current branch only.
+Important: `release` must **not** merge or rebase anything into `main`
+unless the user explicitly asks (e.g., “merge to main”). A release should
+operate on the current branch only.
 
-When the user explicitly asks to merge to `main`, the assistant should also propose a sensible next branch name and focus area (e.g., `chore/ci-hardening`, `chore/release-automation`, `test/coverage-thresholds`, `docs/runbooks`, `feat/<area>-shell`) based on the current workstream.
+When the user explicitly asks to merge to `main`, the assistant should also
+propose a sensible next branch name and focus area based on the current
+workstream, for example:
+
+- `chore/ci-hardening`
+- `chore/release-automation`
+- `test/coverage-thresholds`
+- `docs/runbooks`
+- `feat/<area>-shell`
 
 Optional variants:
 
-- `release:patch` / `release:minor` / `release:major` = force the semver bump type
-- `release:dry-run` = run tests + report the proposed commit/tag/version changes, but do not modify git
+- `release:patch` / `release:minor` / `release:major` = force the semver bump
+  type
+- `release:dry-run` = run tests + report the proposed commit/tag/version
+  changes, but do not modify git
 
-When you ask for a release, include (or I will propose) a conventional commit message like `docs: ...`, `feat: ...`, etc.
+When you ask for a release, include (or I will propose) a conventional
+commit message like `docs: ...`, `feat: ...`, etc.
 
 ---
 
 ## Modularity & File Size
 
 - Keep files small and cohesive; avoid “god files”.
-- If a file is growing quickly or covering multiple responsibilities, split proactively (components/hooks/services/helpers).
-- Use clear module boundaries and descriptive naming instead of relying on comments.
-- Treat ~300 lines as a *warning threshold* for reviewing whether a split would improve maintainability (not a hard rule).
+- If a file is growing quickly or covering multiple responsibilities,
+  split proactively (components/hooks/services/helpers).
+- Use clear module boundaries and descriptive naming instead of relying on
+  comments.
+- Treat ~300 lines as a *warning threshold* for reviewing whether a split
+  would improve maintainability (not a hard rule).
 
 ---
 
@@ -185,5 +212,6 @@ After completing a feature or significant change, provide:
 
 ## Summary Instruction to Copilot
 
-> Generate code as if this intranet will be maintained long-term, audited for security, and extended incrementally by a small team.
+> Generate code as if this intranet will be maintained long-term, audited for
+> security, and extended incrementally by a small team.
 

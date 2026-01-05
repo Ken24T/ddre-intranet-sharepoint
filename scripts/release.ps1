@@ -70,7 +70,7 @@ function Test-WorkingTreeClean {
   return [string]::IsNullOrWhiteSpace($status)
 }
 
-function Parse-SemVer {
+function ConvertFrom-SemVerString {
   param([Parameter(Mandatory = $true)][string]$Version)
   if ($Version -notmatch '^([0-9]+)\.([0-9]+)\.([0-9]+)$') {
     throw "Unsupported version format '$Version' (expected X.Y.Z)."
@@ -82,12 +82,12 @@ function Parse-SemVer {
   }
 }
 
-function Bump-SemVer {
+function Step-SemVer {
   param(
     [Parameter(Mandatory = $true)][string]$Version,
     [Parameter(Mandatory = $true)][ValidateSet('patch', 'minor', 'major')][string]$Bump
   )
-  $v = Parse-SemVer -Version $Version
+  $v = ConvertFrom-SemVerString -Version $Version
   switch ($Bump) {
     'patch' { $v.Patch += 1 }
     'minor' { $v.Minor += 1; $v.Patch = 0 }
@@ -186,7 +186,7 @@ $solutionPath = Join-Path $repoRoot 'spfx/ddre-intranet/config/package-solution.
 
 $pkg = Get-Content -LiteralPath $pkgPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $oldVersion = [string]$pkg.version
-$newVersion = Bump-SemVer -Version $oldVersion -Bump $Bump
+$newVersion = Step-SemVer -Version $oldVersion -Bump $Bump
 $tag = "v$newVersion"
 
 if ([string]::IsNullOrWhiteSpace($Message)) {
