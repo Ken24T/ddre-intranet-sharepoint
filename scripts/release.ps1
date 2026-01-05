@@ -88,7 +88,10 @@ function Update-JsonFileRaw {
   $content = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
   foreach ($key in $Replacements.Keys) {
     $value = $Replacements[$key]
-    $content = $content -replace [regex]::Escape($key), [regex]::Escape($value)
+    $pattern = [regex]::Escape($key)
+    # In .NET regex replacements, only $ and \ have special meaning.
+    $replacement = ($value -replace '\\', '\\\\') -replace '\$', '\\$'
+    $content = $content -replace $pattern, $replacement
   }
   Set-Content -LiteralPath $Path -Value $content -Encoding UTF8
 }
