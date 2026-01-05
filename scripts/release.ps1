@@ -110,7 +110,11 @@ function Update-JsonFileRaw {
     $replacement = ($value -replace '\\', '\\\\') -replace '\$', '\\$'
     $content = $content -replace $pattern, $replacement
   }
-  Set-Content -LiteralPath $Path -Value $content -Encoding UTF8
+  [System.IO.File]::WriteAllText(
+    $Path,
+    $content,
+    [System.Text.UTF8Encoding]::new($false)
+  )
 }
 
 function Set-PackageSolutionVersion {
@@ -132,7 +136,11 @@ function Set-PackageSolutionVersion {
   }
 
   $newContent = $json | ConvertTo-Json -Depth 100
-  Set-Content -LiteralPath $Path -Value ($newContent + "`n") -Encoding UTF8
+  [System.IO.File]::WriteAllText(
+    $Path,
+    ($newContent + "`n"),
+    [System.Text.UTF8Encoding]::new($false)
+  )
 }
 
 function Invoke-Gates {
@@ -228,6 +236,17 @@ Update-JsonFileRaw -Path $lockPath -Replacements @{ ($lockOldToken) = $lockNewTo
 
 # package-solution.json (set solution + feature versions to X.Y.Z.0)
 Set-PackageSolutionVersion -Path $solutionPath -NewVersion $newVersion
+
+# Format the bumped JSON files only (avoid modifying unrelated files)
+$spfxDir = Join-Path $repoRoot 'spfx/ddre-intranet'
+Push-Location $spfxDir
+try {
+  & npx prettier --write 'config/package-solution.json' 'package.json' 'package-lock.json'
+  if ($LASTEXITCODE -ne 0) { throw 'prettier failed for versioned json' }
+}
+finally {
+  Pop-Location
+}
 
 Invoke-Git -Args @('add', 'spfx/ddre-intranet/package.json', 'spfx/ddre-intranet/package-lock.json', 'spfx/ddre-intranet/config/package-solution.json') | Out-Null
 Invoke-Git -Args @('commit', '-m', $Message) | Out-Null
