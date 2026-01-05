@@ -17,10 +17,19 @@ function Invoke-Git {
     [Parameter(Mandatory = $true)][string[]]$Args
   )
   $output = & git @Args 2>&1
-  if ($LASTEXITCODE -ne 0) {
-    throw "git $($Args -join ' ') failed: $output"
+  $text = if ($null -eq $output) {
+    ''
   }
-  return $output
+  elseif ($output -is [System.Array]) {
+    $output -join [Environment]::NewLine
+  }
+  else {
+    [string]$output
+  }
+  if ($LASTEXITCODE -ne 0) {
+    throw "git $($Args -join ' ') failed: $text"
+  }
+  return $text
 }
 
 function Get-RepoRoot {
