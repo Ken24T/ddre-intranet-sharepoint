@@ -142,6 +142,8 @@ To avoid repeatedly typing “TCTBP”, the preferred trigger phrase is:
 
 Important: `release` must **not** merge or rebase anything into `main` unless the user explicitly asks (e.g., “merge to main”). A release should operate on the current branch only.
 
+When the user explicitly asks to merge to `main`, the assistant should also propose a sensible next branch name and focus area (e.g., `chore/ci-hardening`, `chore/release-automation`, `test/coverage-thresholds`, `docs/runbooks`, `feat/<area>-shell`) based on the current workstream.
+
 Optional variants:
 
 - `release:patch` / `release:minor` / `release:major` = force the semver bump type
