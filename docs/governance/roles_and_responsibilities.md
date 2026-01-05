@@ -142,15 +142,15 @@ Each hub site should use standard SharePoint groups:
 
 Map Entra groups into SharePoint groups as follows:
 
-- Hub-<Hub>-RU  add to Visitors
-- Hub-<Hub>-CRUD  add to Members
-- Intranet-Admins  add to Owners (or a dedicated “Hub Admins” group with Full Control)
-- Intranet-God  site collection admin on every hub site
+- `Hub-<Hub>-RU` -> add to Visitors
+- `Hub-<Hub>-CRUD` -> add to Members
+- `Intranet-Admins` -> add to Owners (or a dedicated “Hub Admins” group with Full Control)
+- `Intranet-God` -> site collection admin on every hub site
 
 This design supports users belonging to multiple hubs and having different
 permissions per hub.
 
-### Cross-hub access (Sales  Property Management)
+### Cross-hub access (Sales and Property Management)
 
 Cross-hub access is implemented by adding the user to the appropriate Entra
 group(s) for the target hub.

@@ -176,9 +176,11 @@ Implementation steps:
 3. Apply RU at the library/list level (preferably) for RU resources.
 4. Grant the hub RU group that permission at the RU library/list.
 5. Validate with a test user:
-  - can open and edit existing items/metadata
-  - cannot add new items/files
-  - cannot delete items/files
+
+    - can open and edit existing items/metadata
+    - cannot add new items/files
+    - cannot delete items/files
+
 6. Record the custom level name and where it is used for auditing.
 
 Option B: Read in SharePoint + Update via controlled workflow/API
@@ -193,9 +195,11 @@ Implementation steps:
 
 1. Grant the hub RU group Read in SharePoint for the scope.
 2. Provide a controlled update path (workflow or server-side API) that:
-  - verifies the user is in the hub RU group
-  - writes the update using a privileged identity (not the browser)
-  - logs who requested the change and what changed
+
+    - verifies the user is in the hub RU group
+    - writes the update using a privileged identity (not the browser)
+    - logs who requested the change and what changed
+
 3. Decide whether updates require approval (recommended for sensitive content).
 4. Periodically review workflow/API access logs and group membership.
 
