@@ -140,6 +140,8 @@ To avoid repeatedly typing “TCTBP”, the preferred trigger phrase is:
 
 - `release` = run TCTBP end-to-end using a PATCH bump by default
 
+Important: `release` must **not** merge or rebase anything into `main` unless the user explicitly asks (e.g., “merge to main”). A release should operate on the current branch only.
+
 Optional variants:
 
 - `release:patch` / `release:minor` / `release:major` = force the semver bump type
