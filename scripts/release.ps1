@@ -16,7 +16,24 @@ function Invoke-Git {
   param(
     [Parameter(Mandatory = $true)][string[]]$Args
   )
-  $output = & git @Args 2>&1
+  $oldEap = $ErrorActionPreference
+  $hadNativePref = $false
+  $oldNativePref = $null
+  if (Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue) {
+    $hadNativePref = $true
+    $oldNativePref = $PSNativeCommandUseErrorActionPreference
+    $PSNativeCommandUseErrorActionPreference = $false
+  }
+  $ErrorActionPreference = 'Continue'
+  try {
+    $output = & git @Args 2>&1
+  }
+  finally {
+    $ErrorActionPreference = $oldEap
+    if ($hadNativePref) {
+      $PSNativeCommandUseErrorActionPreference = $oldNativePref
+    }
+  }
   $text = if ($null -eq $output) {
     ''
   }
