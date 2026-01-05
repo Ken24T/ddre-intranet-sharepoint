@@ -43,5 +43,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ddre-intranet-${{ github.ref_name }}
-          path: spfx/ddre-intranet/sharepoint/solution/ddre-intranet.sppkg
+          path: spfx/ddre-intranet/sharepoint/solution/*.sppkg
           if-no-files-found: error
