@@ -1,6 +1,7 @@
 # Roles and responsibilities
 
-This document defines the core roles and responsibilities for the DDRE intranet project.
+This document defines the core roles and responsibilities for the DDRE intranet
+project.
 
 ## Purpose
 
@@ -20,12 +21,16 @@ This document defines the core roles and responsibilities for the DDRE intranet 
 ### Identity (SSO)
 
 - Users authenticate via Entra ID SSO.
-- SPFx can reliably identify the signed-in user (for example: UPN/object ID via SharePoint context and/or Microsoft Graph).
+- SPFx can reliably identify the signed-in user (for example: UPN/object ID
+  via SharePoint context and/or Microsoft Graph).
 
 ### Authorization (where access is enforced)
 
-- SharePoint is the primary authorization boundary for SharePoint content (sites, pages, lists, libraries, folders, files).
-- For non-SharePoint systems (line-of-business apps), authorization must be enforced server-side (e.g., Azure Functions/App Service API). Client-side checks are for UX only.
+- SharePoint is the primary authorization boundary for SharePoint content (sites,
+  pages, lists, libraries, folders, files).
+- For non-SharePoint systems (line-of-business apps), authorization must be
+  enforced server-side (e.g., Azure Functions/App Service API). Client-side
+  checks are for UX only.
 
 ### CRUD and RU definitions
 
@@ -35,8 +40,10 @@ This document defines the core roles and responsibilities for the DDRE intranet 
 In SharePoint terms, these typically map to permission levels:
 
 - Read = view/open/download.
-- RU = typically a custom permission level or a scoped approach (see “Implementation notes” below).
-- CRUD = typically Contribute/Edit (depending on whether users should edit pages or only list/library items).
+- RU = typically a custom permission level or a scoped approach (see
+  “Implementation notes” below).
+- CRUD = typically Contribute/Edit (depending on whether users should edit pages
+  or only list/library items).
 
 ## Roles
 
@@ -55,19 +62,22 @@ In SharePoint terms, these typically map to permission levels:
 ### Hub administrators (Administration group)
 
 - A small set of trusted users who administer hub content and functionality.
-- Can be granted elevated rights across hubs (site/library administration) without granting “God” capabilities.
+- Can be granted elevated rights across hubs (site/library administration)
+  without granting “God” capabilities.
 
 ### God user (break-glass)
 
 - Ultimate permissions across the intranet.
 - Intended for emergency recovery, configuration, and oversight.
-- Should remain a very small membership (ideally a single account) with strong MFA/CA policies.
+- Should remain a very small membership (ideally a single account) with strong
+  MFA/CA policies.
 
 ### Technical lead / SPFx engineer
 
 - Owns SPFx architecture, implementation, and code quality.
 - Maintains CI/release automation and versioning discipline.
-- Ensures client-side code follows security constraints (no secrets, no direct privileged calls).
+- Ensures client-side code follows security constraints (no secrets, no direct
+  privileged calls).
 
 ### Identity & access (Entra ID)
 
@@ -97,7 +107,8 @@ The intranet is organized into five hubs:
 - Office
 - General
 
-Users may belong to multiple hubs. Hub membership determines which sites/libraries/apps a user can access, and with what permission level.
+Users may belong to multiple hubs. Hub membership determines which
+sites/libraries/apps a user can access, and with what permission level.
 
 ## Groups and permissions
 
@@ -136,34 +147,40 @@ Map Entra groups into SharePoint groups as follows:
 - Intranet-Admins  add to Owners (or a dedicated “Hub Admins” group with Full Control)
 - Intranet-God  site collection admin on every hub site
 
-This design supports users belonging to multiple hubs and having different permissions per hub.
+This design supports users belonging to multiple hubs and having different
+permissions per hub.
 
 ### Cross-hub access (Sales  Property Management)
 
-Cross-hub access is implemented by adding the user to the appropriate Entra group(s) for the target hub.
+Cross-hub access is implemented by adding the user to the appropriate Entra
+group(s) for the target hub.
 
 Example: Sales member needs RU in Property Management
 
 - Add user to Hub-PropertyManagement-RU.
-- Do not grant broad Property Management membership if only a subset of content/app features is required.
+- Do not grant broad Property Management membership if only a subset of
+  content/app features is required.
 
 ## Implementation notes (to keep governance manageable)
 
 - Prefer site/library-level permissions over folder/file-level unique permissions.
-- If “some files” need different access than the rest, prefer a separate library (e.g., “Sales Working (CRUD)” vs “Sales Shared (RU)”).
+- If “some files” need different access than the rest, prefer a separate library
+  (e.g., “Sales Working (CRUD)” vs “Sales Shared (RU)”).
 - Use folder/file unique permissions only for true exceptions; document them.
 
 About RU:
 
 - SharePoint’s built-in “Read” does not include Update.
 - If RU is required, implement it as either:
-	- a custom permission level for the specific library/list, or
-	- a scoped approach where updates are performed via a controlled workflow/API and SharePoint remains Read for the underlying items.
+  - a custom permission level for the specific library/list, or
+  - a scoped approach where updates are performed via a controlled workflow/API
+    and SharePoint remains Read for the underlying items.
 
 ## Responsibilities by area (summary)
 
 - Intranet Admin: sites, hubs, permissions, app catalog operations.
-- Hub Admins (Administration group): content/functionality administration across hubs.
+- Hub Admins (Administration group): content/functionality administration across
+  hubs.
 - Tech Lead: SPFx architecture, CI/release automation, security constraints.
 - Identity/Security: group strategy, conditional access, token scopes, auditing.
 - Content Owners: publish/maintain hub content and validate accuracy.
