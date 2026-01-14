@@ -1,4 +1,4 @@
-import { HttpClient, type IHttpClientOptions } from "@microsoft/sp-http";
+import { HttpClient, HttpClientResponse, type IHttpClientOptions } from "@microsoft/sp-http";
 import type { WebPartContext } from "@microsoft/sp-webpart-base";
 import { ApiError } from "./ApiError";
 import type { ApiClientConfig, HealthResponse } from "./types";
@@ -140,7 +140,7 @@ export abstract class BaseClient {
   /**
    * Handle API response.
    */
-  private async handleResponse<T>(response: Response): Promise<T> {
+  private async handleResponse<T>(response: HttpClientResponse): Promise<T> {
     if (!response.ok) {
       await this.throwApiError(response);
     }
@@ -156,7 +156,7 @@ export abstract class BaseClient {
   /**
    * Parse error response and throw ApiError.
    */
-  private async throwApiError(response: Response): Promise<never> {
+  private async throwApiError(response: HttpClientResponse): Promise<never> {
     let code = "UNKNOWN_ERROR";
     let message = `Request failed with status ${response.status}`;
     let details: Record<string, unknown> | undefined;
