@@ -1,44 +1,177 @@
 openapi: 3.0.3
 info:
-  title: DDRE Intranet AI RAG Proxy (Placeholder)
-  version: 0.0.0
+  title: DDRE Intranet AI RAG Proxy
+  version: 0.1.0
   description: |
-    Placeholder contract for the secure AI proxy service.
-    All AI calls must be made server-side via a proxy (no secrets in SPFx).
+    Secure proxy for OpenAI-powered chatbot with RAG (Retrieval-Augmented Generation).
+    
+    This proxy:
+    - Receives questions from SPFx web parts
+    - Queries the Dante Library knowledge base
+    - Calls OpenAI API with retrieved context
+    - Returns answers with source citations
+    
+    **Security:** API keys are stored in Azure Key Vault. SPFx never sees credentials.
+    
+    **Consumer:** intranet-core (Dante Library chatbot)
+
 servers:
-  - url: https://example.invalid
+  - url: https://api-dev.dougdisher.com.au
+    description: Development
+  - url: https://api-test.dougdisher.com.au
+    description: Test
+  - url: https://api.dougdisher.com.au
+    description: Production
+
 paths:
+  /api/v1/ai/health:
+    get:
+      operationId: getHealth
+      summary: Health check
+      tags: [System]
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
   /api/v1/ai/query:
     post:
-      summary: Ask a question against the knowledge base
+      operationId: queryKnowledgeBase
+      summary: Ask a question against the Dante Library knowledge base
+      tags: [Chat]
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                question:
-                  type: string
-              required: [question]
+              $ref: '#/components/schemas/QueryRequest'
       responses:
         '200':
           description: Answer with citations
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  answer:
-                    type: string
-                  citations:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        title:
-                          type: string
-                        url:
-                          type: string
-                        snippet:
-                          type: string
+                $ref: '#/components/schemas/QueryResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+        '429':
+          description: Rate limit exceeded
+        '500':
+          description: Internal server error
+
+  /api/v1/ai/feedback:
+    post:
+      operationId: submitFeedback
+      summary: Submit feedback on an AI response
+      tags: [Chat]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackRequest'
+      responses:
+        '204':
+          description: Feedback recorded
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: SharePoint access token passed through from SPFx
+
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+
+    QueryRequest:
+      type: object
+      required:
+        - question
+      properties:
+        question:
+          type: string
+          description: The user's question
+          maxLength: 2000
+        conversationId:
+          type: string
+          format: uuid
+          description: Optional conversation ID for multi-turn conversations
+        maxCitations:
+          type: integer
+          default: 5
+          minimum: 1
+          maximum: 10
+          description: Maximum number of source citations to return
+
+    QueryResponse:
+      type: object
+      required:
+        - answer
+        - citations
+      properties:
+        answer:
+          type: string
+          description: The AI-generated answer
+        citations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Citation'
+        conversationId:
+          type: string
+          format: uuid
+          description: Conversation ID for follow-up questions
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Confidence score (0-1)
+
+    Citation:
+      type: object
+      required:
+        - title
+        - url
+      properties:
+        title:
+          type: string
+          description: Document title
+        url:
+          type: string
+          format: uri
+          description: Link to the source document
+        snippet:
+          type: string
+          description: Relevant excerpt from the source
+
+    FeedbackRequest:
+      type: object
+      required:
+        - conversationId
+        - rating
+      properties:
+        conversationId:
+          type: string
+          format: uuid
+        rating:
+          type: string
+          enum: [helpful, not_helpful]
+        comment:
+          type: string
+          maxLength: 500

@@ -1,0 +1,456 @@
+openapi: 3.0.3
+info:
+  title: DDRE Intranet PropertyMe API Proxy
+  version: 0.1.0
+  description: |
+    Secure proxy for PropertyMe (Property Management CRM) API.
+    
+    This proxy:
+    - Provides READ-ONLY access to PropertyMe data
+    - Handles authentication with PropertyMe API
+    - Enforces user permissions based on SharePoint groups
+    
+    **Security:** API keys are stored in Azure Key Vault. SPFx never sees credentials.
+    
+    **Consumer:** PM Dashboard app
+    
+    **Capabilities:** Read-only (no create, update, delete)
+
+servers:
+  - url: https://api-dev.dougdisher.com.au
+    description: Development
+  - url: https://api-test.dougdisher.com.au
+    description: Test
+  - url: https://api.dougdisher.com.au
+    description: Production
+
+paths:
+  /api/v1/propertyme/health:
+    get:
+      operationId: getHealth
+      summary: Health check
+      tags: [System]
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  # =========================================================================
+  # PROPERTIES
+  # =========================================================================
+  /api/v1/propertyme/properties:
+    get:
+      operationId: listProperties
+      summary: List properties
+      tags: [Properties]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageNumber'
+        - $ref: '#/components/parameters/PageSize'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, all]
+            default: active
+          description: Filter by property status
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by address or property name
+      responses:
+        '200':
+          description: List of properties
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyListResponse'
+        '401':
+          description: Unauthorized
+
+  /api/v1/propertyme/properties/{id}:
+    get:
+      operationId: getProperty
+      summary: Get a property by ID
+      tags: [Properties]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Property details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+        '404':
+          description: Property not found
+
+  # =========================================================================
+  # TENANTS
+  # =========================================================================
+  /api/v1/propertyme/tenants:
+    get:
+      operationId: listTenants
+      summary: List tenants
+      tags: [Tenants]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageNumber'
+        - $ref: '#/components/parameters/PageSize'
+        - name: propertyId
+          in: query
+          schema:
+            type: string
+          description: Filter by property ID
+      responses:
+        '200':
+          description: List of tenants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantListResponse'
+
+  /api/v1/propertyme/tenants/{id}:
+    get:
+      operationId: getTenant
+      summary: Get a tenant by ID
+      tags: [Tenants]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Tenant details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '404':
+          description: Tenant not found
+
+  # =========================================================================
+  # OWNERS
+  # =========================================================================
+  /api/v1/propertyme/owners:
+    get:
+      operationId: listOwners
+      summary: List property owners
+      tags: [Owners]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageNumber'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: List of owners
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OwnerListResponse'
+
+  /api/v1/propertyme/owners/{id}:
+    get:
+      operationId: getOwner
+      summary: Get an owner by ID
+      tags: [Owners]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Owner details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Owner'
+        '404':
+          description: Owner not found
+
+  # =========================================================================
+  # MAINTENANCE / WORK ORDERS
+  # =========================================================================
+  /api/v1/propertyme/maintenance:
+    get:
+      operationId: listMaintenanceRequests
+      summary: List maintenance requests
+      tags: [Maintenance]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageNumber'
+        - $ref: '#/components/parameters/PageSize'
+        - name: propertyId
+          in: query
+          schema:
+            type: string
+          description: Filter by property ID
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, in_progress, completed, cancelled]
+          description: Filter by status
+      responses:
+        '200':
+          description: List of maintenance requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaintenanceListResponse'
+
+  # =========================================================================
+  # DASHBOARD AGGREGATES
+  # =========================================================================
+  /api/v1/propertyme/dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      summary: Get dashboard summary metrics
+      description: Aggregated data for the PM Dashboard app
+      tags: [Dashboard]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: SharePoint access token passed through from SPFx
+
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Resource ID
+
+    PageNumber:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+      description: Page number
+
+    PageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+      description: Items per page
+
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+
+    Property:
+      type: object
+      properties:
+        id:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        propertyType:
+          type: string
+          enum: [residential, commercial, industrial]
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        status:
+          type: string
+          enum: [active, inactive]
+        ownerId:
+          type: string
+        currentTenantId:
+          type: string
+          nullable: true
+        rentAmount:
+          type: number
+          format: float
+        rentFrequency:
+          type: string
+          enum: [weekly, fortnightly, monthly]
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        suburb:
+          type: string
+        state:
+          type: string
+        postcode:
+          type: string
+        country:
+          type: string
+          default: Australia
+
+    PropertyListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        leaseStart:
+          type: string
+          format: date
+        leaseEnd:
+          type: string
+          format: date
+        propertyId:
+          type: string
+
+    TenantListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tenant'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    Owner:
+      type: object
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        propertyCount:
+          type: integer
+
+    OwnerListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Owner'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    MaintenanceRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        propertyId:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [open, in_progress, completed, cancelled]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        createdAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    MaintenanceListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MaintenanceRequest'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalProperties:
+          type: integer
+        activeProperties:
+          type: integer
+        totalTenants:
+          type: integer
+        occupancyRate:
+          type: number
+          format: float
+          description: Percentage (0-100)
+        openMaintenanceRequests:
+          type: integer
+        rentCollectedThisMonth:
+          type: number
+          format: float
+        rentOutstandingThisMonth:
+          type: number
+          format: float

@@ -1,0 +1,32 @@
+{
+  "name": "@ddre/pkg-api-client",
+  "version": "0.1.0",
+  "description": "Type-safe API clients for DDRE Intranet Azure proxy services",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf lib",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "lib"
+  ],
+  "keywords": [
+    "ddre",
+    "api-client",
+    "spfx"
+  ],
+  "license": "UNLICENSED",
+  "private": true,
+  "peerDependencies": {
+    "@microsoft/sp-http": "^1.22.0",
+    "@microsoft/sp-webpart-base": "^1.22.0"
+  },
+  "devDependencies": {
+    "@microsoft/sp-http": "1.22.1",
+    "@microsoft/sp-webpart-base": "1.22.1",
+    "typescript": "~5.8.0",
+    "rimraf": "^5.0.0"
+  }
+}
