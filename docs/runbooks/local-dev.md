@@ -10,7 +10,7 @@
 
 From the SPFx solution folder:
 
-- `cd spfx/ddre-intranet`
+- `cd spfx/intranet-core`
 - `npm install`
 
 ## Run (Workbench)

@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: spfx/ddre-intranet
+        working-directory: spfx/intranet-core
 
     steps:
       - name: Checkout
@@ -22,9 +22,9 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version-file: spfx/ddre-intranet/.nvmrc
+          node-version-file: spfx/intranet-core/.nvmrc
           cache: npm
-          cache-dependency-path: spfx/ddre-intranet/package-lock.json
+          cache-dependency-path: spfx/intranet-core/package-lock.json
 
       - name: Install
         run: npm ci

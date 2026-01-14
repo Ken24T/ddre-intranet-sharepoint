@@ -1,4 +1,4 @@
-# ddre-intranet
+# intranet-core
 
 ## Summary
 

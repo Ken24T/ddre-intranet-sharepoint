@@ -59,7 +59,7 @@ function Get-CurrentBranch {
 
 function Get-DefaultRemote {
   $remotes = (Invoke-Git -Args @('remote')).Split([Environment]::NewLine, [System.StringSplitOptions]::RemoveEmptyEntries)
-  if ($remotes -contains 'ddre-intranet-sharepoint') { return 'ddre-intranet-sharepoint' }
+  if ($remotes -contains 'intranet-core-sharepoint') { return 'intranet-core-sharepoint' }
   if ($remotes -contains 'origin') { return 'origin' }
   if ($remotes.Count -gt 0) { return $remotes[0] }
   throw 'No git remotes configured.'
@@ -146,7 +146,7 @@ function Set-PackageSolutionVersion {
 function Invoke-Gates {
   param([Parameter(Mandatory = $true)][string]$RepoRoot)
 
-  $spfxDir = Join-Path $RepoRoot 'spfx/ddre-intranet'
+  $spfxDir = Join-Path $RepoRoot 'spfx/intranet-core'
   if (-not (Test-Path -LiteralPath $spfxDir)) {
     throw "SPFx directory not found: $spfxDir"
   }
@@ -188,9 +188,9 @@ if (-not (Test-WorkingTreeClean)) {
 
 $remote = Get-DefaultRemote
 
-$pkgPath = Join-Path $repoRoot 'spfx/ddre-intranet/package.json'
-$lockPath = Join-Path $repoRoot 'spfx/ddre-intranet/package-lock.json'
-$solutionPath = Join-Path $repoRoot 'spfx/ddre-intranet/config/package-solution.json'
+$pkgPath = Join-Path $repoRoot 'spfx/intranet-core/package.json'
+$lockPath = Join-Path $repoRoot 'spfx/intranet-core/package-lock.json'
+$solutionPath = Join-Path $repoRoot 'spfx/intranet-core/config/package-solution.json'
 
 $pkg = Get-Content -LiteralPath $pkgPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $oldVersion = [string]$pkg.version
@@ -238,7 +238,7 @@ Update-JsonFileRaw -Path $lockPath -Replacements @{ ($lockOldToken) = $lockNewTo
 Set-PackageSolutionVersion -Path $solutionPath -NewVersion $newVersion
 
 # Format the bumped JSON files only (avoid modifying unrelated files)
-$spfxDir = Join-Path $repoRoot 'spfx/ddre-intranet'
+$spfxDir = Join-Path $repoRoot 'spfx/intranet-core'
 Push-Location $spfxDir
 try {
   & npx prettier --write 'config/package-solution.json' 'package.json' 'package-lock.json'
@@ -248,7 +248,7 @@ finally {
   Pop-Location
 }
 
-Invoke-Git -Args @('add', 'spfx/ddre-intranet/package.json', 'spfx/ddre-intranet/package-lock.json', 'spfx/ddre-intranet/config/package-solution.json') | Out-Null
+Invoke-Git -Args @('add', 'spfx/intranet-core/package.json', 'spfx/intranet-core/package-lock.json', 'spfx/intranet-core/config/package-solution.json') | Out-Null
 Invoke-Git -Args @('commit', '-m', $Message) | Out-Null
 
 # Create lightweight tag

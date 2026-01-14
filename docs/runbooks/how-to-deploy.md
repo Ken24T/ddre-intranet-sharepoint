@@ -11,26 +11,26 @@ This intranet is deployed as a SharePoint Framework (SPFx) solution package (`.s
   - SharePoint Admin (or App Catalog admin) to upload/deploy the `.sppkg`
   - Site Owner on the target site to add the app/web part to pages
 - Local dev toolchain:
-  - Node version from `spfx/ddre-intranet/.nvmrc` (currently Node 22.14.x)
+  - Node version from `spfx/intranet-core/.nvmrc` (currently Node 22.14.x)
   - npm
 
 ## Build the package
 
 From the SPFx solution folder:
 
-- `cd spfx/ddre-intranet`
+- `cd spfx/intranet-core`
 - `npm ci`
 - `npm run build`
 
 Output:
 
-- The packaged solution is written to `spfx/ddre-intranet/solution/ddre-intranet.sppkg`.
+- The packaged solution is written to `spfx/intranet-core/solution/intranet-core.sppkg`.
 
 ## Deploy to SharePoint App Catalog
 
 1. Go to the SharePoint Admin Center.
-2. Open **More features** → **Apps** → **App Catalog** (or your tenant app catalog site).
-3. Upload `ddre-intranet.sppkg`.
+2. Open **More features** ? **Apps** ? **App Catalog** (or your tenant app catalog site).
+3. Upload `intranet-core.sppkg`.
 4. When prompted:
    - Choose whether to **Make this solution available to all sites** (depends on governance).
    - Confirm deployment.
@@ -42,7 +42,7 @@ Notes:
 
 ## Add the web part to a site/page
 
-1. In the target site, go to **Site contents** → **New** → **App**.
+1. In the target site, go to **Site contents** ? **New** ? **App**.
 2. Add the **DDRE Intranet** app.
 3. Edit (or create) a modern page.
 4. Add the relevant web part(s) to the page and configure properties.
@@ -54,6 +54,6 @@ Notes:
 
 ## Troubleshooting
 
-- **Workbench URL doesn’t load**: `config/serve.json` uses `https://{tenantDomain}/_layouts/workbench.aspx`; replace `{tenantDomain}` with your tenant domain during local dev, or use a tenant-based workbench.
+- **Workbench URL doesn?t load**: `config/serve.json` uses `https://{tenantDomain}/_layouts/workbench.aspx`; replace `{tenantDomain}` with your tenant domain during local dev, or use a tenant-based workbench.
 - **Web part not available**: confirm the `.sppkg` is deployed, the app is added to the site, and the user has permissions.
 - **Build fails on Node version**: ensure you are using the Node version pinned by `.nvmrc`.

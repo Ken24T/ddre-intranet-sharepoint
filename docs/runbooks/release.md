@@ -29,7 +29,7 @@ What it does:
 
 - Runs SPFx gates: `format:check`, `lint`, `typecheck`, `test`, `build`
 - Bumps versions in:
-  - `spfx/ddre-intranet/package.json`
+  - `spfx/intranet-core/package.json`
   - `package-lock.json`
   - `config/package-solution.json`
 - Commits, tags `vX.Y.Z`, pushes the commit and tag to the configured remote
