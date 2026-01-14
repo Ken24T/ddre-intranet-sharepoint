@@ -1,0 +1,27 @@
+{
+  "name": "@ddre/pkg-theme",
+  "version": "0.1.0",
+  "description": "Shared design tokens for DDRE Intranet SPFx solutions",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf lib",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "lib"
+  ],
+  "keywords": [
+    "ddre",
+    "theme",
+    "design-tokens",
+    "spfx"
+  ],
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "typescript": "~5.8.0",
+    "rimraf": "^5.0.0"
+  }
+}

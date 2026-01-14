@@ -1,0 +1,9 @@
+{
+  "$schema": "./environment.schema.json",
+  "name": "prod",
+  "displayName": "Production",
+  "tenantDomain": "dougdisher.sharepoint.com",
+  "siteUrl": "https://dougdisher.sharepoint.com/sites/intranet",
+  "workbenchUrl": "https://dougdisher.sharepoint.com/_layouts/workbench.aspx",
+  "apiProxyBaseUrl": "https://api.dougdisher.com.au"
+}

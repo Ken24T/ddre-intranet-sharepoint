@@ -51,6 +51,24 @@ Contracts must remain **clean, portable, and safe to share**.
 
 ---
 
+## Available API Proxy Contracts
+
+| Contract | File | Capabilities | Consumer |
+|----------|------|--------------|----------|
+| AI RAG (OpenAI) | `ai-rag-proxy.openapi.yml` | Query, Feedback | intranet-core (Dante Library chatbot) |
+| Vault CRM | `vault-api-proxy.openapi.yml` | Full CRUD | Sales area apps |
+| PropertyMe | `propertyme-api-proxy.openapi.yml` | Read-only | PM Dashboard app |
+
+All proxies:
+- Are hosted in Azure (Functions/App Service)
+- Store API keys in Azure Key Vault
+- Authenticate users via SharePoint/Entra ID tokens
+- Follow consistent error response patterns
+
+See `/docs/architecture/api-integration.md` for the full architecture.
+
+---
+
 ## Folder Structure
 
 Contracts may be grouped by system or capability:
