@@ -3,7 +3,7 @@
   "solution": {
     "name": "ddre-intranet-client-side-solution",
     "id": "57ab61df-506d-4f2a-9e13-2131103e33c2",
-    "version": "0.0.12.0",
+    "version": "0.1.0.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
@@ -30,7 +30,7 @@
         "title": "ddre-intranet Feature",
         "description": "The feature that activates elements of the ddre-intranet solution.",
         "id": "f4912b85-dea2-4180-998e-7da01960eaa7",
-        "version": "0.0.12.0"
+        "version": "0.1.0.0"
       }
     ]
   },

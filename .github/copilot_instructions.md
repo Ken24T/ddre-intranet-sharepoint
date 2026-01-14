@@ -2,9 +2,7 @@
 
 ## Project Context
 
-This repository contains the **DDRE Intranet** built on
-**SharePoint Online** using **SharePoint Framework (SPFx)** with
-**TypeScript and React**.
+This repository contains the **DDRE Intranet** built on **SharePoint Online** using **SharePoint Framework (SPFx)** with **TypeScript and React**.
 
 The intranet is:
 
@@ -13,6 +11,12 @@ The intranet is:
 - Extended using SPFx web parts
 - Integrated with Azure backend services via secure proxies
 
+The repository is a **monorepo** containing:
+
+- **Intranet core SPFx solutions** (navigation, Dante Library, AI assistant)
+- **User-facing apps** (introduced from Phase 2 onward)
+- **Shared packages** (UI, SharePoint helpers, AI client)
+
 The primary developer is **Ken Boyle**.
 
 ---
@@ -20,10 +24,97 @@ The primary developer is **Ken Boyle**.
 ## Architectural Principles (Always Follow)
 
 - SharePoint Online is an **experience layer**, not an application server
-- All custom UI is implemented via **SPFx (client-side)**
+- All custom UI is implemented via **SPFx (client-side only)**
 - No secrets, API keys, or tokens are ever embedded in front-end code
 - Access control is **group-based and additive**
-- Reuse platform services before inventing custom solutions
+- Reuse Microsoft 365 platform services before inventing custom solutions
+- Prefer clarity, stability, and auditability over clever abstractions
+
+---
+
+## Repository & Monorepo Structure
+
+This is a **single Git repository** with one source of truth.
+
+### Folder Intent
+
+- `/spfx`
+  - All SPFx solutions live here
+  - Multiple SPFx solutions are expected over time
+  - Phase 1: intranet-core solution only
+  - Phase 2+: one SPFx solution per app
+
+- `/apps`
+  - Conceptual definition of user-facing tools
+  - Business context, documentation, requirements, and app-level metadata
+  - **No `.git` folders inside apps** (monorepo only)
+
+- `/packages`
+  - Shared, reusable TypeScript libraries
+  - No SharePoint or business assumptions
+
+- `/scripts`
+  - Dev, validation, and automation scripts
+
+- `/docs`
+  - Architecture decisions, governance notes, runbooks
+
+- `/contracts`
+  - API contracts, schemas, interface definitions
+
+---
+
+## Phase-Aware SPFx Strategy
+
+### Phase 1 (Foundation)
+
+- No business "apps" are shipped
+- One SPFx solution: **intranet-core**
+- Delivers:
+  - Site-wide navigation UX
+  - Dante Library (read-only Markdown rendering)
+  - Optional AI assistant (knowledge Q&A only)
+
+**Versioning:**
+- One SPFx solution version
+- Repo tags map directly to deployed intranet versions
+
+### Phase 2+ (Apps)
+
+- Each user-facing app has:
+  - Its own SPFx solution
+  - Its own `.sppkg`
+  - Its own semantic version
+
+- Apps are deployed independently via the App Catalog
+
+This enables:
+- Independent release cadence
+- Smaller blast radius
+- Clear audit and rollback story
+
+---
+
+## Versioning & Release Model
+
+### Git (Monorepo)
+
+- One Git history
+- No nested repositories or submodules
+- Tags represent **what was deployed**
+
+### SPFx Versioning
+
+- Each SPFx solution has its own version
+- Version must be kept in sync across:
+  - `package.json`
+  - `config/package-solution.json`
+
+### App Versioning
+
+- From Phase 2 onward, each app:
+  - Has its own SPFx solution version
+  - May also carry lightweight app metadata (e.g. `/apps/app-x/app.json`)
 
 ---
 
@@ -33,8 +124,8 @@ When generating code, prefer:
 
 - **TypeScript** (strict typing)
 - **React functional components** with hooks
-- **Fluent UI** components for layout and controls
-- **PnPjs** for SharePoint and Graph access
+- **Fluent UI** components
+- **PnPjs** for SharePoint / Graph access
 - **SPFx best practices** (no deprecated APIs)
 
 Avoid:
@@ -48,11 +139,20 @@ Avoid:
 
 ## SPFx Coding Guidelines
 
-- All web parts must be reusable and configurable
-- Use web part properties for site/list IDs and configuration
-- Respect SharePoint permissions (do not re-implement auth)
+- Web parts must be reusable and configurable
+- Use web part properties for site/list IDs
+- Respect SharePoint permissions (never re-implement auth)
 - Handle loading, empty, and error states explicitly
 - Log errors meaningfully (console + optional telemetry hook)
+
+---
+
+## Tenant & Environment Rules
+
+- Assume **Dev / Test / Prod** environments exist (or will exist)
+- Do not hard-code environment-specific values
+- Use configuration and environment-aware endpoints
+- SPFx packages must be safe to deploy across tenants
 
 ---
 
@@ -61,7 +161,7 @@ Avoid:
 - Prefer **SharePoint Lists** for simple data storage
 - Use **Dataverse** only when relational complexity is required
 - Never connect directly to databases from SPFx
-- All external APIs must be accessed via an **Azure proxy**
+- All external APIs must be accessed via a **secure Azure proxy**
 
 ---
 
@@ -70,14 +170,14 @@ Avoid:
 - AI features use **Retrieval-Augmented Generation (RAG)**
 - Knowledge sources are **read-only** (Dante Library)
 - AI responses must include **source citations**
-- No business rules are inferred without source grounding
+- No business rules inferred without source grounding
 - All AI calls go through a secure backend service
 
 ---
 
 ## UX Standards
 
-- Consistent layout: header, navigation, content area, status
+- Consistent layout: header, navigation, content, status
 - Card-based entry points for tools
 - Accessibility is mandatory (keyboard, contrast, semantics)
 - Avoid over-customising SharePoint chrome
@@ -88,17 +188,8 @@ Avoid:
 
 - Never bypass SharePoint or Entra ID security
 - Never grant direct user permissions in code
-- Assume content and tools will be audited
-- Prefer clarity and maintainability over cleverness
-
----
-
-## Code Quality Expectations
-
-- Clear naming and structure
-- Comments explain *why*, not *what*
-- Functions are small and testable
-- Errors fail safely and visibly
+- Assume all code may be audited
+- Prefer maintainability over short-term speed
 
 ---
 
@@ -106,35 +197,19 @@ Avoid:
 
 ### TCTBP (Recommended Cadence)
 
-#### TCTBP = Test, Commit, Tag, Bump, Push
+**TCTBP = Test, Commit, Tag, Bump, Push**
 
-When a change is complete and validated (e.g., the user confirms
-“looks good”, “works great”, “perfect”), follow this workflow.
+Used when a change is complete and validated.
 
-Versioning policy (repo-wide):
+Versioning rules:
 
-- The assistant chooses the semantic version number.
-- Every commit the assistant creates should be tagged with a `vX.Y.Z` tag.
-- The git tag and the app/solution version must match (same `X.Y.Z`) to make
-  rollbacks and audits straightforward.
-- Default to PATCH bumps (`Z`) unless the change is a new feature
-  (MINOR / `Y`) or a breaking change (MAJOR / `X`).
+- Repo tags use semantic versioning: `vX.Y.Z`
+- SPFx solution versions must match the release tag
+- Default to PATCH unless feature or breaking change
 
-Important: If you are about to run git commands, ask for confirmation first
-(especially for tagging and pushing).
+**Never run git commands without confirmation.**
 
-- **Test**: Prefer the closest equivalent of lint, typecheck, build, and a
-  quick runtime check. If no automated tests exist yet, do a focused manual
-  verification.
-- **Commit**: Make small, focused commits. Use conventional commits: `feat:`,
-  `fix:`, `refactor:`, `chore:`, `docs:`.
-- **Tag**: Tag releases using semantic versioning: `vX.Y.Z`.
-- **Bump**: Keep versions consistent across SPFx artifacts when present:
-  `package.json`, `config/package-solution.json` (solution version), and any
-  app-level version constant introduced later.
-- **Push**: Push the branch and tags to the configured remote.
-
-Example (PowerShell):
+Example:
 
 ```powershell
 git add -A
@@ -147,71 +222,38 @@ git push --follow-tags
 
 ### Release Trigger Phrase
 
-To avoid repeatedly typing “TCTBP”, the preferred trigger phrase is:
+- `release` = run TCTBP using PATCH bump
 
-- `release` = run TCTBP end-to-end using a PATCH bump by default
+Variants:
+- `release:patch`
+- `release:minor`
+- `release:major`
+- `release:dry-run`
 
-Important: `release` must **not** merge or rebase anything into `main`
-unless the user explicitly asks (e.g., “merge to main”). A release should
-operate on the current branch only.
-
-When the user explicitly asks to merge to `main`, the assistant should also
-propose a sensible next branch name and focus area based on the current
-workstream, for example:
-
-- `chore/ci-hardening`
-- `chore/release-automation`
-- `test/coverage-thresholds`
-- `docs/runbooks`
-- `feat/<area>-shell`
-
-Optional variants:
-
-- `release:patch` / `release:minor` / `release:major` = force the semver bump
-  type
-- `release:dry-run` = run tests + report the proposed commit/tag/version
-  changes, but do not modify git
-
-When you ask for a release, include (or I will propose) a conventional
-commit message like `docs: ...`, `feat: ...`, etc.
+Releases must not merge to `main` unless explicitly requested.
 
 ---
 
 ## Modularity & File Size
 
-- Keep files small and cohesive; avoid “god files”.
-- If a file is growing quickly or covering multiple responsibilities,
-  split proactively (components/hooks/services/helpers).
-- Use clear module boundaries and descriptive naming instead of relying on
-  comments.
-- Treat ~300 lines as a *warning threshold* for reviewing whether a split
-  would improve maintainability (not a hard rule).
-
----
-
-## When Unsure
-
-If there is ambiguity:
-
-- Choose the **simplest, most maintainable** option
-- Align with Microsoft 365 and SPFx guidance
-- Avoid introducing new infrastructure without justification
+- Avoid god files
+- Split by responsibility (components, hooks, services)
+- ~300 lines is a warning threshold, not a rule
 
 ---
 
 ## AI Assistant Behaviour (Handoff)
 
-After completing a feature or significant change, provide:
+After completing a feature, provide:
 
-1. **What Was Done** – brief summary of what changed
-2. **How to Test** – concrete steps (where to click/navigate, what inputs to use)
-3. **What to Expect** – expected UI/behaviour results
-4. **Edge Cases** – only if relevant
+1. What was done
+2. How to test
+3. What to expect
+4. Edge cases (if relevant)
 
 ---
 
 ## Summary Instruction to Copilot
 
-> Generate code as if this intranet will be maintained long-term, audited for
-> security, and extended incrementally by a small team.
+> Generate code as if this intranet will be maintained long-term, audited for security, and extended incrementally by a small team.
 
