@@ -64,6 +64,8 @@ npm run format       # Prettier
 
 ## Release Workflow
 
+**Before any commit:** Check the Problems panel and resolve all errors/warnings.
+
 Use the release script for versioned releases:
 
 ```powershell
