@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DDRE Intranet Environment Configuration",
+  "type": "object",
+  "required": ["name", "displayName", "tenantDomain", "siteUrl", "apiProxyBaseUrl"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "enum": ["dev", "test", "prod"],
+      "description": "Environment identifier"
+    },
+    "displayName": {
+      "type": "string",
+      "description": "Human-readable environment name"
+    },
+    "tenantDomain": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+\\.sharepoint\\.com$",
+      "description": "SharePoint tenant domain (e.g., contoso.sharepoint.com)"
+    },
+    "siteUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Full URL to the intranet site collection"
+    },
+    "workbenchUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "SPFx workbench URL for this tenant"
+    },
+    "apiProxyBaseUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Base URL for Azure API proxy services"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "./environment.schema.json",
+  "name": "test",
+  "displayName": "Test",
+  "tenantDomain": "ddretest.sharepoint.com",
+  "siteUrl": "https://ddretest.sharepoint.com/sites/intranet",
+  "workbenchUrl": "https://ddretest.sharepoint.com/_layouts/workbench.aspx",
+  "apiProxyBaseUrl": "https://api-test.dougdisher.com.au"
+}
