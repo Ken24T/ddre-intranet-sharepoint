@@ -47,7 +47,7 @@ npm run format       # Prettier
 
 ### Testing
 - Unit tests: Jest + Testing Library, co-located as `*.test.ts(x)`
-- Mock SP modules in tests (see [IntranetShellWebPart.test.ts](spfx/intranet-core/src/webparts/intranetShell/IntranetShellWebPart.test.ts))
+- Mock SP modules in tests (see `spfx/intranet-core/src/webparts/intranetShell/IntranetShellWebPart.test.ts`)
 - E2E: Playwright with env-based URL
 
 ## Critical Rules
