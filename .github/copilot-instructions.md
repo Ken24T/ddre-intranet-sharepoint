@@ -27,9 +27,31 @@ npm run test         # Jest unit tests (via Heft)
 npm run test:e2e     # Playwright e2e (requires PLAYWRIGHT_BASE_URL)
 npm run lint         # ESLint with zero-warnings policy
 npm run format       # Prettier
+
+# From packages/pkg-api-client/ or packages/pkg-theme/
+npm install          # Setup
+npm run build        # Compile TypeScript
 ```
 
 **Node version:** `22.14.x` (enforced in `package.json` engines)
+
+## Environment Configuration
+
+Environment-specific settings live in `spfx/intranet-core/config/environments/`:
+- `dev.json` – Local development
+- `test.json` – Test/staging environment  
+- `prod.json` – Production
+
+Use these configs for API endpoints and feature flags. Never hard-code environment-specific values.
+
+## Shared Packages
+
+| Package | Purpose |
+|---------|---------|
+| `pkg-api-client` | Typed clients for Azure proxy APIs (`AiClient`, `VaultClient`, `PropertyMeClient`) |
+| `pkg-theme` | Fluent UI theme tokens and DDRE brand colors |
+
+SPFx solutions consume these via local npm install (not published to registry yet).
 
 ## Code Patterns
 
@@ -86,6 +108,15 @@ Git tags use semantic versioning (`vX.Y.Z`) and must match SPFx solution version
 
 - Prefer TypeScript strict typing
 - Use Fluent UI components over custom styling
+- Apply theme tokens from `pkg-theme` for consistent branding
+- Use API clients from `pkg-api-client` for external service calls
 - Handle loading, empty, and error states explicitly
 - Keep files under ~300 lines; split by responsibility
 - Log errors meaningfully for debugging
+
+## Branch Naming
+
+- `feature/<name>` – New features
+- `fix/<name>` – Bug fixes
+- `docs/<name>` – Documentation updates
+- `infrastructure/<name>` – Build/CI/tooling changes
