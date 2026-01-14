@@ -84,11 +84,18 @@ SPFx solutions consume these via local npm install (not published to registry ye
 - **Phase 1 (current):** Single `intranet-core` solution for foundation features
 - **Phase 2+:** Each business app gets its own SPFx solution and `.sppkg`
 
-## Release Workflow
+## Release Workflow (TCTBP)
 
-**Before any commit:** Check the Problems panel and resolve all errors/warnings.
+**Before any commit:** Check the Problems panel (Terminal/Problems) and resolve all errors/warnings.
 
-Use the release script for versioned releases:
+**TCTBP** – Test, Commit, Tag, Bump, Push:
+1. **Test** – Run `npm run lint` and `npm run test` to verify no issues
+2. **Commit** – Stage and commit changes with a conventional commit message
+3. **Tag** – Create a semantic version tag (`vX.Y.Z`)
+4. **Bump** – Update version in `package.json` and `config/package-solution.json`
+5. **Push** – Push commits and tags to remote
+
+Use the release script for versioned releases (handles Tag + Bump automatically):
 
 ```powershell
 ./scripts/release.ps1 -Bump patch -Message "fix: description"
