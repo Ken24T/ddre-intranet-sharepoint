@@ -34,9 +34,10 @@ describe("IntranetShell", () => {
 
     const sidebar = screen.getByRole("complementary", { name: /sidebar/i });
     expect(within(sidebar).getByText("Document Library")).toBeInTheDocument();
-    expect(within(sidebar).getByText("AI Assistant")).toBeInTheDocument();
-    expect(within(sidebar).getByText("PropertyMe")).toBeInTheDocument();
-    expect(within(sidebar).getByText("Vault")).toBeInTheDocument();
+    expect(within(sidebar).getByText("Administration")).toBeInTheDocument();
+    expect(within(sidebar).getByText("Office")).toBeInTheDocument();
+    expect(within(sidebar).getByText("Property Management")).toBeInTheDocument();
+    expect(within(sidebar).getByText("Sales")).toBeInTheDocument();
   });
 
   it("displays status indicators in status bar", () => {

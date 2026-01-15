@@ -17,10 +17,10 @@ interface INavItem {
 const navItems: INavItem[] = [
   { key: 'home', label: 'Home', icon: 'Home', isActive: true },
   { key: 'library', label: 'Document Library', icon: 'Library' },
-  { key: 'ai', label: 'AI Assistant', icon: 'Robot' },
-  { key: 'propertyme', label: 'PropertyMe', icon: 'BuildingMultiple' },
-  { key: 'vault', label: 'Vault', icon: 'Lock' },
-  { key: 'reports', label: 'Reports', icon: 'ReportDocument' },
+  { key: 'administration', label: 'Administration', icon: 'Settings' },
+  { key: 'office', label: 'Office', icon: 'Teamwork' },
+  { key: 'property-management', label: 'Property Management', icon: 'CityNext' },
+  { key: 'sales', label: 'Sales', icon: 'Money' },
 ];
 
 /**
