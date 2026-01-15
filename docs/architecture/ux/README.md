@@ -1,4 +1,4 @@
-<!-- markdownlint-disable MD013 MD032 -->
+<!-- markdownlint-disable MD013 MD032 MD060 -->
 # UX Specifications
 
 Detailed UX specifications for the DDRE Intranet shell.
