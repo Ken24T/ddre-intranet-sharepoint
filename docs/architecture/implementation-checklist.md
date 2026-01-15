@@ -74,6 +74,23 @@ Consolidated TODO tracking for all UX specifications.
 
 ---
 
+## Modals & Dialogs
+
+> **Spec:** [ux/behaviors.md#modals--dialogs](ux/behaviors.md#modals--dialogs)
+
+- [ ] Build base `Modal` component with backdrop and focus trap
+- [ ] Implement modal sizing variants (small: 400px, medium: 560px, large: 720px)
+- [ ] Build `ConfirmationDialog` component with Cancel/Confirm buttons
+- [ ] Implement destructive confirmation variant (red confirm button)
+- [ ] Build `HiddenCardsManager` modal with restore functionality
+- [ ] Build `InfoModal` component for system messages
+- [ ] Implement close behaviors (ESC, backdrop click per modal type)
+- [ ] Implement modal open/close animations
+- [ ] Implement focus management (trap, return focus on close)
+- [ ] Add ARIA attributes for accessibility
+
+---
+
 ## Interaction Patterns
 
 > **Spec:** [ux/personalization.md#interaction-patterns](ux/personalization.md#interaction-patterns)

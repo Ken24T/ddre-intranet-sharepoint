@@ -76,6 +76,7 @@ preferences persisted to localStorage.
 | Error Handling | [ux/behaviors.md#error-handling](ux/behaviors.md#error-handling) |
 | Empty States | [ux/behaviors.md#empty-states](ux/behaviors.md#empty-states) |
 | AI Assistant | [ux/behaviors.md#ai-assistant-chatbot](ux/behaviors.md#ai-assistant-chatbot) |
+| Modals & Dialogs | [ux/behaviors.md#modals--dialogs](ux/behaviors.md#modals--dialogs) |
 
 ### Personalization
 
