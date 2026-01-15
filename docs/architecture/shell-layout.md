@@ -1,4 +1,4 @@
-<!-- markdownlint-disable MD013 MD032 MD040 -->
+<!-- markdownlint-disable MD013 MD032 MD040 MD060 -->
 # Intranet Shell Layout Specification
 
 ## Overview
@@ -68,6 +68,7 @@ preferences persisted to localStorage.
 
 | Behavior | Spec |
 |----------|------|
+| Navigation & Routing | [ux/behaviors.md#navigation--routing](ux/behaviors.md#navigation--routing) |
 | Search Experience | [ux/behaviors.md#search-experience](ux/behaviors.md#search-experience) |
 | Error Handling | [ux/behaviors.md#error-handling](ux/behaviors.md#error-handling) |
 | Empty States | [ux/behaviors.md#empty-states](ux/behaviors.md#empty-states) |

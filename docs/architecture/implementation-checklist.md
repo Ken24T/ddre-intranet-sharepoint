@@ -126,6 +126,27 @@ Consolidated TODO tracking for all UX specifications.
 
 ---
 
+## Navigation & Routing
+
+> **Spec:** [ux/behaviors.md#navigation--routing](ux/behaviors.md#navigation--routing)
+
+- [ ] Create SharePoint pages for each Hub (Home, PM, Sales, Admin)
+- [ ] Configure page-level permissions per Hub
+- [ ] Implement hash-based router for within-Hub navigation
+- [ ] Add `openMode` property to `ICardConfiguration` interface
+- [ ] Implement inline tool rendering in content area
+- [ ] Implement `window.open()` handling for window mode cards
+- [ ] Implement new tab handling for external links
+- [ ] Add "Back to Hub" button for inline tools
+- [ ] Implement browser history state management
+- [ ] Add scroll position restoration on back navigation
+- [ ] Update sidebar to show only permitted Hubs
+- [ ] Implement current Hub indicator styling in sidebar
+- [ ] Add loading spinner for inline tool transitions
+- [ ] Add focus management for navigation (focus to tool on open, back to card on close)
+
+---
+
 ## Accessibility
 
 > **Spec:** [ux/standards.md#accessibility-standards](ux/standards.md#accessibility-standards)
