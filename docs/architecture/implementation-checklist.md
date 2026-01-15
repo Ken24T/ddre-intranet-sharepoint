@@ -53,6 +53,27 @@ Consolidated TODO tracking for all UX specifications.
 
 ---
 
+## User Profile Menu
+
+> **Spec:** [ux/components.md#user-profile-menu](ux/components.md#user-profile-menu)
+
+- [ ] Build `ProfileAvatar` component with Microsoft Graph photo fetch
+- [ ] Implement initials fallback when photo unavailable
+- [ ] Build `ProfileMenu` dropdown component
+- [ ] Add "Show AI Assistant" menu item (conditional on hidden state)
+- [ ] Build `SettingsPanel` modal/slide-out component
+- [ ] Implement theme setting (Light/Dark/System)
+- [ ] Implement sidebar default state setting
+- [ ] Implement card grid columns setting
+- [ ] Build hidden cards management UI with restore functionality
+- [ ] Implement "Reset to Defaults" with confirmation dialog
+- [ ] Create `IUserPreferences` interface consolidating all preferences
+- [ ] Implement theme application before React render (avoid flash)
+- [ ] Add system theme preference listener (`prefers-color-scheme`)
+- [ ] Configure Help & Support link to Cognito Form
+
+---
+
 ## Interaction Patterns
 
 > **Spec:** [ux/personalization.md#interaction-patterns](ux/personalization.md#interaction-patterns)

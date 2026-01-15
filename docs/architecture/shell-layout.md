@@ -63,6 +63,9 @@ preferences persisted to localStorage.
 | Card Grid | [ux/components.md#card-grid](ux/components.md#card-grid) |
 | Function Cards | [ux/components.md#function-cards](ux/components.md#function-cards) |
 | Status Bar | [ux/components.md#status-bar](ux/components.md#status-bar) |
+| User Profile Menu | [ux/components.md#user-profile-menu](ux/components.md#user-profile-menu) |
+| Settings Panel | [ux/components.md#settings-panel](ux/components.md#settings-panel) |
+| Theme Support | [ux/components.md#theme-support](ux/components.md#theme-support) |
 
 ### Behaviors
 

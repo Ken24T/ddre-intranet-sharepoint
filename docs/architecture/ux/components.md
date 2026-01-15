@@ -11,6 +11,7 @@ Core UI components that make up the intranet shell.
 | **Interactions** | [personalization.md](personalization.md#interaction-patterns) | Hover, focus, drag states |
 | **Empty States** | [behaviors.md](behaviors.md#empty-states) | What to show when no content |
 | **Error Handling** | [behaviors.md](behaviors.md#error-handling) | API failures, toasts |
+| **AI Assistant** | [behaviors.md](behaviors.md#ai-assistant-chatbot) | Profile menu restore option |
 
 ---
 
@@ -364,3 +365,246 @@ interface IUserCardPreferences {
 1. Pinned cards appear first (in pinned order)
 2. User-ordered cards next
 3. Remaining cards in admin-defined default order
+
+---
+
+## User Profile Menu
+
+Dropdown menu accessed via the user avatar in the navbar (top-right).
+
+> **Related:** [personalization.md#user-preferences](personalization.md#user-preferences), [behaviors.md#ai-assistant-chatbot](behaviors.md#ai-assistant-chatbot)
+
+### Profile Avatar
+
+| Property | Value |
+|----------|-------|
+| Position | Navbar, far right |
+| Size | 32px diameter |
+| Source | Microsoft Graph profile photo |
+| Fallback | Initials on themed background |
+
+**Photo retrieval:**
+
+```typescript
+// Microsoft Graph endpoint for user photo
+GET https://graph.microsoft.com/v1.0/me/photo/$value
+```
+
+If photo unavailable, display user's initials (first + last name) on a
+colored circle using theme `themePrimary`.
+
+### Menu Structure
+
+```
+┌─────────────────────────────────────┐
+│  [Photo]  Ken Boyle                 │
+│           ken.boyle@ddre.com.au     │
+├─────────────────────────────────────┤
+│  ⚙️  Settings                        │
+│  🤖  Show AI Assistant              │  ← Only when hidden
+├─────────────────────────────────────┤
+│  🌓  Theme: Light ▼                 │  ← Quick toggle
+├─────────────────────────────────────┤
+│  ❓  Help & Support                 │
+└─────────────────────────────────────┘
+```
+
+### Menu Sections
+
+#### User Header
+
+| Element | Source |
+|---------|--------|
+| Photo | Microsoft Graph or initials fallback |
+| Display name | `context.pageContext.user.displayName` |
+| Email | `context.pageContext.user.email` |
+
+Non-interactive header section — just displays user info.
+
+#### Settings
+
+Opens a settings panel/modal with all user preferences.
+
+See [Settings Panel](#settings-panel) below.
+
+#### Show AI Assistant
+
+> Only visible when AI Assistant is hidden for the session.
+
+Clicking restores the AI Assistant floating button.
+
+See [behaviors.md#visibility-toggle](behaviors.md#visibility-toggle).
+
+#### Theme Toggle
+
+Quick theme switcher without opening full settings.
+
+| Option | Description |
+|--------|-------------|
+| Light | Light theme (default) |
+| Dark | Dark theme |
+| System | Follow OS preference |
+
+Clicking cycles through options or opens a submenu.
+
+See [Theme Support](#theme-support) below.
+
+#### Help & Support
+
+Opens external Cognito Form in new tab for support requests.
+
+| Property | Value |
+|----------|-------|
+| Behavior | Opens in new tab |
+| URL | Cognito Form URL (configured per environment) |
+
+### Menu Behavior
+
+| Property | Value |
+|----------|-------|
+| Trigger | Click on avatar |
+| Position | Anchored below avatar, right-aligned |
+| Width | 280px |
+| Z-index | `zIndex.dropdown` (200) |
+| Close | Click outside, Escape key, or menu item click |
+
+### Menu Accessibility
+
+- Menu button has `aria-haspopup="menu"` and `aria-expanded`
+- Menu items are focusable with arrow key navigation
+- Escape closes menu and returns focus to avatar button
+
+---
+
+## Settings Panel
+
+Modal or slide-out panel for user preferences.
+
+### Panel Layout
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Settings                                    [×]    │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  APPEARANCE                                         │
+│  ─────────────────────────────────────────────────  │
+│  Theme                          [Light ▼]          │
+│                                                     │
+│  LAYOUT                                             │
+│  ─────────────────────────────────────────────────  │
+│  Sidebar default state          [Expanded ▼]       │
+│  Card grid columns              [3 ▼]              │
+│                                                     │
+│  CARDS                                              │
+│  ─────────────────────────────────────────────────  │
+│  Hidden cards                   [Manage...]        │
+│                                                     │
+│  ─────────────────────────────────────────────────  │
+│  [Reset to Defaults]                               │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+### Settings Options
+
+#### Appearance
+
+| Setting | Type | Options | Storage |
+|---------|------|---------|---------|
+| Theme | Dropdown | Light, Dark, System | localStorage |
+
+#### Layout
+
+| Setting | Type | Options | Storage |
+|---------|------|---------|---------|
+| Sidebar default state | Dropdown | Expanded, Collapsed | localStorage |
+| Card grid columns | Dropdown | 1, 2, 3, 4, 5, 6 | localStorage |
+
+#### Cards
+
+| Setting | Type | Description | Storage |
+|---------|------|-------------|---------|
+| Hidden cards | Manage button | Opens list of hidden cards with restore option | localStorage |
+
+#### Reset to Defaults
+
+Button that resets all preferences to defaults:
+
+- Theme → Light
+- Sidebar → Expanded, 240px width
+- Card grid → 3 columns
+- Card order → Admin-defined default
+- Hidden cards → None (all restored)
+- Pinned cards → None
+
+**Confirmation required:** "Reset all settings to defaults? This cannot be undone."
+
+### Settings Persistence
+
+All settings stored in localStorage under `ddre-intranet-preferences`:
+
+```typescript
+interface IUserPreferences {
+  theme: 'light' | 'dark' | 'system';
+  sidebar: {
+    width: number;
+    collapsed: boolean;
+    defaultState: 'expanded' | 'collapsed';
+  };
+  cardGrid: {
+    columns: number;
+  };
+  // Card preferences stored per-Hub (see IUserCardPreferences)
+}
+```
+
+---
+
+## Theme Support
+
+Light and dark theme support using Fluent UI theming.
+
+### Theme Options
+
+| Theme | Description |
+|-------|-------------|
+| Light | Default light theme |
+| Dark | Dark theme for low-light environments |
+| System | Follows `prefers-color-scheme` media query |
+
+### Implementation
+
+```typescript
+// Detect system preference
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+// Apply theme
+const theme = userPreference === 'system' 
+  ? (prefersDark ? darkTheme : lightTheme)
+  : (userPreference === 'dark' ? darkTheme : lightTheme);
+```
+
+### Theme Tokens
+
+Use Fluent UI theme tokens — no hard-coded colors:
+
+| Token | Light | Dark |
+|-------|-------|------|
+| `bodyBackground` | White | Near-black |
+| `bodyText` | Near-black | White |
+| `themePrimary` | DDRE brand color | DDRE brand color (adjusted) |
+
+> **Note:** Specific DDRE brand colors to be defined when branding info available.
+
+### Theme Persistence
+
+- Saved to localStorage immediately on change
+- Applied on page load before React renders (avoid flash)
+- System preference changes detected via `matchMedia` listener
+
+### Theme Accessibility
+
+- All color combinations must maintain WCAG 2.1 AA contrast ratios
+- Test both themes with axe DevTools
+- Ensure focus indicators visible in both themes
