@@ -48,9 +48,493 @@ preferences persisted to localStorage.
 
 **Contents:**
 - Hamburger menu (mobile) or logo (desktop)
-- Global search input
+- Search icon (expandable)
 - Notification bell
 - User profile avatar/menu
+
+---
+
+## Search Experience
+
+### Search Scope
+
+Search includes all content the user has permission to access:
+
+| Content Type | Source | Notes |
+|--------------|--------|-------|
+| Pages | SharePoint pages across all Hubs | |
+| Documents | SharePoint document libraries | |
+| Policies | Dante Library (Markdown files) | |
+| People | Microsoft 365 directory | |
+| Tools/Cards | Function card metadata | |
+
+**Permission trimming:** Results are filtered server-side to only show content
+the user has read access to. No results leak across permission boundaries.
+
+### Search Input
+
+#### Collapsed State (Default)
+
+| Property | Value |
+|----------|-------|
+| Icon | `Search24Regular` |
+| Position | Navbar, left of notifications |
+| Size | 32px touch target |
+| Behavior | Click to expand |
+
+#### Expanded State
+
+| Property | Value |
+|----------|-------|
+| Width | 320px (or available space on mobile) |
+| Animation | Expand left from icon (fast: 100ms) |
+| Placeholder | "Search pages, documents, people..." |
+| Auto-focus | Yes, when expanded |
+| Close | Click outside, Escape key, or clear + blur |
+
+```
+Collapsed:                    Expanded:
+┌──────────────────────┐      ┌──────────────────────────────────────┐
+│  [Logo]    [🔍][🔔][👤]│  →   │  [Logo]  [🔍 Search...         ][🔔][👤]│
+└──────────────────────┘      └──────────────────────────────────────┘
+```
+
+### Quick Results Dropdown
+
+Appears below search input as user types (after 2+ characters).
+
+| Property | Value |
+|----------|-------|
+| Width | Same as expanded search input |
+| Max height | 400px (scrollable) |
+| Debounce | 300ms after typing stops |
+| Position | Anchored below search input |
+| Z-index | `zIndex.dropdown` (200) |
+
+#### Results Layout
+
+Results grouped by content type:
+
+```
+┌─────────────────────────────────────┐
+│ 🔍 "budget"                      ×  │
+├─────────────────────────────────────┤
+│ PAGES                               │
+│   📄 Marketing Budget Guidelines    │
+│   📄 Annual Budget Process          │
+├─────────────────────────────────────┤
+│ DOCUMENTS                           │
+│   📎 Budget_Template_2026.xlsx      │
+│   📎 Q4_Budget_Report.pdf           │
+├─────────────────────────────────────┤
+│ POLICIES                            │
+│   📚 Budget Approval Policy         │
+├─────────────────────────────────────┤
+│ PEOPLE                              │
+│   👤 Sarah Budget (Finance)         │
+├─────────────────────────────────────┤
+│ ────────────────────────────────    │
+│ Press Enter for all results →       │
+└─────────────────────────────────────┘
+```
+
+| Group | Max Items | Icon |
+|-------|-----------|------|
+| Pages | 3 | `Document24Regular` |
+| Documents | 3 | `Attach24Regular` |
+| Policies | 2 | `Library24Regular` |
+| People | 2 | `Person24Regular` |
+| Tools | 2 | `Apps24Regular` |
+
+**Interactions:**
+- Click result to navigate directly
+- Arrow keys to navigate results
+- Enter on result to open it
+- Enter with no selection opens full results page
+
+### Full Results Page
+
+Dedicated page for complete search results with filtering.
+
+#### URL Structure
+
+```
+/search?q={query}&hub={hubId}&type={contentType}
+```
+
+#### Layout
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ NAVBAR                                                       │
+├─────────┬───────────────────────────────────────────────────┤
+│         │  Search Results for "budget"         [🔍 budget ] │
+│ SIDEBAR │                                                    │
+│         │  ┌─────────────┐  ┌───────────────────────────┐   │
+│         │  │ FILTERS     │  │ RESULTS                   │   │
+│         │  │             │  │                           │   │
+│         │  │ Hub         │  │ 📄 Marketing Budget...    │   │
+│         │  │ ☑ All       │  │    Sales Hub · Page       │   │
+│         │  │ ☐ PM Hub    │  │                           │   │
+│         │  │ ☐ Sales Hub │  │ 📎 Budget_Template...     │   │
+│         │  │             │  │    PM Hub · Document      │   │
+│         │  │ Type        │  │                           │   │
+│         │  │ ☑ All       │  │ 📚 Budget Approval...     │   │
+│         │  │ ☐ Pages     │  │    Dante Library · Policy │   │
+│         │  │ ☐ Documents │  │                           │   │
+│         │  │ ☐ Policies  │  │ [Load more...]            │   │
+│         │  │ ☐ People    │  │                           │   │
+│         │  └─────────────┘  └───────────────────────────┘   │
+│         │                                                    │
+├─────────┴───────────────────────────────────────────────────┤
+│ STATUS BAR                                                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Filters Panel
+
+| Filter | Type | Options |
+|--------|------|---------|
+| Hub | Checkbox list | All, PM Hub, Sales Hub, Admin Hub, etc. |
+| Content Type | Checkbox list | All, Pages, Documents, Policies, People, Tools |
+
+**Filter behavior:**
+- "All" checked by default
+- Selecting specific items unchecks "All"
+- Clearing all selections re-checks "All"
+- Filters update URL query params
+- Results update immediately (no submit button)
+
+#### Results List
+
+| Element | Description |
+|---------|-------------|
+| Icon | Content type icon |
+| Title | Clickable, navigates to item |
+| Snippet | Text excerpt with search term highlighted |
+| Metadata | Hub name · Content type · Last modified |
+| Pagination | "Load more" button or infinite scroll |
+
+**Results per page:** 20 initially, load 20 more on demand.
+
+### Search Implementation Notes
+
+- Use SharePoint Search REST API or Microsoft Graph Search
+- Implement search suggestions/autocomplete (future enhancement)
+- Track popular searches for analytics (future enhancement)
+- Consider search result ranking improvements (future enhancement)
+
+---
+
+## Error Handling
+
+### Toast Notifications
+
+Toast notifications provide non-blocking feedback for errors and other events.
+
+#### Toast Anatomy
+
+```
+┌──────────────────────────────────────────────────┐
+│  [Icon]  Message text here            [×] [↻]   │
+└──────────────────────────────────────────────────┘
+```
+
+| Element | Description |
+|---------|-------------|
+| Icon | Severity indicator (info, warning, error, success) |
+| Message | Brief description of what happened |
+| Dismiss (×) | Manual close button |
+| Retry (↻) | Optional, for retryable errors |
+
+#### Toast Positioning
+
+| Property | Value |
+|----------|-------|
+| Position | Bottom-right, above status bar |
+| Offset | 24px from right, 48px from bottom |
+| Z-index | `zIndex.overlay` (300) |
+| Max width | 400px |
+| Stack | Multiple toasts stack upward |
+
+#### Toast Types
+
+| Type | Icon | Background | Auto-dismiss |
+|------|------|------------|--------------|
+| Info | `Info24Regular` | Theme `neutralLighter` | 5 seconds |
+| Success | `CheckmarkCircle24Regular` | Light green tint | 3 seconds |
+| Warning | `Warning24Regular` | Light orange tint | 8 seconds |
+| Error | `ErrorCircle24Regular` | Light red tint | No (manual) |
+
+#### Toast Animations
+
+| Event | Animation |
+|-------|-----------|
+| Appear | Slide in from right + fade in (normal: 200ms) |
+| Dismiss | Fade out + slide right (fast: 100ms) |
+| Stack shift | Slide up (fast: 100ms) |
+
+### API Failure Handling
+
+When Vault, PropertyMe, Search, or other APIs fail:
+
+| Scenario | User Experience |
+|----------|-----------------|
+| Initial load failure | Toast: "Unable to load [service]. Some features may be unavailable." |
+| Action failure (save, etc.) | Toast: "Failed to save. Please try again." with Retry button |
+| Partial failure | Component shows "—" or placeholder; toast explains issue |
+| Timeout | Toast: "[Service] is taking longer than expected." |
+
+#### Retry Behavior
+
+Configurable auto-retry for transient failures:
+
+```typescript
+interface IRetryConfig {
+  enabled: boolean;      // Whether auto-retry is on
+  maxAttempts: number;   // Max retry attempts (default: 3)
+  delayMs: number;       // Delay between retries (default: 1000)
+  backoff: boolean;      // Exponential backoff (default: true)
+}
+```
+
+**Default retry configuration:**
+
+| Service | Auto-retry | Max Attempts | Notes |
+|---------|------------|--------------|-------|
+| Vault API | Yes | 3 | Config/health checks |
+| PropertyMe API | Yes | 3 | Data operations |
+| Search API | Yes | 2 | User-initiated searches |
+| Card dynamic data | Yes | 2 | Background refresh |
+| Notifications | No | — | Non-critical |
+
+**Retry UX:**
+- First attempt fails → auto-retry silently
+- All retries fail → show toast with manual Retry button
+- User clicks Retry → reset attempt count, try again
+
+### Access Denied (403)
+
+When user lacks permission to access content:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ NAVBAR                                                       │
+├─────────┬───────────────────────────────────────────────────┤
+│         │                                                    │
+│ SIDEBAR │         ┌─────────────────────────────────┐       │
+│         │         │          🔒                      │       │
+│         │         │                                  │       │
+│         │         │    Access Denied                 │       │
+│         │         │                                  │       │
+│         │         │    You don't have permission     │       │
+│         │         │    to view this content.         │       │
+│         │         │                                  │       │
+│         │         │    If you believe this is an     │       │
+│         │         │    error, contact your manager   │       │
+│         │         │    or IT administrator.          │       │
+│         │         │                                  │       │
+│         │         │    [Go to Home]                  │       │
+│         │         │                                  │       │
+│         │         └─────────────────────────────────┘       │
+│         │                                                    │
+├─────────┴───────────────────────────────────────────────────┤
+│ STATUS BAR                                                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Element | Value |
+|---------|-------|
+| Icon | `LockClosed24Regular` (64px, muted color) |
+| Title | "Access Denied" |
+| Message | Explanation + contact guidance |
+| Action | "Go to Home" button |
+
+### Not Found (404)
+
+When page or resource doesn't exist:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ NAVBAR                                                       │
+├─────────┬───────────────────────────────────────────────────┤
+│         │                                                    │
+│ SIDEBAR │         ┌─────────────────────────────────┐       │
+│         │         │          🔍                      │       │
+│         │         │                                  │       │
+│         │         │    Page Not Found                │       │
+│         │         │                                  │       │
+│         │         │    We couldn't find the page     │       │
+│         │         │    you're looking for.           │       │
+│         │         │                                  │       │
+│         │         │    The page may have been        │       │
+│         │         │    moved or deleted.             │       │
+│         │         │                                  │       │
+│         │         │    [Go to Home]  [Search]        │       │
+│         │         │                                  │       │
+│         │         └─────────────────────────────────┘       │
+│         │                                                    │
+├─────────┴───────────────────────────────────────────────────┤
+│ STATUS BAR                                                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Element | Value |
+|---------|-------|
+| Icon | `SearchInfo24Regular` (64px, muted color) |
+| Title | "Page Not Found" |
+| Message | Explanation + suggestions |
+| Actions | "Go to Home" + "Search" buttons |
+
+### Network Offline
+
+When connection is lost:
+
+#### Detection
+
+Monitor `navigator.onLine` and `online`/`offline` events.
+
+#### Offline Banner
+
+Persistent banner at top of content area (below navbar):
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ⚠️  You're offline. Some features may be unavailable.  [×] │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Property | Value |
+|----------|-------|
+| Position | Top of content area, full width |
+| Background | Theme `warningBackground` or light orange |
+| Dismissible | Yes, but reappears on page navigation while offline |
+
+#### Offline Behavior
+
+| Feature | Offline Behavior |
+|---------|------------------|
+| Cached pages | Display normally |
+| Card dynamic data | Show cached or "—" |
+| Search | Disabled, show message |
+| AI Assistant | Disabled, show message |
+| Card reordering | Works (localStorage) |
+| Sidebar resize | Works (localStorage) |
+
+#### Reconnection
+
+When connection restored:
+- Remove offline banner
+- Toast: "You're back online" (success, auto-dismiss)
+- Refresh stale data in background
+
+---
+
+## Empty States
+
+Empty states provide feedback when there's no content to display.
+
+### Card Grid Empty
+
+When user has no cards available (no permissions or no cards assigned to Hub):
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│                         📋                                  │
+│                                                             │
+│              No tools available                             │
+│                                                             │
+│     You don't have any tools assigned to this Hub.         │
+│     Contact your administrator if you believe this         │
+│     is an error.                                            │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Scenario | Message |
+|----------|---------|
+| No permissions | "You don't have any tools assigned to this Hub." |
+| Hub has no cards | "No tools have been configured for this Hub yet." |
+| All cards hidden | "You've hidden all cards. [Restore cards]" |
+
+### Search No Results
+
+When search returns nothing:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│              No results for "xyzzy"                         │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Simple, clean — no suggestions or distractions. Just acknowledge the empty result.
+
+### Notifications Empty
+
+When there are no system notifications, show an encouraging message:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ✨  All caught up! No news is good news.                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Dad joke rotation** (randomly selected):
+
+| Message |
+|---------|
+| "All caught up! No news is good news." |
+| "Nothing to see here... move along! 👀" |
+| "Inbox zero? More like notification zero! 🎉" |
+| "It's quiet... too quiet. 🤫" |
+| "You're all caught up! Time for a coffee? ☕" |
+| "No notifications. The system is impressed. 👏" |
+
+**Display behavior:**
+- Show in status bar notifications area when empty
+- Muted/subtle text color
+- No icon (or subtle emoji)
+
+### Dynamic Card Data Empty
+
+When a card has no dynamic data to display:
+
+**Behavior:** Hide the dynamic info section entirely.
+
+The card shows only:
+- Icon
+- Title
+- Description
+- Context menu
+
+The dynamic info area is simply not rendered — no placeholder, no "No data" message.
+This keeps cards clean and consistent in height when data isn't available.
+
+```
+With data:                          Without data:
+┌─────────────────────────┐         ┌─────────────────────────┐
+│  [Icon] Title      [⋮]  │         │  [Icon] Title      [⋮]  │
+│                         │         │                         │
+│  Description text...    │         │  Description text...    │
+│                         │         │                         │
+│  ┌───────────────────┐  │         │                         │
+│  │ 5 items pending   │  │         │                         │
+│  └───────────────────┘  │         │                         │
+└─────────────────────────┘         └─────────────────────────┘
+```
+
+### Empty State Styling
+
+| Element | Style |
+|---------|-------|
+| Container | Centered in available space |
+| Icon | 48-64px, muted color (theme `neutralSecondary`) |
+| Title | Bold, theme `neutralPrimary` |
+| Message | Regular, theme `neutralSecondary` |
+| Action (if any) | Link or secondary button |
 
 ---
 
@@ -200,6 +684,159 @@ Using `@dnd-kit/sortable` for accessible card reordering.
 - Focus visible on cards
 - Screen reader announcements for drag operations
 - Keyboard-only reordering supported
+
+---
+
+## Function Cards
+
+Function cards are the primary entry points to tools and apps on the intranet.
+Cards are Hub-specific but can be configured to appear across multiple Hubs.
+Only cards the user has permission to access are displayed.
+
+### Card Anatomy
+
+```
+┌─────────────────────────────────────────┐
+│  ┌────┐                          ┌───┐  │
+│  │Icon│  Title                   │ ⋮ │  │  ← Context menu
+│  └────┘                          └───┘  │
+│                                         │
+│  Description text that explains         │
+│  the purpose of this tool...            │
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │     Dynamic Info Area           │    │  ← Live data preview
+│  │     "5 properties pending"      │    │
+│  └─────────────────────────────────┘    │
+│                                         │
+│  [Badge]              Last updated: 2h  │  ← Optional metadata
+└─────────────────────────────────────────┘
+```
+
+### Card Dimensions
+
+| Property | Value | Notes |
+|----------|-------|-------|
+| Min width | 280px | Responsive grid constraint |
+| Min height | 180px | Ensures consistent layout |
+| Max height | 240px | Prevents overly tall cards |
+| Padding | `spacing.md` (16px) | Inner spacing |
+| Border radius | `borderRadius.lg` (8px) | Rounded corners |
+
+### Card Elements
+
+| Element | Position | Required | Notes |
+|---------|----------|----------|-------|
+| Icon | Top-left | Yes | 32px, from Fluent UI icons |
+| Title | Top, beside icon | Yes | Bold, truncate if too long |
+| Context menu | Top-right | Yes | "⋮" button, opens menu |
+| Description | Below title | Yes | 2-3 lines max, truncate with ellipsis |
+| Dynamic info | Center/lower | Optional | Live data from tool API |
+| Badge | Bottom-left | Optional | Status indicator (e.g., "New", "3 alerts") |
+| Metadata | Bottom-right | Optional | Last updated, item count |
+
+### Card Styling
+
+| State | Background | Shadow | Border |
+|-------|------------|--------|--------|
+| Default | Theme `bodyBackground` | `shadow.card` | 1px `neutralLight` |
+| Hover | Theme `bodyBackground` | `shadow.cardHover` | 1px `themePrimary` |
+| Focused | Theme `bodyBackground` | `shadow.cardHover` | 2px `themePrimary` |
+| Dragging | Theme `bodyBackground` | `shadow.cardHover` | 1px `themePrimary`, 0.9 opacity |
+
+### Card Actions
+
+#### Primary Action
+
+Click anywhere on card (except context menu) to open the tool.
+
+#### Context Menu
+
+Right-click or click "⋮" button to open context menu:
+
+| Action | Icon | Description |
+|--------|------|-------------|
+| Open | `Open24Regular` | Open tool (same as click) |
+| Open in new tab | `OpenRegular` | Open in new browser tab |
+| Pin to top | `Pin24Regular` | Move card to first position |
+| Unpin | `PinOff24Regular` | Remove pin, return to default order |
+| Hide card | `EyeOff24Regular` | Hide from view (can restore in settings) |
+
+**Note:** "Hide card" only hides from user's view, not from the Hub configuration.
+
+### Dynamic Information
+
+Cards can display live data relevant to the tool:
+
+| Card | Dynamic Info Example |
+|------|---------------------|
+| PM Dashboard | "5 properties pending review" |
+| Dante Library | "3 new policies this week" |
+| AI Assistant | "Ask me anything" (static) |
+| Marketing Budget | "Current budget: $12,450" |
+| Administration | "2 access requests pending" |
+
+**Data fetching:**
+- Fetch on initial load
+- Cache for 5 minutes (configurable)
+- Show skeleton shimmer while loading
+- Show "—" if fetch fails (don't break the card)
+
+### Hub-Specific Configuration
+
+Cards are assigned to Hubs by administrators.
+
+#### Hub Assignment Model
+
+```typescript
+interface ICardConfiguration {
+  id: string;                    // Unique card identifier
+  title: string;
+  description: string;
+  icon: string;                  // Fluent UI icon name
+  toolUrl: string;               // URL or route to open
+  hubs: string[];                // Hub IDs where card appears
+  permissions: string[];         // Entra ID groups with access
+  dynamicDataEndpoint?: string;  // API endpoint for live data
+  order: number;                 // Default display order
+}
+```
+
+#### Card Assignment Rules
+
+| Rule | Description |
+|------|-------------|
+| Hub-specific | Card appears only in assigned Hubs |
+| Common cards | Card can be assigned to multiple Hubs |
+| Permission-filtered | User only sees cards they have access to |
+| No duplicates | Card appears once per Hub, even if user has multiple permission groups |
+
+#### Administration
+
+Administrators (via Administration Hub) can:
+- Add/remove cards from Hubs
+- Set default card order per Hub
+- Configure card metadata (title, description, icon)
+- Set permission groups for each card
+
+### User Card Preferences
+
+Stored per-user, per-Hub in localStorage:
+
+```typescript
+interface IUserCardPreferences {
+  [hubId: string]: {
+    cardOrder: string[];      // Card IDs in user's preferred order
+    pinnedCards: string[];    // Card IDs pinned to top
+    hiddenCards: string[];    // Card IDs hidden by user
+  };
+}
+```
+
+**Precedence:**
+1. Pinned cards appear first (in pinned order)
+2. User-ordered cards next
+3. Remaining cards in admin-defined default order
 
 ---
 
@@ -714,6 +1351,18 @@ Custom components must meet the same standards.
 - [ ] Add responsive breakpoint handling with mobile drawer behavior
 - [ ] Wire up preference persistence on user interactions
 
+### Function Card Implementation
+
+- [ ] Create `ICardConfiguration` interface for card metadata
+- [ ] Create `IUserCardPreferences` interface for per-Hub user preferences
+- [ ] Build `FunctionCard` component with icon, title, description, dynamic info areas
+- [ ] Implement card context menu (Open, Open in new tab, Pin, Hide)
+- [ ] Build card hover/focus/drag states per styling spec
+- [ ] Implement dynamic data fetching with caching and error handling
+- [ ] Create card administration API/UI for Hub assignment
+- [ ] Implement pin/unpin logic with preference persistence
+- [ ] Implement hide/restore card functionality
+
 ### Interaction Pattern Implementation
 
 - [ ] Implement hover/focus states per interaction patterns
@@ -731,3 +1380,38 @@ Custom components must meet the same standards.
 - [ ] Add restore option in user profile menu
 - [ ] Implement keyboard shortcut for show/hide (Ctrl+Shift+A)
 - [ ] Integrate with AI RAG proxy API for chat responses
+
+### Search Implementation
+
+- [ ] Build `SearchButton` expandable icon component in navbar
+- [ ] Build `SearchInput` with expand/collapse animations
+- [ ] Build `QuickResultsDropdown` with grouped results display
+- [ ] Implement search debouncing (300ms)
+- [ ] Build `SearchResultsPage` with filters panel and results list
+- [ ] Implement Hub filter (checkbox list)
+- [ ] Implement Content Type filter (checkbox list)
+- [ ] Integrate with SharePoint Search REST API or Microsoft Graph
+- [ ] Implement keyboard navigation for quick results
+- [ ] Add URL query param support for shareable search links
+
+### Error Handling Implementation
+
+- [ ] Build `ToastNotification` component with icon, message, dismiss, retry
+- [ ] Build `ToastContainer` for positioning and stacking toasts
+- [ ] Create toast service for triggering notifications from anywhere
+- [ ] Implement auto-dismiss with configurable duration per type
+- [ ] Build `AccessDeniedPage` (403) component
+- [ ] Build `NotFoundPage` (404) component
+- [ ] Implement `IRetryConfig` interface and retry logic wrapper
+- [ ] Configure retry settings per API service
+- [ ] Implement offline detection (`navigator.onLine` + events)
+- [ ] Build `OfflineBanner` component
+- [ ] Handle reconnection (banner removal, data refresh)
+
+### Empty States Implementation
+
+- [ ] Build `EmptyState` reusable component (icon, title, message, optional action)
+- [ ] Implement card grid empty state with context-aware messages
+- [ ] Implement search no results state (simple message only)
+- [ ] Implement notifications empty state with rotating dad jokes
+- [ ] Configure cards to hide dynamic section when data unavailable
