@@ -13,11 +13,11 @@ export const StatusBar: React.FC<IStatusBarProps> = ({ userEmail }) => {
   return (
     <footer className={styles.statusBar} role="contentinfo">
       <div className={styles.statusBarSection}>
-        <span className={styles.statusIndicator} title="Vault: Connected" />
+        <span className={`${styles.statusIndicator} ${styles.statusIndicatorError}`} title="Vault: Disconnected" />
         <span>Vault</span>
       </div>
       <div className={styles.statusBarSection}>
-        <span className={styles.statusIndicator} title="PropertyMe: Connected" />
+        <span className={`${styles.statusIndicator} ${styles.statusIndicatorError}`} title="PropertyMe: Disconnected" />
         <span>PropertyMe</span>
       </div>
 

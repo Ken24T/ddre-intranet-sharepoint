@@ -16,13 +16,14 @@ describe("IntranetShell", () => {
     expect(screen.getByRole("navigation", { name: /main navigation/i })).toBeInTheDocument();
     expect(screen.getByText(defaultProps.siteTitle)).toBeInTheDocument();
 
-    // Sidebar
-    expect(screen.getByRole("complementary", { name: /sidebar/i })).toBeInTheDocument();
-    expect(screen.getByText("Home")).toBeInTheDocument();
+    // Sidebar - check for Home within sidebar (also appears in hero)
+    const sidebar = screen.getByRole("complementary", { name: /sidebar/i });
+    expect(sidebar).toBeInTheDocument();
+    expect(within(sidebar).getByText("Home")).toBeInTheDocument();
 
-    // Content area
+    // Content area - welcome message now uses first name only
     expect(screen.getByRole("main")).toBeInTheDocument();
-    expect(screen.getByText(/Welcome, John Doe/i)).toBeInTheDocument();
+    expect(screen.getByText(/Welcome back, John!/i)).toBeInTheDocument();
 
     // Status bar
     expect(screen.getByRole("contentinfo")).toBeInTheDocument();

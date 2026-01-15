@@ -14,7 +14,9 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
   title,
   description,
   icon,
+  themeColor = '#0078d4',
   isPinned = false,
+  isAdmin = false,
   onClick,
   onContextMenu,
 }) => {
@@ -30,11 +32,23 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
     isDragging,
   } = useSortable({ id });
 
+  // Convert hex to RGB for rgba shadows
+  const hexToRgb = (hex: string): string => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+      : '0, 120, 212';
+  };
+
+  const themeRgb = hexToRgb(themeColor);
+
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  };
+    '--card-theme-color': themeColor,
+    '--card-theme-rgb': themeRgb,
+  } as React.CSSProperties;
 
   const menuItems: IContextualMenuItem[] = [
     {
@@ -43,12 +57,13 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
       iconProps: { iconName: isPinned ? 'Unpin' : 'Pin' },
       onClick: () => onContextMenu?.(isPinned ? 'unpin' : 'pin'),
     },
-    {
+    // Hide card option only visible to admins
+    ...(isAdmin ? [{
       key: 'hide',
       text: 'Hide card',
       iconProps: { iconName: 'Hide3' },
       onClick: () => onContextMenu?.('hide'),
-    },
+    }] : []),
     {
       key: 'divider',
       itemType: 1, // ContextualMenuItemType.Divider
@@ -75,7 +90,7 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={`${styles.card} ${isPinned ? styles.cardPinned : ''}`}
+      className={`${styles.card} ${isPinned ? styles.cardPinned : ''} ${isDragging ? styles.cardDragging : ''}`}
       {...attributes}
     >
       <div className={styles.cardHeader}>
@@ -102,7 +117,6 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
         onKeyDown={(e) => e.key === 'Enter' && onClick?.()}
         role="button"
         tabIndex={0}
-        {...listeners}
       >
         <h3 className={styles.cardTitle}>{title}</h3>
         <p className={styles.cardDescription}>{description}</p>
@@ -117,6 +131,10 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
           items={menuItems}
           target={menuTarget}
           onDismiss={handleMenuDismiss}
+          onMenuDismissed={handleMenuDismiss}
+          calloutProps={{
+            onMouseLeave: handleMenuDismiss,
+          }}
         />
       )}
     </div>

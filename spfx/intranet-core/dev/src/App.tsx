@@ -5,8 +5,9 @@ import { IntranetShell } from '@components/IntranetShell';
 // Mock SharePoint context for dev
 const mockContext = {
   userDisplayName: 'Ken Boyle',
-  userEmail: 'ken.boyle@ddre.com.au',
+  userEmail: 'ken@disher.com.au',
   siteTitle: 'DDRE Intranet',
+  isAdmin: false, // Set to true to test admin features (e.g., Hide Card)
 };
 
 const lightTheme = createTheme({
@@ -43,6 +44,7 @@ export const App: React.FC = () => {
         userDisplayName={mockContext.userDisplayName}
         userEmail={mockContext.userEmail}
         siteTitle={mockContext.siteTitle}
+        isAdmin={mockContext.isAdmin}
       />
     </ThemeProvider>
   );

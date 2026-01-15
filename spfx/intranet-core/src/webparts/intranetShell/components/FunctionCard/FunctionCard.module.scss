@@ -1,22 +1,41 @@
 .card {
   display: flex;
   flex-direction: column;
+  // Subtle tinted background using theme color
+  background: linear-gradient(
+    180deg,
+    rgba(var(--card-theme-rgb, 0, 120, 212), 0.08) 0%,
+    rgba(var(--card-theme-rgb, 0, 120, 212), 0.03) 100%
+  );
   background-color: var(--white, #ffffff);
-  border: 1px solid var(--neutralLight, #edebe9);
+  border: 1px solid rgba(var(--card-theme-rgb, 0, 120, 212), 0.2);
   border-radius: 8px;
   padding: 16px;
   min-height: 140px;
   position: relative;
   cursor: grab;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  // Themed shadow - slightly more prominent
+  box-shadow: 0 2px 8px rgba(var(--card-theme-rgb, 0, 120, 212), 0.15),
+              0 1px 3px rgba(0, 0, 0, 0.08);
+  // Themed top accent line
+  border-top: 3px solid var(--card-theme-color, #0078d4);
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: var(--neutralTertiaryAlt, #c8c6c4);
+    background: linear-gradient(
+      180deg,
+      rgba(var(--card-theme-rgb, 0, 120, 212), 0.12) 0%,
+      rgba(var(--card-theme-rgb, 0, 120, 212), 0.05) 100%
+    );
+    box-shadow: 0 4px 16px rgba(var(--card-theme-rgb, 0, 120, 212), 0.22),
+                0 2px 6px rgba(0, 0, 0, 0.1);
+    border-color: rgba(var(--card-theme-rgb, 0, 120, 212), 0.35);
+    border-top-color: var(--card-theme-color, #0078d4);
+    transform: translateY(-2px);
   }
 
   &:focus-within {
-    outline: 2px solid var(--themePrimary, #0078d4);
+    outline: 2px solid var(--card-theme-color, #0078d4);
     outline-offset: 2px;
   }
 
@@ -26,8 +45,14 @@
 }
 
 .cardPinned {
-  border-color: var(--themePrimary, #0078d4);
+  border-color: var(--card-theme-color, #0078d4);
   border-width: 2px;
+  box-shadow: 0 2px 12px rgba(var(--card-theme-rgb, 0, 120, 212), 0.15);
+}
+
+.cardDragging {
+  box-shadow: 0 12px 32px rgba(var(--card-theme-rgb, 0, 120, 212), 0.25);
+  z-index: 1000;
 }
 
 .cardHeader {
@@ -41,12 +66,18 @@
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  background-color: var(--themeLighterAlt, #eff6fc);
+  // Themed icon background - lighter tint of theme color
+  background-color: rgba(var(--card-theme-rgb, 0, 120, 212), 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--themePrimary, #0078d4);
+  color: var(--card-theme-color, #0078d4);
   font-size: 20px;
+  transition: background-color 0.2s ease;
+
+  .card:hover & {
+    background-color: rgba(var(--card-theme-rgb, 0, 120, 212), 0.15);
+  }
 }
 
 .cardActions {
@@ -56,7 +87,7 @@
 }
 
 .pinnedIndicator {
-  color: var(--themePrimary, #0078d4);
+  color: var(--card-theme-color, #0078d4);
   font-size: 12px;
 }
 
@@ -104,13 +135,24 @@
   bottom: 8px;
   right: 8px;
   color: var(--neutralTertiaryAlt, #c8c6c4);
-  font-size: 14px;
+  font-size: 16px;
   cursor: grab;
-  padding: 4px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  padding: 8px;
+  border-radius: 4px;
+  opacity: 0.3;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  touch-action: none; // Important for dnd-kit
 
   .card:hover & {
     opacity: 1;
+  }
+
+  &:hover {
+    background-color: var(--neutralLighter, #f3f2f1);
+    color: var(--neutralSecondary, #605e5c);
+  }
+
+  &:active {
+    cursor: grabbing;
   }
 }

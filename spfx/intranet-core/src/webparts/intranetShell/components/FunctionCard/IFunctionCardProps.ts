@@ -10,8 +10,12 @@ export interface IFunctionCardProps {
   description: string;
   /** Fluent UI icon name */
   icon: string;
+  /** Theme accent color for the card */
+  themeColor?: string;
   /** Optional: Card is pinned to top */
   isPinned?: boolean;
+  /** Optional: User is admin (can hide cards) */
+  isAdmin?: boolean;
   /** Optional: Click handler */
   onClick?: () => void;
   /** Optional: Context menu handler */
