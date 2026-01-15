@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { ThemeProvider } from '@fluentui/react';
 import styles from './IntranetShell.module.scss';
 import type { IIntranetShellProps } from './IIntranetShellProps';
 import { Navbar } from './Navbar/Navbar';
@@ -9,7 +10,7 @@ import { CardGrid } from './CardGrid';
 import { SettingsPanel } from './SettingsPanel';
 import { sampleCards, hubInfo } from './data';
 import type { IFunctionCard } from './FunctionCard';
-import { getHubColor } from './theme';
+import { getHubColor, getResolvedTheme, getThemeCssVars, isDarkTheme } from './theme';
 import type { ThemeMode } from './UserProfileMenu';
 
 export interface IIntranetShellState {
@@ -66,6 +67,8 @@ const saveToStorage = <T,>(key: string, value: T): void => {
  * fluid content area, and fixed status bar.
  */
 export class IntranetShell extends React.Component<IIntranetShellProps, IIntranetShellState> {
+  private systemThemeMediaQuery: MediaQueryList | null = null;
+
   constructor(props: IIntranetShellProps) {
     super(props);
     this.state = {
@@ -79,6 +82,25 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       isSettingsOpen: false,
     };
   }
+
+  public componentDidMount(): void {
+    // Listen for system theme changes when in 'system' mode
+    this.systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    this.systemThemeMediaQuery.addEventListener('change', this.handleSystemThemeChange);
+  }
+
+  public componentWillUnmount(): void {
+    if (this.systemThemeMediaQuery) {
+      this.systemThemeMediaQuery.removeEventListener('change', this.handleSystemThemeChange);
+    }
+  }
+
+  private handleSystemThemeChange = (): void => {
+    // Force re-render when system theme changes (only matters if themeMode is 'system')
+    if (this.state.themeMode === 'system') {
+      this.forceUpdate();
+    }
+  };
 
   private handleToggleSidebar = (): void => {
     this.setState((prevState) => {
@@ -194,8 +216,6 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     const { userDisplayName, userEmail, siteTitle } = this.props;
     const { isSidebarCollapsed, activeHubKey, pinnedCardIds, hiddenCardIds, isAdminMode, cardOrder, themeMode, isSettingsOpen } = this.state;
 
-    const shellClassName = `${styles.shell} ${isSidebarCollapsed ? styles.shellCollapsed : ''}`;
-
     // Get cards for current hub
     const hubCards = sampleCards.filter((card) => card.hubKey === activeHubKey);
     const currentHub = hubInfo[activeHubKey] || { title: 'Hub', description: '' };
@@ -214,8 +234,21 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     // Get hub-specific colors
     const hubColor = getHubColor(activeHubKey);
 
+    // Resolve theme based on mode (light/dark/system)
+    const resolvedTheme = getResolvedTheme(themeMode);
+    const themeCssVars = getThemeCssVars(resolvedTheme);
+    const isCurrentlyDark = isDarkTheme(themeMode);
+
+    // Build shell class with theme modifier
+    const shellClassName = [
+      styles.shell,
+      isSidebarCollapsed ? styles.shellCollapsed : '',
+      isCurrentlyDark ? styles.shellDark : '',
+    ].filter(Boolean).join(' ');
+
     return (
-      <div className={shellClassName}>
+      <ThemeProvider theme={resolvedTheme}>
+        <div className={shellClassName} style={themeCssVars as React.CSSProperties}>
         <Navbar
           siteTitle={siteTitle}
           userDisplayName={userDisplayName}
@@ -271,7 +304,8 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           onRestoreCard={this.handleRestoreCard}
           onResetAll={this.handleResetAll}
         />
-      </div>
+        </div>
+      </ThemeProvider>
     );
   }
 }

@@ -13,6 +13,16 @@
   width: 100%;
   overflow: hidden;
   background-color: var(--neutralLighterAlt, #faf9f8);
+  color: var(--neutralPrimary, #323130);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+// Dark theme variant
+.shellDark {
+  // Force class export for TypeScript
+  // Dark theme colors are applied via CSS variables on .shell
+  // This class is used for dark-specific overrides
+  color-scheme: dark;
 }
 
 // Collapsed sidebar variant
