@@ -45,10 +45,10 @@ preferences persisted to localStorage.
 
 | Region | Height/Width | Position | Detailed Spec |
 |--------|--------------|----------|---------------|
-| **Navbar** | 48px | Fixed top | [ux/components.md#navbar](ux/components.md#navbar) |
-| **Sidebar** | 240px (resizable 64–320px) | Fixed left | [ux/components.md#sidebar](ux/components.md#sidebar) |
-| **Content Area** | Fluid | Flows after sidebar | [ux/components.md#content-area](ux/components.md#content-area) |
-| **Status Bar** | 24px | Fixed bottom | [ux/components.md#status-bar](ux/components.md#status-bar) |
+| **Navbar** | 48px | Fixed top | [ux/navbar.md](ux/navbar.md) |
+| **Sidebar** | 240px (resizable 64–320px) | Fixed left | [ux/sidebar.md](ux/sidebar.md) |
+| **Content Area** | Fluid | Flows after sidebar | [ux/content-area.md](ux/content-area.md) |
+| **Status Bar** | 24px | Fixed bottom | [ux/status-bar.md](ux/status-bar.md) |
 
 ---
 
@@ -58,25 +58,26 @@ preferences persisted to localStorage.
 
 | Component | Spec |
 |-----------|------|
-| Navbar | [ux/components.md#navbar](ux/components.md#navbar) |
-| Sidebar | [ux/components.md#sidebar](ux/components.md#sidebar) |
-| Card Grid | [ux/components.md#card-grid](ux/components.md#card-grid) |
-| Function Cards | [ux/components.md#function-cards](ux/components.md#function-cards) |
-| Status Bar | [ux/components.md#status-bar](ux/components.md#status-bar) |
-| User Profile Menu | [ux/components.md#user-profile-menu](ux/components.md#user-profile-menu) |
-| Settings Panel | [ux/components.md#settings-panel](ux/components.md#settings-panel) |
-| Theme Support | [ux/components.md#theme-support](ux/components.md#theme-support) |
+| Navbar | [ux/navbar.md](ux/navbar.md) |
+| Sidebar | [ux/sidebar.md](ux/sidebar.md) |
+| Content Area | [ux/content-area.md](ux/content-area.md) |
+| Card Grid | [ux/card-grid.md](ux/card-grid.md) |
+| Function Cards | [ux/function-cards.md](ux/function-cards.md) |
+| Status Bar | [ux/status-bar.md](ux/status-bar.md) |
+| User Profile Menu | [ux/profile-menu.md](ux/profile-menu.md) |
+| Settings Panel | [ux/settings-panel.md](ux/settings-panel.md) |
+| Theme Support | [ux/theme-support.md](ux/theme-support.md) |
 
 ### Behaviors
 
 | Behavior | Spec |
 |----------|------|
-| Navigation & Routing | [ux/behaviors.md#navigation--routing](ux/behaviors.md#navigation--routing) |
-| Search Experience | [ux/behaviors.md#search-experience](ux/behaviors.md#search-experience) |
-| Error Handling | [ux/behaviors.md#error-handling](ux/behaviors.md#error-handling) |
-| Empty States | [ux/behaviors.md#empty-states](ux/behaviors.md#empty-states) |
-| AI Assistant | [ux/behaviors.md#ai-assistant-chatbot](ux/behaviors.md#ai-assistant-chatbot) |
-| Modals & Dialogs | [ux/behaviors.md#modals--dialogs](ux/behaviors.md#modals--dialogs) |
+| Navigation & Routing | [ux/navigation.md](ux/navigation.md) |
+| Search Experience | [ux/search.md](ux/search.md) |
+| Error Handling | [ux/error-handling.md](ux/error-handling.md) |
+| Empty States | [ux/empty-states.md](ux/empty-states.md) |
+| AI Assistant | [ux/ai-assistant.md](ux/ai-assistant.md) |
+| Modals & Dialogs | [ux/modals.md](ux/modals.md) |
 
 ### Personalization
 

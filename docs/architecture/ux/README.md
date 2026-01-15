@@ -1,30 +1,49 @@
-<!-- markdownlint-disable MD013 MD060 -->
+<!-- markdownlint-disable MD013 MD032 -->
 # UX Specifications
 
-This folder contains detailed UX specifications for the DDRE Intranet shell.
-Each file focuses on a specific area of the UI, with cross-references to related specs.
+Detailed UX specifications for the DDRE Intranet shell.
 
-## Specification Index
+---
 
-| File | Description |
+## Components
+
+| Spec | Description |
 |------|-------------|
-| [components.md](components.md) | Navbar, Sidebar, Card Grid, Status Bar, Function Cards |
-| [behaviors.md](behaviors.md) | Error handling, Empty states, AI Assistant, Search |
-| [personalization.md](personalization.md) | User preferences, Responsive breakpoints, Interactions |
-| [standards.md](standards.md) | Accessibility (WCAG 2.1 AA), Icon system |
+| [navbar.md](navbar.md) | Top navigation bar (48px) |
+| [sidebar.md](sidebar.md) | Left navigation sidebar (resizable) |
+| [content-area.md](content-area.md) | Main content region |
+| [card-grid.md](card-grid.md) | Responsive card layout |
+| [function-cards.md](function-cards.md) | Tool entry point cards |
+| [status-bar.md](status-bar.md) | Bottom status bar (24px) |
+| [profile-menu.md](profile-menu.md) | User avatar dropdown menu |
+| [settings-panel.md](settings-panel.md) | User preferences modal |
+| [theme-support.md](theme-support.md) | Light/Dark/System theme |
 
-## Quick Links
+---
 
-- **Shell Layout Overview:** [../shell-layout.md](../shell-layout.md)
-- **Implementation Checklist:** [../implementation-checklist.md](../implementation-checklist.md)
+## Behaviors
 
-## Reading Order
+| Spec | Description |
+|------|-------------|
+| [navigation.md](navigation.md) | Hub routing and card open modes |
+| [search.md](search.md) | Search input, results, filters |
+| [error-handling.md](error-handling.md) | Toasts, 403/404, offline |
+| [empty-states.md](empty-states.md) | Empty grid, notifications |
+| [ai-assistant.md](ai-assistant.md) | Floating chatbot panel |
+| [modals.md](modals.md) | Confirmation, settings, alerts |
 
-For new developers, recommended reading order:
+---
 
-1. [Shell Layout Overview](../shell-layout.md) — Understand the regions
-2. [Components](components.md) — Core UI elements
-3. [Behaviors](behaviors.md) — User-facing behaviors and error handling
-4. [Personalization](personalization.md) — User customization
-5. [Standards](standards.md) — Accessibility and icons
-6. [Implementation Checklist](../implementation-checklist.md) — TODO tracking
+## Cross-Cutting Concerns
+
+| Spec | Description |
+|------|-------------|
+| [personalization.md](personalization.md) | User preferences, responsive breakpoints, interactions |
+| [standards.md](standards.md) | Icon system, accessibility (WCAG 2.1 AA) |
+
+---
+
+## Related
+
+- [Shell Layout Overview](../shell-layout.md)
+- [Implementation Checklist](../implementation-checklist.md)
