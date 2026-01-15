@@ -3,7 +3,7 @@
   "solution": {
     "name": "intranet-core-client-side-solution",
     "id": "57ab61df-506d-4f2a-9e13-2131103e33c2",
-    "version": "0.2.0.0",
+    "version": "0.3.0.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
@@ -30,7 +30,7 @@
         "title": "intranet-core Feature",
         "description": "The feature that activates elements of the intranet-core solution.",
         "id": "f4912b85-dea2-4180-998e-7da01960eaa7",
-        "version": "0.2.0.0"
+        "version": "0.3.0.0"
       }
     ]
   },
