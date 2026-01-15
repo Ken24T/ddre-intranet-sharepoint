@@ -93,7 +93,7 @@ export const sampleCards: IFunctionCard[] = [
   },
   {
     id: 'vault',
-    hubKey: 'property-management',
+    hubKey: 'sales',
     title: 'Vault',
     description: 'Secure document storage and management',
     icon: 'Lock',
@@ -188,7 +188,7 @@ export const hubInfo: Record<string, { title: string; description: string }> = {
   },
   administration: {
     title: 'Administration',
-    description: 'System administration and configuration',
+    description: 'Office processes, staff support, and business operations',
   },
   office: {
     title: 'Office',
