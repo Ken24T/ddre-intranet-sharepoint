@@ -18,8 +18,8 @@ When user has no cards available (no permissions or no cards assigned to Hub):
 │                                                             │
 │              No tools available                             │
 │                                                             │
-│     You don't have any tools assigned to this Hub.         │
-│     Contact your administrator if you believe this         │
+│     You don't have any tools assigned to this Hub.          │
+│     Contact your administrator if you believe this          │
 │     is an error.                                            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
@@ -85,7 +85,7 @@ This keeps cards clean and consistent in height when data isn't available.
 ```
 With data:                          Without data:
 ┌─────────────────────────┐         ┌─────────────────────────┐
-│  [Icon] Title      [⋮]  │         │  [Icon] Title      [⋮]  │
+│  [Icon] Title      [⋮]   │         │  [Icon] Title      [⋮]  │
 │                         │         │                         │
 │  Description text...    │         │  Description text...    │
 │                         │         │                         │
