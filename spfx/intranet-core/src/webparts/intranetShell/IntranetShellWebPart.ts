@@ -23,11 +23,11 @@ export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntrane
   public render(): void {
     const element: React.ReactElement<IIntranetShellProps> =
       React.createElement(IntranetShell, {
-        description: this.properties.description,
-        isDarkTheme: this._isDarkTheme,
-        environmentMessage: this._environmentMessage,
-        hasTeamsContext: !!this.context.sdks.microsoftTeams,
         userDisplayName: this.context.pageContext.user.displayName,
+        userEmail: this.context.pageContext.user.email || '',
+        siteTitle: this.context.pageContext.web.title,
+        isDarkTheme: this._isDarkTheme,
+        hasTeamsContext: !!this.context.sdks.microsoftTeams,
       });
 
     ReactDom.render(element, this.domElement);

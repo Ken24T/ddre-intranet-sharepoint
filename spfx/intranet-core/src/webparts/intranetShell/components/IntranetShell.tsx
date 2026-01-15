@@ -1,106 +1,63 @@
-import * as React from "react";
-import styles from "./IntranetShell.module.scss";
-import type { IIntranetShellProps } from "./IIntranetShellProps";
-import { escape } from "@microsoft/sp-lodash-subset";
+import * as React from 'react';
+import styles from './IntranetShell.module.scss';
+import type { IIntranetShellProps } from './IIntranetShellProps';
+import { Navbar } from './Navbar/Navbar';
+import { Sidebar } from './Sidebar/Sidebar';
+import { ContentArea } from './ContentArea/ContentArea';
+import { StatusBar } from './StatusBar/StatusBar';
 
-export default class IntranetShell extends React.Component<IIntranetShellProps> {
+export interface IIntranetShellState {
+  isSidebarCollapsed: boolean;
+}
+
+/**
+ * IntranetShell - Main layout component for the DDRE Intranet.
+ * Uses CSS Grid to create a fixed navbar, resizable sidebar,
+ * fluid content area, and fixed status bar.
+ */
+export class IntranetShell extends React.Component<IIntranetShellProps, IIntranetShellState> {
+  constructor(props: IIntranetShellProps) {
+    super(props);
+    this.state = {
+      isSidebarCollapsed: false,
+    };
+  }
+
+  private handleToggleSidebar = (): void => {
+    this.setState((prevState) => ({
+      isSidebarCollapsed: !prevState.isSidebarCollapsed,
+    }));
+  };
+
   public render(): React.ReactElement<IIntranetShellProps> {
-    const {
-      description,
-      isDarkTheme,
-      environmentMessage,
-      hasTeamsContext,
-      userDisplayName,
-    } = this.props;
+    const { userDisplayName, userEmail, siteTitle } = this.props;
+    const { isSidebarCollapsed } = this.state;
+
+    const shellClassName = `${styles.shell} ${isSidebarCollapsed ? styles.shellCollapsed : ''}`;
 
     return (
-      <section
-        className={`${styles.intranetShell} ${hasTeamsContext ? styles.teams : ""}`}
-      >
-        <div className={styles.welcome}>
-          <img
-            alt=""
-            src={
-              isDarkTheme
-                ? require("../assets/welcome-dark.png")
-                : require("../assets/welcome-light.png")
-            }
-            className={styles.welcomeImage}
-          />
-          <h2>Well done, {escape(userDisplayName)}!</h2>
-          <div>{environmentMessage}</div>
-          <div>
-            Web part property value: <strong>{escape(description)}</strong>
-          </div>
-        </div>
-        <div>
-          <h3>Welcome to SharePoint Framework!</h3>
-          <p>
-            The SharePoint Framework (SPFx) is a extensibility model for
-            Microsoft Viva, Microsoft Teams and SharePoint. It&#39;s the easiest
-            way to extend Microsoft 365 with automatic Single Sign On, automatic
-            hosting and industry standard tooling.
+      <div className={shellClassName}>
+        <Navbar
+          siteTitle={siteTitle}
+          userDisplayName={userDisplayName}
+          onToggleSidebar={this.handleToggleSidebar}
+        />
+        <Sidebar isCollapsed={isSidebarCollapsed} />
+        <ContentArea>
+          <h1 className={styles.contentTitle}>Welcome, {userDisplayName}</h1>
+          <p className={styles.contentSubtitle}>
+            Your personalized dashboard for DDRE operations
           </p>
-          <h4>Learn more about SPFx development:</h4>
-          <ul className={styles.links}>
-            <li>
-              <a href="https://aka.ms/spfx" target="_blank" rel="noreferrer">
-                SharePoint Framework Overview
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://aka.ms/spfx-yeoman-graph"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Use Microsoft Graph in your solution
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://aka.ms/spfx-yeoman-teams"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Build for Microsoft Teams using SharePoint Framework
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://aka.ms/spfx-yeoman-viva"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Build for Microsoft Viva Connections using SharePoint Framework
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://aka.ms/spfx-yeoman-store"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Publish SharePoint Framework applications to the marketplace
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://aka.ms/spfx-yeoman-api"
-                target="_blank"
-                rel="noreferrer"
-              >
-                SharePoint Framework API reference
-              </a>
-            </li>
-            <li>
-              <a href="https://aka.ms/m365pnp" target="_blank" rel="noreferrer">
-                Microsoft 365 Developer Community
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          {/* Card grid will go here in Phase 2 */}
+          <div style={{ marginTop: 24, padding: 24, background: '#f3f2f1', borderRadius: 8 }}>
+            <p>🎉 Shell layout complete! Card grid coming in Phase 2.</p>
+          </div>
+        </ContentArea>
+        <StatusBar userEmail={userEmail} />
+      </div>
     );
   }
 }
+
+// Also export as default for SPFx compatibility
+export default IntranetShell;

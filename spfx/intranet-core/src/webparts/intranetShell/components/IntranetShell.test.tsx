@@ -1,42 +1,49 @@
 import * as React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import IntranetShell from "./IntranetShell";
 
 describe("IntranetShell", () => {
-  it("renders greeting, environment message, and description", () => {
-    render(
-      <IntranetShell
-        description="Test description"
-        isDarkTheme={false}
-        environmentMessage="Local workbench"
-        hasTeamsContext={false}
-        userDisplayName="John Doe"
-      />,
-    );
+  const defaultProps = {
+    userDisplayName: "John Doe",
+    userEmail: "john.doe@example.com",
+    siteTitle: "DDRE Intranet",
+  };
 
-    expect(screen.getByText(/Well done,\s*John Doe!/i)).toBeInTheDocument();
-    expect(screen.getByText(/Local workbench/i)).toBeInTheDocument();
-    expect(screen.getByText(/Web part property value:/i)).toBeInTheDocument();
-    expect(screen.getByText(/Test description/i)).toBeInTheDocument();
+  it("renders the shell with all four regions", () => {
+    render(<IntranetShell {...defaultProps} />);
+
+    // Navbar
+    expect(screen.getByRole("navigation", { name: /main navigation/i })).toBeInTheDocument();
+    expect(screen.getByText(defaultProps.siteTitle)).toBeInTheDocument();
+
+    // Sidebar
+    expect(screen.getByRole("complementary", { name: /sidebar/i })).toBeInTheDocument();
+    expect(screen.getByText("Home")).toBeInTheDocument();
+
+    // Content area
+    expect(screen.getByRole("main")).toBeInTheDocument();
+    expect(screen.getByText(/Welcome, John Doe/i)).toBeInTheDocument();
+
+    // Status bar
+    expect(screen.getByRole("contentinfo")).toBeInTheDocument();
+    expect(screen.getByText(defaultProps.userEmail)).toBeInTheDocument();
   });
 
-  it("escapes user-controlled strings", () => {
-    render(
-      <IntranetShell
-        description="<i>desc</i>"
-        isDarkTheme={false}
-        environmentMessage="Local workbench"
-        hasTeamsContext={false}
-        userDisplayName="<b>John</b>"
-      />,
-    );
+  it("displays nav items in sidebar", () => {
+    render(<IntranetShell {...defaultProps} />);
 
-    expect(screen.queryByText("<b>John</b>")).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
-      "Well done, &lt;b&gt;John&lt;/b&gt;!",
-    );
+    const sidebar = screen.getByRole("complementary", { name: /sidebar/i });
+    expect(within(sidebar).getByText("Document Library")).toBeInTheDocument();
+    expect(within(sidebar).getByText("AI Assistant")).toBeInTheDocument();
+    expect(within(sidebar).getByText("PropertyMe")).toBeInTheDocument();
+    expect(within(sidebar).getByText("Vault")).toBeInTheDocument();
+  });
 
-    expect(screen.queryByText("<i>desc</i>")).not.toBeInTheDocument();
-    expect(screen.getByText("&lt;i&gt;desc&lt;/i&gt;")).toBeInTheDocument();
+  it("displays status indicators in status bar", () => {
+    render(<IntranetShell {...defaultProps} />);
+
+    const statusBar = screen.getByRole("contentinfo");
+    expect(within(statusBar).getByText("Vault")).toBeInTheDocument();
+    expect(within(statusBar).getByText("PropertyMe")).toBeInTheDocument();
   });
 });

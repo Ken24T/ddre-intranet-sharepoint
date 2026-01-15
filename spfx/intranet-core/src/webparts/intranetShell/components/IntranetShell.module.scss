@@ -1,34 +1,219 @@
-@import '~@fluentui/react/dist/sass/References.scss';
+// Shell layout using CSS Grid
+// Regions: navbar (48px), sidebar (240px resizable), content (fluid), status bar (24px)
 
-.intranetShell {
+.shell {
+  display: grid;
+  grid-template-areas:
+    "navbar navbar"
+    "sidebar content"
+    "statusbar statusbar";
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: 48px 1fr 24px;
+  height: 100vh;
+  width: 100%;
   overflow: hidden;
-  padding: 1em;
-  color: "[theme:bodyText, default: #323130]";
-  color: var(--bodyText);
-  &.teams {
-    font-family: $ms-font-family-fallbacks;
+  background-color: var(--neutralLighterAlt, #faf9f8);
+}
+
+// Collapsed sidebar variant
+.shellCollapsed {
+  grid-template-columns: 64px 1fr;
+}
+
+// Navbar - fixed 48px height
+.navbar {
+  grid-area: navbar;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background-color: var(--themePrimary, #0078d4);
+  color: var(--white, #ffffff);
+  height: 48px;
+  gap: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.navbarLogo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.navbarSpacer {
+  flex: 1;
+}
+
+.navbarActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// Sidebar - 240px default, resizable 64-320px
+.sidebar {
+  grid-area: sidebar;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--neutralLighter, #f3f2f1);
+  border-right: 1px solid var(--neutralLight, #edebe9);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.2s ease;
+}
+
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 4px;
+}
+
+.sidebarItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--neutralPrimary, #323130);
+  text-decoration: none;
+  font-size: 14px;
+  transition: background-color 0.1s ease;
+
+  &:hover {
+    background-color: var(--neutralLight, #edebe9);
+  }
+
+  &:focus {
+    outline: 2px solid var(--themePrimary, #0078d4);
+    outline-offset: -2px;
   }
 }
 
-.welcome {
-  text-align: center;
+.sidebarItemActive {
+  background-color: var(--themeLight, #c7e0f4);
+  color: var(--themeDark, #005a9e);
+  font-weight: 600;
 }
 
-.welcomeImage {
-  width: 100%;
-  max-width: 420px;
+.sidebarItemIcon {
+  font-size: 20px;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.links {
-  a {
-    text-decoration: none;
-    color: "[theme:link, default:#03787c]";
-    color: var(--link); // note: CSS Custom Properties support is limited to modern browsers only
+.sidebarItemLabel {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-    &:hover {
-      text-decoration: underline;
-      color: "[theme:linkHovered, default: #014446]";
-      color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
-    }
+// Content area - fluid
+.content {
+  grid-area: content;
+  padding: 24px;
+  overflow-y: auto;
+  background-color: var(--white, #ffffff);
+}
+
+.contentHeader {
+  margin-bottom: 24px;
+}
+
+.contentTitle {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--neutralPrimary, #323130);
+  margin: 0 0 8px 0;
+}
+
+.contentSubtitle {
+  font-size: 14px;
+  color: var(--neutralSecondary, #605e5c);
+  margin: 0;
+}
+
+// Status bar - fixed 24px height
+.statusBar {
+  grid-area: statusbar;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background-color: var(--neutralLighter, #f3f2f1);
+  border-top: 1px solid var(--neutralLight, #edebe9);
+  height: 24px;
+  font-size: 12px;
+  color: var(--neutralSecondary, #605e5c);
+  gap: 16px;
+}
+
+.statusBarSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusBarSpacer {
+  flex: 1;
+}
+
+.statusIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--green, #107c10);
+}
+
+.statusIndicatorWarning {
+  background-color: var(--yellow, #ffb900);
+}
+
+.statusIndicatorError {
+  background-color: var(--red, #d13438);
+}
+
+// Toggle button for sidebar
+.toggleButton {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  &:focus {
+    outline: 2px solid var(--white, #ffffff);
+    outline-offset: 2px;
+  }
+}
+
+// Responsive breakpoints
+@media (max-width: 768px) {
+  .shell {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "navbar"
+      "content"
+      "statusbar";
+  }
+
+  .sidebar {
+    display: none; // Hidden on mobile, would show via overlay
+  }
+
+  .sidebarItemLabel {
+    display: none;
   }
 }

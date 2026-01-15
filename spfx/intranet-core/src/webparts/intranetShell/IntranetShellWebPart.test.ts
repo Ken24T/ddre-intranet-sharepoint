@@ -96,6 +96,10 @@ describe("IntranetShellWebPart", () => {
       pageContext: {
         user: {
           displayName: "Jane Doe",
+          email: "jane.doe@example.com",
+        },
+        web: {
+          title: "DDRE Intranet",
         },
       },
       sdks: {},
@@ -106,11 +110,11 @@ describe("IntranetShellWebPart", () => {
     expect(React.createElement).toHaveBeenCalledWith(
       expect.any(Function),
       expect.objectContaining({
-        description: "Hello",
-        isDarkTheme: false,
-        environmentMessage: "",
-        hasTeamsContext: false,
         userDisplayName: "Jane Doe",
+        userEmail: "jane.doe@example.com",
+        siteTitle: "DDRE Intranet",
+        isDarkTheme: false,
+        hasTeamsContext: false,
       }),
     );
 

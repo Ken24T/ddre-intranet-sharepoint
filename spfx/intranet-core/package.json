@@ -6,6 +6,7 @@
     "node": ">=22.14.0 < 23.0.0"
   },
   "scripts": {
+    "dev": "cd dev && npm run dev",
     "start": "heft start --clean",
     "clean": "heft clean",
     "lint": "eslint --max-warnings=0 \"src/**/*.{ts,tsx}\"",
