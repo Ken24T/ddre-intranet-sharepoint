@@ -6,7 +6,7 @@ SharePoint Online intranet using **SPFx 1.22.1 + TypeScript + React 17**. Monore
 
 **Key constraint:** SharePoint is the experience layer only—no secrets in browser code, all external APIs via Azure proxies.
 
-**Implementation plan:** See [PLAN.md](/PLAN.md) for current tasks and progress.
+**Implementation plan:** See [PLAN.md](../PLAN.md) for current tasks and progress.
 
 ## Monorepo Structure
 

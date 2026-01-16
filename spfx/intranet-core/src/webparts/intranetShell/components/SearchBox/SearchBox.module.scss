@@ -1,0 +1,275 @@
+/* SearchBox.module.scss - Expandable search with quick results */
+
+// Using CSS custom properties for theme support (aligned with IntranetShell.module.scss)
+
+// =============================================================================
+// BASE CONTAINER
+// =============================================================================
+
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  transition: width 100ms ease-in-out;
+  width: 40px;
+
+  &.expanded {
+    width: 320px;
+  }
+}
+
+// =============================================================================
+// COLLAPSED TRIGGER
+// =============================================================================
+
+.searchTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: var(--white, rgba(255, 255, 255, 0.8));
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 150ms ease, color 150ms ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--white, #ffffff);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--white, #ffffff);
+    outline-offset: -2px;
+  }
+}
+
+// =============================================================================
+// EXPANDED INPUT
+// =============================================================================
+
+.searchInputContainer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 36px;
+  padding: 0 8px;
+  background: var(--white, #ffffff);
+  border: 1px solid var(--neutralLight, #edebe9);
+  border-radius: 4px;
+  gap: 8px;
+  
+  &:focus-within {
+    border-color: var(--themePrimary, #0078d4);
+    box-shadow: 0 0 0 1px var(--themePrimary, #0078d4);
+  }
+}
+
+.searchIcon {
+  flex-shrink: 0;
+  color: var(--neutralSecondary, #605e5c);
+  font-size: 14px;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--neutralPrimary, #323130);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  min-width: 0;
+
+  &::placeholder {
+    color: var(--neutralSecondary, #605e5c);
+    opacity: 0.7;
+  }
+}
+
+.spinner {
+  flex-shrink: 0;
+}
+
+.clearButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--neutralSecondary, #605e5c);
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 150ms ease, color 150ms ease;
+
+  &:hover {
+    background: var(--neutralLight, #edebe9);
+    color: var(--neutralPrimary, #323130);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--themePrimary, #0078d4);
+    outline-offset: -2px;
+  }
+}
+
+// =============================================================================
+// DROPDOWN
+// =============================================================================
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  min-width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--white, #ffffff);
+  border: 1px solid var(--neutralLight, #edebe9);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.resultGroup {
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--neutralLight, #edebe9);
+  }
+}
+
+.groupHeader {
+  padding: 8px 12px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--neutralSecondary, #605e5c);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.resultItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  gap: 10px;
+  transition: background-color 100ms ease;
+
+  &:hover,
+  &.selected {
+    background: var(--neutralLighter, #f3f2f1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--themePrimary, #0078d4);
+    outline-offset: -2px;
+  }
+}
+
+.resultIcon {
+  flex-shrink: 0;
+  width: 20px;
+  color: var(--neutralSecondary, #605e5c);
+  font-size: 14px;
+}
+
+.resultContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.resultTitle {
+  font-size: 14px;
+  color: var(--neutralPrimary, #323130);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resultMeta {
+  font-size: 12px;
+  color: var(--neutralSecondary, #605e5c);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// =============================================================================
+// DROPDOWN FOOTER
+// =============================================================================
+
+.dropdownFooter {
+  padding: 8px 12px;
+  border-top: 1px solid var(--neutralLight, #edebe9);
+  background: var(--neutralLighterAlt, #faf9f8);
+}
+
+.viewAllButton {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  background: transparent;
+  color: var(--themePrimary, #0078d4);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background: var(--neutralLighter, #f3f2f1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--themePrimary, #0078d4);
+    outline-offset: -2px;
+  }
+}
+
+// =============================================================================
+// EMPTY STATE
+// =============================================================================
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 32px;
+  color: var(--neutralSecondary, #605e5c);
+  opacity: 0.6;
+  margin-bottom: 12px;
+}
+
+.emptyText {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--neutralPrimary, #323130);
+  margin-bottom: 4px;
+}
+
+.emptyHint {
+  font-size: 12px;
+  color: var(--neutralSecondary, #605e5c);
+}

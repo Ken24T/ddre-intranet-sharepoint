@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Icon, Toggle } from '@fluentui/react';
 import { UserProfileMenu, ThemeMode } from '../UserProfileMenu';
+import { SearchBox, ISearchResult } from '../SearchBox';
 import styles from '../IntranetShell.module.scss';
 
 export interface INavbarProps {
@@ -12,6 +13,10 @@ export interface INavbarProps {
   onThemeModeChange: (mode: ThemeMode) => void;
   onOpenSettings: () => void;
   onToggleSidebar: () => void;
+  /** Called when search is submitted (Enter key with query) */
+  onSearch?: (query: string) => void;
+  /** Called when a search result is clicked */
+  onSearchResultSelect?: (result: ISearchResult) => void;
   /** Dev mode: current admin state */
   isAdmin?: boolean;
   /** Dev mode: toggle admin rights */
@@ -31,6 +36,8 @@ export const Navbar: React.FC<INavbarProps> = ({
   onThemeModeChange,
   onOpenSettings,
   onToggleSidebar,
+  onSearch,
+  onSearchResultSelect,
   isAdmin = false,
   onToggleAdmin,
 }) => {
@@ -52,10 +59,11 @@ export const Navbar: React.FC<INavbarProps> = ({
 
       <div className={styles.navbarSpacer} />
 
-      {/* Search placeholder - Phase 6 */}
-      <div style={{ opacity: 0.7 }}>
-        <Icon iconName="Search" />
-      </div>
+      {/* Expandable Search */}
+      <SearchBox 
+        onSearch={onSearch}
+        onResultSelect={onSearchResultSelect}
+      />
 
       {/* ⚠️ DEV ONLY - Admin/User toggle for testing permission-based UI.
           This MUST NEVER appear in Test or Prod SPFx builds.

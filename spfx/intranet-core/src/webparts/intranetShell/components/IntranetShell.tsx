@@ -8,8 +8,10 @@ import { ContentArea } from './ContentArea/ContentArea';
 import { StatusBar } from './StatusBar/StatusBar';
 import { CardGrid } from './CardGrid';
 import { SettingsPanel } from './SettingsPanel';
+import { SearchResultsPage } from './SearchResultsPage';
 import { sampleCards, hubInfo } from './data';
 import type { IFunctionCard } from './FunctionCard';
+import type { ISearchResult } from './SearchBox';
 import { getHubColor, getResolvedTheme, getThemeCssVars, isDarkTheme } from './theme';
 import type { ThemeMode } from './UserProfileMenu';
 
@@ -25,6 +27,8 @@ export interface IIntranetShellState {
   themeMode: ThemeMode;
   /** Settings panel open state */
   isSettingsOpen: boolean;
+  /** Active search query (undefined when not searching) */
+  searchQuery: string | undefined;
 }
 
 /**
@@ -80,6 +84,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       isAdminMode: props.isAdmin ?? false,
       themeMode: loadFromStorage(STORAGE_KEYS.THEME_MODE, 'light'),
       isSettingsOpen: false,
+      searchQuery: undefined,
     };
   }
 
@@ -212,9 +217,25 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     // For cards without URLs, could open a detail panel in future
   };
 
+  private handleSearch = (query: string): void => {
+    // Show search results page with the query
+    this.setState({ searchQuery: query });
+  };
+
+  private handleSearchResultSelect = (result: ISearchResult): void => {
+    // Navigate to the selected result
+    if (result.url && result.url !== '#') {
+      window.location.href = result.url;
+    }
+  };
+
+  private handleClearSearch = (): void => {
+    this.setState({ searchQuery: undefined });
+  };
+
   public render(): React.ReactElement<IIntranetShellProps> {
     const { userDisplayName, userEmail, siteTitle } = this.props;
-    const { isSidebarCollapsed, activeHubKey, pinnedCardIds, hiddenCardIds, isAdminMode, cardOrder, themeMode, isSettingsOpen } = this.state;
+    const { isSidebarCollapsed, activeHubKey, pinnedCardIds, hiddenCardIds, isAdminMode, cardOrder, themeMode, isSettingsOpen, searchQuery } = this.state;
 
     // Get cards for current hub
     const hubCards = sampleCards.filter((card) => card.hubKey === activeHubKey);
@@ -257,6 +278,8 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           onThemeModeChange={this.handleThemeModeChange}
           onOpenSettings={this.handleOpenSettings}
           onToggleSidebar={this.handleToggleSidebar}
+          onSearch={this.handleSearch}
+          onSearchResultSelect={this.handleSearchResultSelect}
           isAdmin={isAdminMode}
           onToggleAdmin={this.handleToggleAdmin}
         />
@@ -266,30 +289,39 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           onHubChange={this.handleHubChange}
         />
         <ContentArea>
-          <div className={styles.heroBanner} style={{ background: hubColor.gradient }}>
-            <div className={styles.heroContent}>
-              <h1 className={styles.heroTitle}>{currentHub.title}</h1>
-              <p className={styles.heroSubtitle}>
-                {activeHubKey === 'home'
-                  ? `Welcome back, ${firstName}!`
-                  : currentHub.description}
-              </p>
-            </div>
-          </div>
-          <div className={styles.cardArea}>
-            <CardGrid
-              cards={hubCards}
-              hubKey={activeHubKey}
-              pinnedCardIds={pinnedCardIds}
-              hiddenCardIds={hiddenCardIds}
-              savedOrder={cardOrder[activeHubKey]}
-              isAdmin={isAdminMode}
-              onOrderChange={this.handleCardOrderChange}
-              onPinChange={this.handlePinChange}
-              onHideCard={this.handleHideCard}
-              onCardClick={this.handleCardClick}
+          {searchQuery ? (
+            <SearchResultsPage
+              query={searchQuery}
+              onClearSearch={this.handleClearSearch}
             />
-          </div>
+          ) : (
+            <>
+              <div className={styles.heroBanner} style={{ background: hubColor.gradient }}>
+                <div className={styles.heroContent}>
+                  <h1 className={styles.heroTitle}>{currentHub.title}</h1>
+                  <p className={styles.heroSubtitle}>
+                    {activeHubKey === 'home'
+                      ? `Welcome back, ${firstName}!`
+                      : currentHub.description}
+                  </p>
+                </div>
+              </div>
+              <div className={styles.cardArea}>
+                <CardGrid
+                  cards={hubCards}
+                  hubKey={activeHubKey}
+                  pinnedCardIds={pinnedCardIds}
+                  hiddenCardIds={hiddenCardIds}
+                  savedOrder={cardOrder[activeHubKey]}
+                  isAdmin={isAdminMode}
+                  onOrderChange={this.handleCardOrderChange}
+                  onPinChange={this.handlePinChange}
+                  onHideCard={this.handleHideCard}
+                  onCardClick={this.handleCardClick}
+                />
+              </div>
+            </>
+          )}
         </ContentArea>
         <StatusBar userDisplayName={userDisplayName} />
 
