@@ -64,6 +64,13 @@ export const sampleCards: IFunctionCard[] = [
     description: 'View system audit trail and activity logs',
     icon: 'ComplianceAudit',
   },
+  {
+    id: 'surveys',
+    hubKey: 'administration',
+    title: 'Surveys',
+    description: 'Owner, Tenant, Contractor and Staff annual surveys',
+    icon: 'Questionnaire',
+  },
 
   // Office Hub
   {
