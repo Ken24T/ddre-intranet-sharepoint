@@ -167,8 +167,12 @@
   max-height: 80px;
   width: auto;
   object-fit: contain;
-  opacity: 0.85;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  opacity: 1;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3)) brightness(1.1);
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
 }
 
 .heroTitle {
