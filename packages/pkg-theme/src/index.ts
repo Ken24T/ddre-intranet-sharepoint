@@ -29,6 +29,46 @@ export type {
 } from './colors';
 
 // =============================================================================
+// CSS VARIABLES EXPORTS
+// =============================================================================
+
+export {
+  // Variable objects
+  spacingVars,
+  fontSizeVars,
+  lineHeightVars,
+  fontWeightVars,
+  shadowVars,
+  radiiVars,
+  zIndexVars,
+  durationVars,
+  easingVars,
+  brandColorVars,
+  semanticColorVars,
+  neutralColorVars,
+  lightModeVars,
+  darkModeVars,
+  // Combined sets
+  layoutVars,
+  typographyVars,
+  animationVars,
+  colorVars,
+  allVars,
+  // CSS generation
+  generateRootCSS,
+  generateDarkModeCSS,
+  generateThemeCSS,
+  generateStaticCSS,
+  // Runtime injection
+  injectThemeVars,
+  removeThemeVars,
+  setThemeVar,
+  getThemeVar,
+  // Helper
+  cssVar,
+} from './css-variables';
+
+// =============================================================================
 // SPACING
 // =============================================================================
 

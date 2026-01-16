@@ -166,11 +166,11 @@ Design tokens and theme utilities for consistent styling across apps.
 - [x] 2.4 Add neutral palette
 - [x] 2.5 Create `getHubColor()` helper function
 
-#### Phase 3: CSS Custom Properties
+#### Phase 3: CSS Custom Properties ✅
 
-- [ ] 3.1 Generate CSS variables from tokens
-- [ ] 3.2 Create `injectThemeVars()` function for runtime injection
-- [ ] 3.3 Export static CSS file for non-React usage
+- [x] 3.1 Generate CSS variables from tokens
+- [x] 3.2 Create `injectThemeVars()` function for runtime injection
+- [x] 3.3 Export static CSS file for non-React usage
 
 #### Phase 4: Fluent UI Integration
 
