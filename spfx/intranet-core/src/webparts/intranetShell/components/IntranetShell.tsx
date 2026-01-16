@@ -379,6 +379,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
         <AiAssistant
           isHidden={isAiAssistantHidden}
           onHide={this.handleHideAiAssistant}
+          accentColor={hubColor.accent}
         />
         </div>
       </ThemeProvider>

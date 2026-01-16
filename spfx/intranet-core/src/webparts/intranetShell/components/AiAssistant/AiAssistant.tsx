@@ -12,6 +12,8 @@ export interface IAiAssistantProps {
   isHidden?: boolean;
   /** Callback when user hides the assistant */
   onHide?: () => void;
+  /** Accent color for the hub (used for button/header styling) */
+  accentColor?: string;
 }
 
 export interface IChatMessage {
@@ -167,6 +169,7 @@ function getPopupHtml(messages: IChatMessage[]): string {
 export const AiAssistant: React.FC<IAiAssistantProps> = ({
   isHidden: isHiddenProp,
   onHide,
+  accentColor,
 }) => {
   // State
   const [isHiddenInternal, setIsHiddenInternal] = React.useState(() => getSessionBoolean(SESSION_KEY_HIDDEN));
@@ -334,6 +337,7 @@ export const AiAssistant: React.FC<IAiAssistantProps> = ({
           onMinimize={handleMinimize}
           onHide={handleHide}
           onPopout={handlePopout}
+          accentColor={accentColor}
         />
       )}
 
@@ -346,6 +350,7 @@ export const AiAssistant: React.FC<IAiAssistantProps> = ({
           iconProps={{ iconName: isPoppedOut ? 'ReturnKey' : 'Robot' }}
           ariaLabel={isPoppedOut ? 'Return AI Assistant from popup' : 'Open AI Assistant'}
           onClick={handleButtonClick}
+          style={accentColor ? { backgroundColor: accentColor } : undefined}
         />
       </TooltipHost>
     </div>
