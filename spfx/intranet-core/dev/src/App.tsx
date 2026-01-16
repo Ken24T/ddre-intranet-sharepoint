@@ -1,6 +1,7 @@
 import React from 'react';
 import { ThemeProvider, createTheme } from '@fluentui/react';
 import { IntranetShell } from '@components/IntranetShell';
+import { IntranetShellWrapper } from '@components/IntranetShellWrapper';
 
 // Mock SharePoint context for dev
 const mockContext = {
@@ -40,12 +41,14 @@ const lightTheme = createTheme({
 export const App: React.FC = () => {
   return (
     <ThemeProvider theme={lightTheme}>
-      <IntranetShell
-        userDisplayName={mockContext.userDisplayName}
-        userEmail={mockContext.userEmail}
-        siteTitle={mockContext.siteTitle}
-        isAdmin={mockContext.isAdmin}
-      />
+      <IntranetShellWrapper>
+        <IntranetShell
+          userDisplayName={mockContext.userDisplayName}
+          userEmail={mockContext.userEmail}
+          siteTitle={mockContext.siteTitle}
+          isAdmin={mockContext.isAdmin}
+        />
+      </IntranetShellWrapper>
     </ThemeProvider>
   );
 };
