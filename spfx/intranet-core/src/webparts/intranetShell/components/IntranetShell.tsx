@@ -4,7 +4,12 @@ import styles from './IntranetShell.module.scss';
 import type { IIntranetShellProps } from './IIntranetShellProps';
 
 // Hero banner images
-import heroHomeImage from '../assets/hero-home.svg';
+import heroHomeImageLightBlue from '../assets/hero-home-queenslander-light-blue.png';
+import heroPropertyManagementImageLightBlue from '../assets/hero-property-management-hightrise-light-blue.png';
+import heroSalesImageLightBlue from '../assets/hero-sales-low-rise-light-blue.png';
+import heroOfficeImageLightBlue from '../assets/hero-office-palm-tree-light-blue.png';
+import heroAdministrationImageLightBlue from '../assets/hero-administration-villa-light-blue.png';
+import heroLibraryImageLightBlue from '../assets/hero-library-shop-light-blue.png';
 import { Navbar } from './Navbar/Navbar';
 import { Sidebar } from './Sidebar/Sidebar';
 import { ContentArea } from './ContentArea/ContentArea';
@@ -398,7 +403,47 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
                 </div>
                 {activeHubKey === 'home' && (
                   <img
-                    src={heroHomeImage}
+                    src={heroHomeImageLightBlue}
+                    alt=""
+                    className={styles.heroImage}
+                    aria-hidden="true"
+                  />
+                )}
+                {activeHubKey === 'property-management' && (
+                  <img
+                    src={heroPropertyManagementImageLightBlue}
+                    alt=""
+                    className={styles.heroImage}
+                    aria-hidden="true"
+                  />
+                )}
+                {activeHubKey === 'sales' && (
+                  <img
+                    src={heroSalesImageLightBlue}
+                    alt=""
+                    className={styles.heroImage}
+                    aria-hidden="true"
+                  />
+                )}
+                {activeHubKey === 'office' && (
+                  <img
+                    src={heroOfficeImageLightBlue}
+                    alt=""
+                    className={styles.heroImage}
+                    aria-hidden="true"
+                  />
+                )}
+                {activeHubKey === 'administration' && (
+                  <img
+                    src={heroAdministrationImageLightBlue}
+                    alt=""
+                    className={styles.heroImage}
+                    aria-hidden="true"
+                  />
+                )}
+                {activeHubKey === 'library' && (
+                  <img
+                    src={heroLibraryImageLightBlue}
                     alt=""
                     className={styles.heroImage}
                     aria-hidden="true"
