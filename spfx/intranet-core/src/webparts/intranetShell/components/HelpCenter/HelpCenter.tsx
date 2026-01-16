@@ -78,21 +78,13 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ onClose }) => {
 
   return (
     <div className={styles.helpCenter}>
-      <div className={styles.header}>
-        <div>
-          <h1 className={styles.title}>Help Center</h1>
-          <p className={styles.subtitle}>
+      <div className={styles.hero}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>Help Center</h1>
+          <p className={styles.heroSubtitle}>
             Find answers, explore guides, and learn how to use DDRE’s intranet tools.
           </p>
         </div>
-        {onClose && (
-          <DefaultButton
-            className={styles.closeButton}
-            iconProps={{ iconName: 'ChromeClose' }}
-            text="Back to Home"
-            onClick={onClose}
-          />
-        )}
       </div>
 
       <div className={styles.searchRow}>

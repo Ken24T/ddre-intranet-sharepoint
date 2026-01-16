@@ -9,6 +9,12 @@ export interface INavbarProps {
   userDisplayName: string;
   userEmail: string;
   userPhotoUrl?: string;
+  /** Current hub gradient for navbar background */
+  hubGradient?: string;
+  /** Optional navbar text/icon color override */
+  textColor?: string;
+  /** Optional search theming variables */
+  searchThemeVars?: React.CSSProperties;
   themeMode: ThemeMode;
   onThemeModeChange: (mode: ThemeMode) => void;
   onOpenSettings: () => void;
@@ -40,6 +46,9 @@ export const Navbar: React.FC<INavbarProps> = ({
   userDisplayName,
   userEmail,
   userPhotoUrl,
+  hubGradient,
+  textColor,
+  searchThemeVars,
   themeMode,
   onThemeModeChange,
   onOpenSettings,
@@ -54,7 +63,12 @@ export const Navbar: React.FC<INavbarProps> = ({
   onHideAiAssistant,
 }) => {
   return (
-    <nav className={styles.navbar} role="navigation" aria-label="Main navigation">
+    <nav
+      className={styles.navbar}
+      role="navigation"
+      aria-label="Main navigation"
+      style={hubGradient || textColor ? { background: hubGradient, color: textColor } : undefined}
+    >
       <button
         className={styles.toggleButton}
         onClick={onToggleSidebar}
@@ -75,6 +89,7 @@ export const Navbar: React.FC<INavbarProps> = ({
       <SearchBox 
         onSearch={onSearch}
         onResultSelect={onSearchResultSelect}
+        themeVars={searchThemeVars}
       />
 
       {/* ⚠️ DEV ONLY - Admin/User toggle for testing permission-based UI.

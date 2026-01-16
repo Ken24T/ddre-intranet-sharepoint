@@ -31,19 +31,19 @@
   height: 40px;
   border: none;
   background: transparent;
-  color: var(--white, rgba(255, 255, 255, 0.8));
+  color: var(--search-trigger-color, rgba(255, 255, 255, 0.8));
   font-size: 16px;
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 150ms ease, color 150ms ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--white, #ffffff);
+    background: var(--search-trigger-hover-bg, rgba(255, 255, 255, 0.1));
+    color: var(--search-trigger-hover-color, #ffffff);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--white, #ffffff);
+    outline: 2px solid var(--search-trigger-hover-color, #ffffff);
     outline-offset: -2px;
   }
 }
@@ -58,7 +58,7 @@
   width: 100%;
   height: 36px;
   padding: 0 8px;
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--search-input-bg, rgba(255, 255, 255, 0.25));
   backdrop-filter: blur(8px);
   border: none;
   border-radius: 4px;
@@ -74,7 +74,7 @@
 
 .searchIcon {
   flex-shrink: 0;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--search-icon-color, rgba(255, 255, 255, 0.9));
   font-size: 14px;
 }
 
@@ -82,7 +82,7 @@
   flex: 1;
   border: none !important;
   background: transparent;
-  color: #ffffff;
+  color: var(--search-input-text, #ffffff);
   font-size: 14px;
   font-family: inherit;
   outline: none !important;
@@ -97,7 +97,7 @@
   }
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--search-input-placeholder, rgba(255, 255, 255, 0.7));
     opacity: 1;
   }
 }
@@ -114,19 +114,19 @@
   height: 24px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--search-clear-color, rgba(255, 255, 255, 0.8));
   font-size: 12px;
   cursor: pointer;
   border-radius: 50%;
   transition: background-color 150ms ease, color 150ms ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
+    background: var(--search-clear-hover-bg, rgba(255, 255, 255, 0.2));
+    color: var(--search-clear-hover-color, #ffffff);
   }
 
   &:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline: 2px solid var(--search-clear-hover-color, rgba(255, 255, 255, 0.8));
     outline-offset: -2px;
   }
 }
@@ -143,9 +143,9 @@
   min-width: 320px;
   max-height: 400px;
   overflow-y: auto;
-  background: rgba(0, 60, 120, 0.92);
+  background: var(--search-dropdown-bg, rgba(0, 60, 120, 0.92));
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--search-dropdown-border, rgba(255, 255, 255, 0.15));
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   z-index: 1000;
@@ -161,7 +161,7 @@
   padding: 8px 12px 4px;
   font-size: 11px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--search-group-header, rgba(255, 255, 255, 0.7));
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -178,21 +178,19 @@
   gap: 10px;
   transition: background-color 100ms ease;
 
-  &:hover,
   &.selected {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--search-result-hover-bg, rgba(255, 255, 255, 0.1));
   }
 
   &:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline: 2px solid var(--search-result-focus, rgba(255, 255, 255, 0.5));
     outline-offset: -2px;
   }
 }
-
 .resultIcon {
   flex-shrink: 0;
   width: 20px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--search-result-icon, rgba(255, 255, 255, 0.7));
   font-size: 14px;
 }
 
@@ -206,7 +204,7 @@
 
 .resultTitle {
   font-size: 14px;
-  color: #ffffff;
+  color: var(--search-result-title, #ffffff);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -214,7 +212,7 @@
 
 .resultMeta {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--search-result-meta, rgba(255, 255, 255, 0.6));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -226,8 +224,8 @@
 
 .dropdownFooter {
   padding: 8px 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 40, 80, 0.5);
+  border-top: 1px solid var(--search-dropdown-border, rgba(255, 255, 255, 0.1));
+  background: var(--search-footer-bg, rgba(0, 40, 80, 0.5));
 }
 
 .viewAllButton {
@@ -236,7 +234,7 @@
   padding: 6px 8px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--search-footer-text, rgba(255, 255, 255, 0.9));
   font-size: 13px;
   font-weight: 500;
   text-align: center;
@@ -245,11 +243,11 @@
   transition: background-color 150ms ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--search-footer-hover-bg, rgba(255, 255, 255, 0.1));
   }
 
   &:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline: 2px solid var(--search-result-focus, rgba(255, 255, 255, 0.5));
     outline-offset: -2px;
   }
 }
@@ -269,7 +267,7 @@
 
 .emptyIcon {
   font-size: 32px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--search-empty-icon, rgba(255, 255, 255, 0.5));
   opacity: 1;
   margin-bottom: 12px;
 }
@@ -277,11 +275,11 @@
 .emptyText {
   font-size: 14px;
   font-weight: 500;
-  color: #ffffff;
+  color: var(--search-empty-text, #ffffff);
   margin-bottom: 4px;
 }
 
 .emptyHint {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--search-empty-hint, rgba(255, 255, 255, 0.6));
 }

@@ -26,6 +26,8 @@ export interface ISearchBoxProps {
   onResultSelect?: (result: ISearchResult) => void;
   /** Optional: provide custom search function for quick results */
   searchFn?: (query: string) => Promise<ISearchResult[]>;
+  /** Optional theme variables for styling */
+  themeVars?: React.CSSProperties;
 }
 
 // =============================================================================
@@ -107,6 +109,7 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
   onSearch,
   onResultSelect,
   searchFn = mockSearch,
+  themeVars,
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [query, setQuery] = React.useState('');
@@ -253,9 +256,10 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
   let cumulativeIndex = 0;
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className={`${styles.searchBox} ${isExpanded ? styles.expanded : ''}`}
+      style={themeVars}
     >
       {!isExpanded ? (
         <button

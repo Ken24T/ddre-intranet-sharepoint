@@ -42,6 +42,8 @@
   gap: 16px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 100;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
 }
 
 .navbarLogo {
@@ -71,6 +73,8 @@
   border-right: 1px solid var(--hub-surface-border, var(--neutralLight, #edebe9));
   overflow: hidden;
   transition: width 0.2s ease;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
 }
 
 .sidebarNavContainer {
@@ -148,6 +152,7 @@
   color: var(--white, #ffffff);
   position: relative;
   overflow: hidden;
+  border-radius: 16px;
 
   // Subtle pattern overlay
   &::before {

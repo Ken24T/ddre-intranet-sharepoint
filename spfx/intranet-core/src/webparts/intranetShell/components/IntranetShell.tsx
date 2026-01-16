@@ -110,6 +110,14 @@ const hexToRgb = (hex: string): { r: number; g: number; b: number } | undefined 
     : undefined;
 };
 
+const toRgba = (hex: string, alpha: number): string => {
+  const rgb = hexToRgb(hex);
+  if (!rgb) {
+    return `rgba(0, 0, 0, ${alpha})`;
+  }
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+};
+
 const getHubSurfaceColors = (accentColor?: string): { background: string; border: string } => {
   if (!accentColor) {
     return {
@@ -505,6 +513,64 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     // Get hub-specific colors
     const hubColor = getHubColor(activeHubKey);
     const hubSurface = getHubSurfaceColors(hubColor.accent);
+    const searchThemeVars = ((): React.CSSProperties => {
+      if (isHelpOpen) {
+        return {
+          '--search-trigger-color': '#6b4a00',
+          '--search-trigger-hover-color': '#4a3200',
+          '--search-trigger-hover-bg': 'rgba(255, 255, 255, 0.4)',
+          '--search-input-bg': 'rgba(255, 255, 255, 0.6)',
+          '--search-icon-color': '#6b4a00',
+          '--search-input-text': '#4a3200',
+          '--search-input-placeholder': '#8a5a00',
+          '--search-clear-color': '#6b4a00',
+          '--search-clear-hover-color': '#4a3200',
+          '--search-clear-hover-bg': 'rgba(255, 255, 255, 0.45)',
+          '--search-dropdown-bg': 'rgba(255, 232, 160, 0.98)',
+          '--search-dropdown-border': 'rgba(190, 140, 0, 0.25)',
+          '--search-group-header': '#7a4b00',
+          '--search-result-hover-bg': 'rgba(255, 255, 255, 0.6)',
+          '--search-result-focus': 'rgba(122, 75, 0, 0.5)',
+          '--search-result-icon': '#7a4b00',
+          '--search-result-title': '#4a3200',
+          '--search-result-meta': '#7a4b00',
+          '--search-footer-bg': 'rgba(255, 222, 120, 0.9)',
+          '--search-footer-text': '#4a3200',
+          '--search-footer-hover-bg': 'rgba(255, 255, 255, 0.6)',
+          '--search-empty-icon': '#7a4b00',
+          '--search-empty-text': '#4a3200',
+          '--search-empty-hint': '#7a4b00',
+        } as React.CSSProperties;
+      }
+
+      const accent = hubColor.accent || '#0078d4';
+      return {
+        '--search-trigger-color': 'rgba(255, 255, 255, 0.85)',
+        '--search-trigger-hover-color': '#ffffff',
+        '--search-trigger-hover-bg': 'rgba(255, 255, 255, 0.15)',
+        '--search-input-bg': 'rgba(255, 255, 255, 0.25)',
+        '--search-icon-color': 'rgba(255, 255, 255, 0.95)',
+        '--search-input-text': '#ffffff',
+        '--search-input-placeholder': 'rgba(255, 255, 255, 0.75)',
+        '--search-clear-color': 'rgba(255, 255, 255, 0.8)',
+        '--search-clear-hover-color': '#ffffff',
+        '--search-clear-hover-bg': 'rgba(255, 255, 255, 0.2)',
+        '--search-dropdown-bg': toRgba(accent, 0.92),
+        '--search-dropdown-border': 'rgba(255, 255, 255, 0.2)',
+        '--search-group-header': 'rgba(255, 255, 255, 0.75)',
+        '--search-result-hover-bg': 'rgba(255, 255, 255, 0.12)',
+        '--search-result-focus': 'rgba(255, 255, 255, 0.55)',
+        '--search-result-icon': 'rgba(255, 255, 255, 0.8)',
+        '--search-result-title': '#ffffff',
+        '--search-result-meta': 'rgba(255, 255, 255, 0.7)',
+        '--search-footer-bg': toRgba(accent, 0.7),
+        '--search-footer-text': 'rgba(255, 255, 255, 0.95)',
+        '--search-footer-hover-bg': 'rgba(255, 255, 255, 0.15)',
+        '--search-empty-icon': 'rgba(255, 255, 255, 0.8)',
+        '--search-empty-text': '#ffffff',
+        '--search-empty-hint': 'rgba(255, 255, 255, 0.7)',
+      } as React.CSSProperties;
+    })();
 
     // Resolve theme based on mode (light/dark/system)
     const resolvedTheme = getResolvedTheme(themeMode);
@@ -531,6 +597,9 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           siteTitle={siteTitle}
           userDisplayName={userDisplayName}
           userEmail={userEmail}
+          hubGradient={isHelpOpen ? 'linear-gradient(135deg, #fff7cc 0%, #ffe08a 100%)' : hubColor.gradient}
+          textColor={isHelpOpen ? '#4a3200' : undefined}
+          searchThemeVars={searchThemeVars}
           themeMode={themeMode}
           onThemeModeChange={this.handleThemeModeChange}
           onOpenSettings={this.handleOpenSettings}
