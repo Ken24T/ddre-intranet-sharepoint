@@ -1,10 +1,7 @@
 import * as React from 'react';
 import { IconButton, TooltipHost } from '@fluentui/react';
 import { AiChatPanel } from './AiChatPanel';
-
-// Import SCSS module with type assertion for SPFx compatibility
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const styles: Record<string, string> = require('./AiAssistant.module.scss');
+import styles from './AiAssistant.module.scss';
 
 // =============================================================================
 // TYPES
