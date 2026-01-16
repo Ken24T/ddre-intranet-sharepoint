@@ -44,7 +44,7 @@ export const Sidebar: React.FC<ISidebarProps> = ({
       role="complementary"
       aria-label="Sidebar navigation"
     >
-      <nav className={styles.sidebarNav}>
+      <nav id="sidebar-nav" className={styles.sidebarNav} tabIndex={-1}>
         {navItems.map((item) => (
           <a
             key={item.key}

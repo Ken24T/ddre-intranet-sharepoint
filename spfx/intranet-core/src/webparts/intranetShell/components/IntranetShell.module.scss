@@ -254,6 +254,43 @@
   }
 }
 
+// =============================================================================
+// FOCUS INDICATORS - Accessibility
+// =============================================================================
+// Ensure visible focus indicators in both light and dark themes
+
+// Skip link targets should not show focus ring when clicked
+#main-content:focus,
+#sidebar-nav:focus {
+  outline: none;
+}
+
+// Global focus visible styles (keyboard navigation only)
+.shell {
+  // Interactive elements get visible focus ring
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--themePrimary, #0078d4);
+    outline-offset: 2px;
+  }
+}
+
+// Dark theme focus adjustments
+.shellDark {
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline-color: var(--themeLighter, #deecf9);
+  }
+}
+
 // Responsive breakpoints
 @media (max-width: 768px) {
   .shell {

@@ -122,10 +122,10 @@ The foundation SPFx solution providing the layout frame for all intranet content
 
 ### Phase 10: Accessibility & Polish 🟡
 
-- [ ] 10.1 Audit all components with axe DevTools
-- [ ] 10.2 Verify keyboard navigation throughout
-- [ ] 10.3 Add skip links for screen readers
-- [ ] 10.4 Verify focus indicators in both themes
+- [x] 10.1 Audit all components with axe DevTools
+- [x] 10.2 Verify keyboard navigation throughout
+- [x] 10.3 Add skip links for screen readers
+- [x] 10.4 Verify focus indicators in both themes
 - [ ] 10.5 Test with screen reader (NVDA or VoiceOver)
 - [ ] 10.6 Document any known accessibility limitations
 

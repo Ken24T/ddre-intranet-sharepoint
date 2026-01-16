@@ -10,6 +10,7 @@ import { CardGrid } from './CardGrid';
 import { SettingsPanel } from './SettingsPanel';
 import { SearchResultsPage } from './SearchResultsPage';
 import { AiAssistant } from './AiAssistant';
+import { SkipLinks } from './SkipLinks';
 import { sampleCards, hubInfo } from './data';
 import type { IFunctionCard } from './FunctionCard';
 import type { ISearchResult } from './SearchBox';
@@ -303,6 +304,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
 
     return (
       <ThemeProvider theme={resolvedTheme}>
+        <SkipLinks />
         <div className={shellClassName} style={themeCssVars as React.CSSProperties}>
         <Navbar
           siteTitle={siteTitle}
