@@ -1,2 +1,2 @@
 export { FunctionCard } from './FunctionCard';
-export type { IFunctionCardProps, IFunctionCard } from './IFunctionCardProps';
+export type { CardOpenBehavior, IFunctionCardProps, IFunctionCard } from './IFunctionCardProps';

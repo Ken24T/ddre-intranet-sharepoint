@@ -1,4 +1,9 @@
 /**
+ * Card open behavior.
+ */
+export type CardOpenBehavior = 'inline' | 'newTab' | 'newWindow';
+
+/**
  * Props for FunctionCard component.
  */
 export interface IFunctionCardProps {
@@ -12,6 +17,8 @@ export interface IFunctionCardProps {
   icon: string;
   /** Theme accent color for the card */
   themeColor?: string;
+  /** Current open behavior */
+  openBehavior?: CardOpenBehavior;
   /** Optional: Card is pinned to top */
   isPinned?: boolean;
   /** Optional: User is admin (can hide cards) */
@@ -19,7 +26,16 @@ export interface IFunctionCardProps {
   /** Optional: Click handler */
   onClick?: () => void;
   /** Optional: Context menu handler */
-  onContextMenu?: (action: 'pin' | 'unpin' | 'hide' | 'openNewTab') => void;
+  onContextMenu?: (
+    action:
+      | 'pin'
+      | 'unpin'
+      | 'hide'
+      | 'openNewTab'
+      | 'setOpenInline'
+      | 'setOpenNewTab'
+      | 'setOpenNewWindow'
+  ) => void;
 }
 
 /**
@@ -34,6 +50,8 @@ export interface IFunctionCard {
   hubKey: string;
   /** URL to navigate to (SharePoint page or external) */
   url?: string;
+  /** Preferred open behavior for this card (admin-configurable) */
+  openBehavior?: CardOpenBehavior;
   /** Whether to open in new tab */
   openInNewTab?: boolean;
 }

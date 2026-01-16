@@ -10,6 +10,7 @@ import {
 } from '@fluentui/react';
 import { ConfirmationDialog } from '../Modal/ConfirmationDialog';
 import { HiddenCardsManager } from '../Modal/HiddenCardsManager';
+import type { CardOpenBehavior } from '../FunctionCard';
 import type { ThemeMode } from '../UserProfileMenu';
 import styles from './SettingsPanel.module.scss';
 
@@ -32,6 +33,14 @@ export interface ISettingsPanelProps {
   onRestoreCard: (cardId: string) => void;
   /** Called when all settings should reset */
   onResetAll: () => void;
+  /** Whether current user is admin */
+  isAdmin?: boolean;
+  /** Cards available for admin configuration */
+  cards?: Array<{ id: string; title: string; hubKey: string }>;
+  /** Current card open behavior preferences */
+  cardOpenBehaviors?: Record<string, CardOpenBehavior>;
+  /** Called when card open behavior changes */
+  onCardOpenBehaviorChange?: (cardId: string, behavior: CardOpenBehavior) => void;
   /** Whether AI Assistant is currently hidden */
   isAiAssistantHidden?: boolean;
   /** Called when AI Assistant should be shown */
@@ -54,6 +63,10 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
   hiddenCards,
   onRestoreCard,
   onResetAll,
+  isAdmin = false,
+  cards = [],
+  cardOpenBehaviors = {},
+  onCardOpenBehaviorChange,
   isAiAssistantHidden = false,
   onShowAiAssistant,
   onHideAiAssistant,
@@ -70,6 +83,17 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
   const sidebarOptions: IDropdownOption[] = [
     { key: 'expanded', text: 'Expanded' },
     { key: 'collapsed', text: 'Collapsed' },
+  ];
+
+  const aiAssistantOptions: IDropdownOption[] = [
+    { key: 'visible', text: 'Show at startup' },
+    { key: 'hidden', text: 'Hide at startup' },
+  ];
+
+  const cardOpenBehaviorOptions: IDropdownOption[] = [
+    { key: 'inline', text: 'Open in hub area' },
+    { key: 'newTab', text: 'Open in new tab' },
+    { key: 'newWindow', text: 'Open in new window' },
   ];
 
   const handleThemeChange = (
@@ -104,12 +128,29 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
     setShowResetDialog(false);
   };
 
-  const handleShowAiAssistant = (): void => {
-    onShowAiAssistant?.();
+  const handleAiAssistantChange = (
+    _event: React.FormEvent<HTMLDivElement>,
+    option?: IDropdownOption
+  ): void => {
+    if (!option) return;
+    if (option.key === 'hidden') {
+      onHideAiAssistant?.();
+    } else {
+      onShowAiAssistant?.();
+    }
   };
 
-  const handleHideAiAssistant = (): void => {
-    onHideAiAssistant?.();
+  const handleCardBehaviorChange = (
+    cardId: string
+  ): ((
+    _event: React.FormEvent<HTMLDivElement>,
+    option?: IDropdownOption
+  ) => void) => (
+    _event: React.FormEvent<HTMLDivElement>,
+    option?: IDropdownOption
+  ): void => {
+    if (!option || !onCardOpenBehaviorChange) return;
+    onCardOpenBehaviorChange(cardId, option.key as CardOpenBehavior);
   };
 
   const onRenderFooterContent = (): JSX.Element => (
@@ -169,35 +210,50 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
             </div>
           </div>
 
-          {/* AI Assistant Section */}
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>AI Assistant</h3>
-            {isAiAssistantHidden ? (
-              <>
-                <p className={styles.settingDescription}>
-                  The AI Assistant is hidden for this session.
-                </p>
-                <ActionButton
-                  iconProps={{ iconName: 'Robot' }}
-                  text="Show AI Assistant"
-                  onClick={handleShowAiAssistant}
-                  className={styles.manageButton}
+          {/* Card Behavior (Admin Only) */}
+          {isAdmin && cards.length > 0 && (
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>Card Behavior (Admin)</h3>
+              <p className={styles.settingDescription}>
+                Configure how each card opens when selected.
+              </p>
+              <div className={styles.cardBehaviorList}>
+                {cards.map((card) => (
+                  <div key={card.id} className={styles.cardBehaviorItem}>
+                    <div className={styles.cardBehaviorMeta}>
+                      <span className={styles.cardBehaviorTitle}>{card.title}</span>
+                      <span className={styles.cardBehaviorHub}>{card.hubKey}</span>
+                    </div>
+                    <Dropdown
+                      selectedKey={cardOpenBehaviors[card.id] || 'inline'}
+                      options={cardOpenBehaviorOptions}
+                      onChange={handleCardBehaviorChange(card.id)}
+                      styles={{ dropdown: { width: 200 } }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* AI Assistant (Admin Only) */}
+          {isAdmin && (
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>AI Assistant (Admin)</h3>
+              <div className={styles.setting}>
+                <Dropdown
+                  label="AI Assistant"
+                  selectedKey={isAiAssistantHidden ? 'hidden' : 'visible'}
+                  options={aiAssistantOptions}
+                  onChange={handleAiAssistantChange}
+                  styles={{ dropdown: { width: 200 } }}
                 />
-              </>
-            ) : (
-              <>
                 <p className={styles.settingDescription}>
-                  The AI Assistant is currently visible.
+                  Controls whether the AI Assistant is shown when users open the intranet.
                 </p>
-                <ActionButton
-                  iconProps={{ iconName: 'Hide' }}
-                  text="Hide AI Assistant"
-                  onClick={handleHideAiAssistant}
-                  className={styles.manageButton}
-                />
-              </>
-            )}
-          </div>
+              </div>
+            </div>
+          )}
 
           {/* Hidden Cards Section */}
           <div className={styles.section}>

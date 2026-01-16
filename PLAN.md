@@ -11,7 +11,7 @@ Central task tracking for all planned implementations.
 ## Quick Status
 
 | Area | Status | Progress |
-|------|--------|----------|
+| ---- | ------ | -------- |
 | **Intranet Shell** | ✅ Complete | Phases 1-10 done |
 | **Shared Packages** | 🟡 Scaffolded | pkg-theme, pkg-api-client |
 | **Business Apps** | ⚪ Not Started | Ready to begin |
@@ -33,7 +33,8 @@ Central task tracking for all planned implementations.
 
 > **Location:** `spfx/intranet-core`
 >
-> **Specs:** [docs/architecture/shell-layout.md](docs/architecture/shell-layout.md), [docs/architecture/ux/](docs/architecture/ux/)
+> **Specs:** [docs/architecture/shell-layout.md](docs/architecture/shell-layout.md),
+> [docs/architecture/ux/](docs/architecture/ux/)
 
 The foundation SPFx solution providing the layout frame for all intranet content.
 
@@ -129,7 +130,8 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [ ] 10.5 Test with screen reader (NVDA or VoiceOver)
 - [x] 10.6 Document any known accessibility limitations
 
-> **Note:** Screen reader testing (10.5) deferred to pre-production. No automated issues found.
+> **Note:** Screen reader testing (10.5) deferred to pre-production.
+> No automated issues found.
 
 ---
 
@@ -174,7 +176,8 @@ Design tokens and theme utilities for consistent styling across apps.
 
 #### Phase 4: Fluent UI Integration ⏸️ Deferred
 
-> Deferred until tenant environments are available and additional SPFx apps are needed.
+> Deferred until tenant environments are available and additional SPFx apps
+> are needed.
 
 - [ ] 4.1 Create light theme object for Fluent UI
 - [ ] 4.2 Create dark theme object for Fluent UI
@@ -242,6 +245,8 @@ Wire up shared packages to SPFx solutions.
 - [ ] Install pkg-api-client in intranet-core
 - [ ] Wire AI Assistant to AiClient
 - [ ] Wire Status Bar health checks to clients
+- [ ] Replace mocked global settings with SharePoint-backed config
+      (card open behavior, admin settings)
 
 ---
 
@@ -358,6 +363,16 @@ Batch operations for Vault CRM data.
 - [x] Set up environment configs (dev/test/prod)
 - [ ] Document local development setup in runbook
 - [ ] Add VS Code recommended extensions list
+
+### Branding Assets & Fonts (Tenant-Hosted)
+
+> **Status:** ⚪ Planned (awaiting tenant access)
+
+- [ ] Convert brand font files (TTF → WOFF2)
+- [ ] Upload font files to SharePoint Site Assets (tenant-hosted)
+- [ ] Add `@font-face` declarations in SPFx styles
+- [ ] Wire font family into Fluent UI theme tokens
+- [ ] Verify font loading, caching, and fallback stacks
 
 ### CI/CD Pipeline
 

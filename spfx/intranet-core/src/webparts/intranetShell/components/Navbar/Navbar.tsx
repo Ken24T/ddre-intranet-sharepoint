@@ -115,6 +115,7 @@ export const Navbar: React.FC<INavbarProps> = ({
           themeMode={themeMode}
           onThemeModeChange={onThemeModeChange}
           onOpenSettings={onOpenSettings}
+          isAdmin={isAdmin}
           isAiAssistantHidden={isAiAssistantHidden}
           onShowAiAssistant={onShowAiAssistant}
           onHideAiAssistant={onHideAiAssistant}

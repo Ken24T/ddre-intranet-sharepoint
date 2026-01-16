@@ -15,6 +15,7 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
   description,
   icon,
   themeColor = '#0078d4',
+  openBehavior = 'inline',
   isPinned = false,
   isAdmin = false,
   onClick,
@@ -50,6 +51,30 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
     '--card-theme-rgb': themeRgb,
   } as React.CSSProperties;
 
+  const openBehaviorMenuItems: IContextualMenuItem[] = [
+    {
+      key: 'openInline',
+      text: 'Open in hub area',
+      canCheck: true,
+      checked: openBehavior === 'inline',
+      onClick: () => onContextMenu?.('setOpenInline'),
+    },
+    {
+      key: 'openNewTab',
+      text: 'Open in new tab',
+      canCheck: true,
+      checked: openBehavior === 'newTab',
+      onClick: () => onContextMenu?.('setOpenNewTab'),
+    },
+    {
+      key: 'openNewWindow',
+      text: 'Open in new window',
+      canCheck: true,
+      checked: openBehavior === 'newWindow',
+      onClick: () => onContextMenu?.('setOpenNewWindow'),
+    },
+  ];
+
   const menuItems: IContextualMenuItem[] = [
     {
       key: 'pin',
@@ -63,6 +88,14 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
       text: 'Hide card',
       iconProps: { iconName: 'Hide3' },
       onClick: () => onContextMenu?.('hide'),
+    }] : []),
+    ...(isAdmin ? [{
+      key: 'openBehavior',
+      text: 'Open behavior',
+      iconProps: { iconName: 'Page' },
+      subMenuProps: {
+        items: openBehaviorMenuItems,
+      },
     }] : []),
     {
       key: 'divider',

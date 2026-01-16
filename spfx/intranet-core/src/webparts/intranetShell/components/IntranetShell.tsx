@@ -20,13 +20,13 @@ import { SearchResultsPage } from './SearchResultsPage';
 import { AiAssistant } from './AiAssistant';
 import { SkipLinks } from './SkipLinks';
 import { sampleCards, hubInfo } from './data';
-import type { IFunctionCard } from './FunctionCard';
+import type { CardOpenBehavior, IFunctionCard } from './FunctionCard';
 import type { ISearchResult } from './SearchBox';
 import { getHubColor, getResolvedTheme, getThemeCssVars, isDarkTheme } from './theme';
 import type { ThemeMode } from './UserProfileMenu';
 
-// Session storage key for AI Assistant hidden state
-const SESSION_KEY_AI_HIDDEN = 'ddre-ai-assistant-hidden';
+// Local storage key for AI Assistant hidden state (mocked global setting)
+const LOCAL_KEY_AI_HIDDEN = 'ddre-intranet-global-aiAssistantHidden';
 
 export interface IIntranetShellState {
   isSidebarCollapsed: boolean;
@@ -34,6 +34,8 @@ export interface IIntranetShellState {
   pinnedCardIds: string[];
   hiddenCardIds: string[];
   cardOrder: Record<string, string[]>;
+  /** Admin-configured card open behavior overrides */
+  cardOpenBehavior: Record<string, CardOpenBehavior>;
   /** Dev mode: toggle admin rights */
   isAdminMode: boolean;
   /** Current theme mode */
@@ -42,7 +44,9 @@ export interface IIntranetShellState {
   isSettingsOpen: boolean;
   /** Active search query (undefined when not searching) */
   searchQuery: string | undefined;
-  /** AI Assistant hidden state (session-scoped) */
+  /** Active card opened inline */
+  activeCardId?: string;
+  /** AI Assistant hidden state (global) */
   isAiAssistantHidden: boolean;
 }
 
@@ -55,6 +59,14 @@ const STORAGE_KEYS = {
   HIDDEN_CARDS: 'ddre-intranet-hiddenCards',
   SIDEBAR_COLLAPSED: 'ddre-intranet-sidebarCollapsed',
   THEME_MODE: 'ddre-intranet-themeMode',
+};
+
+/**
+ * LocalStorage keys for global (admin) preferences - mocked locally in dev
+ */
+const GLOBAL_STORAGE_KEYS = {
+  CARD_OPEN_BEHAVIOR: 'ddre-intranet-global-cardOpenBehavior',
+  AI_ASSISTANT_HIDDEN: 'ddre-intranet-global-aiAssistantHidden',
 };
 
 /**
@@ -134,10 +146,10 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
   constructor(props: IIntranetShellProps) {
     super(props);
     
-    // Load AI hidden state from sessionStorage
+    // Load AI hidden state from mocked global storage
     let isAiHidden = false;
     try {
-      isAiHidden = sessionStorage.getItem(SESSION_KEY_AI_HIDDEN) === 'true';
+      isAiHidden = localStorage.getItem(LOCAL_KEY_AI_HIDDEN) === 'true';
     } catch {
       // Ignore storage errors
     }
@@ -148,10 +160,12 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       pinnedCardIds: loadFromStorage(STORAGE_KEYS.PINNED_CARDS, []),
       hiddenCardIds: loadFromStorage(STORAGE_KEYS.HIDDEN_CARDS, []),
       cardOrder: loadFromStorage(STORAGE_KEYS.CARD_ORDER, {}),
+      cardOpenBehavior: loadFromStorage(GLOBAL_STORAGE_KEYS.CARD_OPEN_BEHAVIOR, {}),
       isAdminMode: props.isAdmin ?? false,
       themeMode: loadFromStorage(STORAGE_KEYS.THEME_MODE, 'light'),
       isSettingsOpen: false,
       searchQuery: undefined,
+      activeCardId: undefined,
       isAiAssistantHidden: isAiHidden,
     };
   }
@@ -203,7 +217,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
   };
 
   private handleHubChange = (hubKey: string): void => {
-    this.setState({ activeHubKey: hubKey });
+    this.setState({ activeHubKey: hubKey, activeCardId: undefined });
   };
 
   private handleCardOrderChange = (cardIds: string[]): void => {
@@ -247,6 +261,31 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     this.setState({ isSidebarCollapsed: collapsed });
   };
 
+  private getCardOpenBehavior = (card: IFunctionCard): CardOpenBehavior => {
+    const { cardOpenBehavior } = this.state;
+    if (cardOpenBehavior[card.id]) {
+      return cardOpenBehavior[card.id];
+    }
+    if (card.openBehavior) {
+      return card.openBehavior;
+    }
+    if (card.openInNewTab) {
+      return 'newTab';
+    }
+    return 'inline';
+  };
+
+  private handleCardOpenBehaviorChange = (cardId: string, behavior: CardOpenBehavior): void => {
+    this.setState((prevState) => {
+      const newBehaviors = {
+        ...prevState.cardOpenBehavior,
+        [cardId]: behavior,
+      };
+      saveToStorage(GLOBAL_STORAGE_KEYS.CARD_OPEN_BEHAVIOR, newBehaviors);
+      return { cardOpenBehavior: newBehaviors };
+    });
+  };
+
   private handleResetAll = (): void => {
     // Clear all localStorage keys
     const keys = [
@@ -264,25 +303,60 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       }
     });
 
+    // Clear mocked global settings only for admins
+    if (this.state.isAdminMode) {
+      try {
+        localStorage.removeItem(GLOBAL_STORAGE_KEYS.CARD_OPEN_BEHAVIOR);
+        localStorage.removeItem(GLOBAL_STORAGE_KEYS.AI_ASSISTANT_HIDDEN);
+      } catch {
+        // Ignore errors
+      }
+    }
+
     // Reset state to defaults
     this.setState({
       isSidebarCollapsed: false,
       pinnedCardIds: [],
       hiddenCardIds: [],
       cardOrder: {},
+      cardOpenBehavior: this.state.isAdminMode
+        ? {}
+        : this.state.cardOpenBehavior,
       themeMode: 'light',
+      activeCardId: undefined,
+      isAiAssistantHidden: this.state.isAdminMode
+        ? false
+        : this.state.isAiAssistantHidden,
     });
   };
 
   private handleCardClick = (card: IFunctionCard): void => {
-    if (card.url) {
-      if (card.openInNewTab) {
-        window.open(card.url, '_blank');
-      } else {
-        window.location.href = card.url;
-      }
+    const behavior = this.getCardOpenBehavior(card);
+
+    if (behavior === 'inline') {
+      this.setState({ activeCardId: card.id });
+      return;
     }
-    // For cards without URLs, could open a detail panel in future
+
+    if (!card.url) {
+      this.setState({ activeCardId: card.id });
+      return;
+    }
+
+    if (behavior === 'newTab') {
+      window.open(card.url, '_blank');
+      return;
+    }
+
+    // newWindow
+    const width = window.screen?.width || 1280;
+    const height = window.screen?.height || 720;
+    const features = `popup=yes,width=${width},height=${height},left=0,top=0`;
+    window.open(card.url, '_blank', features);
+  };
+
+  private handleCloseCardDetail = (): void => {
+    this.setState({ activeCardId: undefined });
   };
 
   private handleSearch = (query: string): void => {
@@ -303,7 +377,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
 
   private handleHideAiAssistant = (): void => {
     try {
-      sessionStorage.setItem(SESSION_KEY_AI_HIDDEN, 'true');
+      localStorage.setItem(GLOBAL_STORAGE_KEYS.AI_ASSISTANT_HIDDEN, 'true');
     } catch {
       // Ignore storage errors
     }
@@ -312,7 +386,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
 
   private handleShowAiAssistant = (): void => {
     try {
-      sessionStorage.removeItem(SESSION_KEY_AI_HIDDEN);
+      localStorage.removeItem(GLOBAL_STORAGE_KEYS.AI_ASSISTANT_HIDDEN);
     } catch {
       // Ignore storage errors
     }
@@ -321,7 +395,20 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
 
   public render(): React.ReactElement<IIntranetShellProps> {
     const { userDisplayName, userEmail, siteTitle } = this.props;
-    const { isSidebarCollapsed, activeHubKey, pinnedCardIds, hiddenCardIds, isAdminMode, cardOrder, themeMode, isSettingsOpen, searchQuery, isAiAssistantHidden } = this.state;
+    const {
+      isSidebarCollapsed,
+      activeHubKey,
+      pinnedCardIds,
+      hiddenCardIds,
+      isAdminMode,
+      cardOrder,
+      cardOpenBehavior,
+      themeMode,
+      isSettingsOpen,
+      searchQuery,
+      activeCardId,
+      isAiAssistantHidden,
+    } = this.state;
 
     // Get cards for current hub
     const hubCards = sampleCards.filter((card) => card.hubKey === activeHubKey);
@@ -337,6 +424,18 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
 
     // Extract first name for welcome message
     const firstName = userDisplayName.split(' ')[0];
+
+    // Active card (inline view)
+    const activeCard = activeCardId
+      ? sampleCards.find((card) => card.id === activeCardId)
+      : undefined;
+
+    // Card list for admin settings
+    const cardList = sampleCards.map((card) => ({
+      id: card.id,
+      title: card.title,
+      hubKey: card.hubKey,
+    }));
 
     // Get hub-specific colors
     const hubColor = getHubColor(activeHubKey);
@@ -390,6 +489,35 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
               query={searchQuery}
               onClearSearch={this.handleClearSearch}
             />
+          ) : activeCard ? (
+            <div className={styles.cardDetail}>
+              <div className={styles.cardDetailHeader}>
+                <div>
+                  <h2 className={styles.cardDetailTitle}>{activeCard.title}</h2>
+                  <p className={styles.cardDetailDescription}>{activeCard.description}</p>
+                </div>
+                <button
+                  className={styles.cardDetailClose}
+                  onClick={this.handleCloseCardDetail}
+                  type="button"
+                >
+                  Back to cards
+                </button>
+              </div>
+              {activeCard.url ? (
+                <button
+                  className={styles.cardDetailAction}
+                  onClick={() => {
+                    window.location.href = activeCard.url as string;
+                  }}
+                  type="button"
+                >
+                  Open content
+                </button>
+              ) : (
+                <p className={styles.cardDetailEmpty}>No content configured for this card yet.</p>
+              )}
+            </div>
           ) : (
             <>
               <div className={styles.heroBanner} style={{ background: hubColor.gradient }}>
@@ -456,11 +584,13 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
                   hubKey={activeHubKey}
                   pinnedCardIds={pinnedCardIds}
                   hiddenCardIds={hiddenCardIds}
+                  cardOpenBehaviors={cardOpenBehavior}
                   savedOrder={cardOrder[activeHubKey]}
                   isAdmin={isAdminMode}
                   onOrderChange={this.handleCardOrderChange}
                   onPinChange={this.handlePinChange}
                   onHideCard={this.handleHideCard}
+                  onCardOpenBehaviorChange={this.handleCardOpenBehaviorChange}
                   onCardClick={this.handleCardClick}
                 />
               </div>
@@ -479,6 +609,10 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           hiddenCards={hiddenCardsWithDetails}
           onRestoreCard={this.handleRestoreCard}
           onResetAll={this.handleResetAll}
+          isAdmin={isAdminMode}
+          cards={cardList}
+          cardOpenBehaviors={cardOpenBehavior}
+          onCardOpenBehaviorChange={this.handleCardOpenBehaviorChange}
           isAiAssistantHidden={isAiAssistantHidden}
           onShowAiAssistant={this.handleShowAiAssistant}
           onHideAiAssistant={this.handleHideAiAssistant}

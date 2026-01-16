@@ -15,7 +15,7 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { FunctionCard } from '../FunctionCard';
-import type { IFunctionCard } from '../FunctionCard';
+import type { CardOpenBehavior, IFunctionCard } from '../FunctionCard';
 import { getHubColor } from '../theme/colors';
 import styles from './CardGrid.module.scss';
 
@@ -28,6 +28,8 @@ export interface ICardGridProps {
   pinnedCardIds: string[];
   /** IDs of hidden cards */
   hiddenCardIds: string[];
+  /** Card open behavior overrides */
+  cardOpenBehaviors?: Record<string, CardOpenBehavior>;
   /** Saved card order for this hub */
   savedOrder?: string[];
   /** Whether user is admin (can hide cards) */
@@ -38,6 +40,11 @@ export interface ICardGridProps {
   onPinChange?: (cardId: string, isPinned: boolean) => void;
   /** Called when card is hidden */
   onHideCard?: (cardId: string) => void;
+  /** Called when card open behavior changes */
+  onCardOpenBehaviorChange?: (
+    cardId: string,
+    behavior: CardOpenBehavior
+  ) => void;
   /** Called when card is clicked */
   onCardClick?: (card: IFunctionCard) => void;
 }
@@ -51,11 +58,13 @@ export const CardGrid: React.FC<ICardGridProps> = ({
   hubKey,
   pinnedCardIds,
   hiddenCardIds,
+  cardOpenBehaviors = {},
   savedOrder,
   isAdmin = false,
   onOrderChange,
   onPinChange,
   onHideCard,
+  onCardOpenBehaviorChange,
   onCardClick,
 }) => {
   // Get hub theme color
@@ -128,7 +137,14 @@ export const CardGrid: React.FC<ICardGridProps> = ({
 
   const handleContextMenu = (
     cardId: string,
-    action: 'pin' | 'unpin' | 'hide' | 'openNewTab'
+    action:
+      | 'pin'
+      | 'unpin'
+      | 'hide'
+      | 'openNewTab'
+      | 'setOpenInline'
+      | 'setOpenNewTab'
+      | 'setOpenNewWindow'
   ): void => {
     switch (action) {
       case 'pin':
@@ -139,6 +155,15 @@ export const CardGrid: React.FC<ICardGridProps> = ({
         break;
       case 'hide':
         onHideCard?.(cardId);
+        break;
+      case 'setOpenInline':
+        onCardOpenBehaviorChange?.(cardId, 'inline');
+        break;
+      case 'setOpenNewTab':
+        onCardOpenBehaviorChange?.(cardId, 'newTab');
+        break;
+      case 'setOpenNewWindow':
+        onCardOpenBehaviorChange?.(cardId, 'newWindow');
         break;
       case 'openNewTab': {
         const card = cards.find((c) => c.id === cardId);
@@ -184,6 +209,7 @@ export const CardGrid: React.FC<ICardGridProps> = ({
                 description={card.description}
                 icon={card.icon}
                 themeColor={hubColor.accent}
+                openBehavior={cardOpenBehaviors[card.id] || card.openBehavior}
                 isPinned={pinnedCardIds.indexOf(card.id) !== -1}
                 isAdmin={isAdmin}
                 onClick={() => handleCardClick(card.id)}

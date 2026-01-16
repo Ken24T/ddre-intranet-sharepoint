@@ -194,6 +194,67 @@
   padding: 24px;
 }
 
+.cardDetail {
+  padding: 24px;
+  min-height: calc(100vh - 48px - 24px);
+  background-color: var(--white, #ffffff);
+}
+
+.cardDetailHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.cardDetailTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--neutralPrimary, #323130);
+  margin: 0 0 6px 0;
+}
+
+.cardDetailDescription {
+  font-size: 14px;
+  color: var(--neutralSecondary, #605e5c);
+  margin: 0;
+}
+
+.cardDetailClose {
+  background: var(--neutralLighter, #f3f2f1);
+  border: 1px solid var(--neutralLight, #edebe9);
+  color: var(--neutralPrimary, #323130);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+
+  &:hover {
+    background: var(--neutralLight, #edebe9);
+  }
+}
+
+.cardDetailAction {
+  background: var(--themePrimary, #0078d4);
+  color: var(--white, #ffffff);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+
+  &:hover {
+    background: var(--themeDark, #005a9e);
+  }
+}
+
+.cardDetailEmpty {
+  font-size: 14px;
+  color: var(--neutralSecondary, #605e5c);
+}
+
 .contentHeader {
   margin-bottom: 24px;
 }

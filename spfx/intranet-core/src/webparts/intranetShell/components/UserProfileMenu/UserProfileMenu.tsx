@@ -26,6 +26,8 @@ export interface IUserProfileMenuProps {
   onOpenSettings: () => void;
   /** Help & Support URL */
   helpUrl?: string;
+  /** Whether current user is admin */
+  isAdmin?: boolean;
   /** Whether AI Assistant is currently hidden */
   isAiAssistantHidden?: boolean;
   /** Called when user wants to show AI Assistant */
@@ -46,6 +48,7 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
   onThemeModeChange,
   onOpenSettings,
   helpUrl = 'https://support.ddre.com.au',
+  isAdmin = false,
   isAiAssistantHidden = false,
   onShowAiAssistant,
   onHideAiAssistant,
@@ -179,7 +182,7 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
               </button>
 
               {/* AI Assistant Toggle */}
-              {(onShowAiAssistant || onHideAiAssistant) && (
+              {isAdmin && (onShowAiAssistant || onHideAiAssistant) && (
                 <>
                   <div className={styles.divider} />
                   {isAiAssistantHidden ? (
