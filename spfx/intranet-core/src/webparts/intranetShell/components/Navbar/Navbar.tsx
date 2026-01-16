@@ -91,7 +91,7 @@ export const Navbar: React.FC<INavbarProps> = ({
               root: { marginBottom: 0 },
               label: { color: 'white', fontSize: 12 },
               pill: { 
-                background: isAdmin ? '#107c10' : 'rgba(255,255,255,0.3)',
+                background: 'rgba(255,255,255,0.3)',
               },
             }}
           />

@@ -6,11 +6,13 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "clean": "rimraf lib",
-    "prepublishOnly": "npm run build"
+    "clean": "rimraf lib dist",
+    "generate:css": "node scripts/generate-css.js",
+    "prepublishOnly": "npm run build && npm run generate:css"
   },
   "files": [
-    "lib"
+    "lib",
+    "dist"
   ],
   "keywords": [
     "ddre",
