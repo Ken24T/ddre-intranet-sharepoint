@@ -71,6 +71,13 @@ export const sampleCards: IFunctionCard[] = [
     description: 'Owner, Tenant, Contractor and Staff annual surveys',
     icon: 'Questionnaire',
   },
+  {
+    id: 'vault-batcher',
+    hubKey: 'administration',
+    title: 'Vault Batcher',
+    description: 'Automated CRM modifications and batch operations',
+    icon: 'Processing',
+  },
 
   // Office Hub
   {
@@ -120,13 +127,6 @@ export const sampleCards: IFunctionCard[] = [
     openInNewTab: true,
   },
   {
-    id: 'vault',
-    hubKey: 'sales',
-    title: 'Vault',
-    description: 'Secure document storage and management',
-    icon: 'Lock',
-  },
-  {
     id: 'maintenance-requests',
     hubKey: 'property-management',
     title: 'Maintenance Requests',
@@ -157,32 +157,25 @@ export const sampleCards: IFunctionCard[] = [
 
   // Sales Hub
   {
-    id: 'listings',
+    id: 'vault',
     hubKey: 'sales',
-    title: 'Listings',
-    description: 'Manage property listings and campaigns',
-    icon: 'Home',
-  },
-  {
-    id: 'leads',
-    hubKey: 'sales',
-    title: 'Leads',
-    description: 'Track and manage sales leads',
-    icon: 'ContactList',
+    title: 'Vault',
+    description: 'Access Vault CRM for sales management',
+    icon: 'Database',
   },
   {
     id: 'sales-reports',
     hubKey: 'sales',
-    title: 'Sales Reports',
+    title: 'Reports',
     description: 'View sales performance and metrics',
     icon: 'BarChartVertical',
   },
   {
-    id: 'commissions',
+    id: 'marketing-budgets',
     hubKey: 'sales',
-    title: 'Commissions',
-    description: 'Track sales commissions and payouts',
-    icon: 'Money',
+    title: 'Marketing Budgets',
+    description: 'Track and manage marketing spend and campaigns',
+    icon: 'Financial',
   },
 
   // Document Library (shown on library hub)
