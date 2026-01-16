@@ -101,6 +101,13 @@ export const sampleCards: IFunctionCard[] = [
     description: 'Submit expense reports for reimbursement',
     icon: 'Money',
   },
+  {
+    id: 'staff-availability',
+    hubKey: 'office',
+    title: 'Staff Availability',
+    description: 'View rosters, office days and team schedules',
+    icon: 'ScheduleEventAction',
+  },
 
   // Property Management Hub
   {
