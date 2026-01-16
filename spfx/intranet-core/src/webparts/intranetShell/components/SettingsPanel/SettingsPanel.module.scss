@@ -1,22 +1,21 @@
 .content {
-  padding: 8px 0;
+  padding: 8px 24px 24px;
 }
 
 .section {
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--neutralLight, #edebe9);
-
-  &:last-child {
-    border-bottom: none;
-  }
+  margin-bottom: 20px;
+  padding: 16px 16px 18px;
+  background: var(--neutralLighterAlt, #faf9f8);
+  border: 1px solid var(--neutralLight, #edebe9);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .sectionTitle {
   font-size: 14px;
   font-weight: 600;
   color: var(--neutralPrimary, #323130);
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -54,7 +53,7 @@
 .settingDescription {
   font-size: 12px;
   color: var(--neutralSecondary, #605e5c);
-  margin: 8px 0 0 0;
+  margin: 6px 0 0 0;
   line-height: 1.4;
 }
 
@@ -66,8 +65,9 @@
   font-size: 14px;
   margin: 0;
   padding: 12px;
-  background-color: var(--neutralLighterAlt, #faf9f8);
-  border-radius: 4px;
+  background-color: var(--white, #ffffff);
+  border: 1px solid var(--neutralLight, #edebe9);
+  border-radius: 8px;
 }
 
 .emptyIcon {
@@ -136,8 +136,32 @@
 .cardBehaviorList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.cardBehaviorGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background-color: var(--neutralLighterAlt, #faf9f8);
+  border: 1px solid var(--neutralLight, #edebe9);
+  border-radius: 8px;
+}
+
+.cardBehaviorGroupTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--neutralSecondary, #605e5c);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.cardBehaviorGroupList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .cardBehaviorItem {
@@ -146,9 +170,9 @@
   justify-content: space-between;
   gap: 16px;
   padding: 12px;
-  background-color: var(--neutralLighterAlt, #faf9f8);
+  background-color: var(--white, #ffffff);
   border: 1px solid var(--neutralLight, #edebe9);
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .cardBehaviorMeta {
@@ -170,8 +194,8 @@
 }
 
 .footer {
-  padding: 16px 0;
-  border-top: 1px solid var(--neutralLight, #edebe9);
+  padding: 8px 0 0;
+  border-top: none;
 }
 
 .resetButton {

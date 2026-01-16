@@ -4,6 +4,7 @@ import {
   PanelType,
   Dropdown,
   IDropdownOption,
+  IPanelStyles,
   DefaultButton,
   ActionButton,
   Icon,
@@ -74,6 +75,57 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
   const [showResetDialog, setShowResetDialog] = React.useState(false);
   const [showHiddenCardsManager, setShowHiddenCardsManager] = React.useState(false);
   const [isCardBehaviorExpanded, setIsCardBehaviorExpanded] = React.useState(false);
+
+  const hubLabels = React.useMemo<Record<string, string>>(
+    () => ({
+      home: 'Home',
+      office: 'Office',
+      sales: 'Sales',
+      'property-management': 'Property Management',
+      admin: 'Administration',
+      library: 'Library',
+    }),
+    []
+  );
+
+  const cardsByHub = React.useMemo(() => {
+    const grouped: Record<string, Array<{ id: string; title: string; hubKey: string }>> = {};
+    cards.forEach((card) => {
+      if (!grouped[card.hubKey]) {
+        grouped[card.hubKey] = [];
+      }
+      grouped[card.hubKey].push(card);
+    });
+    return grouped;
+  }, [cards]);
+
+  const panelStyles = React.useMemo<Partial<IPanelStyles>>(
+    () => ({
+      main: {
+        background: 'var(--color-background, #ffffff)',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
+        borderLeft: '1px solid var(--neutralLight, #edebe9)',
+      },
+      header: {
+        padding: '24px 24px 8px',
+      },
+      headerText: {
+        fontSize: 20,
+        fontWeight: 600,
+        color: 'var(--neutralPrimary, #323130)',
+      },
+      commands: {
+        marginTop: 4,
+      },
+      content: {
+        padding: 0,
+      },
+      footer: {
+        padding: '0 24px 24px',
+      },
+    }),
+    []
+  );
 
   const themeOptions: IDropdownOption[] = [
     { key: 'light', text: 'Light' },
@@ -175,6 +227,7 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
         closeButtonAriaLabel="Close settings"
         onRenderFooterContent={onRenderFooterContent}
         isFooterAtBottom={true}
+        styles={panelStyles}
       >
         <div className={styles.content}>
           {/* Appearance Section */}
@@ -228,18 +281,26 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
               </p>
               {isCardBehaviorExpanded && (
                 <div className={styles.cardBehaviorList}>
-                  {cards.map((card) => (
-                    <div key={card.id} className={styles.cardBehaviorItem}>
-                      <div className={styles.cardBehaviorMeta}>
-                        <span className={styles.cardBehaviorTitle}>{card.title}</span>
-                        <span className={styles.cardBehaviorHub}>{card.hubKey}</span>
+                  {Object.keys(cardsByHub).map((hubKey) => (
+                    <div key={hubKey} className={styles.cardBehaviorGroup}>
+                      <div className={styles.cardBehaviorGroupTitle}>
+                        {hubLabels[hubKey] || hubKey}
                       </div>
-                      <Dropdown
-                        selectedKey={cardOpenBehaviors[card.id] || 'inline'}
-                        options={cardOpenBehaviorOptions}
-                        onChange={handleCardBehaviorChange(card.id)}
-                        styles={{ dropdown: { width: 200 } }}
-                      />
+                      <div className={styles.cardBehaviorGroupList}>
+                        {cardsByHub[hubKey].map((card) => (
+                          <div key={card.id} className={styles.cardBehaviorItem}>
+                            <div className={styles.cardBehaviorMeta}>
+                              <span className={styles.cardBehaviorTitle}>{card.title}</span>
+                            </div>
+                            <Dropdown
+                              selectedKey={cardOpenBehaviors[card.id] || 'inline'}
+                              options={cardOpenBehaviorOptions}
+                              onChange={handleCardBehaviorChange(card.id)}
+                              styles={{ dropdown: { width: 200 } }}
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
