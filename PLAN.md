@@ -2,9 +2,9 @@
 
 Central task tracking for all planned implementations.
 
-> **Last updated:** 2026-01-16
+> **Last updated:** 2025-01-17
 >
-> **Current focus:** Intranet Shell (Phase 6: Search)
+> **Current focus:** Intranet Shell (Phase 8: Modals & Dialogs)
 
 ---
 
@@ -12,7 +12,7 @@ Central task tracking for all planned implementations.
 
 | Area | Status | Progress |
 |------|--------|----------|
-| **Intranet Shell** | 🟡 In Progress | Phases 1-5 ✅, Phase 6 next |
+| **Intranet Shell** | 🟡 In Progress | Phases 1-7 ✅, Phase 8 next |
 | **Shared Packages** | 🟡 Scaffolded | pkg-theme, pkg-api-client |
 | **Business Apps** | ⚪ Not Started | Awaiting shell completion |
 | **Infrastructure** | 🟡 In Progress | Dev harness ready, CI pending |
@@ -84,26 +84,26 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [x] 5.5 Display notifications with scroll/truncate behavior
 - [x] 5.6 Implement notification dismiss (session-scoped)
 
-### Phase 6: Search 🟡
+### Phase 6: Search ✅
 
-- [ ] 6.1 Add expandable search input to navbar
-- [ ] 6.2 Implement quick results dropdown (grouped by type)
-- [ ] 6.3 Create search results page with filters panel
+- [x] 6.1 Add expandable search input to navbar
+- [x] 6.2 Implement quick results dropdown (grouped by type)
+- [x] 6.3 Create search results page with filters panel
 - [ ] 6.4 Wire up SharePoint Search API or Microsoft Graph Search
-- [ ] 6.5 Implement keyboard navigation in results
-- [ ] 6.6 Add "No results" empty state
+- [x] 6.5 Implement keyboard navigation in results
+- [x] 6.6 Add "No results" empty state
 
-### Phase 7: Error Handling
+### Phase 7: Error Handling ✅
 
-- [ ] 7.1 Create `ToastProvider` and `useToast` hook
-- [ ] 7.2 Implement toast component (info, success, warning, error)
-- [ ] 7.3 Add auto-retry logic for API calls
-- [ ] 7.4 Create 403 Access Denied page
-- [ ] 7.5 Create 404 Not Found page
-- [ ] 7.6 Implement offline detection banner
-- [ ] 7.7 Add reconnection handling with toast
+- [x] 7.1 Create `ToastProvider` and `useToast` hook
+- [x] 7.2 Implement toast component (info, success, warning, error)
+- [x] 7.3 Add auto-retry logic for API calls
+- [x] 7.4 Create 403 Access Denied page
+- [x] 7.5 Create 404 Not Found page
+- [x] 7.6 Implement offline detection banner
+- [x] 7.7 Add reconnection handling with toast
 
-### Phase 8: Modals & Dialogs
+### Phase 8: Modals & Dialogs 🟡
 
 - [ ] 8.1 Create base `Modal` component with backdrop, focus trap, ESC
 - [ ] 8.2 Implement `ConfirmationDialog` for destructive actions
