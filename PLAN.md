@@ -136,6 +136,8 @@ The foundation SPFx solution providing the layout frame for all intranet content
 ## 2. Shared Packages
 
 > **Location:** `packages/`
+>
+> **Branch:** `feature/shared-packages`
 
 Reusable libraries consumed by SPFx solutions.
 
@@ -143,31 +145,101 @@ Reusable libraries consumed by SPFx solutions.
 
 > **Location:** `packages/pkg-theme`
 >
-> **Status:** 🟡 Scaffolded
+> **Status:** 🟡 In Progress
 
-Design tokens for consistent styling across apps.
+Design tokens and theme utilities for consistent styling across apps.
 
-- [x] Define spacing, typography, shadow tokens
-- [x] Define z-index scale, radii, breakpoints
-- [ ] Export as CSS custom properties
-- [ ] Add Fluent UI theme integration helpers
-- [ ] Document token usage guidelines
+#### Phase 1: Core Tokens ✅
+
+- [x] 1.1 Define spacing scale (xs-xxl)
+- [x] 1.2 Define typography scale (fontSize, lineHeight, fontWeight)
+- [x] 1.3 Define z-index scale
+- [x] 1.4 Define border radii
+- [x] 1.5 Define breakpoints
+- [x] 1.6 Define shadow scale
+
+#### Phase 2: Color System
+
+- [ ] 2.1 Move hub colors from shell to pkg-theme
+- [ ] 2.2 Add brand colors (primary, accent)
+- [ ] 2.3 Add semantic colors (success, warning, error, info)
+- [ ] 2.4 Add neutral palette
+- [ ] 2.5 Create `getHubColor()` helper function
+
+#### Phase 3: CSS Custom Properties
+
+- [ ] 3.1 Generate CSS variables from tokens
+- [ ] 3.2 Create `injectThemeVars()` function for runtime injection
+- [ ] 3.3 Export static CSS file for non-React usage
+
+#### Phase 4: Fluent UI Integration
+
+- [ ] 4.1 Create light theme object for Fluent UI
+- [ ] 4.2 Create dark theme object for Fluent UI
+- [ ] 4.3 Add theme switching utilities
+- [ ] 4.4 Export `ThemeProvider` wrapper
+
+#### Phase 5: Documentation & Testing
+
+- [ ] 5.1 Add JSDoc comments to all exports
+- [ ] 5.2 Create README with usage examples
+- [ ] 5.3 Add unit tests for helper functions
+- [ ] 5.4 Verify build output (ESM + CJS)
 
 ### pkg-api-client
 
 > **Location:** `packages/pkg-api-client`
 >
-> **Status:** 🟡 Scaffolded
+> **Status:** 🟡 In Progress
 
 Type-safe clients for Azure proxy APIs.
 
-- [x] Create `BaseClient` with error handling
-- [x] Create `VaultClient` for Sales CRM
-- [x] Create `PropertyMeClient` for PM data
-- [x] Create `AiClient` for RAG chatbot
-- [ ] Add request caching layer
-- [ ] Add retry with exponential backoff
-- [ ] Publish to internal npm registry (or local install)
+#### Phase 1: Core Infrastructure ✅
+
+- [x] 1.1 Create `BaseClient` class
+- [x] 1.2 Create `ApiError` class with typed errors
+- [x] 1.3 Define `ApiClientConfig` interface
+- [x] 1.4 Set up TypeScript build
+
+#### Phase 2: API Clients ✅
+
+- [x] 2.1 Create `AiClient` for RAG chatbot
+- [x] 2.2 Create `VaultClient` for Sales CRM
+- [x] 2.3 Create `PropertyMeClient` for PM data
+- [x] 2.4 Export all types for consumers
+
+#### Phase 3: Resilience
+
+- [ ] 3.1 Add retry with exponential backoff
+- [ ] 3.2 Add request timeout handling
+- [ ] 3.3 Add circuit breaker pattern (optional)
+- [ ] 3.4 Create `useRetry` hook for React consumers
+
+#### Phase 4: Caching
+
+- [ ] 4.1 Add in-memory cache layer
+- [ ] 4.2 Add cache invalidation strategies
+- [ ] 4.3 Add `stale-while-revalidate` support
+- [ ] 4.4 Make caching opt-in per request
+
+#### Phase 5: Testing & Documentation
+
+- [ ] 5.1 Add mock server for unit tests
+- [ ] 5.2 Test error handling scenarios
+- [ ] 5.3 Create README with usage examples
+- [ ] 5.4 Document API response types
+
+### Integration
+
+> **Status:** ⚪ Not Started
+
+Wire up shared packages to SPFx solutions.
+
+- [ ] Install pkg-theme in intranet-core
+- [ ] Migrate shell theme code to use pkg-theme
+- [ ] Install pkg-api-client in intranet-core
+- [ ] Wire AI Assistant to AiClient
+- [ ] Wire Status Bar health checks to clients
 
 ---
 
