@@ -17,6 +17,8 @@ export interface INavbarProps {
   onSearch?: (query: string) => void;
   /** Called when a search result is clicked */
   onSearchResultSelect?: (result: ISearchResult) => void;
+  /** Called when user opens Help Center */
+  onOpenHelp?: () => void;
   /** Dev mode: current admin state */
   isAdmin?: boolean;
   /** Dev mode: toggle admin rights */
@@ -44,6 +46,7 @@ export const Navbar: React.FC<INavbarProps> = ({
   onToggleSidebar,
   onSearch,
   onSearchResultSelect,
+  onOpenHelp,
   isAdmin = false,
   onToggleAdmin,
   isAiAssistantHidden = false,
@@ -107,6 +110,18 @@ export const Navbar: React.FC<INavbarProps> = ({
           <Icon iconName="Ringer" />
         </button>
 
+        {onOpenHelp && (
+          <button
+            className={styles.toggleButton}
+            aria-label="Help Center"
+            title="Help Center"
+            onClick={onOpenHelp}
+            type="button"
+          >
+            <Icon iconName="Help" />
+          </button>
+        )}
+
         {/* User Profile Menu */}
         <UserProfileMenu
           displayName={userDisplayName}
@@ -115,6 +130,7 @@ export const Navbar: React.FC<INavbarProps> = ({
           themeMode={themeMode}
           onThemeModeChange={onThemeModeChange}
           onOpenSettings={onOpenSettings}
+          onOpenHelp={onOpenHelp}
           isAdmin={isAdmin}
           isAiAssistantHidden={isAiAssistantHidden}
           onShowAiAssistant={onShowAiAssistant}

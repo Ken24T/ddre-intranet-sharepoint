@@ -2,7 +2,7 @@
 
 Central task tracking for all planned implementations.
 
-> **Last updated:** 2025-01-17
+> **Last updated:** 2026-01-17
 >
 > **Current focus:** Shared Packages & Business Apps
 
@@ -132,6 +132,29 @@ The foundation SPFx solution providing the layout frame for all intranet content
 
 > **Note:** Screen reader testing (10.5) deferred to pre-production.
 > No automated issues found.
+
+### Phase 11: Help & Feedback System
+
+- [ ] 11.1 Define help system IA (Help Center, in-context tips, search, roles)
+- [ ] 11.2 Define help content templates (overview, how-to, troubleshooting, FAQ)
+- [ ] 11.3 Add Help entry points (navbar Help icon, contextual “?” links,
+      empty-state CTAs)
+- [ ] 11.4 Implement Help Center shell (hub landing page + search + filters)
+- [ ] 11.5 Implement contextual help surfaces (tooltips, side panel, inline callouts)
+- [ ] 11.6 Add onboarding checklists for new apps/tools
+- [ ] 11.7 Add feedback loop (“Was this helpful?” + request help link)
+- [ ] 11.8 Define ownership + review cadence + versioning for help content
+
+### Phase 12: Feedback & Bug Report
+
+- [ ] 12.1 Decide submission mechanism (Cognito Forms vs SharePoint list)
+- [ ] 12.2 Define feedback categories + fields (bug, feature, content, access)
+- [ ] 12.3 Create feedback/bug report form (Cognito Forms)
+- [ ] 12.4 Add Feedback entry points (navbar, footer, or Help Center CTA)
+- [ ] 12.5 Add “Report an Issue” card (hub placement + visibility rules)
+- [ ] 12.6 Implement form embedding/redirect behavior
+- [ ] 12.7 Add acknowledgment UX (toast + confirmation state)
+- [ ] 12.8 Define routing of submissions (email, Teams channel, or tracker)
 
 ---
 

@@ -6,6 +6,7 @@ export interface ISidebarProps {
   isCollapsed: boolean;
   activeHubKey?: string;
   onHubChange?: (hubKey: string) => void;
+  onOpenHelp?: () => void;
 }
 
 interface INavItem {
@@ -32,6 +33,7 @@ export const Sidebar: React.FC<ISidebarProps> = ({
   isCollapsed,
   activeHubKey = 'home',
   onHubChange,
+  onOpenHelp,
 }) => {
   const handleClick = (e: React.MouseEvent, hubKey: string): void => {
     e.preventDefault();
@@ -44,25 +46,45 @@ export const Sidebar: React.FC<ISidebarProps> = ({
       role="complementary"
       aria-label="Sidebar navigation"
     >
-      <nav id="sidebar-nav" className={styles.sidebarNav} tabIndex={-1}>
-        {navItems.map((item) => (
-          <a
-            key={item.key}
-            href={`#${item.key}`}
-            className={`${styles.sidebarItem} ${item.key === activeHubKey ? styles.sidebarItemActive : ''}`}
-            title={item.label}
-            onClick={(e) => handleClick(e, item.key)}
-            aria-current={item.key === activeHubKey ? 'page' : undefined}
-          >
-            <span className={styles.sidebarItemIcon}>
-              <Icon iconName={item.icon} />
-            </span>
-            {!isCollapsed && (
-              <span className={styles.sidebarItemLabel}>{item.label}</span>
-            )}
-          </a>
-        ))}
-      </nav>
+      <div className={styles.sidebarNavContainer}>
+        <nav id="sidebar-nav" className={styles.sidebarNav} tabIndex={-1}>
+          {navItems.map((item) => (
+            <a
+              key={item.key}
+              href={`#${item.key}`}
+              className={`${styles.sidebarItem} ${item.key === activeHubKey ? styles.sidebarItemActive : ''}`}
+              title={item.label}
+              onClick={(e) => handleClick(e, item.key)}
+              aria-current={item.key === activeHubKey ? 'page' : undefined}
+            >
+              <span className={styles.sidebarItemIcon}>
+                <Icon iconName={item.icon} />
+              </span>
+              {!isCollapsed && (
+                <span className={styles.sidebarItemLabel}>{item.label}</span>
+              )}
+            </a>
+          ))}
+          {onOpenHelp && (
+            <a
+              className={`${styles.sidebarItem} ${styles.sidebarHelpItem}`}
+              href="#help"
+              onClick={(event) => {
+                event.preventDefault();
+                onOpenHelp();
+              }}
+              title="Help Center"
+            >
+              <span className={styles.sidebarItemIcon}>
+                <Icon iconName="Lightbulb" />
+              </span>
+              {!isCollapsed && (
+                <span className={styles.sidebarItemLabel}>Help Center</span>
+              )}
+            </a>
+          )}
+        </nav>
+      </div>
     </aside>
   );
 };

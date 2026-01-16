@@ -18,6 +18,7 @@ import { CardGrid } from './CardGrid';
 import { SettingsPanel } from './SettingsPanel';
 import { SearchResultsPage } from './SearchResultsPage';
 import { AiAssistant } from './AiAssistant';
+import { HelpCenter } from './HelpCenter/HelpCenter';
 import { SkipLinks } from './SkipLinks';
 import { sampleCards, hubInfo } from './data';
 import type { CardOpenBehavior, IFunctionCard } from './FunctionCard';
@@ -48,6 +49,8 @@ export interface IIntranetShellState {
   activeCardId?: string;
   /** AI Assistant hidden state (global) */
   isAiAssistantHidden: boolean;
+  /** Help Center open state */
+  isHelpOpen: boolean;
 }
 
 /**
@@ -167,6 +170,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       searchQuery: undefined,
       activeCardId: undefined,
       isAiAssistantHidden: isAiHidden,
+      isHelpOpen: false,
     };
   }
 
@@ -209,7 +213,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
   };
 
   private handleOpenSettings = (): void => {
-    this.setState({ isSettingsOpen: true });
+    this.setState({ isSettingsOpen: true, isHelpOpen: false });
   };
 
   private handleCloseSettings = (): void => {
@@ -217,7 +221,12 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
   };
 
   private handleHubChange = (hubKey: string): void => {
-    this.setState({ activeHubKey: hubKey, activeCardId: undefined });
+    this.setState({
+      activeHubKey: hubKey,
+      activeCardId: undefined,
+      searchQuery: undefined,
+      isHelpOpen: false,
+    });
   };
 
   private handleCardOrderChange = (cardIds: string[]): void => {
@@ -408,7 +417,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
 
   private handleSearch = (query: string): void => {
     // Show search results page with the query
-    this.setState({ searchQuery: query });
+    this.setState({ searchQuery: query, isHelpOpen: false });
   };
 
   private handleSearchResultSelect = (result: ISearchResult): void => {
@@ -420,6 +429,14 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
 
   private handleClearSearch = (): void => {
     this.setState({ searchQuery: undefined });
+  };
+
+  private handleOpenHelp = (): void => {
+    this.setState({ isHelpOpen: true, searchQuery: undefined, activeCardId: undefined });
+  };
+
+  private handleCloseHelp = (): void => {
+    this.setState({ isHelpOpen: false });
   };
 
   private handleHideAiAssistant = (): void => {
@@ -455,6 +472,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       searchQuery,
       activeCardId,
       isAiAssistantHidden,
+      isHelpOpen,
     } = this.state;
 
     // Get cards for current hub
@@ -519,6 +537,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           onToggleSidebar={this.handleToggleSidebar}
           onSearch={this.handleSearch}
           onSearchResultSelect={this.handleSearchResultSelect}
+          onOpenHelp={this.handleOpenHelp}
           isAdmin={isAdminMode}
           onToggleAdmin={this.handleToggleAdmin}
           isAiAssistantHidden={isAiAssistantHidden}
@@ -529,9 +548,12 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           isCollapsed={isSidebarCollapsed}
           activeHubKey={activeHubKey}
           onHubChange={this.handleHubChange}
+          onOpenHelp={this.handleOpenHelp}
         />
         <ContentArea>
-          {searchQuery ? (
+          {isHelpOpen ? (
+            <HelpCenter onClose={this.handleCloseHelp} />
+          ) : searchQuery ? (
             <SearchResultsPage
               query={searchQuery}
               onClearSearch={this.handleClearSearch}

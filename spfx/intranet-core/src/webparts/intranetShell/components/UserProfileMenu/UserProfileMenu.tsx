@@ -24,6 +24,8 @@ export interface IUserProfileMenuProps {
   onThemeModeChange: (mode: ThemeMode) => void;
   /** Called when Settings is clicked */
   onOpenSettings: () => void;
+  /** Called when Help Center is opened */
+  onOpenHelp?: () => void;
   /** Help & Support URL */
   helpUrl?: string;
   /** Whether current user is admin */
@@ -47,6 +49,7 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
   themeMode,
   onThemeModeChange,
   onOpenSettings,
+  onOpenHelp,
   helpUrl = 'https://support.ddre.com.au',
   isAdmin = false,
   isAiAssistantHidden = false,
@@ -78,7 +81,11 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
 
   const handleHelpClick = (): void => {
     closeMenu();
-    window.open(helpUrl, '_blank', 'noopener,noreferrer');
+    if (onOpenHelp) {
+      onOpenHelp();
+    } else {
+      window.open(helpUrl, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const handleShowAiAssistant = (): void => {

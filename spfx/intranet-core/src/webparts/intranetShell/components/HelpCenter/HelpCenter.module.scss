@@ -1,0 +1,139 @@
+.helpCenter {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.title {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--neutralPrimary, #323130);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: var(--neutralSecondary, #605e5c);
+}
+
+.closeButton {
+  align-self: flex-start;
+}
+
+.searchRow {
+  display: flex;
+}
+
+.categoryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.categoryChip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--neutralLighterAlt, #faf9f8);
+  border: 1px solid var(--neutralLight, #edebe9);
+  font-size: 12px;
+  color: var(--neutralSecondary, #605e5c);
+}
+
+.articleGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.articleCard {
+  background: var(--white, #ffffff);
+  border: 1px solid var(--neutralLight, #edebe9);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+}
+
+.articleHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--neutralSecondary, #605e5c);
+  font-size: 12px;
+}
+
+.articleIcon {
+  font-size: 16px;
+}
+
+.articleCategory {
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 600;
+}
+
+.articleTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--neutralPrimary, #323130);
+}
+
+.articleSummary {
+  margin: 0;
+  font-size: 13px;
+  color: var(--neutralSecondary, #605e5c);
+  line-height: 1.4;
+}
+
+.articleAction {
+  margin-top: auto;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--themePrimary, #0078d4);
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.articleChevron {
+  font-size: 12px;
+}
+
+.ctaPanel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f5f9ff 0%, #ffffff 100%);
+  border: 1px solid var(--neutralLight, #edebe9);
+  gap: 16px;
+}
+
+.ctaTitle {
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  color: var(--neutralPrimary, #323130);
+}
+
+.ctaText {
+  margin: 0;
+  font-size: 13px;
+  color: var(--neutralSecondary, #605e5c);
+}

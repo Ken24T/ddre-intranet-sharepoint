@@ -69,9 +69,14 @@
   flex-direction: column;
   background-color: var(--hub-surface-bg, var(--neutralLighter, #f3f2f1));
   border-right: 1px solid var(--hub-surface-border, var(--neutralLight, #edebe9));
+  overflow: hidden;
+  transition: width 0.2s ease;
+}
+
+.sidebarNavContainer {
+  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  transition: width 0.2s ease;
 }
 
 .sidebarNav {
@@ -79,6 +84,7 @@
   flex-direction: column;
   padding: 8px;
   gap: 4px;
+  height: 100%;
 }
 
 .sidebarItem {
@@ -123,6 +129,11 @@
   text-overflow: ellipsis;
 }
 
+.sidebarHelpItem {
+  margin-top: auto;
+}
+
+
 // Content area - fluid
 .content {
   grid-area: content;
@@ -156,6 +167,7 @@
   z-index: 1;
   max-width: 600px;
 }
+
 
 .heroImage {
   position: absolute;
