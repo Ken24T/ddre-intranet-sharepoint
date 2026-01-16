@@ -2,9 +2,9 @@
 
 Central task tracking for all planned implementations.
 
-> **Last updated:** 2025-01-17
+> **Last updated:** 2025-01-16
 >
-> **Current focus:** Intranet Shell (Phase 8: Modals & Dialogs)
+> **Current focus:** Intranet Shell (Phase 9: AI Assistant)
 
 ---
 
@@ -12,7 +12,7 @@ Central task tracking for all planned implementations.
 
 | Area | Status | Progress |
 |------|--------|----------|
-| **Intranet Shell** | 🟡 In Progress | Phases 1-7 ✅, Phase 8 next |
+| **Intranet Shell** | 🟡 In Progress | Phases 1-8 ✅, Phase 9 next |
 | **Shared Packages** | 🟡 Scaffolded | pkg-theme, pkg-api-client |
 | **Business Apps** | ⚪ Not Started | Awaiting shell completion |
 | **Infrastructure** | 🟡 In Progress | Dev harness ready, CI pending |
@@ -103,15 +103,15 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [x] 7.6 Implement offline detection banner
 - [x] 7.7 Add reconnection handling with toast
 
-### Phase 8: Modals & Dialogs 🟡
+### Phase 8: Modals & Dialogs ✅
 
-- [ ] 8.1 Create base `Modal` component with backdrop, focus trap, ESC
-- [ ] 8.2 Implement `ConfirmationDialog` for destructive actions
-- [ ] 8.3 Implement `HiddenCardsManager` modal
-- [ ] 8.4 Implement `InfoModal` for system announcements
-- [ ] 8.5 Verify modal accessibility (aria-modal, labelledby, focus)
+- [x] 8.1 Create base `Modal` component with backdrop, focus trap, ESC
+- [x] 8.2 Implement `ConfirmationDialog` for destructive actions
+- [x] 8.3 Implement `HiddenCardsManager` modal
+- [x] 8.4 Implement `InfoModal` for system announcements
+- [x] 8.5 Verify modal accessibility (aria-modal, labelledby, focus)
 
-### Phase 9: AI Assistant
+### Phase 9: AI Assistant 🟡
 
 - [ ] 9.1 Create floating action button (bottom-right)
 - [ ] 9.2 Implement chat panel (slide up from button)
