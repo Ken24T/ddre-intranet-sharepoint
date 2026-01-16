@@ -172,7 +172,9 @@ Design tokens and theme utilities for consistent styling across apps.
 - [x] 3.2 Create `injectThemeVars()` function for runtime injection
 - [x] 3.3 Export static CSS file for non-React usage
 
-#### Phase 4: Fluent UI Integration
+#### Phase 4: Fluent UI Integration ⏸️ Deferred
+
+> Deferred until tenant environments are available and additional SPFx apps are needed.
 
 - [ ] 4.1 Create light theme object for Fluent UI
 - [ ] 4.2 Create dark theme object for Fluent UI
