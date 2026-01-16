@@ -147,6 +147,13 @@ export const sampleCards: IFunctionCard[] = [
     description: 'Property management reports and analytics',
     icon: 'ReportDocument',
   },
+  {
+    id: 'pm-dashboard',
+    hubKey: 'property-management',
+    title: 'PM Dashboard',
+    description: 'Entries and Vacates Dashboard',
+    icon: 'ViewDashboard',
+  },
 
   // Sales Hub
   {
