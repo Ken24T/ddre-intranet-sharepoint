@@ -291,7 +291,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
             />
           </div>
         </ContentArea>
-        <StatusBar userEmail={userEmail} />
+        <StatusBar userDisplayName={userDisplayName} />
 
         <SettingsPanel
           isOpen={isSettingsOpen}

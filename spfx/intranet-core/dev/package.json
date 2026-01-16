@@ -9,12 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "17.0.1",
-    "react-dom": "17.0.1",
-    "@fluentui/react": "^8.106.4",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
-    "@dnd-kit/utilities": "^3.2.2"
+    "@dnd-kit/utilities": "^3.2.2",
+    "@fluentui/react": "^8.106.4",
+    "react": "17.0.1",
+    "react-dom": "17.0.1"
   },
   "devDependencies": {
     "@types/react": "17.0.45",

@@ -134,22 +134,24 @@
   position: absolute;
   bottom: 8px;
   right: 8px;
-  color: var(--neutralTertiaryAlt, #c8c6c4);
-  font-size: 16px;
+  color: var(--neutralSecondary, #605e5c);
+  font-size: 18px;
   cursor: grab;
   padding: 8px;
   border-radius: 4px;
-  opacity: 0.3;
-  transition: opacity 0.2s ease, background-color 0.2s ease;
+  opacity: 0.5;
+  background-color: rgba(var(--card-theme-rgb, 0, 120, 212), 0.06);
+  transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
   touch-action: none; // Important for dnd-kit
 
   .card:hover & {
     opacity: 1;
+    background-color: rgba(var(--card-theme-rgb, 0, 120, 212), 0.1);
   }
 
   &:hover {
-    background-color: var(--neutralLighter, #f3f2f1);
-    color: var(--neutralSecondary, #605e5c);
+    background-color: rgba(var(--card-theme-rgb, 0, 120, 212), 0.15);
+    color: var(--card-theme-color, #0078d4);
   }
 
   &:active {
