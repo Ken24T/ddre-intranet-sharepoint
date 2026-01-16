@@ -1,0 +1,125 @@
+.content {
+  padding: 8px 0;
+}
+
+.section {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--neutralLight, #edebe9);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--neutralPrimary, #323130);
+  margin: 0 0 16px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.setting {
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.settingDescription {
+  font-size: 12px;
+  color: var(--neutralSecondary, #605e5c);
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+}
+
+.emptyMessage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--neutralSecondary, #605e5c);
+  font-size: 14px;
+  margin: 0;
+  padding: 12px;
+  background-color: var(--neutralLighterAlt, #faf9f8);
+  border-radius: 4px;
+}
+
+.emptyIcon {
+  color: var(--green, #107c10);
+}
+
+.hiddenCardsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.hiddenCardItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: var(--neutralLighterAlt, #faf9f8);
+  border: 1px solid var(--neutralLight, #edebe9);
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--neutralLighter, #f3f2f1);
+  }
+}
+
+.hiddenCardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hiddenCardTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--neutralPrimary, #323130);
+}
+
+.hiddenCardHub {
+  font-size: 12px;
+  color: var(--neutralSecondary, #605e5c);
+  text-transform: capitalize;
+}
+
+.restoreButton {
+  color: var(--themePrimary, #0078d4);
+
+  &:hover {
+    background-color: var(--themeLight, #c7e0f4);
+  }
+}
+
+.manageButton {
+  margin-top: 8px;
+  color: var(--themePrimary, #0078d4);
+  padding-left: 0;
+
+  &:hover {
+    background: transparent;
+    color: var(--themeDarkAlt, #106ebe);
+  }
+}
+
+.footer {
+  padding: 16px 0;
+  border-top: 1px solid var(--neutralLight, #edebe9);
+}
+
+.resetButton {
+  color: var(--neutralSecondary, #605e5c);
+
+  &:hover {
+    color: var(--neutralPrimary, #323130);
+  }
+}

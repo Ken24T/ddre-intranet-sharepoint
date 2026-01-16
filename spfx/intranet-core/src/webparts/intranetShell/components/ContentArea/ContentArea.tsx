@@ -11,7 +11,7 @@ export interface IContentAreaProps {
  */
 export const ContentArea: React.FC<IContentAreaProps> = ({ children }) => {
   return (
-    <main className={styles.content} role="main">
+    <main id="main-content" className={styles.content} role="main" tabIndex={-1}>
       {children}
     </main>
   );

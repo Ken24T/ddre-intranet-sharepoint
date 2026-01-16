@@ -1,0 +1,56 @@
+.errorPage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  height: 100%;
+  padding: var(--space-xl);
+  background: var(--color-background);
+}
+
+.container {
+  max-width: 480px;
+  text-align: center;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--color-background-subtle);
+}
+
+.icon {
+  font-size: 64px;
+  color: var(--color-text-tertiary);
+}
+
+.title {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.message {
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.actions {
+  margin-top: var(--space-md);
+}
+
+.errorCode {
+  margin-top: var(--space-lg);
+  color: var(--color-text-tertiary);
+  font-family: var(--font-family-mono, monospace);
+}
+
+/* Theme-specific adjustments */
+:global([data-theme="dark"]) {
+  .iconWrapper {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}

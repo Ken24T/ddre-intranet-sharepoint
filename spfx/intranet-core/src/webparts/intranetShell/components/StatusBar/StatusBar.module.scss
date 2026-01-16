@@ -1,0 +1,269 @@
+// StatusBar styles
+// Fixed 24px height status bar with API health, user info, and notifications
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background-color: var(--neutralLighter, #f3f2f1);
+  border-top: 1px solid var(--neutralLight, #edebe9);
+  height: 24px;
+  font-size: 12px;
+  color: var(--neutralSecondary, #605e5c);
+  gap: 16px;
+}
+
+// =============================================================================
+// API HEALTH SECTION
+// =============================================================================
+
+.healthSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.healthIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--neutralLight, #edebe9);
+  }
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusHealthy {
+  background-color: var(--green, #107c10);
+  box-shadow: 0 0 4px rgba(16, 124, 16, 0.4);
+}
+
+.statusDegraded {
+  background-color: var(--yellow, #ffb900);
+  box-shadow: 0 0 4px rgba(255, 185, 0, 0.4);
+}
+
+.statusUnhealthy {
+  background-color: var(--red, #d13438);
+  box-shadow: 0 0 4px rgba(209, 52, 56, 0.4);
+}
+
+.statusChecking {
+  background-color: var(--themePrimary, #0078d4);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.statusUnknown {
+  background-color: var(--neutralTertiary, #a19f9d);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.apiName {
+  color: var(--neutralSecondary, #605e5c);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.refreshButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--neutralSecondary, #605e5c);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--neutralLight, #edebe9);
+    color: var(--neutralPrimary, #323130);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  i {
+    font-size: 12px;
+  }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// =============================================================================
+// SPACER
+// =============================================================================
+
+.spacer {
+  flex: 1;
+}
+
+// =============================================================================
+// NOTIFICATIONS SECTION
+// =============================================================================
+
+.notificationsSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.notificationsLoading,
+.noNotifications {
+  font-size: 11px;
+  color: var(--neutralTertiary, #a19f9d);
+  font-style: italic;
+}
+
+.notificationsScroller {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // IE/Edge
+
+  &::-webkit-scrollbar {
+    display: none; // Chrome/Safari
+  }
+}
+
+.notificationItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  max-width: 300px;
+  background-color: var(--neutralLighter, #f3f2f1);
+  border: 1px solid var(--neutralLight, #edebe9);
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--neutralLight, #edebe9);
+  }
+}
+
+.notificationInfo {
+  background-color: rgba(0, 120, 212, 0.08);
+  border-color: rgba(0, 120, 212, 0.2);
+
+  .notificationIcon {
+    color: var(--themePrimary, #0078d4);
+  }
+}
+
+.notificationWarning {
+  background-color: rgba(255, 185, 0, 0.1);
+  border-color: rgba(255, 185, 0, 0.3);
+
+  .notificationIcon {
+    color: var(--yellow, #ffb900);
+  }
+}
+
+.notificationError {
+  background-color: rgba(209, 52, 56, 0.08);
+  border-color: rgba(209, 52, 56, 0.2);
+
+  .notificationIcon {
+    color: var(--red, #d13438);
+  }
+}
+
+.notificationIcon {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.notificationMessage {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--neutralPrimary, #323130);
+}
+
+.dismissButton {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px;
+  padding: 0;
+  flex-shrink: 0;
+  color: var(--neutralSecondary, #605e5c);
+
+  i {
+    font-size: 10px;
+  }
+
+  &:hover {
+    background-color: transparent;
+    color: var(--neutralPrimary, #323130);
+  }
+}
+
+// =============================================================================
+// USER SECTION
+// =============================================================================
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.userIcon {
+  font-size: 12px;
+  color: var(--neutralTertiary, #a19f9d);
+}
+
+.userName {
+  color: var(--neutralSecondary, #605e5c);
+  font-size: 11px;
+  white-space: nowrap;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

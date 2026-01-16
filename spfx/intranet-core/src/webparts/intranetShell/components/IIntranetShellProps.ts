@@ -9,6 +9,8 @@ export interface IIntranetShellProps {
   userEmail: string;
   /** Site title for branding */
   siteTitle: string;
+  /** Optional: User is admin (can hide cards for all users) */
+  isAdmin?: boolean;
   /** Optional: Dark theme flag (for future theme support) */
   isDarkTheme?: boolean;
   /** Optional: Teams context flag */

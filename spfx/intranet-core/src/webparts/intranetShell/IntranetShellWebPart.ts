@@ -10,6 +10,7 @@ import { IReadonlyTheme } from "@microsoft/sp-component-base";
 
 import * as strings from "IntranetShellWebPartStrings";
 import IntranetShell from "./components/IntranetShell";
+import { IntranetShellWrapper } from "./components/IntranetShellWrapper";
 import { IIntranetShellProps } from "./components/IIntranetShellProps";
 
 export interface IIntranetShellWebPartProps {
@@ -21,7 +22,7 @@ export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntrane
   private _environmentMessage: string = "";
 
   public render(): void {
-    const element: React.ReactElement<IIntranetShellProps> =
+    const shellElement: React.ReactElement<IIntranetShellProps> =
       React.createElement(IntranetShell, {
         userDisplayName: this.context.pageContext.user.displayName,
         userEmail: this.context.pageContext.user.email || '',
@@ -29,6 +30,9 @@ export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntrane
         isDarkTheme: this._isDarkTheme,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
       });
+
+    // Wrap shell with error handling providers (Toast, OfflineBanner)
+    const element = React.createElement(IntranetShellWrapper, null, shellElement);
 
     ReactDom.render(element, this.domElement);
   }

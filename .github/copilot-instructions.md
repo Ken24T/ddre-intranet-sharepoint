@@ -6,6 +6,8 @@ SharePoint Online intranet using **SPFx 1.22.1 + TypeScript + React 17**. Monore
 
 **Key constraint:** SharePoint is the experience layer only—no secrets in browser code, all external APIs via Azure proxies.
 
+**Implementation plan:** See [PLAN.md](../PLAN.md) for current tasks and progress.
+
 ## Monorepo Structure
 
 | Folder | Purpose |
@@ -84,18 +86,24 @@ SPFx solutions consume these via local npm install (not published to registry ye
 - **Phase 1 (current):** Single `intranet-core` solution for foundation features
 - **Phase 2+:** Each business app gets its own SPFx solution and `.sppkg`
 
-## Release Workflow (TCTBP)
+## SHIP Workflow
 
-**Before any commit:** Check the Problems panel (Terminal/Problems) and resolve all errors/warnings.
+When the user says **SHIP**, execute the following steps as appropriate:
 
-**TCTBP** – Test, Commit, Tag, Bump, Push:
-1. **Test** – Run `npm run lint` and `npm run test` to verify no issues
-2. **Commit** – Stage and commit changes with a conventional commit message
-3. **Tag** – Create a semantic version tag (`vX.Y.Z`)
-4. **Bump** – Update version in `package.json` and `config/package-solution.json`
-5. **Push** – Push commits and tags to remote
+**SHIP** = **T**est → **P**roblems → **C**ommit → **T**ag → **B**ump → **P**ush
 
-Use the release script for versioned releases (handles Tag + Bump automatically):
+| Step | Action | When to Skip |
+|------|--------|--------------|
+| **Test** | Run `npm run lint` and `npm run test` | Docs-only changes, config tweaks |
+| **Problems** | Check VS Code Problems panel (`get_errors`) – must be 0 | Never skip |
+| **Commit** | Stage and commit with conventional message | Never skip |
+| **Tag** | Create semantic version tag (`vX.Y.Z`) | Feature work (non-release) |
+| **Bump** | Update version in `package.json` + `package-solution.json` | Feature work (non-release) |
+| **Push** | Push commits and tags to remote | Never skip |
+
+**Conventional commit prefixes:** `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`
+
+For versioned releases, use the release script (handles Tag + Bump):
 
 ```powershell
 ./scripts/release.ps1 -Bump patch -Message "fix: description"

@@ -1,0 +1,122 @@
+// =============================================================================
+// HIDDEN CARDS MANAGER STYLES
+// =============================================================================
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.intro {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+// =============================================================================
+// HUB SECTIONS
+// =============================================================================
+
+.hubSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.hubLabel {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-tertiary);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-border);
+}
+
+// =============================================================================
+// CARD LIST
+// =============================================================================
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.cardItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--color-background);
+  }
+}
+
+.cardIcon {
+  flex-shrink: 0;
+  font-size: 16px;
+  color: var(--color-text-tertiary);
+}
+
+.cardTitle {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.restoreButton {
+  flex-shrink: 0;
+  height: 28px;
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+
+  &:hover {
+    background: var(--color-primary-light);
+  }
+}
+
+// =============================================================================
+// EMPTY STATE
+// =============================================================================
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-lg);
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-md);
+}
+
+.emptyText {
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.emptySubtext {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  max-width: 280px;
+  line-height: 1.5;
+}

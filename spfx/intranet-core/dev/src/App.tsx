@@ -1,12 +1,14 @@
 import React from 'react';
 import { ThemeProvider, createTheme } from '@fluentui/react';
 import { IntranetShell } from '@components/IntranetShell';
+import { IntranetShellWrapper } from '@components/IntranetShellWrapper';
 
 // Mock SharePoint context for dev
 const mockContext = {
   userDisplayName: 'Ken Boyle',
-  userEmail: 'ken.boyle@ddre.com.au',
+  userEmail: 'ken@disher.com.au',
   siteTitle: 'DDRE Intranet',
+  isAdmin: false, // Set to true to test admin features (e.g., Hide Card)
 };
 
 const lightTheme = createTheme({
@@ -39,11 +41,14 @@ const lightTheme = createTheme({
 export const App: React.FC = () => {
   return (
     <ThemeProvider theme={lightTheme}>
-      <IntranetShell
-        userDisplayName={mockContext.userDisplayName}
-        userEmail={mockContext.userEmail}
-        siteTitle={mockContext.siteTitle}
-      />
+      <IntranetShellWrapper>
+        <IntranetShell
+          userDisplayName={mockContext.userDisplayName}
+          userEmail={mockContext.userEmail}
+          siteTitle={mockContext.siteTitle}
+          isAdmin={mockContext.isAdmin}
+        />
+      </IntranetShellWrapper>
     </ThemeProvider>
   );
 };

@@ -1,0 +1,73 @@
+// =============================================================================
+// CONFIRMATION DIALOG STYLES
+// =============================================================================
+
+.content {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 185, 0, 0.15);
+}
+
+.warningIcon {
+  font-size: 20px;
+  color: #ffb900; // Warning amber
+}
+
+.text {
+  flex: 1;
+}
+
+.message {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.description {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+// =============================================================================
+// DESTRUCTIVE BUTTON
+// =============================================================================
+
+.destructiveButton {
+  background-color: #d13438 !important;
+  border-color: #d13438 !important;
+
+  &:hover {
+    background-color: #a4262c !important;
+    border-color: #a4262c !important;
+  }
+
+  &:active {
+    background-color: #8b1d20 !important;
+    border-color: #8b1d20 !important;
+  }
+}
+
+// =============================================================================
+// DARK THEME ADJUSTMENTS
+// =============================================================================
+
+:global([data-theme="dark"]) {
+  .iconWrapper {
+    background: rgba(255, 185, 0, 0.2);
+  }
+}
