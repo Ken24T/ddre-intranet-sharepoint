@@ -10,6 +10,40 @@ import type { IChatMessage } from './AiAssistant';
 import styles from './AiAssistant.module.scss';
 
 // =============================================================================
+// UTILITIES
+// =============================================================================
+
+/**
+ * Convert hex color to RGB values.
+ */
+function hexToRgb(hex: string): { r: number; g: number; b: number } | undefined {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16),
+  } : undefined;
+}
+
+/**
+ * Generate a much lighter shade of a color (90% lighter).
+ * Used for message container background when accent color is provided.
+ */
+function getLighterShade(hexColor: string): string {
+  const rgb = hexToRgb(hexColor);
+  if (!rgb) return 'rgba(255, 255, 255, 0.5)';
+  
+  // Blend with white at 90% lightness
+  const lightened = {
+    r: Math.round(rgb.r + (255 - rgb.r) * 0.9),
+    g: Math.round(rgb.g + (255 - rgb.g) * 0.9),
+    b: Math.round(rgb.b + (255 - rgb.b) * 0.9),
+  };
+  
+  return `rgba(${lightened.r}, ${lightened.g}, ${lightened.b}, 0.4)`;
+}
+
+// =============================================================================
 // TYPES
 // =============================================================================
 
@@ -20,6 +54,7 @@ export interface IAiChatPanelProps {
   onMinimize: () => void;
   onHide: () => void;
   onPopout: () => void;
+  accentColor?: string;
 }
 
 // =============================================================================
@@ -33,6 +68,7 @@ export const AiChatPanel: React.FC<IAiChatPanelProps> = ({
   onMinimize,
   onHide,
   onPopout,
+  accentColor,
 }) => {
   const [inputValue, setInputValue] = React.useState('');
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -63,6 +99,10 @@ export const AiChatPanel: React.FC<IAiChatPanelProps> = ({
       role="dialog" 
       aria-label="AI Assistant Chat"
       aria-modal="false"
+      style={accentColor ? {
+        '--ai-accent-color': accentColor,
+        '--ai-message-bg': getLighterShade(accentColor),
+      } as React.CSSProperties : undefined}
     >
       {/* Header */}
       <div className={styles.panelHeader}>

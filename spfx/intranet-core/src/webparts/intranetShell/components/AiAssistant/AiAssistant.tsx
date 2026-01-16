@@ -79,7 +79,38 @@ function getSimulatedResponse(userMessage: string): string {
 // POPUP HTML GENERATOR
 // =============================================================================
 
-function getPopupHtml(messages: IChatMessage[]): string {
+/**
+ * Convert hex color to RGB values.
+ */
+function hexToRgbForPopup(hex: string): { r: number; g: number; b: number } | undefined {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16),
+  } : undefined;
+}
+
+/**
+ * Generate a much lighter shade of a color for popup background.
+ */
+function getLighterShadeForPopup(hexColor: string): string {
+  const rgb = hexToRgbForPopup(hexColor);
+  if (!rgb) return 'rgba(255, 255, 255, 0.5)';
+  
+  const lightened = {
+    r: Math.round(rgb.r + (255 - rgb.r) * 0.9),
+    g: Math.round(rgb.g + (255 - rgb.g) * 0.9),
+    b: Math.round(rgb.b + (255 - rgb.b) * 0.9),
+  };
+  
+  return `rgba(${lightened.r}, ${lightened.g}, ${lightened.b}, 0.4)`;
+}
+
+function getPopupHtml(messages: IChatMessage[], accentColor?: string): string {
+  const headerBg = accentColor || '#0078d4';
+  const messagesBg = accentColor ? getLighterShadeForPopup(accentColor) : '#faf9f8';
+  
   return `
 <!DOCTYPE html>
 <html>
@@ -88,21 +119,21 @@ function getPopupHtml(messages: IChatMessage[]): string {
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', sans-serif; background: #faf9f8; height: 100vh; display: flex; flex-direction: column; }
-    .header { background: #0078d4; color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
+    .header { background: ${headerBg}; color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
     .header h1 { font-size: 16px; font-weight: 600; }
     .header button { background: transparent; border: none; color: white; cursor: pointer; padding: 4px 8px; font-size: 14px; }
     .header button:hover { background: rgba(255,255,255,0.1); border-radius: 4px; }
-    .messages { flex: 1; overflow-y: auto; padding: 16px; }
+    .messages { flex: 1; overflow-y: auto; padding: 16px; background: ${messagesBg}; }
     .message { margin-bottom: 12px; max-width: 85%; }
     .message.user { margin-left: auto; }
     .message .bubble { padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4; }
-    .message.user .bubble { background: #0078d4; color: white; border-bottom-right-radius: 4px; }
+    .message.user .bubble { background: ${headerBg}; color: white; border-bottom-right-radius: 4px; }
     .message.assistant .bubble { background: white; border: 1px solid #e1dfdd; border-bottom-left-radius: 4px; }
     .input-area { padding: 12px 16px; background: white; border-top: 1px solid #e1dfdd; display: flex; gap: 8px; }
     .input-area input { flex: 1; padding: 10px 12px; border: 1px solid #e1dfdd; border-radius: 4px; font-size: 14px; }
-    .input-area input:focus { outline: none; border-color: #0078d4; }
-    .input-area button { background: #0078d4; color: white; border: none; border-radius: 4px; padding: 10px 16px; cursor: pointer; font-size: 14px; }
-    .input-area button:hover { background: #106ebe; }
+    .input-area input:focus { outline: none; border-color: ${headerBg}; }
+    .input-area button { background: ${headerBg}; color: white; border: none; border-radius: 4px; padding: 10px 16px; cursor: pointer; font-size: 14px; }
+    .input-area button:hover { filter: brightness(0.9); }
   </style>
 </head>
 <body>
@@ -268,14 +299,14 @@ export const AiAssistant: React.FC<IAiAssistantProps> = ({
       setIsPanelOpen(false);
       setSessionBoolean(SESSION_KEY_POPPED, true);
 
-      // Write popup content
-      popup.document.write(getPopupHtml(messages));
+      // Write popup content with accent color theming
+      popup.document.write(getPopupHtml(messages, accentColor));
       popup.document.close();
 
       // Setup message communication
       setupPopupCommunication(popup);
     }
-  }, [messages, setupPopupCommunication]);
+  }, [messages, accentColor, setupPopupCommunication]);
 
   // Floating button click handler
   const handleButtonClick = React.useCallback((): void => {
@@ -342,6 +373,7 @@ export const AiAssistant: React.FC<IAiAssistantProps> = ({
           onMinimize={handleMinimize}
           onHide={handleHide}
           onPopout={handlePopout}
+          accentColor={accentColor}
         />
       )}
 

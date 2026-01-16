@@ -138,6 +138,8 @@
   flex-direction: column;
   gap: var(--space-sm);
   min-height: 200px;
+  background: var(--ai-message-bg, var(--color-background));
+  transition: background 200ms ease;
 }
 
 .welcomeMessage {
