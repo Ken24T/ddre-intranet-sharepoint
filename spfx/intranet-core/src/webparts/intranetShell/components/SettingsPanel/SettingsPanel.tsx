@@ -73,6 +73,7 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
 }) => {
   const [showResetDialog, setShowResetDialog] = React.useState(false);
   const [showHiddenCardsManager, setShowHiddenCardsManager] = React.useState(false);
+  const [isCardBehaviorExpanded, setIsCardBehaviorExpanded] = React.useState(false);
 
   const themeOptions: IDropdownOption[] = [
     { key: 'light', text: 'Light' },
@@ -213,26 +214,36 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
           {/* Card Behavior (Admin Only) */}
           {isAdmin && cards.length > 0 && (
             <div className={styles.section}>
-              <h3 className={styles.sectionTitle}>Card Behavior (Admin)</h3>
+              <div className={styles.sectionHeader}>
+                <h3 className={styles.sectionTitle}>Card Behavior (Admin)</h3>
+                <ActionButton
+                  className={styles.sectionToggle}
+                  iconProps={{ iconName: isCardBehaviorExpanded ? 'ChevronUp' : 'ChevronDown' }}
+                  text={isCardBehaviorExpanded ? 'Collapse' : `Expand (${cards.length})`}
+                  onClick={() => setIsCardBehaviorExpanded((prev) => !prev)}
+                />
+              </div>
               <p className={styles.settingDescription}>
                 Configure how each card opens when selected.
               </p>
-              <div className={styles.cardBehaviorList}>
-                {cards.map((card) => (
-                  <div key={card.id} className={styles.cardBehaviorItem}>
-                    <div className={styles.cardBehaviorMeta}>
-                      <span className={styles.cardBehaviorTitle}>{card.title}</span>
-                      <span className={styles.cardBehaviorHub}>{card.hubKey}</span>
+              {isCardBehaviorExpanded && (
+                <div className={styles.cardBehaviorList}>
+                  {cards.map((card) => (
+                    <div key={card.id} className={styles.cardBehaviorItem}>
+                      <div className={styles.cardBehaviorMeta}>
+                        <span className={styles.cardBehaviorTitle}>{card.title}</span>
+                        <span className={styles.cardBehaviorHub}>{card.hubKey}</span>
+                      </div>
+                      <Dropdown
+                        selectedKey={cardOpenBehaviors[card.id] || 'inline'}
+                        options={cardOpenBehaviorOptions}
+                        onChange={handleCardBehaviorChange(card.id)}
+                        styles={{ dropdown: { width: 200 } }}
+                      />
                     </div>
-                    <Dropdown
-                      selectedKey={cardOpenBehaviors[card.id] || 'inline'}
-                      options={cardOpenBehaviorOptions}
-                      onChange={handleCardBehaviorChange(card.id)}
-                      styles={{ dropdown: { width: 200 } }}
-                    />
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

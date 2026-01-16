@@ -21,6 +21,28 @@
   letter-spacing: 0.5px;
 }
 
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  .sectionTitle {
+    margin-bottom: 0;
+  }
+}
+
+.sectionToggle {
+  padding: 0;
+  color: var(--neutralSecondary, #605e5c);
+  font-size: 12px;
+
+  &:hover {
+    color: var(--neutralPrimary, #323130);
+    background: transparent;
+  }
+}
+
 .setting {
   margin-bottom: 16px;
 
