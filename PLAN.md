@@ -158,13 +158,13 @@ Design tokens and theme utilities for consistent styling across apps.
 - [x] 1.5 Define breakpoints
 - [x] 1.6 Define shadow scale
 
-#### Phase 2: Color System
+#### Phase 2: Color System ✅
 
-- [ ] 2.1 Move hub colors from shell to pkg-theme
-- [ ] 2.2 Add brand colors (primary, accent)
-- [ ] 2.3 Add semantic colors (success, warning, error, info)
-- [ ] 2.4 Add neutral palette
-- [ ] 2.5 Create `getHubColor()` helper function
+- [x] 2.1 Move hub colors from shell to pkg-theme
+- [x] 2.2 Add brand colors (primary, accent)
+- [x] 2.3 Add semantic colors (success, warning, error, info)
+- [x] 2.4 Add neutral palette
+- [x] 2.5 Create `getHubColor()` helper function
 
 #### Phase 3: CSS Custom Properties
 

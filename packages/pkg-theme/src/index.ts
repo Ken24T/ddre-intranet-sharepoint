@@ -2,8 +2,31 @@
  * DDRE Intranet Design Tokens
  *
  * Shared design tokens for consistent styling across all SPFx solutions.
- * NOTE: Colors are NOT defined here - they come from SharePoint site theme.
  */
+
+// =============================================================================
+// COLOR EXPORTS
+// =============================================================================
+
+export {
+  brandColors,
+  hubColors,
+  getHubColor,
+  getHubKeys,
+  semanticColors,
+  semanticColorVariants,
+  neutralColors,
+  neutralAliases,
+  darkModeAliases,
+} from './colors';
+
+export type {
+  HubColor,
+  BrandColors,
+  SemanticColors,
+  NeutralColors,
+  HubColorKey,
+} from './colors';
 
 // =============================================================================
 // SPACING
