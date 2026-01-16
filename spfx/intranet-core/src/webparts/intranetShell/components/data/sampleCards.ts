@@ -25,7 +25,7 @@ export const sampleCards: IFunctionCard[] = [
     hubKey: 'home',
     title: 'My Tasks',
     description: 'View and manage your assigned tasks',
-    icon: 'TaskList',
+    icon: 'CheckList',
   },
 
   // Administration Hub
