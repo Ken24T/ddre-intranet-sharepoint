@@ -27,6 +27,20 @@ export const sampleCards: IFunctionCard[] = [
     description: 'View and manage your assigned tasks',
     icon: 'CheckList',
   },
+  {
+    id: 'forms',
+    hubKey: 'home',
+    title: 'Forms',
+    description: 'Access Cognito Forms library for requests and submissions',
+    icon: 'PageList',
+  },
+  {
+    id: 'qr-code-creator',
+    hubKey: 'home',
+    title: 'QR Code Creator',
+    description: 'Generate QR codes for links, text, and more',
+    icon: 'QRCode',
+  },
 
   // Administration Hub
   {
