@@ -338,25 +338,72 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       return;
     }
 
-    if (!card.url) {
-      this.setState({ activeCardId: card.id });
-      return;
-    }
-
     if (behavior === 'newTab') {
-      window.open(card.url, '_blank');
+      if (card.url) {
+        window.open(card.url, '_blank');
+      } else {
+        this.openMockCardWindow(card, false);
+      }
       return;
     }
 
     // newWindow
-    const width = window.screen?.width || 1280;
-    const height = window.screen?.height || 720;
-    const features = `popup=yes,width=${width},height=${height},left=0,top=0`;
-    window.open(card.url, '_blank', features);
+    if (card.url) {
+      const width = window.screen?.width || 1280;
+      const height = window.screen?.height || 720;
+      const features = `popup=yes,width=${width},height=${height},left=0,top=0`;
+      window.open(card.url, '_blank', features);
+    } else {
+      this.openMockCardWindow(card, true);
+    }
   };
 
   private handleCloseCardDetail = (): void => {
     this.setState({ activeCardId: undefined });
+  };
+
+  private getMockCardHtml = (card: IFunctionCard): string => {
+    const safeTitle = card.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const safeDescription = card.description
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${safeTitle}</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 24px; background: #f9fafb; color: #323130; }
+    .card { background: #fff; border: 1px solid #edebe9; border-radius: 12px; padding: 24px; max-width: 720px; box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    p { margin: 0 0 12px; color: #605e5c; }
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #c7e0f4; color: #005a9e; font-size: 12px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="badge">Mock Content</span>
+    <h1>${safeTitle}</h1>
+    <p>${safeDescription}</p>
+    <p>This is a placeholder for the app/tool. It will be replaced when the real app is available.</p>
+  </div>
+</body>
+</html>`;
+  };
+
+  private openMockCardWindow = (card: IFunctionCard, popup: boolean): void => {
+    const width = window.screen?.width || 1280;
+    const height = window.screen?.height || 720;
+    const features = popup
+      ? `popup=yes,width=${width},height=${height},left=0,top=0`
+      : undefined;
+    const newWindow = window.open('', '_blank', features);
+    if (newWindow) {
+      newWindow.document.open();
+      newWindow.document.write(this.getMockCardHtml(card));
+      newWindow.document.close();
+    }
   };
 
   private handleSearch = (query: string): void => {
@@ -504,19 +551,27 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
                   Back to cards
                 </button>
               </div>
-              {activeCard.url ? (
+              <>
+                <div className={styles.cardDetailFrame}>
+                  <iframe
+                    src={activeCard.url || undefined}
+                    srcDoc={activeCard.url ? undefined : this.getMockCardHtml(activeCard)}
+                    title={activeCard.title}
+                    className={styles.cardDetailIframe}
+                  />
+                </div>
                 <button
                   className={styles.cardDetailAction}
-                  onClick={() => {
-                    window.location.href = activeCard.url as string;
-                  }}
+                  onClick={() =>
+                    activeCard.url
+                      ? window.open(activeCard.url, '_blank')
+                      : this.openMockCardWindow(activeCard, false)
+                  }
                   type="button"
                 >
-                  Open content
+                  Open in new tab
                 </button>
-              ) : (
-                <p className={styles.cardDetailEmpty}>No content configured for this card yet.</p>
-              )}
+              </>
             </div>
           ) : (
             <>

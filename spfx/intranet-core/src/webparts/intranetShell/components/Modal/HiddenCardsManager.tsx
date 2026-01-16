@@ -2,9 +2,7 @@ import * as React from 'react';
 import { 
   PrimaryButton, 
   DefaultButton,
-  ActionButton,
   Icon,
-  Text,
 } from '@fluentui/react';
 import { Modal } from './Modal';
 import styles from './HiddenCardsManager.module.scss';
@@ -122,28 +120,28 @@ export const HiddenCardsManager: React.FC<IHiddenCardsManagerProps> = ({
       {!hasCards ? (
         <div className={styles.emptyState}>
           <Icon iconName="ViewAll" className={styles.emptyIcon} />
-          <Text className={styles.emptyText}>No hidden cards</Text>
-          <Text className={styles.emptySubtext}>
+          <div className={styles.emptyText}>No hidden cards</div>
+          <p className={styles.emptySubtext}>
             All your cards are currently visible. Hide cards from their context menu.
-          </Text>
+          </p>
         </div>
       ) : (
         <div className={styles.content}>
-          <Text className={styles.intro}>
+          <p className={styles.intro}>
             These cards are hidden from your view. Click Restore to show them again.
-          </Text>
+          </p>
 
           {hubKeys.map(hubKey => (
             <div key={hubKey} className={styles.hubSection}>
-              <Text className={styles.hubLabel}>
-                {HUB_LABELS[hubKey] || hubKey}
-              </Text>
+              <div className={styles.hubLabel}>{HUB_LABELS[hubKey] || hubKey}</div>
               <div className={styles.cardList}>
                 {cardsByHub[hubKey].map(card => (
                   <div key={card.id} className={styles.cardItem}>
-                    <Icon iconName="ProductVariant" className={styles.cardIcon} />
-                    <span className={styles.cardTitle}>{card.title}</span>
-                    <ActionButton
+                    <div className={styles.cardInfo}>
+                      <Icon iconName="ProductVariant" className={styles.cardIcon} />
+                      <span className={styles.cardTitle}>{card.title}</span>
+                    </div>
+                    <DefaultButton
                       className={styles.restoreButton}
                       text="Restore"
                       onClick={() => onRestoreCard(card.id)}
