@@ -137,10 +137,6 @@
   color: var(--white, #ffffff);
   position: relative;
   overflow: hidden;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 120px;
 
   // Subtle pattern overlay
   &::before {
@@ -162,13 +158,16 @@
 }
 
 .heroImage {
-  position: relative;
+  position: absolute;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 1;
-  height: 140px;
+  height: 80%;
+  max-height: 80px;
   width: auto;
   object-fit: contain;
-  margin-right: 32px;
-  opacity: 0.9;
+  opacity: 0.85;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
