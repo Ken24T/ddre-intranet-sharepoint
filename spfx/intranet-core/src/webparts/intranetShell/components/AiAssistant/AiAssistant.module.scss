@@ -36,8 +36,11 @@
     transform: scale(0.98);
   }
 
-  i {
+  // Ensure icon inherits white color
+  i,
+  i[class*="ms-Icon"] {
     font-size: 24px;
+    color: white !important;
   }
 }
 
@@ -46,6 +49,11 @@
 
   &:hover {
     background: var(--color-text-secondary);
+  }
+
+  i,
+  i[class*="ms-Icon"] {
+    color: white !important;
   }
 }
 
