@@ -4,14 +4,12 @@ import {
   PanelType,
   Dropdown,
   IDropdownOption,
-  PrimaryButton,
   DefaultButton,
-  Dialog,
-  DialogType,
-  DialogFooter,
+  ActionButton,
   Icon,
-  IconButton,
 } from '@fluentui/react';
+import { ConfirmationDialog } from '../Modal/ConfirmationDialog';
+import { HiddenCardsManager } from '../Modal/HiddenCardsManager';
 import type { ThemeMode } from '../UserProfileMenu';
 import styles from './SettingsPanel.module.scss';
 
@@ -52,6 +50,7 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
   onResetAll,
 }) => {
   const [showResetDialog, setShowResetDialog] = React.useState(false);
+  const [showHiddenCardsManager, setShowHiddenCardsManager] = React.useState(false);
 
   const themeOptions: IDropdownOption[] = [
     { key: 'light', text: 'Light' },
@@ -164,25 +163,14 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
             ) : (
               <>
                 <p className={styles.settingDescription}>
-                  Cards you&apos;ve hidden. Click restore to show them again.
+                  You have {hiddenCards.length} hidden card{hiddenCards.length !== 1 ? 's' : ''}.
                 </p>
-                <div className={styles.hiddenCardsList}>
-                  {hiddenCards.map((card) => (
-                    <div key={card.id} className={styles.hiddenCardItem}>
-                      <div className={styles.hiddenCardInfo}>
-                        <span className={styles.hiddenCardTitle}>{card.title}</span>
-                        <span className={styles.hiddenCardHub}>{card.hubKey}</span>
-                      </div>
-                      <IconButton
-                        iconProps={{ iconName: 'View' }}
-                        title="Restore card"
-                        ariaLabel={`Restore ${card.title}`}
-                        onClick={() => onRestoreCard(card.id)}
-                        className={styles.restoreButton}
-                      />
-                    </div>
-                  ))}
-                </div>
+                <ActionButton
+                  iconProps={{ iconName: 'ViewAll' }}
+                  text="Manage Hidden Cards..."
+                  onClick={() => setShowHiddenCardsManager(true)}
+                  className={styles.manageButton}
+                />
               </>
             )}
           </div>
@@ -190,24 +178,24 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
       </Panel>
 
       {/* Reset Confirmation Dialog */}
-      <Dialog
-        hidden={!showResetDialog}
+      <ConfirmationDialog
+        isOpen={showResetDialog}
         onDismiss={handleResetCancel}
-        dialogContentProps={{
-          type: DialogType.normal,
-          title: 'Reset to Defaults?',
-          subText:
-            'This will reset all your preferences including theme, layout, card order, and restore all hidden cards. This cannot be undone.',
-        }}
-        modalProps={{
-          isBlocking: true,
-        }}
-      >
-        <DialogFooter>
-          <PrimaryButton onClick={handleResetConfirm} text="Reset" />
-          <DefaultButton onClick={handleResetCancel} text="Cancel" />
-        </DialogFooter>
-      </Dialog>
+        onConfirm={handleResetConfirm}
+        title="Reset to Defaults"
+        message="Reset all settings to defaults?"
+        description="This will reset your theme, layout, card order, and restore all hidden cards. This cannot be undone."
+        confirmText="Reset"
+        variant="destructive"
+      />
+
+      {/* Hidden Cards Manager */}
+      <HiddenCardsManager
+        isOpen={showHiddenCardsManager}
+        onDismiss={() => setShowHiddenCardsManager(false)}
+        hiddenCards={hiddenCards}
+        onRestoreCard={onRestoreCard}
+      />
     </>
   );
 };

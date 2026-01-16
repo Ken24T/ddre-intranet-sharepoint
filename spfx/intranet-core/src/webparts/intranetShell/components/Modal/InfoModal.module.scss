@@ -1,0 +1,103 @@
+// =============================================================================
+// INFO MODAL STYLES
+// =============================================================================
+
+.content {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.icon {
+  font-size: 20px;
+}
+
+// =============================================================================
+// TYPE VARIANTS
+// =============================================================================
+
+.info {
+  background: rgba(0, 120, 212, 0.15);
+
+  .icon {
+    color: #0078d4;
+  }
+}
+
+.success {
+  background: rgba(16, 124, 16, 0.15);
+
+  .icon {
+    color: #107c10;
+  }
+}
+
+.warning {
+  background: rgba(255, 185, 0, 0.15);
+
+  .icon {
+    color: #ffb900;
+  }
+}
+
+.error {
+  background: rgba(209, 52, 56, 0.15);
+
+  .icon {
+    color: #d13438;
+  }
+}
+
+// =============================================================================
+// TEXT
+// =============================================================================
+
+.text {
+  flex: 1;
+}
+
+.message {
+  margin: 0;
+  font-size: var(--font-size-md);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+
+.details {
+  margin-top: var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+// =============================================================================
+// DARK THEME ADJUSTMENTS
+// =============================================================================
+
+:global([data-theme="dark"]) {
+  .info {
+    background: rgba(0, 120, 212, 0.2);
+  }
+
+  .success {
+    background: rgba(16, 124, 16, 0.2);
+  }
+
+  .warning {
+    background: rgba(255, 185, 0, 0.2);
+  }
+
+  .error {
+    background: rgba(209, 52, 56, 0.2);
+  }
+}
