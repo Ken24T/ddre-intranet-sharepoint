@@ -157,16 +157,16 @@ Work through these in order. Each phase builds on the previous.
 - [ ] **4.5** Listen for `prefers-color-scheme` changes (System mode)
 - [ ] **4.6** Verify all components render correctly in both themes
 
-### Phase 5: Status Bar & API Health
+### Phase 5: Status Bar & API Health ✅
 
 > Real-time status indicators.
 
-- [ ] **5.1** Create API health check service (Vault, PropertyMe)
-- [ ] **5.2** Implement health indicator dots with tooltip
-- [ ] **5.3** Display current user from SharePoint context
-- [ ] **5.4** Create system notifications data source (SharePoint List or API)
-- [ ] **5.5** Display notifications with scroll/truncate behavior
-- [ ] **5.6** Implement notification dismiss (session-scoped)
+- [x] **5.1** Create API health check service (Vault, PropertyMe)
+- [x] **5.2** Implement health indicator dots with tooltip
+- [x] **5.3** Display current user from SharePoint context
+- [x] **5.4** Create system notifications data source (SharePoint List or API)
+- [x] **5.5** Display notifications with scroll/truncate behavior
+- [x] **5.6** Implement notification dismiss (session-scoped)
 
 ### Phase 6: Search
 
