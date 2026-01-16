@@ -32,6 +32,12 @@ export interface ISettingsPanelProps {
   onRestoreCard: (cardId: string) => void;
   /** Called when all settings should reset */
   onResetAll: () => void;
+  /** Whether AI Assistant is currently hidden */
+  isAiAssistantHidden?: boolean;
+  /** Called when AI Assistant should be shown */
+  onShowAiAssistant?: () => void;
+  /** Called when AI Assistant should be hidden */
+  onHideAiAssistant?: () => void;
 }
 
 /**
@@ -48,6 +54,9 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
   hiddenCards,
   onRestoreCard,
   onResetAll,
+  isAiAssistantHidden = false,
+  onShowAiAssistant,
+  onHideAiAssistant,
 }) => {
   const [showResetDialog, setShowResetDialog] = React.useState(false);
   const [showHiddenCardsManager, setShowHiddenCardsManager] = React.useState(false);
@@ -93,6 +102,14 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
 
   const handleResetCancel = (): void => {
     setShowResetDialog(false);
+  };
+
+  const handleShowAiAssistant = (): void => {
+    onShowAiAssistant?.();
+  };
+
+  const handleHideAiAssistant = (): void => {
+    onHideAiAssistant?.();
   };
 
   const onRenderFooterContent = (): JSX.Element => (
@@ -150,6 +167,36 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
                 How the sidebar appears when you first load the page.
               </p>
             </div>
+          </div>
+
+          {/* AI Assistant Section */}
+          <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>AI Assistant</h3>
+            {isAiAssistantHidden ? (
+              <>
+                <p className={styles.settingDescription}>
+                  The AI Assistant is hidden for this session.
+                </p>
+                <ActionButton
+                  iconProps={{ iconName: 'Robot' }}
+                  text="Show AI Assistant"
+                  onClick={handleShowAiAssistant}
+                  className={styles.manageButton}
+                />
+              </>
+            ) : (
+              <>
+                <p className={styles.settingDescription}>
+                  The AI Assistant is currently visible.
+                </p>
+                <ActionButton
+                  iconProps={{ iconName: 'Hide' }}
+                  text="Hide AI Assistant"
+                  onClick={handleHideAiAssistant}
+                  className={styles.manageButton}
+                />
+              </>
+            )}
           </div>
 
           {/* Hidden Cards Section */}

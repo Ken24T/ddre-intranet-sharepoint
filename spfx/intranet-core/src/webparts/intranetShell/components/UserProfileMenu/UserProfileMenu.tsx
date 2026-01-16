@@ -30,6 +30,8 @@ export interface IUserProfileMenuProps {
   isAiAssistantHidden?: boolean;
   /** Called when user wants to show AI Assistant */
   onShowAiAssistant?: () => void;
+  /** Called when user wants to hide AI Assistant */
+  onHideAiAssistant?: () => void;
 }
 
 /**
@@ -46,6 +48,7 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
   helpUrl = 'https://support.ddre.com.au',
   isAiAssistantHidden = false,
   onShowAiAssistant,
+  onHideAiAssistant,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const buttonRef = React.useRef<HTMLButtonElement>(null);
@@ -78,6 +81,11 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
   const handleShowAiAssistant = (): void => {
     closeMenu();
     onShowAiAssistant?.();
+  };
+
+  const handleHideAiAssistant = (): void => {
+    closeMenu();
+    onHideAiAssistant?.();
   };
 
   // Get initials for fallback avatar
@@ -170,14 +178,21 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
                 <Icon iconName="ChevronRight" className={styles.menuChevron} />
               </button>
 
-              {/* Show AI Assistant (only when hidden) */}
-              {isAiAssistantHidden && onShowAiAssistant && (
+              {/* AI Assistant Toggle */}
+              {(onShowAiAssistant || onHideAiAssistant) && (
                 <>
                   <div className={styles.divider} />
-                  <button className={styles.menuItem} onClick={handleShowAiAssistant}>
-                    <Icon iconName="Robot" className={styles.menuIcon} />
-                    <span>Show AI Assistant</span>
-                  </button>
+                  {isAiAssistantHidden ? (
+                    <button className={styles.menuItem} onClick={handleShowAiAssistant}>
+                      <Icon iconName="Robot" className={styles.menuIcon} />
+                      <span>Show AI Assistant</span>
+                    </button>
+                  ) : (
+                    <button className={styles.menuItem} onClick={handleHideAiAssistant}>
+                      <Icon iconName="Hide" className={styles.menuIcon} />
+                      <span>Hide AI Assistant</span>
+                    </button>
+                  )}
                 </>
               )}
 

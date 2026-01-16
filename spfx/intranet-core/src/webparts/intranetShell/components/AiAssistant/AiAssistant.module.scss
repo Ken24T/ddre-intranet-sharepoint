@@ -226,28 +226,40 @@
   gap: var(--space-xs);
   padding: var(--space-sm) var(--space-md);
   border-top: 1px solid var(--color-border);
-  background: var(--color-background);
+  background: var(--ai-accent-color, var(--color-primary));
   flex-shrink: 0;
 }
 
 .inputField {
   flex: 1;
 
-  input {
+  :global(.ms-TextField-fieldGroup) {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 6px;
+  }
+
+  :global(.ms-TextField-field) {
     padding: var(--space-sm);
     font-size: var(--font-size-sm);
+    background: transparent;
+    color: white;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
   }
 }
 
 .sendButton {
-  color: var(--color-primary);
+  color: white;
 
   &:hover:not(:disabled) {
-    background: var(--color-primary-light);
+    background: rgba(255, 255, 255, 0.15);
   }
 
   &:disabled {
-    color: var(--color-text-tertiary);
+    color: rgba(255, 255, 255, 0.6);
   }
 }
 

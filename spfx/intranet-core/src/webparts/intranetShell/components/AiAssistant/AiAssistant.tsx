@@ -129,11 +129,12 @@ function getPopupHtml(messages: IChatMessage[], accentColor?: string): string {
     .message .bubble { padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4; }
     .message.user .bubble { background: ${headerBg}; color: white; border-bottom-right-radius: 4px; }
     .message.assistant .bubble { background: white; border: 1px solid #e1dfdd; border-bottom-left-radius: 4px; }
-    .input-area { padding: 12px 16px; background: white; border-top: 1px solid #e1dfdd; display: flex; gap: 8px; }
-    .input-area input { flex: 1; padding: 10px 12px; border: 1px solid #e1dfdd; border-radius: 4px; font-size: 14px; }
-    .input-area input:focus { outline: none; border-color: ${headerBg}; }
-    .input-area button { background: ${headerBg}; color: white; border: none; border-radius: 4px; padding: 10px 16px; cursor: pointer; font-size: 14px; }
-    .input-area button:hover { filter: brightness(0.9); }
+    .input-area { padding: 12px 16px; background: ${headerBg}; border-top: 1px solid rgba(0, 0, 0, 0.1); display: flex; gap: 8px; }
+    .input-area input { flex: 1; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 4px; font-size: 14px; background: rgba(255, 255, 255, 0.12); color: white; }
+    .input-area input::placeholder { color: rgba(255, 255, 255, 0.7); }
+    .input-area input:focus { outline: none; border-color: rgba(255, 255, 255, 0.8); }
+    .input-area button { background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 4px; padding: 10px 16px; cursor: pointer; font-size: 14px; }
+    .input-area button:hover { filter: brightness(1.05); }
   </style>
 </head>
 <body>

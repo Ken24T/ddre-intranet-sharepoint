@@ -25,6 +25,8 @@ export interface INavbarProps {
   isAiAssistantHidden?: boolean;
   /** Called when user wants to show AI Assistant */
   onShowAiAssistant?: () => void;
+  /** Called when user wants to hide AI Assistant */
+  onHideAiAssistant?: () => void;
 }
 
 /**
@@ -46,6 +48,7 @@ export const Navbar: React.FC<INavbarProps> = ({
   onToggleAdmin,
   isAiAssistantHidden = false,
   onShowAiAssistant,
+  onHideAiAssistant,
 }) => {
   return (
     <nav className={styles.navbar} role="navigation" aria-label="Main navigation">
@@ -114,6 +117,7 @@ export const Navbar: React.FC<INavbarProps> = ({
           onOpenSettings={onOpenSettings}
           isAiAssistantHidden={isAiAssistantHidden}
           onShowAiAssistant={onShowAiAssistant}
+          onHideAiAssistant={onHideAiAssistant}
         />
       </div>
     </nav>

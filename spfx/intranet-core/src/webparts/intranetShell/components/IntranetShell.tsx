@@ -323,6 +323,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           onToggleAdmin={this.handleToggleAdmin}
           isAiAssistantHidden={isAiAssistantHidden}
           onShowAiAssistant={this.handleShowAiAssistant}
+          onHideAiAssistant={this.handleHideAiAssistant}
         />
         <Sidebar
           isCollapsed={isSidebarCollapsed}
@@ -384,6 +385,9 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           hiddenCards={hiddenCardsWithDetails}
           onRestoreCard={this.handleRestoreCard}
           onResetAll={this.handleResetAll}
+          isAiAssistantHidden={isAiAssistantHidden}
+          onShowAiAssistant={this.handleShowAiAssistant}
+          onHideAiAssistant={this.handleHideAiAssistant}
         />
 
         {/* AI Assistant */}
