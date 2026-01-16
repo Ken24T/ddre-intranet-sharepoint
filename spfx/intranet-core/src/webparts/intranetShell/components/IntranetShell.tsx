@@ -9,11 +9,15 @@ import { StatusBar } from './StatusBar/StatusBar';
 import { CardGrid } from './CardGrid';
 import { SettingsPanel } from './SettingsPanel';
 import { SearchResultsPage } from './SearchResultsPage';
+import { AiAssistant } from './AiAssistant';
 import { sampleCards, hubInfo } from './data';
 import type { IFunctionCard } from './FunctionCard';
 import type { ISearchResult } from './SearchBox';
 import { getHubColor, getResolvedTheme, getThemeCssVars, isDarkTheme } from './theme';
 import type { ThemeMode } from './UserProfileMenu';
+
+// Session storage key for AI Assistant hidden state
+const SESSION_KEY_AI_HIDDEN = 'ddre-ai-assistant-hidden';
 
 export interface IIntranetShellState {
   isSidebarCollapsed: boolean;
@@ -29,6 +33,8 @@ export interface IIntranetShellState {
   isSettingsOpen: boolean;
   /** Active search query (undefined when not searching) */
   searchQuery: string | undefined;
+  /** AI Assistant hidden state (session-scoped) */
+  isAiAssistantHidden: boolean;
 }
 
 /**
@@ -75,6 +81,15 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
 
   constructor(props: IIntranetShellProps) {
     super(props);
+    
+    // Load AI hidden state from sessionStorage
+    let isAiHidden = false;
+    try {
+      isAiHidden = sessionStorage.getItem(SESSION_KEY_AI_HIDDEN) === 'true';
+    } catch {
+      // Ignore storage errors
+    }
+
     this.state = {
       isSidebarCollapsed: loadFromStorage(STORAGE_KEYS.SIDEBAR_COLLAPSED, false),
       activeHubKey: 'home',
@@ -85,6 +100,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       themeMode: loadFromStorage(STORAGE_KEYS.THEME_MODE, 'light'),
       isSettingsOpen: false,
       searchQuery: undefined,
+      isAiAssistantHidden: isAiHidden,
     };
   }
 
@@ -233,9 +249,27 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     this.setState({ searchQuery: undefined });
   };
 
+  private handleHideAiAssistant = (): void => {
+    try {
+      sessionStorage.setItem(SESSION_KEY_AI_HIDDEN, 'true');
+    } catch {
+      // Ignore storage errors
+    }
+    this.setState({ isAiAssistantHidden: true });
+  };
+
+  private handleShowAiAssistant = (): void => {
+    try {
+      sessionStorage.removeItem(SESSION_KEY_AI_HIDDEN);
+    } catch {
+      // Ignore storage errors
+    }
+    this.setState({ isAiAssistantHidden: false });
+  };
+
   public render(): React.ReactElement<IIntranetShellProps> {
     const { userDisplayName, userEmail, siteTitle } = this.props;
-    const { isSidebarCollapsed, activeHubKey, pinnedCardIds, hiddenCardIds, isAdminMode, cardOrder, themeMode, isSettingsOpen, searchQuery } = this.state;
+    const { isSidebarCollapsed, activeHubKey, pinnedCardIds, hiddenCardIds, isAdminMode, cardOrder, themeMode, isSettingsOpen, searchQuery, isAiAssistantHidden } = this.state;
 
     // Get cards for current hub
     const hubCards = sampleCards.filter((card) => card.hubKey === activeHubKey);
@@ -282,6 +316,8 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           onSearchResultSelect={this.handleSearchResultSelect}
           isAdmin={isAdminMode}
           onToggleAdmin={this.handleToggleAdmin}
+          isAiAssistantHidden={isAiAssistantHidden}
+          onShowAiAssistant={this.handleShowAiAssistant}
         />
         <Sidebar
           isCollapsed={isSidebarCollapsed}
@@ -335,6 +371,12 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           hiddenCards={hiddenCardsWithDetails}
           onRestoreCard={this.handleRestoreCard}
           onResetAll={this.handleResetAll}
+        />
+
+        {/* AI Assistant */}
+        <AiAssistant
+          isHidden={isAiAssistantHidden}
+          onHide={this.handleHideAiAssistant}
         />
         </div>
       </ThemeProvider>

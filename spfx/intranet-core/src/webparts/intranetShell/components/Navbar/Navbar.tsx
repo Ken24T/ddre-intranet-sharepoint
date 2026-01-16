@@ -21,6 +21,10 @@ export interface INavbarProps {
   isAdmin?: boolean;
   /** Dev mode: toggle admin rights */
   onToggleAdmin?: () => void;
+  /** Whether AI Assistant is hidden */
+  isAiAssistantHidden?: boolean;
+  /** Called when user wants to show AI Assistant */
+  onShowAiAssistant?: () => void;
 }
 
 /**
@@ -40,6 +44,8 @@ export const Navbar: React.FC<INavbarProps> = ({
   onSearchResultSelect,
   isAdmin = false,
   onToggleAdmin,
+  isAiAssistantHidden = false,
+  onShowAiAssistant,
 }) => {
   return (
     <nav className={styles.navbar} role="navigation" aria-label="Main navigation">
@@ -106,6 +112,8 @@ export const Navbar: React.FC<INavbarProps> = ({
           themeMode={themeMode}
           onThemeModeChange={onThemeModeChange}
           onOpenSettings={onOpenSettings}
+          isAiAssistantHidden={isAiAssistantHidden}
+          onShowAiAssistant={onShowAiAssistant}
         />
       </div>
     </nav>

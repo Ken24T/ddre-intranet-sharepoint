@@ -26,6 +26,10 @@ export interface IUserProfileMenuProps {
   onOpenSettings: () => void;
   /** Help & Support URL */
   helpUrl?: string;
+  /** Whether AI Assistant is currently hidden */
+  isAiAssistantHidden?: boolean;
+  /** Called when user wants to show AI Assistant */
+  onShowAiAssistant?: () => void;
 }
 
 /**
@@ -40,6 +44,8 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
   onThemeModeChange,
   onOpenSettings,
   helpUrl = 'https://support.ddre.com.au',
+  isAiAssistantHidden = false,
+  onShowAiAssistant,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const buttonRef = React.useRef<HTMLButtonElement>(null);
@@ -67,6 +73,11 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
   const handleHelpClick = (): void => {
     closeMenu();
     window.open(helpUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleShowAiAssistant = (): void => {
+    closeMenu();
+    onShowAiAssistant?.();
   };
 
   // Get initials for fallback avatar
@@ -158,6 +169,17 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
                 <span>Theme: {getThemeLabel()}</span>
                 <Icon iconName="ChevronRight" className={styles.menuChevron} />
               </button>
+
+              {/* Show AI Assistant (only when hidden) */}
+              {isAiAssistantHidden && onShowAiAssistant && (
+                <>
+                  <div className={styles.divider} />
+                  <button className={styles.menuItem} onClick={handleShowAiAssistant}>
+                    <Icon iconName="Robot" className={styles.menuIcon} />
+                    <span>Show AI Assistant</span>
+                  </button>
+                </>
+              )}
 
               <div className={styles.divider} />
 
