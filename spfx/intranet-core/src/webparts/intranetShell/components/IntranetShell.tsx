@@ -2,6 +2,9 @@ import * as React from 'react';
 import { ThemeProvider } from '@fluentui/react';
 import styles from './IntranetShell.module.scss';
 import type { IIntranetShellProps } from './IIntranetShellProps';
+
+// Hero banner images
+import heroHomeImage from '../assets/hero-home.svg';
 import { Navbar } from './Navbar/Navbar';
 import { Sidebar } from './Sidebar/Sidebar';
 import { ContentArea } from './ContentArea/ContentArea';
@@ -343,6 +346,14 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
                       : currentHub.description}
                   </p>
                 </div>
+                {activeHubKey === 'home' && (
+                  <img
+                    src={heroHomeImage}
+                    alt=""
+                    className={styles.heroImage}
+                    aria-hidden="true"
+                  />
+                )}
               </div>
               <div className={styles.cardArea}>
                 <CardGrid
