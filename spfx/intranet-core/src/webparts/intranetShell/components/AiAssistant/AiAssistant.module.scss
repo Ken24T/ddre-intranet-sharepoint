@@ -21,13 +21,13 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--color-primary, #0078d4) !important;
+  background: var(--ai-accent-color, var(--color-primary, #0078d4)) !important;
   color: white !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease;
 
   &:hover {
-    background: var(--color-primary-dark, #106ebe) !important;
+    filter: brightness(0.9);
     transform: scale(1.05);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   }
@@ -93,9 +93,10 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-sm) var(--space-md);
-  background: var(--color-primary);
+  background: var(--ai-accent-color, var(--color-primary));
   color: white;
   flex-shrink: 0;
+  transition: background 200ms ease;
 }
 
 .headerTitle {

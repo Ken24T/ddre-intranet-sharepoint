@@ -20,8 +20,6 @@ export interface IAiChatPanelProps {
   onMinimize: () => void;
   onHide: () => void;
   onPopout: () => void;
-  /** Accent color for the hub (used for header styling) */
-  accentColor?: string;
 }
 
 // =============================================================================
@@ -35,7 +33,6 @@ export const AiChatPanel: React.FC<IAiChatPanelProps> = ({
   onMinimize,
   onHide,
   onPopout,
-  accentColor,
 }) => {
   const [inputValue, setInputValue] = React.useState('');
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -68,10 +65,7 @@ export const AiChatPanel: React.FC<IAiChatPanelProps> = ({
       aria-modal="false"
     >
       {/* Header */}
-      <div 
-        className={styles.panelHeader}
-        style={accentColor ? { backgroundColor: accentColor } : undefined}
-      >
+      <div className={styles.panelHeader}>
         <div className={styles.headerTitle}>
           <Icon iconName="Robot" className={styles.headerIcon} />
           <span>AI Assistant</span>

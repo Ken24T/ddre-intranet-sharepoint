@@ -326,8 +326,13 @@ export const AiAssistant: React.FC<IAiAssistantProps> = ({
   // Don't render if hidden
   if (isHidden) return null;
 
+  // Set CSS variable for accent color
+  const containerStyle = accentColor 
+    ? { '--ai-accent-color': accentColor } as React.CSSProperties
+    : undefined;
+
   return (
-    <div className={styles.aiAssistant}>
+    <div className={styles.aiAssistant} style={containerStyle}>
       {/* Chat Panel */}
       {isPanelOpen && !isPoppedOut && (
         <AiChatPanel
@@ -337,7 +342,6 @@ export const AiAssistant: React.FC<IAiAssistantProps> = ({
           onMinimize={handleMinimize}
           onHide={handleHide}
           onPopout={handlePopout}
-          accentColor={accentColor}
         />
       )}
 
@@ -350,7 +354,6 @@ export const AiAssistant: React.FC<IAiAssistantProps> = ({
           iconProps={{ iconName: isPoppedOut ? 'ReturnKey' : 'Robot' }}
           ariaLabel={isPoppedOut ? 'Return AI Assistant from popup' : 'Open AI Assistant'}
           onClick={handleButtonClick}
-          style={accentColor ? { backgroundColor: accentColor } : undefined}
         />
       </TooltipHost>
     </div>
