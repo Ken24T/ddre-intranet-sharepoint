@@ -20,8 +20,8 @@ import type { ISearchResult } from './SearchBox';
 import { getHubColor, getResolvedTheme, getThemeCssVars, isDarkTheme } from './theme';
 import type { ThemeMode } from './UserProfileMenu';
 
-// Session storage key for AI Assistant hidden state
-const SESSION_KEY_AI_HIDDEN = 'ddre-ai-assistant-hidden';
+// Local storage key for AI Assistant visibility preference
+const LOCAL_KEY_AI_HIDDEN = 'ddre-ai-assistant-hidden';
 
 export interface IIntranetShellState {
   isSidebarCollapsed: boolean;
@@ -37,7 +37,7 @@ export interface IIntranetShellState {
   isSettingsOpen: boolean;
   /** Active search query (undefined when not searching) */
   searchQuery: string | undefined;
-  /** AI Assistant hidden state (session-scoped) */
+  /** AI Assistant hidden state (persisted) */
   isAiAssistantHidden: boolean;
 }
 
@@ -50,6 +50,7 @@ const STORAGE_KEYS = {
   HIDDEN_CARDS: 'ddre-intranet-hiddenCards',
   SIDEBAR_COLLAPSED: 'ddre-intranet-sidebarCollapsed',
   THEME_MODE: 'ddre-intranet-themeMode',
+  AI_ASSISTANT_HIDDEN: 'ddre-ai-assistant-hidden',
 };
 
 /**
@@ -129,10 +130,10 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
   constructor(props: IIntranetShellProps) {
     super(props);
     
-    // Load AI hidden state from sessionStorage
+    // Load AI hidden state from localStorage
     let isAiHidden = false;
     try {
-      isAiHidden = sessionStorage.getItem(SESSION_KEY_AI_HIDDEN) === 'true';
+      isAiHidden = localStorage.getItem(LOCAL_KEY_AI_HIDDEN) === 'true';
     } catch {
       // Ignore storage errors
     }
@@ -250,6 +251,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       STORAGE_KEYS.HIDDEN_CARDS,
       STORAGE_KEYS.SIDEBAR_COLLAPSED,
       STORAGE_KEYS.THEME_MODE,
+      STORAGE_KEYS.AI_ASSISTANT_HIDDEN,
     ];
     keys.forEach((key) => {
       try {
@@ -266,6 +268,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       hiddenCardIds: [],
       cardOrder: {},
       themeMode: 'light',
+      isAiAssistantHidden: false,
     });
   };
 
@@ -298,7 +301,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
 
   private handleHideAiAssistant = (): void => {
     try {
-      sessionStorage.setItem(SESSION_KEY_AI_HIDDEN, 'true');
+      localStorage.setItem(LOCAL_KEY_AI_HIDDEN, 'true');
     } catch {
       // Ignore storage errors
     }
@@ -307,7 +310,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
 
   private handleShowAiAssistant = (): void => {
     try {
-      sessionStorage.removeItem(SESSION_KEY_AI_HIDDEN);
+      localStorage.removeItem(LOCAL_KEY_AI_HIDDEN);
     } catch {
       // Ignore storage errors
     }

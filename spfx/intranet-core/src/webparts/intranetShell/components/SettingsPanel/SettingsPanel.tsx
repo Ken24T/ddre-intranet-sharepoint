@@ -72,6 +72,11 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
     { key: 'collapsed', text: 'Collapsed' },
   ];
 
+  const aiAssistantOptions: IDropdownOption[] = [
+    { key: 'visible', text: 'Show at startup' },
+    { key: 'hidden', text: 'Hide at startup' },
+  ];
+
   const handleThemeChange = (
     _event: React.FormEvent<HTMLDivElement>,
     option?: IDropdownOption
@@ -104,12 +109,16 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
     setShowResetDialog(false);
   };
 
-  const handleShowAiAssistant = (): void => {
-    onShowAiAssistant?.();
-  };
-
-  const handleHideAiAssistant = (): void => {
-    onHideAiAssistant?.();
+  const handleAiAssistantChange = (
+    _event: React.FormEvent<HTMLDivElement>,
+    option?: IDropdownOption
+  ): void => {
+    if (!option) return;
+    if (option.key === 'hidden') {
+      onHideAiAssistant?.();
+    } else {
+      onShowAiAssistant?.();
+    }
   };
 
   const onRenderFooterContent = (): JSX.Element => (
@@ -172,31 +181,18 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
           {/* AI Assistant Section */}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>AI Assistant</h3>
-            {isAiAssistantHidden ? (
-              <>
-                <p className={styles.settingDescription}>
-                  The AI Assistant is hidden for this session.
-                </p>
-                <ActionButton
-                  iconProps={{ iconName: 'Robot' }}
-                  text="Show AI Assistant"
-                  onClick={handleShowAiAssistant}
-                  className={styles.manageButton}
-                />
-              </>
-            ) : (
-              <>
-                <p className={styles.settingDescription}>
-                  The AI Assistant is currently visible.
-                </p>
-                <ActionButton
-                  iconProps={{ iconName: 'Hide' }}
-                  text="Hide AI Assistant"
-                  onClick={handleHideAiAssistant}
-                  className={styles.manageButton}
-                />
-              </>
-            )}
+            <div className={styles.setting}>
+              <Dropdown
+                label="AI Assistant"
+                selectedKey={isAiAssistantHidden ? 'hidden' : 'visible'}
+                options={aiAssistantOptions}
+                onChange={handleAiAssistantChange}
+                styles={{ dropdown: { width: 200 } }}
+              />
+              <p className={styles.settingDescription}>
+                Controls whether the AI Assistant is shown when you open the intranet.
+              </p>
+            </div>
           </div>
 
           {/* Hidden Cards Section */}
