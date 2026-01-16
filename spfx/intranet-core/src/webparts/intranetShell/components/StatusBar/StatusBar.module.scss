@@ -5,8 +5,8 @@
   display: flex;
   align-items: center;
   padding: 0 16px;
-  background-color: var(--neutralLighter, #f3f2f1);
-  border-top: 1px solid var(--neutralLight, #edebe9);
+  background-color: var(--hub-surface-bg, var(--neutralLighter, #f3f2f1));
+  border-top: 1px solid var(--hub-surface-border, var(--neutralLight, #edebe9));
   height: 24px;
   font-size: 12px;
   color: var(--neutralSecondary, #605e5c);

@@ -75,6 +75,49 @@ const saveToStorage = <T,>(key: string, value: T): void => {
   }
 };
 
+// =============================================================================
+// HUB SURFACE COLOR HELPERS
+// =============================================================================
+
+const hexToRgb = (hex: string): { r: number; g: number; b: number } | undefined => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : undefined;
+};
+
+const getHubSurfaceColors = (accentColor?: string): { background: string; border: string } => {
+  if (!accentColor) {
+    return {
+      background: 'var(--neutralLighter, #f3f2f1)',
+      border: 'var(--neutralLight, #edebe9)',
+    };
+  }
+
+  const rgb = hexToRgb(accentColor);
+  if (!rgb) {
+    return {
+      background: 'rgba(255, 255, 255, 0.35)',
+      border: 'rgba(0, 0, 0, 0.08)',
+    };
+  }
+
+  const lightened = {
+    r: Math.round(rgb.r + (255 - rgb.r) * 0.9),
+    g: Math.round(rgb.g + (255 - rgb.g) * 0.9),
+    b: Math.round(rgb.b + (255 - rgb.b) * 0.9),
+  };
+
+  return {
+    background: `rgba(${lightened.r}, ${lightened.g}, ${lightened.b}, 0.35)`,
+    border: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25)`,
+  };
+};
+
 /**
  * IntranetShell - Main layout component for the DDRE Intranet.
  * Uses CSS Grid to create a fixed navbar, resizable sidebar,
@@ -292,10 +335,16 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
 
     // Get hub-specific colors
     const hubColor = getHubColor(activeHubKey);
+    const hubSurface = getHubSurfaceColors(hubColor.accent);
 
     // Resolve theme based on mode (light/dark/system)
     const resolvedTheme = getResolvedTheme(themeMode);
     const themeCssVars = getThemeCssVars(resolvedTheme);
+    const shellStyle = {
+      ...themeCssVars,
+      '--hub-surface-bg': hubSurface.background,
+      '--hub-surface-border': hubSurface.border,
+    } as React.CSSProperties;
     const isCurrentlyDark = isDarkTheme(themeMode);
 
     // Build shell class with theme modifier
@@ -308,7 +357,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     return (
       <ThemeProvider theme={resolvedTheme}>
         <SkipLinks />
-        <div className={shellClassName} style={themeCssVars as React.CSSProperties}>
+        <div className={shellClassName} style={shellStyle}>
         <Navbar
           siteTitle={siteTitle}
           userDisplayName={userDisplayName}
