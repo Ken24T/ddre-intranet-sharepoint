@@ -2,9 +2,9 @@
 
 Central task tracking for all planned implementations.
 
-> **Last updated:** 2025-01-16
+> **Last updated:** 2025-01-17
 >
-> **Current focus:** Intranet Shell (Phase 9: AI Assistant)
+> **Current focus:** Intranet Shell (Phase 10: Accessibility & Polish)
 
 ---
 
@@ -12,7 +12,7 @@ Central task tracking for all planned implementations.
 
 | Area | Status | Progress |
 |------|--------|----------|
-| **Intranet Shell** | 🟡 In Progress | Phases 1-8 ✅, Phase 9 next |
+| **Intranet Shell** | 🟡 In Progress | Phases 1-9 ✅, Phase 10 next |
 | **Shared Packages** | 🟡 Scaffolded | pkg-theme, pkg-api-client |
 | **Business Apps** | ⚪ Not Started | Awaiting shell completion |
 | **Infrastructure** | 🟡 In Progress | Dev harness ready, CI pending |
@@ -111,16 +111,16 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [x] 8.4 Implement `InfoModal` for system announcements
 - [x] 8.5 Verify modal accessibility (aria-modal, labelledby, focus)
 
-### Phase 9: AI Assistant 🟡
+### Phase 9: AI Assistant ✅
 
-- [ ] 9.1 Create floating action button (bottom-right)
-- [ ] 9.2 Implement chat panel (slide up from button)
-- [ ] 9.3 Add pop-out to new window functionality
-- [ ] 9.4 Implement hide/show toggle (sessionStorage)
-- [ ] 9.5 Add "Show AI Assistant" option to profile menu
+- [x] 9.1 Create floating action button (bottom-right)
+- [x] 9.2 Implement chat panel (slide up from button)
+- [x] 9.3 Add pop-out to new window functionality
+- [x] 9.4 Implement hide/show toggle (sessionStorage)
+- [x] 9.5 Add "Show AI Assistant" option to profile menu
 - [ ] 9.6 Wire up to Azure AI RAG proxy API
 
-### Phase 10: Accessibility & Polish
+### Phase 10: Accessibility & Polish 🟡
 
 - [ ] 10.1 Audit all components with axe DevTools
 - [ ] 10.2 Verify keyboard navigation throughout
