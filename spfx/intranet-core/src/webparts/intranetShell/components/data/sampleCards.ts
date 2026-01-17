@@ -209,6 +209,10 @@ export const sampleCards: IFunctionCard[] = [
  * Hub metadata with titles and descriptions.
  */
 export const hubInfo: Record<string, { title: string; description: string }> = {
+  help: {
+    title: 'Help Centre',
+    description: 'Find guidance, how-to articles, and support options',
+  },
   home: {
     title: 'Home',
     description: 'Your personalized dashboard',

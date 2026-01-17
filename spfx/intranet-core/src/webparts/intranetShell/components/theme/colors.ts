@@ -15,6 +15,10 @@ export const brandColors = {
 
 // Hub-specific colors for hero banners
 export const hubColors: Record<string, { gradient: string; accent: string }> = {
+  help: {
+    gradient: 'linear-gradient(135deg, #fff7cc 0%, #ffe08a 100%)',
+    accent: '#c28a00',
+  },
   home: {
     gradient: 'linear-gradient(135deg, #0078d4 0%, #005a9e 100%)',
     accent: '#0078d4',

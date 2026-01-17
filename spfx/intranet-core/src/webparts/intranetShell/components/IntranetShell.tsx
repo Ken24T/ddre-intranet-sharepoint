@@ -134,20 +134,20 @@ const getHubSurfaceColors = (accentColor?: string): { background: string; border
   const rgb = hexToRgb(accentColor);
   if (!rgb) {
     return {
-      background: 'rgba(255, 255, 255, 0.35)',
-      border: 'rgba(0, 0, 0, 0.08)',
+      background: 'rgba(255, 255, 255, 0.45)',
+      border: 'rgba(0, 0, 0, 0.1)',
     };
   }
 
   const lightened = {
-    r: Math.round(rgb.r + (255 - rgb.r) * 0.9),
-    g: Math.round(rgb.g + (255 - rgb.g) * 0.9),
-    b: Math.round(rgb.b + (255 - rgb.b) * 0.9),
+    r: Math.round(rgb.r + (255 - rgb.r) * 0.85),
+    g: Math.round(rgb.g + (255 - rgb.g) * 0.85),
+    b: Math.round(rgb.b + (255 - rgb.b) * 0.85),
   };
 
   return {
-    background: `rgba(${lightened.r}, ${lightened.g}, ${lightened.b}, 0.35)`,
-    border: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25)`,
+    background: `rgba(${lightened.r}, ${lightened.g}, ${lightened.b}, 0.45)`,
+    border: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)`,
   };
 };
 
@@ -573,10 +573,10 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     }));
 
     // Get hub-specific colors
-    const hubColor = getHubColor(activeHubKey);
+    const themeHubKey = isHelpOpen ? 'help' : activeHubKey;
+    const hubColor = getHubColor(themeHubKey);
     const hubSurface = getHubSurfaceColors(hubColor.accent);
-    const helpAccent = '#c28a00';
-    const aiAccentColor = isHelpOpen ? helpAccent : hubColor.accent;
+    const aiAccentColor = hubColor.accent;
     const searchThemeVars = ((): React.CSSProperties => {
       if (isHelpOpen) {
         return {
@@ -661,7 +661,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           siteTitle={siteTitle}
           userDisplayName={userDisplayName}
           userEmail={userEmail}
-          hubGradient={isHelpOpen ? 'linear-gradient(135deg, #fff7cc 0%, #ffe08a 100%)' : hubColor.gradient}
+          hubGradient={hubColor.gradient}
           textColor={isHelpOpen ? '#4a3200' : undefined}
           searchThemeVars={searchThemeVars}
           avatarAccentColor={aiAccentColor}
