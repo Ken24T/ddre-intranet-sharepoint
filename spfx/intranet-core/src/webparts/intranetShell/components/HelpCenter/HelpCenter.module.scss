@@ -45,7 +45,15 @@
 
 .searchRow {
   display: flex;
+  gap: 16px;
   padding: 0 32px;
+  flex-wrap: wrap;
+}
+
+.searchField,
+.filterField {
+  flex: 1 1 320px;
+  min-width: 260px;
 }
 
 .searchRow :global(.ms-SearchBox) {
@@ -137,6 +145,42 @@
 
 .searchRow :global(.ms-SearchBox-clearButton .ms-Button-icon) {
   color: #6b4a00;
+}
+
+.searchRow :global(.ms-Dropdown) {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(190, 140, 0, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(122, 75, 0, 0.12);
+}
+
+.searchRow :global(.ms-Dropdown:hover) {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(190, 140, 0, 0.5);
+}
+
+.searchRow :global(.ms-Dropdown-title) {
+  border: none;
+  background: transparent;
+  color: #4a3200;
+  border-radius: 12px;
+}
+
+.searchRow :global(.ms-Dropdown-caretDownWrapper) {
+  color: #6b4a00;
+}
+
+.searchRow :global(.ms-Dropdown:focus),
+.searchRow :global(.ms-Dropdown:focus-visible),
+.searchRow :global(.ms-Dropdown-title:focus),
+.searchRow :global(.ms-Dropdown-title:focus-visible) {
+  outline: none;
+  box-shadow: 0 4px 12px rgba(122, 75, 0, 0.18);
+}
+
+.searchRow :global(.ms-Dropdown:focus::after),
+.searchRow :global(.ms-Dropdown-title:focus::after) {
+  border: none !important;
 }
 
 .buttonGroups {

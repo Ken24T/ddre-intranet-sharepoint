@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DefaultButton, Icon, SearchBox } from '@fluentui/react';
+import { DefaultButton, Dropdown, Icon, SearchBox } from '@fluentui/react';
 import styles from './HelpCenter.module.scss';
 import type { IFunctionCard } from '../FunctionCard';
 import { hubInfo } from '../data';
@@ -18,7 +18,7 @@ interface IGeneralHelpCard {
   helpUrl: string;
   owner: string;
   updatedAt: string;
-  contentType: 'Guide' | 'Checklist' | 'Video' | 'Wizard';
+  contentType: 'Guide' | 'Checklist' | 'Video' | 'Wizard' | 'Walk-through' | 'FAQ' | 'Policy' | 'Quick Reference';
 }
 
 const generalHelpCards: IGeneralHelpCard[] = [
@@ -83,6 +83,16 @@ const generalHelpCards: IGeneralHelpCard[] = [
     contentType: 'Guide',
   },
   {
+    id: 'quick-reference',
+    title: 'Quick Reference Sheets',
+    summary: 'One-page reference cards for day-to-day intranet actions.',
+    category: 'Shortcuts',
+    helpUrl: '/help/quick-reference',
+    owner: 'Digital Workplace',
+    updatedAt: '2026-01-18',
+    contentType: 'Quick Reference',
+  },
+  {
     id: 'walkthroughs',
     title: 'Guided Walk-throughs',
     summary: 'Step-by-step walkthroughs for common intranet tasks.',
@@ -90,7 +100,7 @@ const generalHelpCards: IGeneralHelpCard[] = [
     helpUrl: '/help/walkthroughs',
     owner: 'Intranet Team',
     updatedAt: '2026-01-18',
-    contentType: 'Wizard',
+    contentType: 'Walk-through',
   },
   {
     id: 'video-tutorials',
@@ -102,9 +112,30 @@ const generalHelpCards: IGeneralHelpCard[] = [
     updatedAt: '2026-01-18',
     contentType: 'Video',
   },
+  {
+    id: 'help-faqs',
+    title: 'Help Centre FAQs',
+    summary: 'Answers to the most common questions about the intranet.',
+    category: 'Support',
+    helpUrl: '/help/faqs',
+    owner: 'Intranet Team',
+    updatedAt: '2026-01-18',
+    contentType: 'FAQ',
+  },
+  {
+    id: 'policy-basics',
+    title: 'Policy & Compliance Basics',
+    summary: 'Key policies, approvals, and compliance steps to keep in mind.',
+    category: 'Compliance',
+    helpUrl: '/help/policies',
+    owner: 'Governance',
+    updatedAt: '2026-01-18',
+    contentType: 'Policy',
+  },
 ];
 export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
-  const [query, setQuery] = React.useState('');
+  const [searchText, setSearchText] = React.useState('');
+  const [appliedQuery, setAppliedQuery] = React.useState('');
   const generalButtons = [
     'Getting Started',
     'Settings',
@@ -112,10 +143,23 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
     'Search',
     'Troubleshooting',
     'Shortcuts',
+    'Support',
+    'Compliance',
   ];
   const [selectedGeneralCategory, setSelectedGeneralCategory] = React.useState(
     generalButtons[0]
   );
+  const [selectedContentTypes, setSelectedContentTypes] = React.useState<string[]>([]);
+  const contentTypeOptions = [
+    { key: 'Guide', text: 'Guides' },
+    { key: 'Checklist', text: 'Checklists' },
+    { key: 'Wizard', text: 'Wizards' },
+    { key: 'Walk-through', text: 'Walk-throughs' },
+    { key: 'Video', text: 'Videos' },
+    { key: 'FAQ', text: 'FAQs' },
+    { key: 'Policy', text: 'Policies' },
+    { key: 'Quick Reference', text: 'Quick reference' },
+  ];
   const [expandedGroup, setExpandedGroup] = React.useState<'general' | 'hub' | null>(null);
   const hubKeys = React.useMemo(() => {
     const unique = Array.from(new Set(cards.map((card) => card.hubKey)));
@@ -131,38 +175,6 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
     }
   }, [hubKeys, selectedHubKey]);
 
-  const filteredHubCards = React.useMemo(() => {
-    const scopedCards = selectedHubKey
-      ? cards.filter((card) => card.hubKey === selectedHubKey)
-      : cards;
-    if (!query.trim()) {
-      return scopedCards;
-    }
-    const lower = query.toLowerCase();
-    return scopedCards.filter(
-      (card) =>
-        card.title.toLowerCase().includes(lower) ||
-        card.description.toLowerCase().includes(lower)
-    );
-  }, [cards, query, selectedHubKey]);
-
-  const filteredGeneralCards = React.useMemo(() => {
-    const scopedCards = generalHelpCards.filter(
-      (card) => card.category === selectedGeneralCategory
-    );
-    if (!query.trim()) {
-      return scopedCards;
-    }
-    const lower = query.toLowerCase();
-    return scopedCards.filter(
-      (card) =>
-        card.title.toLowerCase().includes(lower) ||
-        card.summary.toLowerCase().includes(lower) ||
-        card.owner.toLowerCase().includes(lower) ||
-        card.contentType.toLowerCase().includes(lower)
-    );
-  }, [query, selectedGeneralCategory]);
-
   const helpMetaByCardId = React.useMemo(() => {
     const meta: Record<string, { owner: string; updatedAt: string; contentType: string }> = {};
     cards.forEach((card) => {
@@ -175,6 +187,46 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
     return meta;
   }, [cards]);
 
+  const filteredHubCards = React.useMemo(() => {
+    const scopedCards = selectedHubKey
+      ? cards.filter((card) => card.hubKey === selectedHubKey)
+      : cards;
+    const typeFilteredCards = selectedContentTypes.length === 0
+      ? scopedCards
+      : scopedCards.filter(
+          (card) => selectedContentTypes.indexOf(helpMetaByCardId[card.id]?.contentType || '') !== -1
+        );
+    if (!appliedQuery.trim()) {
+      return typeFilteredCards;
+    }
+    const lower = appliedQuery.toLowerCase();
+    return typeFilteredCards.filter(
+      (card) =>
+        card.title.toLowerCase().includes(lower) ||
+        card.description.toLowerCase().includes(lower)
+    );
+  }, [cards, appliedQuery, selectedHubKey, selectedContentTypes, helpMetaByCardId]);
+
+  const filteredGeneralCards = React.useMemo(() => {
+    const scopedCards = generalHelpCards.filter(
+      (card) => card.category === selectedGeneralCategory
+    );
+    const typeFilteredCards = selectedContentTypes.length === 0
+      ? scopedCards
+      : scopedCards.filter((card) => selectedContentTypes.indexOf(card.contentType) !== -1);
+    if (!appliedQuery.trim()) {
+      return typeFilteredCards;
+    }
+    const lower = appliedQuery.toLowerCase();
+    return typeFilteredCards.filter(
+      (card) =>
+        card.title.toLowerCase().includes(lower) ||
+        card.summary.toLowerCase().includes(lower) ||
+        card.owner.toLowerCase().includes(lower) ||
+        card.contentType.toLowerCase().includes(lower)
+    );
+  }, [appliedQuery, selectedGeneralCategory, selectedContentTypes]);
+
   const handleFeedback = (label: string, isHelpful: boolean): void => {
     window.dispatchEvent(
       new CustomEvent('helpFeedback', {
@@ -185,6 +237,33 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
 
   const handleOpenHelp = (title: string, summary: string, helpUrl?: string): void => {
     openMockHelpWindow({ title, summary, helpUrl });
+  };
+
+  const handleSearch = (value?: string): void => {
+    const rawQuery = (value || searchText || '').trim();
+    setAppliedQuery(rawQuery);
+
+    const selectedLabels = selectedContentTypes.length > 0
+      ? selectedContentTypes.join(', ')
+      : 'All categories';
+    const summaryParts = [`Categories: ${selectedLabels}`];
+    if (rawQuery) {
+      summaryParts.push(`Search term: "${rawQuery}"`);
+    }
+
+    const params = new URLSearchParams();
+    if (selectedContentTypes.length > 0) {
+      params.set('types', selectedContentTypes.join(','));
+    }
+    if (rawQuery) {
+      params.set('q', rawQuery);
+    }
+
+    handleOpenHelp(
+      'Help search results',
+      summaryParts.join(' • '),
+      `/help/search${params.toString() ? `?${params.toString()}` : ''}`
+    );
   };
 
   const toggleGroup = (group: 'general' | 'hub'): void => {
@@ -203,12 +282,39 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
       </div>
 
       <div className={styles.searchRow}>
-        <SearchBox
-          placeholder="Search help articles"
-          value={query}
-          onChange={(_, value) => setQuery(value || '')}
-          styles={{ root: { width: '100%' } }}
-        />
+        <div className={styles.searchField}>
+          <SearchBox
+            placeholder="Search help articles"
+            value={searchText}
+            onChange={(_, value) => setSearchText(value || '')}
+            onSearch={handleSearch}
+            onClear={() => {
+              setSearchText('');
+              setAppliedQuery('');
+            }}
+            styles={{ root: { width: '100%' } }}
+          />
+        </div>
+        <div className={styles.filterField}>
+          <Dropdown
+            placeholder="Filter by category"
+            options={contentTypeOptions}
+            selectedKeys={selectedContentTypes}
+            multiSelect
+            onChange={(_, option) => {
+              if (!option) {
+                return;
+              }
+              const key = String(option.key);
+              setSelectedContentTypes((prev) =>
+                option.selected
+                  ? [...prev, key]
+                  : prev.filter((value) => value !== key)
+              );
+            }}
+            styles={{ root: { width: '100%' } }}
+          />
+        </div>
       </div>
 
       <div className={styles.buttonGroups}>
