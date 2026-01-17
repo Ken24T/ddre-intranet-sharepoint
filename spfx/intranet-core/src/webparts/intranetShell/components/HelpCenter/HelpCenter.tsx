@@ -1,80 +1,132 @@
 import * as React from 'react';
 import { DefaultButton, Icon, SearchBox } from '@fluentui/react';
 import styles from './HelpCenter.module.scss';
+import type { IFunctionCard } from '../FunctionCard';
+import { hubInfo } from '../data';
+import { openMockHelpWindow } from '../utils/helpMock';
 
-export interface IHelpArticle {
+export interface IHelpCenterProps {
+  cards: IFunctionCard[];
+  onClose?: () => void;
+}
+
+interface IGeneralHelpCard {
   id: string;
   title: string;
   summary: string;
   category: string;
+  helpUrl: string;
 }
 
-export interface IHelpCenterProps {
-  onClose?: () => void;
-}
-
-const helpArticles: IHelpArticle[] = [
+const generalHelpCards: IGeneralHelpCard[] = [
   {
     id: 'getting-started',
     title: 'Getting Started with the Intranet',
-    summary: 'Learn how to navigate hubs, find tools, and personalize your home view.',
+    summary: 'Learn the basics of navigating hubs and finding your tools quickly.',
     category: 'Getting Started',
+    helpUrl: '/help/getting-started',
   },
   {
-    id: 'navigation',
-    title: 'Navigation & Hubs',
-    summary: 'Understand the sidebar, hubs, and how cards are organized.',
-    category: 'Core Use',
+    id: 'settings',
+    title: 'Settings & Preferences',
+    summary: 'Change your theme, sidebar behaviour, and layout preferences.',
+    category: 'Settings',
+    helpUrl: '/help/settings',
   },
   {
-    id: 'personalization',
+    id: 'personalisation',
     title: 'Personalising Your View',
-    summary: 'Pin, hide, and reorder cards; set your theme and layout preferences.',
+    summary: 'Pin, hide, and reorder cards so your hubs stay focused.',
     category: 'Personalisation',
+    helpUrl: '/help/personalisation',
   },
   {
     id: 'search',
     title: 'Search Tips',
-    summary: 'Use search effectively to locate people, files, and intranet resources.',
-    category: 'Core Use',
+    summary: 'Find people, documents, and tools faster with smart search.',
+    category: 'Search',
+    helpUrl: '/help/search',
   },
   {
     id: 'troubleshooting',
     title: 'Troubleshooting Common Issues',
-    summary: 'Connectivity, permissions, and browser tips for resolving issues fast.',
+    summary: 'Quick fixes for access, loading, and browser issues.',
     category: 'Troubleshooting',
+    helpUrl: '/help/troubleshooting',
   },
   {
-    id: 'apps',
-    title: 'Using Business Apps',
-    summary: 'Guidance for embedded tools and app entry points from the intranet.',
-    category: 'Apps',
+    id: 'shortcuts',
+    title: 'Keyboard Shortcuts',
+    summary: 'Navigate the intranet faster with helpful shortcuts.',
+    category: 'Shortcuts',
+    helpUrl: '/help/shortcuts',
   },
 ];
-
-const categories = [
-  'Getting Started',
-  'Core Use',
-  'Personalisation',
-  'Apps',
-  'Troubleshooting',
-];
-
-export const HelpCenter: React.FC<IHelpCenterProps> = ({ onClose }) => {
+export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
   const [query, setQuery] = React.useState('');
+  const generalButtons = [
+    'Getting Started',
+    'Settings',
+    'Personalisation',
+    'Search',
+    'Troubleshooting',
+    'Shortcuts',
+  ];
+  const [selectedGeneralCategory, setSelectedGeneralCategory] = React.useState(
+    generalButtons[0]
+  );
+  const [expandedGroup, setExpandedGroup] = React.useState<'general' | 'hub' | null>(null);
+  const hubKeys = React.useMemo(() => {
+    const unique = Array.from(new Set(cards.map((card) => card.hubKey)));
+    return unique;
+  }, [cards]);
+  const [selectedHubKey, setSelectedHubKey] = React.useState<string | null>(
+    hubKeys[0] || null
+  );
 
-  const filteredArticles = React.useMemo(() => {
+  React.useEffect(() => {
+    if (!selectedHubKey || hubKeys.indexOf(selectedHubKey) === -1) {
+      setSelectedHubKey(hubKeys[0] || null);
+    }
+  }, [hubKeys, selectedHubKey]);
+
+  const filteredHubCards = React.useMemo(() => {
+    const scopedCards = selectedHubKey
+      ? cards.filter((card) => card.hubKey === selectedHubKey)
+      : cards;
     if (!query.trim()) {
-      return helpArticles;
+      return scopedCards;
     }
     const lower = query.toLowerCase();
-    return helpArticles.filter(
-      (article) =>
-        article.title.toLowerCase().includes(lower) ||
-        article.summary.toLowerCase().includes(lower) ||
-        article.category.toLowerCase().includes(lower)
+    return scopedCards.filter(
+      (card) =>
+        card.title.toLowerCase().includes(lower) ||
+        card.description.toLowerCase().includes(lower)
     );
-  }, [query]);
+  }, [cards, query, selectedHubKey]);
+
+  const filteredGeneralCards = React.useMemo(() => {
+    const scopedCards = generalHelpCards.filter(
+      (card) => card.category === selectedGeneralCategory
+    );
+    if (!query.trim()) {
+      return scopedCards;
+    }
+    const lower = query.toLowerCase();
+    return scopedCards.filter(
+      (card) =>
+        card.title.toLowerCase().includes(lower) ||
+        card.summary.toLowerCase().includes(lower)
+    );
+  }, [query, selectedGeneralCategory]);
+
+  const handleOpenHelp = (title: string, summary: string, helpUrl?: string): void => {
+    openMockHelpWindow({ title, summary, helpUrl });
+  };
+
+  const toggleGroup = (group: 'general' | 'hub'): void => {
+    setExpandedGroup((prev) => (prev === group ? null : group));
+  };
 
   return (
     <div className={styles.helpCenter}>
@@ -96,29 +148,108 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ onClose }) => {
         />
       </div>
 
-      <div className={styles.categoryRow}>
-        {categories.map((category) => (
-          <span key={category} className={styles.categoryChip}>
-            {category}
-          </span>
-        ))}
-      </div>
-
-      <div className={styles.articleGrid}>
-        {filteredArticles.map((article) => (
-          <div key={article.id} className={styles.articleCard}>
-            <div className={styles.articleHeader}>
-              <Icon iconName="TextDocument" className={styles.articleIcon} />
-              <span className={styles.articleCategory}>{article.category}</span>
-            </div>
-            <h3 className={styles.articleTitle}>{article.title}</h3>
-            <p className={styles.articleSummary}>{article.summary}</p>
-            <button className={styles.articleAction} type="button">
-              Read article
-              <Icon iconName="ChevronRight" className={styles.articleChevron} />
+      <div className={styles.buttonGroups}>
+        <div className={styles.buttonGroup}>
+          <div className={styles.buttonGroupHeader}>
+            <div className={styles.buttonGroupLabel}>General help</div>
+            <button
+              type="button"
+              className={styles.buttonGroupToggle}
+              onClick={() => toggleGroup('general')}
+            >
+              {expandedGroup === 'general' ? 'Hide cards' : 'Show cards'}
             </button>
           </div>
-        ))}
+          <div className={styles.buttonRow}>
+            {generalButtons.map((label) => (
+              <button
+                key={label}
+                className={`${styles.categoryChip} ${selectedGeneralCategory === label ? styles.categoryChipActive : ''}`}
+                type="button"
+                onClick={() => {
+                  setSelectedGeneralCategory(label);
+                  setExpandedGroup('general');
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {expandedGroup === 'general' && (
+            <div className={styles.articleGrid}>
+              {filteredGeneralCards.map((card) => (
+                <div key={card.id} className={styles.articleCard}>
+                  <div className={styles.articleHeader}>
+                    <Icon iconName="TextDocument" className={styles.articleIcon} />
+                    <span className={styles.articleCategory}>{card.category}</span>
+                  </div>
+                  <h3 className={styles.articleTitle}>{card.title}</h3>
+                  <p className={styles.articleSummary}>{card.summary}</p>
+                  <button
+                    className={styles.articleAction}
+                    type="button"
+                    onClick={() => handleOpenHelp(card.title, card.summary, card.helpUrl)}
+                  >
+                    Open help
+                    <Icon iconName="ChevronRight" className={styles.articleChevron} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className={styles.buttonGroup}>
+          <div className={styles.buttonGroupHeader}>
+            <div className={styles.buttonGroupLabel}>Help by hub</div>
+            <button
+              type="button"
+              className={styles.buttonGroupToggle}
+              onClick={() => toggleGroup('hub')}
+            >
+              {expandedGroup === 'hub' ? 'Hide cards' : 'Show cards'}
+            </button>
+          </div>
+          <div className={styles.buttonRow}>
+            {hubKeys.map((hubKey) => (
+              <button
+                key={hubKey}
+                className={`${styles.categoryChip} ${selectedHubKey === hubKey ? styles.categoryChipActive : ''}`}
+                type="button"
+                onClick={() => {
+                  setSelectedHubKey(hubKey);
+                  setExpandedGroup('hub');
+                }}
+              >
+                {hubInfo[hubKey]?.title || hubKey}
+              </button>
+            ))}
+          </div>
+          {expandedGroup === 'hub' && (
+            <div className={styles.articleGrid}>
+              {filteredHubCards.map((card) => (
+                <div key={card.id} className={styles.articleCard}>
+                  <div className={styles.articleHeader}>
+                    <Icon iconName="TextDocument" className={styles.articleIcon} />
+                    <span className={styles.articleCategory}>
+                      {hubInfo[card.hubKey]?.title || card.hubKey}
+                    </span>
+                  </div>
+                  <h3 className={styles.articleTitle}>{card.title}</h3>
+                  <p className={styles.articleSummary}>{card.description}</p>
+                  <button
+                    className={styles.articleAction}
+                    type="button"
+                    onClick={() => handleOpenHelp(card.title, card.description, card.helpUrl)}
+                    disabled={!card.helpUrl}
+                  >
+                    Open help
+                    <Icon iconName="ChevronRight" className={styles.articleChevron} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className={styles.ctaPanel}>

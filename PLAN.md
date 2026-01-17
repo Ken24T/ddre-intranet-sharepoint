@@ -151,6 +151,10 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [ ] 11.8 Implement contextual help surfaces
       (tooltips, side panel, inline callouts)
 - [x] 11.8.1 Add card menu help option (Lightbulb)
+- [x] 11.8.2 Add hub-based help filters in Help Centre
+- [x] 11.8.3 Add general help buttons row
+- [x] 11.8.4 Add general help cards (mock URLs)
+- [x] 11.8.5 Add help card collapse/expand groups
 - [ ] 11.9 Add onboarding checklists for new apps/tools
 - [ ] 11.10 Add feedback loop
       (“Was this helpful?” + request help link)
