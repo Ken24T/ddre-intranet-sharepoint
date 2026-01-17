@@ -36,6 +36,7 @@ export interface IFunctionCardProps {
       | 'openNewTab'
       | 'addFavourite'
       | 'removeFavourite'
+      | 'help'
       | 'setOpenInline'
       | 'setOpenNewTab'
       | 'setOpenNewWindow'
@@ -54,6 +55,8 @@ export interface IFunctionCard {
   hubKey: string;
   /** URL to navigate to (SharePoint page or external) */
   url?: string;
+  /** URL to help article for this card */
+  helpUrl?: string;
   /** Preferred open behavior for this card (admin-configurable) */
   openBehavior?: CardOpenBehavior;
   /** Whether to open in new tab */

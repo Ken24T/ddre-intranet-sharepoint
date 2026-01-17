@@ -495,6 +495,66 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     this.setState({ isHelpOpen: false });
   };
 
+  private getMockHelpHtml = (card: IFunctionCard): string => {
+    const safeTitle = card.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const safeDescription = card.description
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    const safeHelpUrl = card.helpUrl
+      ? card.helpUrl.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      : undefined;
+    const helpLinkHtml = safeHelpUrl
+      ? `<p><strong>Planned article:</strong> <a href="${safeHelpUrl}">${safeHelpUrl}</a></p>`
+      : '';
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${safeTitle} – Help</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 24px; background: #f6f9f7; color: #323130; }
+    .card { background: #fff; border: 1px solid #d8eadf; border-radius: 12px; padding: 24px; max-width: 720px; box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    h2 { margin: 16px 0 8px; font-size: 16px; color: #2f6b3f; }
+    p { margin: 0 0 12px; color: #605e5c; }
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #dff1e5; color: #2f6b3f; font-size: 12px; font-weight: 600; }
+    ul { margin: 0 0 12px 18px; color: #605e5c; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="badge">Mock Help</span>
+    <h1>${safeTitle}</h1>
+    <p>${safeDescription}</p>
+    <h2>What does this do?</h2>
+    <p>This is a placeholder help article for the ${safeTitle} card.</p>
+    <h2>Quick steps</h2>
+    <ul>
+      <li>Open the tool from the card.</li>
+      <li>Follow the on-screen prompts.</li>
+      <li>Save or submit when complete.</li>
+    </ul>
+    ${helpLinkHtml}
+    <p>Detailed help content will be added in the Help Centre later.</p>
+  </div>
+</body>
+</html>`;
+  };
+
+  private openMockHelpWindow = (card: IFunctionCard): void => {
+    const newWindow = window.open('', '_blank');
+    if (newWindow) {
+      newWindow.document.open();
+      newWindow.document.write(this.getMockHelpHtml(card));
+      newWindow.document.close();
+    }
+  };
+
+  private handleCardHelp = (card: IFunctionCard): void => {
+    this.openMockHelpWindow(card);
+  };
+
   private handleHideAiAssistant = (): void => {
     try {
       localStorage.setItem(GLOBAL_STORAGE_KEYS.AI_ASSISTANT_HIDDEN, 'true');
@@ -797,6 +857,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
                   onFavouriteChange={this.handleFavouriteChange}
                   onCardOpenBehaviorChange={this.handleCardOpenBehaviorChange}
                   onCardClick={this.handleCardClick}
+                  onCardHelp={this.handleCardHelp}
                 />
               </div>
             </>

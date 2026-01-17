@@ -51,6 +51,8 @@ export interface ICardGridProps {
   ) => void;
   /** Called when card is clicked */
   onCardClick?: (card: IFunctionCard) => void;
+  /** Called when card help is requested */
+  onCardHelp?: (card: IFunctionCard) => void;
 }
 
 /**
@@ -72,6 +74,7 @@ export const CardGrid: React.FC<ICardGridProps> = ({
   onFavouriteChange,
   onCardOpenBehaviorChange,
   onCardClick,
+  onCardHelp,
 }) => {
   // Get hub theme color
   const hubColor = getHubColor(hubKey);
@@ -150,6 +153,7 @@ export const CardGrid: React.FC<ICardGridProps> = ({
       | 'openNewTab'
       | 'addFavourite'
       | 'removeFavourite'
+      | 'help'
       | 'setOpenInline'
       | 'setOpenNewTab'
       | 'setOpenNewWindow'
@@ -186,6 +190,13 @@ export const CardGrid: React.FC<ICardGridProps> = ({
       case 'removeFavourite':
         onFavouriteChange?.(cardId, false);
         break;
+      case 'help': {
+        const card = cards.find((c) => c.id === cardId);
+        if (card) {
+          onCardHelp?.(card);
+        }
+        break;
+      }
     }
   };
 

@@ -200,7 +200,10 @@ export const sampleCards: IFunctionCard[] = [
     description: 'Contract templates and agreements',
     icon: 'PageEdit',
   },
-];
+].map((card) => ({
+  ...card,
+  helpUrl: `/help/${card.id}`,
+}));
 
 /**
  * Hub metadata with titles and descriptions.

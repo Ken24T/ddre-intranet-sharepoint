@@ -135,15 +135,25 @@ The foundation SPFx solution providing the layout frame for all intranet content
 
 ### Phase 11: Help & Feedback System
 
-- [ ] 11.1 Define help system IA (Help Center, in-context tips, search, roles)
-- [ ] 11.2 Define help content templates (overview, how-to, troubleshooting, FAQ)
-- [ ] 11.3 Add Help entry points (navbar Help icon, contextual “?” links,
-      empty-state CTAs)
-- [ ] 11.4 Implement Help Center shell (hub landing page + search + filters)
-- [ ] 11.5 Implement contextual help surfaces (tooltips, side panel, inline callouts)
-- [ ] 11.6 Add onboarding checklists for new apps/tools
-- [ ] 11.7 Add feedback loop (“Was this helpful?” + request help link)
-- [ ] 11.8 Define ownership + review cadence + versioning for help content
+- [ ] 11.1 Define help system IA (Help Centre, in-context tips, search, roles)
+- [ ] 11.2 Define help content taxonomy and metadata
+      (audience, role, hub, lifecycle, tags)
+- [ ] 11.3 Define content templates
+      (overview, how-to, troubleshooting, FAQ, quick reference)
+- [ ] 11.4 Create content authoring workflow and governance
+      (owners, approvals, review cadence, versioning)
+- [ ] 11.5 Build initial help content inventory
+      (map cards/apps to required articles)
+- [ ] 11.6 Add Help entry points
+      (navbar Help icon, contextual “?” links, empty-state CTAs)
+- [ ] 11.7 Implement Help Centre shell
+      (hub landing page + search + filters)
+- [ ] 11.8 Implement contextual help surfaces
+      (tooltips, side panel, inline callouts)
+- [x] 11.8.1 Add card menu help option (Lightbulb)
+- [ ] 11.9 Add onboarding checklists for new apps/tools
+- [ ] 11.10 Add feedback loop
+      (“Was this helpful?” + request help link)
 
 ### Phase 12: Feedback & Bug Report
 

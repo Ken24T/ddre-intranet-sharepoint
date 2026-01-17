@@ -89,6 +89,12 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
       iconProps: { iconName: isFavourite ? 'HeartFill' : 'Heart' },
       onClick: () => onContextMenu?.(isFavourite ? 'removeFavourite' : 'addFavourite'),
     },
+    {
+      key: 'help',
+      text: 'What does this do?',
+      iconProps: { iconName: 'Lightbulb' },
+      onClick: () => onContextMenu?.('help'),
+    },
     // Hide card option only visible to admins
     ...(isAdmin ? [{
       key: 'hide',
