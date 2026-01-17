@@ -25,7 +25,7 @@ export interface INavbarProps {
   onSearch?: (query: string) => void;
   /** Called when a search result is clicked */
   onSearchResultSelect?: (result: ISearchResult) => void;
-  /** Called when user opens Help Center */
+  /** Called when user opens Help Centre */
   onOpenHelp?: () => void;
   /** Dev mode: current admin state */
   isAdmin?: boolean;
@@ -131,8 +131,8 @@ export const Navbar: React.FC<INavbarProps> = ({
         {onOpenHelp && (
           <button
             className={styles.toggleButton}
-            aria-label="Help Center"
-            title="Help Center"
+            aria-label="Help Centre"
+            title="Help Centre"
             onClick={onOpenHelp}
             type="button"
           >

@@ -28,9 +28,9 @@ const helpArticles: IHelpArticle[] = [
   },
   {
     id: 'personalization',
-    title: 'Personalizing Your View',
+    title: 'Personalising Your View',
     summary: 'Pin, hide, and reorder cards; set your theme and layout preferences.',
-    category: 'Personalization',
+    category: 'Personalisation',
   },
   {
     id: 'search',
@@ -55,7 +55,7 @@ const helpArticles: IHelpArticle[] = [
 const categories = [
   'Getting Started',
   'Core Use',
-  'Personalization',
+  'Personalisation',
   'Apps',
   'Troubleshooting',
 ];
@@ -80,7 +80,7 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ onClose }) => {
     <div className={styles.helpCenter}>
       <div className={styles.hero}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Help Center</h1>
+          <h1 className={styles.heroTitle}>Help Centre</h1>
           <p className={styles.heroSubtitle}>
             Find answers, explore guides, and learn how to use DDRE’s intranet tools.
           </p>

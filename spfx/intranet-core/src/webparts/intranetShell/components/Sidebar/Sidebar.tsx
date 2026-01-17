@@ -73,13 +73,13 @@ export const Sidebar: React.FC<ISidebarProps> = ({
                 event.preventDefault();
                 onOpenHelp();
               }}
-              title="Help Center"
+              title="Help Centre"
             >
               <span className={styles.sidebarItemIcon}>
                 <Icon iconName="Lightbulb" />
               </span>
               {!isCollapsed && (
-                <span className={styles.sidebarItemLabel}>Help Center</span>
+                <span className={styles.sidebarItemLabel}>Help Centre</span>
               )}
             </a>
           )}

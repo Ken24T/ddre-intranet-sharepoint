@@ -242,7 +242,7 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
                 styles={{ dropdown: { width: 200 } }}
               />
               <p className={styles.settingDescription}>
-                Choose your preferred color theme. System will match your device settings.
+                Choose your preferred colour theme. System will match your device settings.
               </p>
             </div>
           </div>
@@ -308,10 +308,10 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
             </div>
           )}
 
-          {/* AI Assistant (Admin Only) */}
-          {isAdmin && (
+          {/* AI Assistant */}
+          {
             <div className={styles.section}>
-              <h3 className={styles.sectionTitle}>AI Assistant (Admin)</h3>
+              <h3 className={styles.sectionTitle}>AI Assistant</h3>
               <div className={styles.setting}>
                 <Dropdown
                   label="AI Assistant"
@@ -325,7 +325,7 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
                 </p>
               </div>
             </div>
-          )}
+          }
 
           {/* Hidden Cards Section */}
           <div className={styles.section}>

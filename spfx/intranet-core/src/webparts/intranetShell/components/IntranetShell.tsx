@@ -49,7 +49,7 @@ export interface IIntranetShellState {
   activeCardId?: string;
   /** AI Assistant hidden state (global) */
   isAiAssistantHidden: boolean;
-  /** Help Center open state */
+  /** Help Centre open state */
   isHelpOpen: boolean;
 }
 

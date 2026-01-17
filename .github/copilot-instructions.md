@@ -80,6 +80,7 @@ SPFx solutions consume these via local npm install (not published to registry ye
 2. **No hard-coded tenant URLs** – Use configuration/environment-aware endpoints
 3. **Version sync** – Keep versions aligned across `package.json` and `config/package-solution.json`
 4. **Permissions** – Never re-implement auth; respect SharePoint/Entra ID group-based permissions
+5. **Regional language** – Use Australian English spelling and grammar in all UI text
 
 ## Phase-Aware Delivery
 

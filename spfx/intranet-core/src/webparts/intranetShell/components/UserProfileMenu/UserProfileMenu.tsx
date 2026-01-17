@@ -26,7 +26,7 @@ export interface IUserProfileMenuProps {
   onThemeModeChange: (mode: ThemeMode) => void;
   /** Called when Settings is clicked */
   onOpenSettings: () => void;
-  /** Called when Help Center is opened */
+  /** Called when Help Centre is opened */
   onOpenHelp?: () => void;
   /** Help & Support URL */
   helpUrl?: string;
@@ -193,7 +193,7 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
               </button>
 
               {/* AI Assistant Toggle */}
-              {isAdmin && (onShowAiAssistant || onHideAiAssistant) && (
+              {(onShowAiAssistant || onHideAiAssistant) && (
                 <>
                   <div className={styles.divider} />
                   {isAiAssistantHidden ? (
