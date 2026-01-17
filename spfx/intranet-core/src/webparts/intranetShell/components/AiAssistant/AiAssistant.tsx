@@ -359,8 +359,11 @@ export const AiAssistant: React.FC<IAiAssistantProps> = ({
   if (isHidden) return null;
 
   // Set CSS variable for accent color
-  const containerStyle = accentColor 
-    ? { '--ai-accent-color': accentColor } as React.CSSProperties
+  const containerStyle = accentColor
+    ? {
+        '--ai-accent-color': accentColor,
+        '--ai-message-bg': getLighterShadeForPopup(accentColor),
+      } as React.CSSProperties
     : undefined;
 
   return (

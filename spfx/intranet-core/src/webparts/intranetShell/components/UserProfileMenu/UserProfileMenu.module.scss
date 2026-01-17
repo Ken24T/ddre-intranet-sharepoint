@@ -7,7 +7,7 @@
   padding: 0;
   border: none;
   border-radius: 50%;
-  background-color: var(--themePrimary, #0078d4);
+  background-color: var(--avatar-accent, var(--themePrimary, #0078d4));
   cursor: pointer;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
   overflow: hidden;
@@ -18,7 +18,7 @@
   }
 
   &:focus {
-    outline: 2px solid var(--themePrimary, #0078d4);
+    outline: 2px solid var(--avatar-accent, var(--themePrimary, #0078d4));
     outline-offset: 2px;
   }
 }

@@ -15,6 +15,8 @@ export interface INavbarProps {
   textColor?: string;
   /** Optional search theming variables */
   searchThemeVars?: React.CSSProperties;
+  /** Optional accent color for avatar */
+  avatarAccentColor?: string;
   themeMode: ThemeMode;
   onThemeModeChange: (mode: ThemeMode) => void;
   onOpenSettings: () => void;
@@ -49,6 +51,7 @@ export const Navbar: React.FC<INavbarProps> = ({
   hubGradient,
   textColor,
   searchThemeVars,
+  avatarAccentColor,
   themeMode,
   onThemeModeChange,
   onOpenSettings,
@@ -142,6 +145,7 @@ export const Navbar: React.FC<INavbarProps> = ({
           displayName={userDisplayName}
           email={userEmail}
           photoUrl={userPhotoUrl}
+          accentColor={avatarAccentColor}
           themeMode={themeMode}
           onThemeModeChange={onThemeModeChange}
           onOpenSettings={onOpenSettings}

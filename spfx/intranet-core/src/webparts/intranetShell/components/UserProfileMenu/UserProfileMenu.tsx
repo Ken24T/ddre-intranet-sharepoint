@@ -18,6 +18,8 @@ export interface IUserProfileMenuProps {
   email: string;
   /** URL to user's profile photo (optional) */
   photoUrl?: string;
+  /** Optional accent color for avatar */
+  accentColor?: string;
   /** Current theme mode */
   themeMode: ThemeMode;
   /** Called when theme mode changes */
@@ -46,6 +48,7 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
   displayName,
   email,
   photoUrl,
+  accentColor,
   themeMode,
   onThemeModeChange,
   onOpenSettings,
@@ -134,6 +137,7 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
       <button
         ref={buttonRef}
         className={styles.avatarButton}
+        style={accentColor ? ({ '--avatar-accent': accentColor } as React.CSSProperties) : undefined}
         onClick={toggleMenu}
         aria-haspopup="menu"
         aria-expanded={isOpen}

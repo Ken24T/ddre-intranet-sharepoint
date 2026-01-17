@@ -513,6 +513,8 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     // Get hub-specific colors
     const hubColor = getHubColor(activeHubKey);
     const hubSurface = getHubSurfaceColors(hubColor.accent);
+    const helpAccent = '#c28a00';
+    const aiAccentColor = isHelpOpen ? helpAccent : hubColor.accent;
     const searchThemeVars = ((): React.CSSProperties => {
       if (isHelpOpen) {
         return {
@@ -600,6 +602,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           hubGradient={isHelpOpen ? 'linear-gradient(135deg, #fff7cc 0%, #ffe08a 100%)' : hubColor.gradient}
           textColor={isHelpOpen ? '#4a3200' : undefined}
           searchThemeVars={searchThemeVars}
+          avatarAccentColor={aiAccentColor}
           themeMode={themeMode}
           onThemeModeChange={this.handleThemeModeChange}
           onOpenSettings={this.handleOpenSettings}
@@ -768,7 +771,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
         <AiAssistant
           isHidden={isAiAssistantHidden}
           onHide={this.handleHideAiAssistant}
-          accentColor={hubColor.accent}
+          accentColor={aiAccentColor}
         />
         </div>
       </ThemeProvider>
