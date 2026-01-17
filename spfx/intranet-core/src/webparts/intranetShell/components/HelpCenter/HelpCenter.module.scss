@@ -48,6 +48,97 @@
   padding: 0 32px;
 }
 
+.searchRow :global(.ms-SearchBox) {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(190, 140, 0, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(122, 75, 0, 0.12);
+  outline: none;
+  box-shadow: 0 4px 12px rgba(122, 75, 0, 0.12);
+}
+
+.searchRow :global(.ms-SearchBox:focus-within) {
+  outline: none;
+  box-shadow: 0 4px 12px rgba(122, 75, 0, 0.18);
+}
+
+.searchRow :global(.ms-SearchBox-fieldGroup) {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.searchRow :global(.ms-SearchBox-fieldGroup:focus-within) {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.searchRow :global(.ms-SearchBox.is-active) {
+  border: none;
+  outline: none;
+  box-shadow: 0 4px 12px rgba(122, 75, 0, 0.18);
+}
+
+.searchRow :global(.ms-SearchBox.is-active .ms-SearchBox-fieldGroup) {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.searchRow :global(.ms-SearchBox-fieldGroup::after),
+.searchRow :global(.ms-SearchBox::after) {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.searchRow :global(.ms-SearchBox:hover) {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(190, 140, 0, 0.5);
+}
+
+.searchRow :global(.ms-SearchBox-field) {
+  color: #4a3200;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.searchRow :global(.ms-SearchBox-field:focus),
+.searchRow :global(.ms-SearchBox-field:focus-visible) {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+.searchRow :global(.ms-SearchBox input:focus),
+.searchRow :global(.ms-SearchBox input:focus-visible) {
+  outline: none;
+  box-shadow: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-focus-ring-color: transparent;
+}
+
+.searchRow :global(.ms-SearchBox input:focus),
+.searchRow :global(.ms-SearchBox input:focus-visible),
+.searchRow :global(.ms-SearchBox-field:focus),
+.searchRow :global(.ms-SearchBox-field:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.searchRow :global(.ms-SearchBox-icon) {
+  color: #6b4a00;
+}
+
+.searchRow :global(.ms-SearchBox-clearButton .ms-Button-icon) {
+  color: #6b4a00;
+}
+
 .buttonGroups {
   display: flex;
   flex-direction: column;
