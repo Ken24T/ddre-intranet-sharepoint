@@ -148,6 +148,8 @@ The foundation SPFx solution providing the layout frame for all intranet content
       (navbar Help icon, contextual “?” links, empty-state CTAs)
 - [ ] 11.7 Implement Help Centre shell
       (hub landing page + search + filters)
+- [ ] 11.7.1 Add Help Centre filter panel
+      (hub, category, audience, updated, content type)
 - [ ] 11.8 Implement contextual help surfaces
       (tooltips, side panel, inline callouts)
 - [x] 11.8.1 Add card menu help option (Lightbulb)
@@ -158,6 +160,15 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [ ] 11.9 Add onboarding checklists for new apps/tools
 - [ ] 11.10 Add feedback loop
       (“Was this helpful?” + request help link)
+- [x] 11.11 Define help content metadata model
+      (owner, updated date, audience, content type)
+- [x] 11.12 Add help card metadata display
+      (owner + last updated)
+- [x] 11.13 Add help feedback controls
+      (helpful / not helpful)
+- [x] 11.14 Add analytics hooks for help usage
+      (search terms, card opens, feedback)
+- [x] 11.15 Add placeholders for wizards and video tutorials
 
 ### Phase 12: Feedback & Bug Report
 

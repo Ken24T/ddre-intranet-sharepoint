@@ -16,6 +16,9 @@ interface IGeneralHelpCard {
   summary: string;
   category: string;
   helpUrl: string;
+  owner: string;
+  updatedAt: string;
+  contentType: 'Guide' | 'Checklist' | 'Video' | 'Wizard';
 }
 
 const generalHelpCards: IGeneralHelpCard[] = [
@@ -25,6 +28,9 @@ const generalHelpCards: IGeneralHelpCard[] = [
     summary: 'Learn the basics of navigating hubs and finding your tools quickly.',
     category: 'Getting Started',
     helpUrl: '/help/getting-started',
+    owner: 'People & Culture',
+    updatedAt: '2026-01-10',
+    contentType: 'Guide',
   },
   {
     id: 'settings',
@@ -32,6 +38,9 @@ const generalHelpCards: IGeneralHelpCard[] = [
     summary: 'Change your theme, sidebar behaviour, and layout preferences.',
     category: 'Settings',
     helpUrl: '/help/settings',
+    owner: 'Intranet Team',
+    updatedAt: '2026-01-12',
+    contentType: 'Guide',
   },
   {
     id: 'personalisation',
@@ -39,6 +48,9 @@ const generalHelpCards: IGeneralHelpCard[] = [
     summary: 'Pin, hide, and reorder cards so your hubs stay focused.',
     category: 'Personalisation',
     helpUrl: '/help/personalisation',
+    owner: 'Intranet Team',
+    updatedAt: '2026-01-08',
+    contentType: 'Checklist',
   },
   {
     id: 'search',
@@ -46,6 +58,9 @@ const generalHelpCards: IGeneralHelpCard[] = [
     summary: 'Find people, documents, and tools faster with smart search.',
     category: 'Search',
     helpUrl: '/help/search',
+    owner: 'Digital Workplace',
+    updatedAt: '2026-01-09',
+    contentType: 'Guide',
   },
   {
     id: 'troubleshooting',
@@ -53,6 +68,9 @@ const generalHelpCards: IGeneralHelpCard[] = [
     summary: 'Quick fixes for access, loading, and browser issues.',
     category: 'Troubleshooting',
     helpUrl: '/help/troubleshooting',
+    owner: 'IT Service Desk',
+    updatedAt: '2026-01-11',
+    contentType: 'Guide',
   },
   {
     id: 'shortcuts',
@@ -60,6 +78,29 @@ const generalHelpCards: IGeneralHelpCard[] = [
     summary: 'Navigate the intranet faster with helpful shortcuts.',
     category: 'Shortcuts',
     helpUrl: '/help/shortcuts',
+    owner: 'Digital Workplace',
+    updatedAt: '2026-01-05',
+    contentType: 'Guide',
+  },
+  {
+    id: 'walkthroughs',
+    title: 'Guided Walk-throughs',
+    summary: 'Step-by-step walkthroughs for common intranet tasks.',
+    category: 'Getting Started',
+    helpUrl: '/help/walkthroughs',
+    owner: 'Intranet Team',
+    updatedAt: '2026-01-18',
+    contentType: 'Wizard',
+  },
+  {
+    id: 'video-tutorials',
+    title: 'Video Tutorials',
+    summary: 'Short videos covering key tools and workflows.',
+    category: 'Getting Started',
+    helpUrl: '/help/videos',
+    owner: 'Digital Workplace',
+    updatedAt: '2026-01-18',
+    contentType: 'Video',
   },
 ];
 export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
@@ -116,9 +157,31 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
     return scopedCards.filter(
       (card) =>
         card.title.toLowerCase().includes(lower) ||
-        card.summary.toLowerCase().includes(lower)
+        card.summary.toLowerCase().includes(lower) ||
+        card.owner.toLowerCase().includes(lower) ||
+        card.contentType.toLowerCase().includes(lower)
     );
   }, [query, selectedGeneralCategory]);
+
+  const helpMetaByCardId = React.useMemo(() => {
+    const meta: Record<string, { owner: string; updatedAt: string; contentType: string }> = {};
+    cards.forEach((card) => {
+      meta[card.id] = {
+        owner: 'Intranet Team',
+        updatedAt: '2026-01-12',
+        contentType: 'Guide',
+      };
+    });
+    return meta;
+  }, [cards]);
+
+  const handleFeedback = (label: string, isHelpful: boolean): void => {
+    window.dispatchEvent(
+      new CustomEvent('helpFeedback', {
+        detail: { label, isHelpful },
+      })
+    );
+  };
 
   const handleOpenHelp = (title: string, summary: string, helpUrl?: string): void => {
     openMockHelpWindow({ title, summary, helpUrl });
@@ -182,9 +245,20 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
                   <div className={styles.articleHeader}>
                     <Icon iconName="TextDocument" className={styles.articleIcon} />
                     <span className={styles.articleCategory}>{card.category}</span>
+                    <span className={styles.articleType}>
+                      {card.contentType === 'Video' ? (
+                        <Icon iconName="Video" className={styles.articleTypeIcon} />
+                      ) : (
+                        card.contentType
+                      )}
+                    </span>
                   </div>
                   <h3 className={styles.articleTitle}>{card.title}</h3>
                   <p className={styles.articleSummary}>{card.summary}</p>
+                  <div className={styles.articleMeta}>
+                    <span>{card.owner}</span>
+                    <span>Updated {card.updatedAt}</span>
+                  </div>
                   <button
                     className={styles.articleAction}
                     type="button"
@@ -193,6 +267,23 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
                     Open help
                     <Icon iconName="ChevronRight" className={styles.articleChevron} />
                   </button>
+                  <div className={styles.articleFeedback}>
+                    <span>Was this helpful?</span>
+                    <button
+                      type="button"
+                      className={styles.feedbackButton}
+                      onClick={() => handleFeedback(card.title, true)}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.feedbackButton}
+                      onClick={() => handleFeedback(card.title, false)}
+                    >
+                      No
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -233,9 +324,20 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
                     <span className={styles.articleCategory}>
                       {hubInfo[card.hubKey]?.title || card.hubKey}
                     </span>
+                    <span className={styles.articleType}>
+                      {helpMetaByCardId[card.id]?.contentType === 'Video' ? (
+                        <Icon iconName="Video" className={styles.articleTypeIcon} />
+                      ) : (
+                        helpMetaByCardId[card.id]?.contentType
+                      )}
+                    </span>
                   </div>
                   <h3 className={styles.articleTitle}>{card.title}</h3>
                   <p className={styles.articleSummary}>{card.description}</p>
+                  <div className={styles.articleMeta}>
+                    <span>{helpMetaByCardId[card.id]?.owner}</span>
+                    <span>Updated {helpMetaByCardId[card.id]?.updatedAt}</span>
+                  </div>
                   <button
                     className={styles.articleAction}
                     type="button"
@@ -245,6 +347,23 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
                     Open help
                     <Icon iconName="ChevronRight" className={styles.articleChevron} />
                   </button>
+                  <div className={styles.articleFeedback}>
+                    <span>Was this helpful?</span>
+                    <button
+                      type="button"
+                      className={styles.feedbackButton}
+                      onClick={() => handleFeedback(card.title, true)}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.feedbackButton}
+                      onClick={() => handleFeedback(card.title, false)}
+                    >
+                      No
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
