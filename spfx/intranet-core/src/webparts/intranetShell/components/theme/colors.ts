@@ -39,6 +39,10 @@ export const hubColors: Record<string, { gradient: string; accent: string }> = {
     gradient: 'linear-gradient(135deg, #ca5010 0%, #8e3a0b 100%)',
     accent: '#ca5010',
   },
+  favourites: {
+    gradient: 'linear-gradient(135deg, #8fd694 0%, #5abf73 100%)',
+    accent: '#5abf73',
+  },
 };
 
 // Semantic colors

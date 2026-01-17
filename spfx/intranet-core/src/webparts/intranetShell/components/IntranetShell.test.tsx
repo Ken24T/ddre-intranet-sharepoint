@@ -9,6 +9,10 @@ describe("IntranetShell", () => {
     siteTitle: "DDRE Intranet",
   };
 
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it("renders the shell with all four regions", () => {
     render(<IntranetShell {...defaultProps} />);
 
@@ -47,5 +51,30 @@ describe("IntranetShell", () => {
     const statusBar = screen.getByRole("contentinfo");
     expect(within(statusBar).getByText("Vault")).toBeInTheDocument();
     expect(within(statusBar).getByText("PropertyMe")).toBeInTheDocument();
+  });
+
+  it("restores favourites from storage", () => {
+    localStorage.setItem(
+      "ddre-intranet-favourites",
+      JSON.stringify([
+        {
+          cardId: "quick-links",
+          sourceHubKey: "home",
+          addedAt: "2026-01-18T00:00:00.000Z",
+        },
+      ])
+    );
+
+    render(<IntranetShell {...defaultProps} />);
+
+    const sidebar = screen.getByRole("complementary", { name: /sidebar/i });
+    expect(within(sidebar).getByText("Favourites")).toBeInTheDocument();
+  });
+
+  it("hides favourites hub when none stored", () => {
+    render(<IntranetShell {...defaultProps} />);
+
+    const sidebar = screen.getByRole("complementary", { name: /sidebar/i });
+    expect(within(sidebar).queryByText("Favourites")).not.toBeInTheDocument();
   });
 });

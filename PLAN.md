@@ -2,7 +2,7 @@
 
 Central task tracking for all planned implementations.
 
-> **Last updated:** 2026-01-17
+> **Last updated:** 2026-01-18
 >
 > **Current focus:** Shared Packages & Business Apps
 
@@ -155,6 +155,18 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [ ] 12.6 Implement form embedding/redirect behavior
 - [ ] 12.7 Add acknowledgment UX (toast + confirmation state)
 - [ ] 12.8 Define routing of submissions (email, Teams channel, or tracker)
+
+### Phase 13: Favourites Hub
+
+- [ ] 13.1 Define favourites data model (per-user storage)
+- [ ] 13.2 Add Favourites hub definition and light green theme
+- [ ] 13.3 Render Favourites hub cards with duplicate behaviour
+- [ ] 13.4 Add card menu actions (Add/Remove from Favourites)
+- [ ] 13.5 Conditionally show Favourites in sidebar
+      (Home → Favourites → Document Library)
+- [ ] 13.6 Persist favourites and restore on load
+- [ ] 13.7 Handle empty state (hide hub when no favourites)
+- [ ] 13.8 Add tests for favourites persistence and sidebar visibility
 
 ---
 

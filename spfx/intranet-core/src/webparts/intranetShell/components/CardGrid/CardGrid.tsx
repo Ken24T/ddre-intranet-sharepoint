@@ -28,6 +28,8 @@ export interface ICardGridProps {
   pinnedCardIds: string[];
   /** IDs of hidden cards */
   hiddenCardIds: string[];
+  /** IDs of favourite cards */
+  favouriteCardIds?: string[];
   /** Card open behavior overrides */
   cardOpenBehaviors?: Record<string, CardOpenBehavior>;
   /** Saved card order for this hub */
@@ -40,6 +42,8 @@ export interface ICardGridProps {
   onPinChange?: (cardId: string, isPinned: boolean) => void;
   /** Called when card is hidden */
   onHideCard?: (cardId: string) => void;
+  /** Called when card is added/removed from favourites */
+  onFavouriteChange?: (cardId: string, isFavourite: boolean) => void;
   /** Called when card open behavior changes */
   onCardOpenBehaviorChange?: (
     cardId: string,
@@ -58,12 +62,14 @@ export const CardGrid: React.FC<ICardGridProps> = ({
   hubKey,
   pinnedCardIds,
   hiddenCardIds,
+  favouriteCardIds = [],
   cardOpenBehaviors = {},
   savedOrder,
   isAdmin = false,
   onOrderChange,
   onPinChange,
   onHideCard,
+  onFavouriteChange,
   onCardOpenBehaviorChange,
   onCardClick,
 }) => {
@@ -142,6 +148,8 @@ export const CardGrid: React.FC<ICardGridProps> = ({
       | 'unpin'
       | 'hide'
       | 'openNewTab'
+      | 'addFavourite'
+      | 'removeFavourite'
       | 'setOpenInline'
       | 'setOpenNewTab'
       | 'setOpenNewWindow'
@@ -172,6 +180,12 @@ export const CardGrid: React.FC<ICardGridProps> = ({
         }
         break;
       }
+      case 'addFavourite':
+        onFavouriteChange?.(cardId, true);
+        break;
+      case 'removeFavourite':
+        onFavouriteChange?.(cardId, false);
+        break;
     }
   };
 
@@ -211,6 +225,7 @@ export const CardGrid: React.FC<ICardGridProps> = ({
                 themeColor={hubColor.accent}
                 openBehavior={cardOpenBehaviors[card.id] || card.openBehavior}
                 isPinned={pinnedCardIds.indexOf(card.id) !== -1}
+                isFavourite={favouriteCardIds.indexOf(card.id) !== -1}
                 isAdmin={isAdmin}
                 onClick={() => handleCardClick(card.id)}
                 onContextMenu={(action) => handleContextMenu(card.id, action)}

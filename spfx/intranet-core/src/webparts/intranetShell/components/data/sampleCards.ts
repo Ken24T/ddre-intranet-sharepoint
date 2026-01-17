@@ -230,4 +230,8 @@ export const hubInfo: Record<string, { title: string; description: string }> = {
     title: 'Sales',
     description: 'Sales tools and performance tracking',
   },
+  favourites: {
+    title: 'Favourites',
+    description: 'Your saved shortcuts from across the intranet',
+  },
 };

@@ -21,6 +21,8 @@ export interface IFunctionCardProps {
   openBehavior?: CardOpenBehavior;
   /** Optional: Card is pinned to top */
   isPinned?: boolean;
+  /** Optional: Card is in favourites */
+  isFavourite?: boolean;
   /** Optional: User is admin (can hide cards) */
   isAdmin?: boolean;
   /** Optional: Click handler */
@@ -32,6 +34,8 @@ export interface IFunctionCardProps {
       | 'unpin'
       | 'hide'
       | 'openNewTab'
+      | 'addFavourite'
+      | 'removeFavourite'
       | 'setOpenInline'
       | 'setOpenNewTab'
       | 'setOpenNewWindow'

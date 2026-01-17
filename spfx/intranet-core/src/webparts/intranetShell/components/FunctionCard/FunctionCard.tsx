@@ -17,6 +17,7 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
   themeColor = '#0078d4',
   openBehavior = 'inline',
   isPinned = false,
+  isFavourite = false,
   isAdmin = false,
   onClick,
   onContextMenu,
@@ -81,6 +82,12 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
       text: isPinned ? 'Unpin from top' : 'Pin to top',
       iconProps: { iconName: isPinned ? 'Unpin' : 'Pin' },
       onClick: () => onContextMenu?.(isPinned ? 'unpin' : 'pin'),
+    },
+    {
+      key: 'favourite',
+      text: isFavourite ? 'Remove from favourites' : 'Add to favourites',
+      iconProps: { iconName: isFavourite ? 'HeartFill' : 'Heart' },
+      onClick: () => onContextMenu?.(isFavourite ? 'removeFavourite' : 'addFavourite'),
     },
     // Hide card option only visible to admins
     ...(isAdmin ? [{

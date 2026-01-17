@@ -22,6 +22,7 @@ import { HelpCenter } from './HelpCenter/HelpCenter';
 import { SkipLinks } from './SkipLinks';
 import { sampleCards, hubInfo } from './data';
 import type { CardOpenBehavior, IFunctionCard } from './FunctionCard';
+import type { IFavouriteCard } from './favouritesTypes';
 import type { ISearchResult } from './SearchBox';
 import { getHubColor, getResolvedTheme, getThemeCssVars, isDarkTheme } from './theme';
 import type { ThemeMode } from './UserProfileMenu';
@@ -51,6 +52,8 @@ export interface IIntranetShellState {
   isAiAssistantHidden: boolean;
   /** Help Centre open state */
   isHelpOpen: boolean;
+  /** User favourites (per-user storage) */
+  favourites: IFavouriteCard[];
 }
 
 /**
@@ -60,6 +63,7 @@ const STORAGE_KEYS = {
   CARD_ORDER: 'ddre-intranet-cardOrder',
   PINNED_CARDS: 'ddre-intranet-pinnedCards',
   HIDDEN_CARDS: 'ddre-intranet-hiddenCards',
+  FAVOURITES: 'ddre-intranet-favourites',
   SIDEBAR_COLLAPSED: 'ddre-intranet-sidebarCollapsed',
   THEME_MODE: 'ddre-intranet-themeMode',
 };
@@ -179,6 +183,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       activeCardId: undefined,
       isAiAssistantHidden: isAiHidden,
       isHelpOpen: false,
+      favourites: loadFromStorage(STORAGE_KEYS.FAVOURITES, []),
     };
   }
 
@@ -265,6 +270,46 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     });
   };
 
+  private handleFavouriteChange = (cardId: string, isFavourite: boolean): void => {
+    const sourceCard = sampleCards.find((card) => card.id === cardId);
+    if (!sourceCard) {
+      return;
+    }
+
+    this.setState((prevState) => {
+      const alreadyFavourite = prevState.favourites.some((fav) => fav.cardId === cardId);
+
+      if (isFavourite && alreadyFavourite) {
+        return null;
+      }
+
+      if (!isFavourite && !alreadyFavourite) {
+        return null;
+      }
+
+      const updatedFavourites = isFavourite
+        ? [
+            ...prevState.favourites,
+            {
+              cardId,
+              sourceHubKey: sourceCard.hubKey,
+              addedAt: new Date().toISOString(),
+            },
+          ]
+        : prevState.favourites.filter((fav) => fav.cardId !== cardId);
+
+      saveToStorage(STORAGE_KEYS.FAVOURITES, updatedFavourites);
+
+      const shouldExitFavourites = updatedFavourites.length === 0 && prevState.activeHubKey === 'favourites';
+
+      return {
+        favourites: updatedFavourites,
+        activeHubKey: shouldExitFavourites ? 'home' : prevState.activeHubKey,
+        activeCardId: shouldExitFavourites ? undefined : prevState.activeCardId,
+      };
+    });
+  };
+
   private handleRestoreCard = (cardId: string): void => {
     this.setState((prevState) => {
       const newHiddenCardIds = prevState.hiddenCardIds.filter((id) => id !== cardId);
@@ -309,6 +354,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       STORAGE_KEYS.CARD_ORDER,
       STORAGE_KEYS.PINNED_CARDS,
       STORAGE_KEYS.HIDDEN_CARDS,
+      STORAGE_KEYS.FAVOURITES,
       STORAGE_KEYS.SIDEBAR_COLLAPSED,
       STORAGE_KEYS.THEME_MODE,
     ];
@@ -336,11 +382,13 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       pinnedCardIds: [],
       hiddenCardIds: [],
       cardOrder: {},
+      favourites: [],
       cardOpenBehavior: this.state.isAdminMode
         ? {}
         : this.state.cardOpenBehavior,
       themeMode: 'light',
       activeCardId: undefined,
+      activeHubKey: 'home',
       isAiAssistantHidden: this.state.isAdminMode
         ? false
         : this.state.isAiAssistantHidden,
@@ -481,10 +529,15 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       activeCardId,
       isAiAssistantHidden,
       isHelpOpen,
+      favourites,
     } = this.state;
 
     // Get cards for current hub
-    const hubCards = sampleCards.filter((card) => card.hubKey === activeHubKey);
+    const hubCards = activeHubKey === 'favourites'
+      ? favourites
+          .map((fav) => sampleCards.find((card) => card.id === fav.cardId))
+          .filter((card): card is IFunctionCard => Boolean(card))
+      : sampleCards.filter((card) => card.hubKey === activeHubKey);
     const currentHub = hubInfo[activeHubKey] || { title: 'Hub', description: '' };
 
     // Get hidden cards with their details for settings panel
@@ -619,6 +672,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
         <Sidebar
           isCollapsed={isSidebarCollapsed}
           activeHubKey={activeHubKey}
+          hasFavourites={favourites.length > 0}
           onHubChange={this.handleHubChange}
           onOpenHelp={this.handleOpenHelp}
         />
@@ -733,12 +787,14 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
                   hubKey={activeHubKey}
                   pinnedCardIds={pinnedCardIds}
                   hiddenCardIds={hiddenCardIds}
+                  favouriteCardIds={favourites.map((fav) => fav.cardId)}
                   cardOpenBehaviors={cardOpenBehavior}
                   savedOrder={cardOrder[activeHubKey]}
                   isAdmin={isAdminMode}
                   onOrderChange={this.handleCardOrderChange}
                   onPinChange={this.handlePinChange}
                   onHideCard={this.handleHideCard}
+                  onFavouriteChange={this.handleFavouriteChange}
                   onCardOpenBehaviorChange={this.handleCardOpenBehaviorChange}
                   onCardClick={this.handleCardClick}
                 />

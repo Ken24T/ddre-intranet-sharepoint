@@ -5,6 +5,7 @@ import styles from '../IntranetShell.module.scss';
 export interface ISidebarProps {
   isCollapsed: boolean;
   activeHubKey?: string;
+  hasFavourites?: boolean;
   onHubChange?: (hubKey: string) => void;
   onOpenHelp?: () => void;
 }
@@ -15,7 +16,7 @@ interface INavItem {
   icon: string;
 }
 
-// Hub navigation items
+// Hub navigation items (base order)
 const navItems: INavItem[] = [
   { key: 'home', label: 'Home', icon: 'Home' },
   { key: 'library', label: 'Document Library', icon: 'Library' },
@@ -32,6 +33,7 @@ const navItems: INavItem[] = [
 export const Sidebar: React.FC<ISidebarProps> = ({
   isCollapsed,
   activeHubKey = 'home',
+  hasFavourites = false,
   onHubChange,
   onOpenHelp,
 }) => {
@@ -39,6 +41,20 @@ export const Sidebar: React.FC<ISidebarProps> = ({
     e.preventDefault();
     onHubChange?.(hubKey);
   };
+
+  const orderedItems = React.useMemo(() => {
+    if (!hasFavourites) {
+      return navItems;
+    }
+
+    const favouriteItem: INavItem = { key: 'favourites', label: 'Favourites', icon: 'Heart' };
+    const homeIndex = navItems.findIndex((item) => item.key === 'home');
+    const libraryIndex = navItems.findIndex((item) => item.key === 'library');
+    const insertIndex = libraryIndex > homeIndex ? libraryIndex : homeIndex + 1;
+    const items = [...navItems];
+    items.splice(insertIndex, 0, favouriteItem);
+    return items;
+  }, [hasFavourites]);
 
   return (
     <aside
@@ -48,7 +64,7 @@ export const Sidebar: React.FC<ISidebarProps> = ({
     >
       <div className={styles.sidebarNavContainer}>
         <nav id="sidebar-nav" className={styles.sidebarNav} tabIndex={-1}>
-          {navItems.map((item) => (
+          {orderedItems.map((item) => (
             <a
               key={item.key}
               href={`#${item.key}`}
