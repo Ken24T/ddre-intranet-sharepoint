@@ -239,6 +239,34 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
     openMockHelpWindow({ title, summary, helpUrl });
   };
 
+  const handleRequestHelp = (): void => {
+    const selectedLabels = selectedContentTypes.length > 0
+      ? selectedContentTypes.join(', ')
+      : 'All categories';
+    const hubLabel = selectedHubKey ? (hubInfo[selectedHubKey]?.title || selectedHubKey) : 'All hubs';
+    const summaryParts = [`Categories: ${selectedLabels}`, `Hub: ${hubLabel}`];
+    if (appliedQuery) {
+      summaryParts.push(`Search term: "${appliedQuery}"`);
+    }
+
+    const params = new URLSearchParams();
+    if (selectedContentTypes.length > 0) {
+      params.set('types', selectedContentTypes.join(','));
+    }
+    if (selectedHubKey) {
+      params.set('hub', selectedHubKey);
+    }
+    if (appliedQuery) {
+      params.set('q', appliedQuery);
+    }
+
+    handleOpenHelp(
+      'Request help',
+      summaryParts.join(' • '),
+      `/help/request-help${params.toString() ? `?${params.toString()}` : ''}`
+    );
+  };
+
   const handleSearch = (value?: string): void => {
     const rawQuery = (value || searchText || '').trim();
     setAppliedQuery(rawQuery);
@@ -488,13 +516,7 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
           text="Request help"
           iconProps={{ iconName: 'Lightbulb' }}
           className={styles.ctaButton}
-          onClick={() =>
-            handleOpenHelp(
-              'Request help',
-              'Connect with the right team or report a problem with your intranet tools.',
-              '/help/request-help'
-            )
-          }
+          onClick={handleRequestHelp}
         />
       </div>
     </div>
