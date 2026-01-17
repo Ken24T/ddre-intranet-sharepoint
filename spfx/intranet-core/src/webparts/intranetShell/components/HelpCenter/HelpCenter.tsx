@@ -259,7 +259,18 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
             We can connect you with the right team or help you report a problem.
           </p>
         </div>
-        <DefaultButton text="Request help" iconProps={{ iconName: 'Help' }} />
+        <DefaultButton
+          text="Request help"
+          iconProps={{ iconName: 'Lightbulb' }}
+          className={styles.ctaButton}
+          onClick={() =>
+            handleOpenHelp(
+              'Request help',
+              'Connect with the right team or report a problem with your intranet tools.',
+              '/help/request-help'
+            )
+          }
+        />
       </div>
     </div>
   );
