@@ -170,6 +170,30 @@ const NotificationItem: React.FC<INotificationItemProps> = ({ notification, onDi
 export const StatusBar: React.FC<IStatusBarProps> = ({ userDisplayName, appVersion, context }) => {
   const { vault, propertyMe, checkHealth, isChecking } = useApiHealth(context);
   const { notifications, dismissedIds, dismissNotification, isLoading: notificationsLoading } = useNotifications(context);
+  const otherActiveUsers = [
+    { name: 'Sophie Nguyen', status: 'Viewing Sales hub', activeFor: '4m' },
+    { name: 'Liam Harris', status: 'Editing Help Centre', activeFor: '9m' },
+    { name: 'Amelia Jones', status: 'Browsing Property Management', activeFor: '2m' },
+  ];
+  const otherUserCount = otherActiveUsers.length;
+  const userCountLabel = otherUserCount > 0 ? ` (1/${otherUserCount})` : '';
+  const userTooltipContent = otherUserCount > 0 ? (
+    <div className={styles.userTooltip}>
+      <div className={styles.userTooltipTitle}>Other active users</div>
+      <div className={styles.userTooltipList}>
+        {otherActiveUsers.map((user) => (
+          <div key={user.name} className={styles.userTooltipItem}>
+            <div className={styles.userTooltipName}>{user.name}</div>
+            <div className={styles.userTooltipMeta}>
+              {user.status} · {user.activeFor}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  ) : (
+    'No other active users'
+  );
 
   const handleRefresh = (): void => {
     if (!isChecking) {
@@ -227,7 +251,15 @@ export const StatusBar: React.FC<IStatusBarProps> = ({ userDisplayName, appVersi
         {/* User Section */}
         <div className={styles.userSection}>
           <Icon iconName="Contact" className={styles.userIcon} />
-          <span className={styles.userName}>{userDisplayName}</span>
+          <TooltipHost
+            content={userTooltipContent}
+            directionalHint={DirectionalHint.topCenter}
+            calloutProps={{ gapSpace: 6 }}
+          >
+            <span className={styles.userName}>
+              {userDisplayName}{userCountLabel}
+            </span>
+          </TooltipHost>
         </div>
 
         {appVersion && (

@@ -32,7 +32,7 @@ describe("IntranetShell", () => {
 
     // Status bar
     expect(screen.getByRole("contentinfo")).toBeInTheDocument();
-    expect(screen.getByText(defaultProps.userDisplayName)).toBeInTheDocument();
+    expect(screen.getByText(`${defaultProps.userDisplayName} (1/3)`)).toBeInTheDocument();
   });
 
   it("displays nav items in sidebar", () => {
