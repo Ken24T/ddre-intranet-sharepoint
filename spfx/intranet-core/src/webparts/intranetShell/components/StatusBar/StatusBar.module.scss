@@ -2,6 +2,7 @@
 // Fixed 24px height status bar with API health, user info, and notifications
 
 .statusBar {
+  grid-area: statusbar;
   display: flex;
   align-items: center;
   padding: 0 16px;
@@ -11,6 +12,22 @@
   font-size: 12px;
   color: var(--neutralSecondary, #605e5c);
   gap: 16px;
+}
+
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 // =============================================================================
@@ -123,14 +140,6 @@
   to {
     transform: rotate(360deg);
   }
-}
-
-// =============================================================================
-// SPACER
-// =============================================================================
-
-.spacer {
-  flex: 1;
 }
 
 // =============================================================================
@@ -266,4 +275,22 @@
   max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+// =============================================================================
+// VERSION SECTION
+// =============================================================================
+
+.versionSection {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  color: var(--neutralTertiary, #a19f9d);
+  font-size: 11px;
+  letter-spacing: 0.2px;
+}
+
+.versionLabel {
+  white-space: nowrap;
 }

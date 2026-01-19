@@ -815,7 +815,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
             </>
           )}
         </ContentArea>
-        <StatusBar userDisplayName={userDisplayName} />
+        <StatusBar userDisplayName={userDisplayName} appVersion={this.props.appVersion} />
 
         <SettingsPanel
           isOpen={isSettingsOpen}

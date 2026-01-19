@@ -91,6 +91,9 @@ describe("IntranetShellWebPart", () => {
     })();
 
     webPart.properties = { description: "Hello" };
+    (webPart as unknown as { manifest: { version: string } }).manifest = {
+      version: "0.4.0",
+    };
     webPart.context = {
       isServedFromLocalhost: true,
       pageContext: {
@@ -113,6 +116,7 @@ describe("IntranetShellWebPart", () => {
         userDisplayName: "Jane Doe",
         userEmail: "jane.doe@example.com",
         siteTitle: "DDRE Intranet",
+        appVersion: "0.4.0",
         isDarkTheme: false,
         hasTeamsContext: false,
       }),

@@ -7,6 +7,7 @@ describe("IntranetShell", () => {
     userDisplayName: "John Doe",
     userEmail: "john.doe@example.com",
     siteTitle: "DDRE Intranet",
+    appVersion: "0.4.0",
   };
 
   beforeEach(() => {

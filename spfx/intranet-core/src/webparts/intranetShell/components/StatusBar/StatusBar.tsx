@@ -7,6 +7,8 @@ import styles from './StatusBar.module.scss';
 export interface IStatusBarProps {
   /** Current user's display name or email */
   userDisplayName: string;
+  /** App version string */
+  appVersion: string;
   /** Optional SPFx context for real API health checks */
   context?: unknown;
 }
@@ -165,7 +167,7 @@ const NotificationItem: React.FC<INotificationItemProps> = ({ notification, onDi
  * StatusBar - Fixed 24px bottom status bar.
  * Shows API health indicators, current user, and system notifications.
  */
-export const StatusBar: React.FC<IStatusBarProps> = ({ userDisplayName, context }) => {
+export const StatusBar: React.FC<IStatusBarProps> = ({ userDisplayName, appVersion, context }) => {
   const { vault, propertyMe, checkHealth, isChecking } = useApiHealth(context);
   const { notifications, dismissedIds, dismissNotification, isLoading: notificationsLoading } = useNotifications(context);
 
@@ -185,47 +187,54 @@ export const StatusBar: React.FC<IStatusBarProps> = ({ userDisplayName, context 
 
   return (
     <footer className={styles.statusBar} role="contentinfo">
-      {/* API Health Section */}
-      <div className={styles.healthSection}>
-        <HealthIndicator apiName="Vault" state={vault} />
-        <HealthIndicator apiName="PropertyMe" state={propertyMe} />
-        <button
-          className={styles.refreshButton}
-          onClick={handleRefresh}
-          disabled={isChecking}
-          title="Refresh API status"
-          aria-label="Refresh API status"
-        >
-          <Icon iconName={isChecking ? 'Sync' : 'Refresh'} className={isChecking ? styles.spinning : ''} />
-        </button>
+      <div className={styles.leftSection}>
+        {/* API Health Section */}
+        <div className={styles.healthSection}>
+          <HealthIndicator apiName="Vault" state={vault} />
+          <HealthIndicator apiName="PropertyMe" state={propertyMe} />
+          <button
+            className={styles.refreshButton}
+            onClick={handleRefresh}
+            disabled={isChecking}
+            title="Refresh API status"
+            aria-label="Refresh API status"
+          >
+            <Icon iconName={isChecking ? 'Sync' : 'Refresh'} className={isChecking ? styles.spinning : ''} />
+          </button>
+        </div>
+
+        {/* Notifications Section */}
+        <div className={styles.notificationsSection} aria-live="polite">
+          {notificationsLoading ? (
+            <span className={styles.notificationsLoading}>Loading notifications...</span>
+          ) : visibleNotifications.length > 0 ? (
+            <div className={styles.notificationsScroller}>
+              {visibleNotifications.map(notification => (
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onDismiss={dismissNotification}
+                />
+              ))}
+            </div>
+          ) : (
+            <span className={styles.noNotifications}>No notifications</span>
+          )}
+        </div>
       </div>
 
-      {/* Spacer */}
-      <div className={styles.spacer} />
+      <div className={styles.rightSection}>
+        {/* User Section */}
+        <div className={styles.userSection}>
+          <Icon iconName="Contact" className={styles.userIcon} />
+          <span className={styles.userName}>{userDisplayName}</span>
+        </div>
 
-      {/* Notifications Section */}
-      <div className={styles.notificationsSection} aria-live="polite">
-        {notificationsLoading ? (
-          <span className={styles.notificationsLoading}>Loading notifications...</span>
-        ) : visibleNotifications.length > 0 ? (
-          <div className={styles.notificationsScroller}>
-            {visibleNotifications.map(notification => (
-              <NotificationItem
-                key={notification.id}
-                notification={notification}
-                onDismiss={dismissNotification}
-              />
-            ))}
+        {appVersion && (
+          <div className={styles.versionSection}>
+            <span className={styles.versionLabel}>v{appVersion}</span>
           </div>
-        ) : (
-          <span className={styles.noNotifications}>No notifications</span>
         )}
-      </div>
-
-      {/* User Section */}
-      <div className={styles.userSection}>
-        <Icon iconName="Contact" className={styles.userIcon} />
-        <span className={styles.userName}>{userDisplayName}</span>
       </div>
     </footer>
   );
