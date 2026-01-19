@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Icon } from '@fluentui/react';
 import styles from '../IntranetShell.module.scss';
+import { useAudit } from '../AuditContext';
 
 export interface ISidebarProps {
   isCollapsed: boolean;
@@ -37,8 +38,17 @@ export const Sidebar: React.FC<ISidebarProps> = ({
   onHubChange,
   onOpenHelp,
 }) => {
+  const audit = useAudit();
+
   const handleClick = (e: React.MouseEvent, hubKey: string): void => {
     e.preventDefault();
+    
+    // Log hub navigation
+    audit.logNavigation('hub_changed', {
+      hub: hubKey,
+      metadata: { previousHub: activeHubKey, source: 'sidebar' },
+    });
+    
     onHubChange?.(hubKey);
   };
 

@@ -244,6 +244,9 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [x] 14.13.1 Build logging client helper
       (typed event builder, batching, retry)
       → packages/pkg-api-client/src/clients/AuditClient.ts
+- [x] 14.13.1a Wire up audit logging in SPFx shell
+      (AuditContext, useAudit hook, graceful failure)
+      → Sidebar, CardGrid, SettingsPanel, SearchBox integrated
 - [ ] 14.13.2 Implement Azure proxy endpoint
       (validate schema, auth, rate limits)
 - [ ] 14.13.3 Add server-side enrichment

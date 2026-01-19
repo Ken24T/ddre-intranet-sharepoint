@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Icon, Spinner, SpinnerSize } from '@fluentui/react';
+import { useAudit } from '../AuditContext';
 import styles from './SearchBox.module.scss';
 
 // =============================================================================
@@ -111,6 +112,7 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
   searchFn = mockSearch,
   themeVars,
 }) => {
+  const audit = useAudit();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const [results, setResults] = React.useState<ISearchResult[]>([]);
@@ -211,14 +213,24 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
 
   const handleSubmit = (): void => {
     if (selectedIndex >= 0 && flatResults[selectedIndex]) {
-      onResultSelect?.(flatResults[selectedIndex]);
+      const result = flatResults[selectedIndex];
+      audit.logSearch('search_result_clicked', {
+        metadata: { query, resultId: result.id, resultTitle: result.title, resultType: result.type },
+      });
+      onResultSelect?.(result);
     } else if (query.trim()) {
+      audit.logSearch('search_executed', {
+        metadata: { query, resultCount: results.length },
+      });
       onSearch?.(query);
     }
     setShowDropdown(false);
   };
 
   const handleResultClick = (result: ISearchResult): void => {
+    audit.logSearch('search_result_clicked', {
+      metadata: { query, resultId: result.id, resultTitle: result.title, resultType: result.type },
+    });
     onResultSelect?.(result);
     setShowDropdown(false);
     setQuery('');

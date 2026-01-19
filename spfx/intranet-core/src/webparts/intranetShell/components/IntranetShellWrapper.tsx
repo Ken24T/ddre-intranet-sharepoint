@@ -3,12 +3,16 @@ import { ToastProvider, ToastContainer, useToast } from './Toast';
 import { OfflineBanner } from './OfflineBanner';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import type { IToastContext } from './Toast';
+import { AuditProvider, ConsoleAuditLogger, useAudit } from './AuditContext';
+import type { IAuditLogger } from './AuditContext';
 
 /**
  * Props for the IntranetShellWrapper
  */
 export interface IIntranetShellWrapperProps {
   children: React.ReactNode;
+  /** Optional audit logger instance. If not provided, uses ConsoleAuditLogger (dev mode). */
+  auditLogger?: IAuditLogger;
 }
 
 /**
@@ -62,19 +66,36 @@ const IntranetShellInner: React.FC<IIntranetShellWrapperProps> = ({ children }) 
  * - Toast notification system (ToastProvider + ToastContainer)
  * - Offline detection banner with dismissal
  * - Reconnection handling with success toast
+ * - Audit logging context (AuditProvider)
  * 
  * @example
  * ```tsx
- * <IntranetShellWrapper>
+ * <IntranetShellWrapper auditLogger={auditClient}>
  *   <IntranetShell {...props} />
  * </IntranetShellWrapper>
  * ```
  */
-export const IntranetShellWrapper: React.FC<IIntranetShellWrapperProps> = ({ children }) => {
+export const IntranetShellWrapper: React.FC<IIntranetShellWrapperProps> = ({ 
+  children,
+  auditLogger 
+}) => {
+  // Use provided logger or fall back to console logger for dev
+  const logger = React.useMemo(
+    () => auditLogger ?? new ConsoleAuditLogger(),
+    [auditLogger]
+  );
+
+  // Log app_loaded on mount
+  React.useEffect(() => {
+    logger.logSystem('app_loaded');
+  }, [logger]);
+
   return (
-    <ToastProvider>
-      <IntranetShellInner>{children}</IntranetShellInner>
-    </ToastProvider>
+    <AuditProvider logger={logger}>
+      <ToastProvider>
+        <IntranetShellInner>{children}</IntranetShellInner>
+      </ToastProvider>
+    </AuditProvider>
   );
 };
 
@@ -83,5 +104,11 @@ export const IntranetShellWrapper: React.FC<IIntranetShellWrapperProps> = ({ chi
  * Re-export from Toast module for convenience.
  */
 export { useToast, type IToastContext };
+
+/**
+ * Hook for components to access audit logger.
+ * Re-export from AuditContext for convenience.
+ */
+export { useAudit, type IAuditLogger };
 
 export default IntranetShellWrapper;

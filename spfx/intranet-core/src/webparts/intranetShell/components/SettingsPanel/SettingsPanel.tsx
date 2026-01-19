@@ -13,6 +13,7 @@ import { ConfirmationDialog } from '../Modal/ConfirmationDialog';
 import { HiddenCardsManager } from '../Modal/HiddenCardsManager';
 import type { CardOpenBehavior } from '../FunctionCard';
 import type { ThemeMode } from '../UserProfileMenu';
+import { useAudit } from '../AuditContext';
 import styles from './SettingsPanel.module.scss';
 
 export interface ISettingsPanelProps {
@@ -72,9 +73,17 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
   onShowAiAssistant,
   onHideAiAssistant,
 }) => {
+  const audit = useAudit();
   const [showResetDialog, setShowResetDialog] = React.useState(false);
   const [showHiddenCardsManager, setShowHiddenCardsManager] = React.useState(false);
   const [isCardBehaviorExpanded, setIsCardBehaviorExpanded] = React.useState(false);
+
+  // Log when settings panel opens
+  React.useEffect(() => {
+    if (isOpen) {
+      audit.logSettings('settings_panel_opened');
+    }
+  }, [isOpen, audit]);
 
   const hubLabels = React.useMemo<Record<string, string>>(
     () => ({
@@ -154,6 +163,9 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
     option?: IDropdownOption
   ): void => {
     if (option) {
+      audit.logSettings('theme_changed', {
+        metadata: { previousTheme: themeMode, newTheme: option.key },
+      });
       onThemeModeChange(option.key as ThemeMode);
     }
   };
@@ -163,7 +175,11 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
     option?: IDropdownOption
   ): void => {
     if (option) {
-      onSidebarDefaultChange(option.key === 'collapsed');
+      const collapsed = option.key === 'collapsed';
+      audit.logSettings('layout_changed', {
+        metadata: { setting: 'sidebarDefault', value: collapsed ? 'collapsed' : 'expanded' },
+      });
+      onSidebarDefaultChange(collapsed);
     }
   };
 

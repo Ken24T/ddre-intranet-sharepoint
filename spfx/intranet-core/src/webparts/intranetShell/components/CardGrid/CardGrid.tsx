@@ -17,6 +17,7 @@ import {
 import { FunctionCard } from '../FunctionCard';
 import type { CardOpenBehavior, IFunctionCard } from '../FunctionCard';
 import { getHubColor } from '../theme/colors';
+import { useAudit } from '../AuditContext';
 import styles from './CardGrid.module.scss';
 
 export interface ICardGridProps {
@@ -76,6 +77,8 @@ export const CardGrid: React.FC<ICardGridProps> = ({
   onCardClick,
   onCardHelp,
 }) => {
+  const audit = useAudit();
+  
   // Get hub theme color
   const hubColor = getHubColor(hubKey);
 
@@ -158,40 +161,78 @@ export const CardGrid: React.FC<ICardGridProps> = ({
       | 'setOpenNewTab'
       | 'setOpenNewWindow'
   ): void => {
+    const card = cards.find((c) => c.id === cardId);
+    const cardTitle = card?.title ?? cardId;
+
     switch (action) {
       case 'pin':
+        audit.logCardAction('card_expanded', {
+          hub: hubKey,
+          metadata: { cardId, cardTitle, action: 'pinned' },
+        });
         onPinChange?.(cardId, true);
         break;
       case 'unpin':
+        audit.logCardAction('card_collapsed', {
+          hub: hubKey,
+          metadata: { cardId, cardTitle, action: 'unpinned' },
+        });
         onPinChange?.(cardId, false);
         break;
       case 'hide':
+        audit.logCardAction('card_closed', {
+          hub: hubKey,
+          metadata: { cardId, cardTitle, action: 'hidden' },
+        });
         onHideCard?.(cardId);
         break;
       case 'setOpenInline':
+        audit.logCardAction('card_settings_opened', {
+          hub: hubKey,
+          metadata: { cardId, cardTitle, setting: 'openBehavior', value: 'inline' },
+        });
         onCardOpenBehaviorChange?.(cardId, 'inline');
         break;
       case 'setOpenNewTab':
+        audit.logCardAction('card_settings_opened', {
+          hub: hubKey,
+          metadata: { cardId, cardTitle, setting: 'openBehavior', value: 'newTab' },
+        });
         onCardOpenBehaviorChange?.(cardId, 'newTab');
         break;
       case 'setOpenNewWindow':
+        audit.logCardAction('card_settings_opened', {
+          hub: hubKey,
+          metadata: { cardId, cardTitle, setting: 'openBehavior', value: 'newWindow' },
+        });
         onCardOpenBehaviorChange?.(cardId, 'newWindow');
         break;
       case 'openNewTab': {
-        const card = cards.find((c) => c.id === cardId);
         if (card?.url) {
+          audit.logCardAction('card_opened', {
+            hub: hubKey,
+            tool: cardId,
+            metadata: { cardTitle, openMethod: 'newTab' },
+          });
           window.open(card.url, '_blank');
         }
         break;
       }
       case 'addFavourite':
+        audit.logCardAction('card_favourited', {
+          hub: hubKey,
+          metadata: { cardId, cardTitle },
+        });
         onFavouriteChange?.(cardId, true);
         break;
       case 'removeFavourite':
+        audit.logCardAction('card_unfavourited', {
+          hub: hubKey,
+          metadata: { cardId, cardTitle },
+        });
         onFavouriteChange?.(cardId, false);
         break;
       case 'help': {
-        const card = cards.find((c) => c.id === cardId);
         if (card) {
           onCardHelp?.(card);
         }
@@ -203,6 +244,11 @@ export const CardGrid: React.FC<ICardGridProps> = ({
   const handleCardClick = (cardId: string): void => {
     const card = cards.find((c) => c.id === cardId);
     if (card) {
+      audit.logCardAction('card_opened', {
+        hub: hubKey,
+        tool: cardId,
+        metadata: { cardTitle: card.title, openMethod: 'click' },
+      });
       onCardClick?.(card);
     }
   };
