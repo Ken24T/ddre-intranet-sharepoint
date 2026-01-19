@@ -2,7 +2,7 @@
 
 Central task tracking for all planned implementations.
 
-> **Last updated:** 2026-01-18
+> **Last updated:** 2026-01-20
 >
 > **Current focus:** Shared Packages & Business Apps
 
@@ -192,6 +192,73 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [ ] 13.6 Persist favourites and restore on load
 - [ ] 13.7 Handle empty state (hide hub when no favourites)
 - [ ] 13.8 Add tests for favourites persistence and sidebar visibility
+
+### Phase 14: Collaboration, Messaging & Audit Logging
+
+> Multi-user experience foundations (presence, chat, messaging, and audit trail).
+
+- [ ] 14.1 Define active user presence model
+      (who, where, last activity, privacy rules)
+- [ ] 14.2 Add presence service abstraction
+      (no secrets in SPFx; proxy via Azure service)
+- [ ] 14.3 Add status bar active-user display
+      (current user + count of other active users)
+- [ ] 14.4 Add hover card/tooltip for active users
+      (name, current hub, last activity time)
+- [ ] 14.5 Define chat session model
+      (participants, thread id, retention, moderation)
+- [ ] 14.6 Add “Start chat” entry point
+      (status bar or user directory)
+- [ ] 14.7 Define messaging model for offline users
+      (deliver on next login, read receipts, retention)
+- [ ] 14.8 Add message inbox/notification entry point
+      (navbar icon + unread badge)
+- [ ] 14.9 Define authorised notification authoring flow
+      (admin roles, hub scoping, scheduling, expiry)
+- [ ] 14.10 Add notification composer UI
+      (title, body, hub scope, severity)
+- [ ] 14.11 Add notification governance
+      (approvals, audit trail, editing rules)
+- [ ] 14.12 Define audit logging scope
+      (user actions, tool access, content changes)
+- [ ] 14.12.1 Define event taxonomy
+      (navigation, card actions, settings changes, content views)
+- [ ] 14.12.2 Define event payload schema
+      (user id, hub, timestamp, action, metadata)
+- [ ] 14.12.3 Define correlation strategy
+      (session id, request id, cross-app trace)
+- [ ] 14.12.4 Define PII handling rules
+      (minimise, redact, consent where needed)
+- [ ] 14.12.5 Define log storage targets
+      (Azure table/SQL/Log Analytics, retention tiering)
+- [ ] 14.13 Implement audit logging pipeline
+      (client events → Azure proxy → storage)
+- [ ] 14.13.1 Build logging client helper
+      (typed event builder, batching, retry)
+- [ ] 14.13.2 Implement Azure proxy endpoint
+      (validate schema, auth, rate limits)
+- [ ] 14.13.3 Add server-side enrichment
+      (tenant, user group, app version)
+- [ ] 14.13.4 Add storage partition strategy
+      (by tenant/date/hub for querying)
+- [ ] 14.13.5 Add failure handling
+      (dead-letter queue, alerts)
+- [ ] 14.14 Build audit log viewer UI
+      (filters, date range, export)
+- [ ] 14.14.1 Define search/filter UX
+      (user, hub, action, date range, severity)
+- [ ] 14.14.2 Add summary widgets
+      (top actions, active users, peak times)
+- [ ] 14.14.3 Add export options
+      (CSV, JSON, scheduled reports)
+- [ ] 14.14.4 Add access control
+      (admin-only, audit viewer role)
+- [ ] 14.15 Add privacy & retention policy for logs
+      (access controls, redaction, retention)
+- [ ] 14.15.1 Define retention windows
+      (hot vs cold storage, purge rules)
+- [ ] 14.15.2 Define compliance review process
+      (audit access, review cadence)
 
 ---
 
