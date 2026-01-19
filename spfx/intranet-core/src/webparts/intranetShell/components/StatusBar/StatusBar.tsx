@@ -175,9 +175,9 @@ export const StatusBar: React.FC<IStatusBarProps> = ({ userDisplayName, appVersi
     { name: 'Liam Harris', status: 'Editing Help Centre', activeFor: '9m' },
     { name: 'Amelia Jones', status: 'Browsing Property Management', activeFor: '2m' },
   ];
-  const otherUserCount = otherActiveUsers.length;
-  const userCountLabel = otherUserCount > 0 ? ` (1/${otherUserCount})` : '';
-  const userTooltipContent = otherUserCount > 0 ? (
+  const totalUserCount = otherActiveUsers.length + 1; // +1 for current user
+  const userCountLabel = otherActiveUsers.length > 0 ? ` (${totalUserCount})` : '';
+  const userTooltipContent = otherActiveUsers.length > 0 ? (
     <div className={styles.userTooltip}>
       <div className={styles.userTooltipTitle}>Other active users</div>
       <div className={styles.userTooltipList}>
