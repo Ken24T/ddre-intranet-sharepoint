@@ -12,5 +12,8 @@ export type { ITasksNavButtonProps } from './TasksNavButton';
 export { TasksPanel } from './TasksPanel';
 export type { ITasksPanelProps } from './TasksPanel';
 
+export { TasksPanelContainer } from './TasksPanelContainer';
+export type { ITasksPanelContainerProps } from './TasksPanelContainer';
+
 export { TaskQuickAdd } from './TaskQuickAdd';
 export type { ITaskQuickAddProps } from './TaskQuickAdd';

@@ -5,6 +5,7 @@ import { useOnlineStatus } from './hooks/useOnlineStatus';
 import type { IToastContext } from './Toast';
 import { AuditProvider, ConsoleAuditLogger, useAudit } from './AuditContext';
 import type { IAuditLogger } from './AuditContext';
+import { TasksProvider } from './tasks/TasksContext';
 
 /**
  * Props for the IntranetShellWrapper
@@ -93,7 +94,9 @@ export const IntranetShellWrapper: React.FC<IIntranetShellWrapperProps> = ({
   return (
     <AuditProvider logger={logger}>
       <ToastProvider>
-        <IntranetShellInner>{children}</IntranetShellInner>
+        <TasksProvider>
+          <IntranetShellInner>{children}</IntranetShellInner>
+        </TasksProvider>
       </ToastProvider>
     </AuditProvider>
   );

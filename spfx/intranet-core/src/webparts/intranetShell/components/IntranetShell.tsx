@@ -21,7 +21,7 @@ import { AiAssistant } from './AiAssistant';
 import { HelpCenter } from './HelpCenter/HelpCenter';
 import { AuditLogViewer } from './AuditLogViewer';
 import { SkipLinks } from './SkipLinks';
-import { TasksPanel } from './tasks/widgets/TasksPanel';
+import { TasksPanelContainer } from './tasks/widgets/TasksPanelContainer';
 import { sampleCards, hubInfo } from './data';
 import type { CardOpenBehavior, IFunctionCard } from './FunctionCard';
 import type { IFavouriteCard } from './favouritesTypes';
@@ -861,17 +861,9 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
         />
 
         {/* Tasks Panel - Phase 15 */}
-        <TasksPanel
+        <TasksPanelContainer
           isOpen={isTasksPanelOpen}
           onDismiss={this.handleCloseTasksPanel}
-          tasks={[]}
-          isLoading={false}
-          error={undefined}
-          onTaskClick={() => undefined}
-          onTaskDetailClose={() => undefined}
-          onAddTask={() => undefined}
-          onCreateTask={async () => undefined}
-          onUpdateTask={async () => undefined}
         />
 
         {/* AI Assistant */}

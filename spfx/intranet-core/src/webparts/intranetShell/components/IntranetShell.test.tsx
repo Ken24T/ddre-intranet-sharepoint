@@ -1,6 +1,16 @@
 import * as React from "react";
 import { render, screen, within } from "@testing-library/react";
 import IntranetShell from "./IntranetShell";
+import { TasksProvider } from "./tasks/TasksContext";
+
+// Helper to wrap components with TasksProvider
+const renderWithProviders = (ui: React.ReactElement): ReturnType<typeof render> => {
+  return render(
+    <TasksProvider autoLoad={false}>
+      {ui}
+    </TasksProvider>
+  );
+};
 
 describe("IntranetShell", () => {
   const defaultProps = {
@@ -15,7 +25,7 @@ describe("IntranetShell", () => {
   });
 
   it("renders the shell with all four regions", () => {
-    render(<IntranetShell {...defaultProps} />);
+    renderWithProviders(<IntranetShell {...defaultProps} />);
 
     // Navbar
     expect(screen.getByRole("navigation", { name: /main navigation/i })).toBeInTheDocument();
@@ -36,7 +46,7 @@ describe("IntranetShell", () => {
   });
 
   it("displays nav items in sidebar", () => {
-    render(<IntranetShell {...defaultProps} />);
+    renderWithProviders(<IntranetShell {...defaultProps} />);
 
     const sidebar = screen.getByRole("complementary", { name: /sidebar/i });
     expect(within(sidebar).getByText("Document Library")).toBeInTheDocument();
@@ -47,7 +57,7 @@ describe("IntranetShell", () => {
   });
 
   it("displays status indicators in status bar", () => {
-    render(<IntranetShell {...defaultProps} />);
+    renderWithProviders(<IntranetShell {...defaultProps} />);
 
     const statusBar = screen.getByRole("contentinfo");
     expect(within(statusBar).getByText("Vault")).toBeInTheDocument();
@@ -66,14 +76,14 @@ describe("IntranetShell", () => {
       ])
     );
 
-    render(<IntranetShell {...defaultProps} />);
+    renderWithProviders(<IntranetShell {...defaultProps} />);
 
     const sidebar = screen.getByRole("complementary", { name: /sidebar/i });
     expect(within(sidebar).getByText("Favourites")).toBeInTheDocument();
   });
 
   it("hides favourites hub when none stored", () => {
-    render(<IntranetShell {...defaultProps} />);
+    renderWithProviders(<IntranetShell {...defaultProps} />);
 
     const sidebar = screen.getByRole("complementary", { name: /sidebar/i });
     expect(within(sidebar).queryByText("Favourites")).not.toBeInTheDocument();
