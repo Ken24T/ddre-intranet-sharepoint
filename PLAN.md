@@ -220,17 +220,21 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [ ] 14.11 Add notification governance
       (approvals, audit trail, editing rules)
 - [ ] 14.12 Define audit logging scope
-      (user actions, tool access, content changes)
+      (log all user actions across all hubs and tools)
 - [ ] 14.12.1 Define event taxonomy
       (navigation, card actions, settings changes, content views)
 - [ ] 14.12.2 Define event payload schema
-      (user id, hub, timestamp, action, metadata)
+      (user id, hub, tool, action, timestamps, metadata)
 - [ ] 14.12.3 Define correlation strategy
       (session id, request id, cross-app trace)
 - [ ] 14.12.4 Define PII handling rules
-      (minimise, redact, consent where needed)
-- [ ] 14.12.5 Define log storage targets
-      (Azure table/SQL/Log Analytics, retention tiering)
+      (log everything for now; refine later)
+- [ ] 14.12.5 Define retention policy
+      (retain indefinitely for now; apply rules later)
+- [ ] 14.12.6 Define access control
+      (admins only)
+- [ ] 14.12.7 Capture volume assumptions
+      (unknown at this stage; revisit after pilot)
 - [ ] 14.13 Implement audit logging pipeline
       (client events → Azure proxy → storage)
 - [ ] 14.13.1 Build logging client helper
