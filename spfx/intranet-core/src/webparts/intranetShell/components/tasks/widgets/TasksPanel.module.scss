@@ -1,0 +1,167 @@
+@import '~@fluentui/react/dist/sass/References.scss';
+
+.panel {
+  :global(.ms-Panel-content) {
+    padding: 0;
+    height: 100%;
+  }
+}
+
+.panelContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px 24px;
+  overflow-y: auto;
+}
+
+.listView {
+  height: 100%;
+}
+
+.searchBox {
+  margin-bottom: 8px;
+}
+
+.pivot {
+  margin-bottom: 8px;
+  
+  :global(.ms-Pivot-link) {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}
+
+.loading {
+  padding: 40px 0;
+}
+
+.emptyState {
+  padding: 40px 16px;
+  text-align: center;
+}
+
+.emptySubtext {
+  color: $ms-color-neutralSecondary;
+  margin-top: 8px;
+}
+
+.detailView {
+  height: 100%;
+}
+
+.detailHeader {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid $ms-color-neutralLighter;
+}
+
+.detailTitle {
+  flex: 1;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.detailActions {
+  margin-left: auto;
+}
+
+.editView {
+  height: 100%;
+}
+
+// Summary list styles
+.summaryList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.summaryItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background-color: $ms-color-white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: $ms-color-neutralLighter;
+  }
+
+  &:focus {
+    outline: 2px solid $ms-color-themePrimary;
+    outline-offset: -2px;
+  }
+}
+
+.summaryLeading {
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.summaryContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.summaryTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+
+  > span:first-child {
+    font-weight: 500;
+    color: $ms-color-neutralPrimary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.summaryMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: $ms-color-neutralSecondary;
+}
+
+.summaryHub {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  i {
+    font-size: 12px;
+  }
+}
+
+.summaryProgress {
+  color: $ms-color-neutralTertiary;
+}
+
+// Task list in panel styling
+.listView {
+  :global(.taskList) {
+    flex: 1;
+    overflow-y: auto;
+  }
+}
+
+// Dark theme support
+:global(.ms-Fabric--theme-dark) {
+  .panelContent {
+    background-color: $ms-color-neutralLighter;
+  }
+
+  .detailHeader {
+    border-bottom-color: $ms-color-neutralLight;
+  }
+}

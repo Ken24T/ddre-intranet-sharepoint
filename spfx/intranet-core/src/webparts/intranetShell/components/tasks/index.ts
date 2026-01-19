@@ -78,6 +78,10 @@ export {
   TaskCard,
   TaskList,
   TaskDetailPanel,
+  TaskEditor,
+  TaskAssignmentPicker,
+  TaskRecurrenceEditor,
+  TaskReminderConfig,
 } from './components';
 export type {
   ITaskStatusBadgeProps,
@@ -87,4 +91,17 @@ export type {
   ITaskCardProps,
   ITaskListProps,
   ITaskDetailPanelProps,
+  ITaskEditorProps,
+  ITaskAssignmentPickerProps,
+  ITaskRecurrenceEditorProps,
+  ITaskReminderConfigProps,
 } from './components';
+
+// Widgets
+export { MyTasksWidget, TasksNavButton, TasksPanel, TaskQuickAdd } from './widgets';
+export type {
+  IMyTasksWidgetProps,
+  ITasksNavButtonProps,
+  ITasksPanelProps,
+  ITaskQuickAddProps,
+} from './widgets';
