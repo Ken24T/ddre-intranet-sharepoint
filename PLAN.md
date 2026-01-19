@@ -394,11 +394,13 @@ with optional hub association and recurring schedules.
 
 #### 15.4 React Context & Hooks
 
-- [ ] 15.4.1 Create TasksContext and TasksProvider
-- [ ] 15.4.2 Create useTasks hook (list with filters)
-- [ ] 15.4.3 Create useTask hook (single task)
-- [ ] 15.4.4 Create useTaskMutations hook (create, update, delete)
-- [ ] 15.4.5 Create useTaskReminders hook (upcoming reminders)
+- [x] 15.4.1 Create TasksContext and TasksProvider (tasks/TasksContext.tsx)
+- [x] 15.4.2 Create useTasks hook (list with filters)
+- [x] 15.4.3 Create useTask hook (single task)
+- [x] 15.4.4 Create useTaskMutations hook (create, update, delete)
+- [x] 15.4.5 Create useTaskReminders hook (upcoming reminders)
+- [x] 15.4.6 Create useTaskList, useTaskCounts, useHubTasks hooks (tasks/hooks.ts)
+- [x] 15.4.7 Create task types and helpers (tasks/types.ts)
 
 #### 15.5 UI Components
 
