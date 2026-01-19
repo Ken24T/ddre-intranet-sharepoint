@@ -1,0 +1,530 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ddre.com.au/schemas/tasks.schema.json",
+  "title": "DDRE Tasks Schema",
+  "description": "Data model for the user task and reminder system",
+
+  "definitions": {
+    "TaskId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for a task"
+    },
+
+    "TaskStatus": {
+      "type": "string",
+      "enum": ["not-started", "in-progress", "completed", "cancelled"],
+      "description": "Current status of the task"
+    },
+
+    "TaskPriority": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "urgent"],
+      "description": "Priority level of the task"
+    },
+
+    "OwnershipType": {
+      "type": "string",
+      "enum": ["user", "team", "group"],
+      "description": "Type of entity that owns the task"
+    },
+
+    "TaskRole": {
+      "type": "string",
+      "enum": ["owner", "assignee", "viewer"],
+      "description": "Role a user has on a task"
+    },
+
+    "RecurrencePattern": {
+      "type": "string",
+      "enum": ["daily", "weekly", "fortnightly", "monthly", "yearly", "custom"],
+      "description": "How often the task recurs"
+    },
+
+    "ReminderChannel": {
+      "type": "string",
+      "enum": ["intranet", "email", "teams"],
+      "description": "Channel through which reminders are sent"
+    },
+
+    "ReminderTiming": {
+      "type": "string",
+      "enum": ["before-due", "on-due", "custom"],
+      "description": "When the reminder should be triggered"
+    },
+
+    "TaskOwnership": {
+      "type": "object",
+      "description": "Defines who owns and can access the task",
+      "required": ["type", "ownerId"],
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/OwnershipType"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "ID of the user, team, or Entra ID group"
+        },
+        "ownerDisplayName": {
+          "type": "string",
+          "description": "Display name of the owner (denormalised for UI)"
+        }
+      }
+    },
+
+    "TaskAssignment": {
+      "type": "object",
+      "description": "Assignment of a user to a task with a specific role",
+      "required": ["userId", "role"],
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Entra ID of the assigned user"
+        },
+        "userDisplayName": {
+          "type": "string",
+          "description": "Display name of the user (denormalised for UI)"
+        },
+        "userEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "Email address of the user"
+        },
+        "role": {
+          "$ref": "#/definitions/TaskRole"
+        },
+        "assignedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the assignment was made"
+        },
+        "assignedBy": {
+          "type": "string",
+          "description": "User ID of who made the assignment"
+        }
+      }
+    },
+
+    "TaskHubLink": {
+      "type": "object",
+      "description": "Optional link to a hub, tool, or entity",
+      "required": ["hubId"],
+      "properties": {
+        "hubId": {
+          "type": "string",
+          "description": "ID of the linked hub (e.g., 'property', 'maintenance')"
+        },
+        "hubDisplayName": {
+          "type": "string",
+          "description": "Display name of the hub"
+        },
+        "toolId": {
+          "type": "string",
+          "description": "Optional specific tool within the hub"
+        },
+        "toolDisplayName": {
+          "type": "string",
+          "description": "Display name of the tool"
+        },
+        "entityType": {
+          "type": "string",
+          "description": "Type of entity (e.g., 'property', 'lease', 'work-order')"
+        },
+        "entityId": {
+          "type": "string",
+          "description": "ID of the linked entity"
+        },
+        "entityDisplayName": {
+          "type": "string",
+          "description": "Display name of the entity for quick reference"
+        }
+      }
+    },
+
+    "TaskRecurrence": {
+      "type": "object",
+      "description": "Recurrence configuration for repeating tasks",
+      "required": ["pattern", "startDate"],
+      "properties": {
+        "pattern": {
+          "$ref": "#/definitions/RecurrencePattern"
+        },
+        "interval": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Interval between occurrences (e.g., every 2 weeks)"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Date when recurrence begins"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Optional date when recurrence ends"
+        },
+        "occurrenceCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Optional max number of occurrences"
+        },
+        "daysOfWeek": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+          },
+          "description": "For weekly pattern: which days of the week"
+        },
+        "dayOfMonth": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 31,
+          "description": "For monthly pattern: which day of the month"
+        },
+        "monthOfYear": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "description": "For yearly pattern: which month"
+        },
+        "weekOfMonth": {
+          "type": "string",
+          "enum": ["first", "second", "third", "fourth", "last"],
+          "description": "For monthly pattern: which week (e.g., 'first Monday')"
+        }
+      }
+    },
+
+    "TaskReminder": {
+      "type": "object",
+      "description": "Reminder configuration for a task",
+      "required": ["id", "timing", "channels"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique identifier for this reminder"
+        },
+        "timing": {
+          "$ref": "#/definitions/ReminderTiming"
+        },
+        "offsetMinutes": {
+          "type": "integer",
+          "description": "For 'before-due': minutes before due date. Negative = before, positive = after"
+        },
+        "customDateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "For 'custom' timing: specific date/time for reminder"
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ReminderChannel"
+          },
+          "minItems": 1,
+          "description": "Channels to send the reminder through"
+        },
+        "recipientUserIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific users to remind. If empty, reminds all assignees"
+        },
+        "sent": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the reminder has been sent"
+        },
+        "sentAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the reminder was sent"
+        }
+      }
+    },
+
+    "TaskComment": {
+      "type": "object",
+      "description": "Comment on a task",
+      "required": ["id", "authorId", "content", "createdAt"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "authorId": {
+          "type": "string",
+          "description": "User ID of the comment author"
+        },
+        "authorDisplayName": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 5000,
+          "description": "Comment text (supports markdown)"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "isEdited": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+
+    "TaskChecklist": {
+      "type": "object",
+      "description": "Checklist/subtask within a task",
+      "required": ["id", "title", "completed"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "completed": {
+          "type": "boolean",
+          "default": false
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completedBy": {
+          "type": "string",
+          "description": "User ID of who completed it"
+        },
+        "sortOrder": {
+          "type": "integer",
+          "description": "Order within the checklist"
+        }
+      }
+    },
+
+    "Task": {
+      "type": "object",
+      "description": "A task or reminder in the system",
+      "required": ["id", "title", "status", "priority", "ownership", "createdAt", "createdBy"],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/TaskId"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "description": "Title of the task"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "Detailed description (supports markdown)"
+        },
+        "status": {
+          "$ref": "#/definitions/TaskStatus"
+        },
+        "priority": {
+          "$ref": "#/definitions/TaskPriority"
+        },
+        "ownership": {
+          "$ref": "#/definitions/TaskOwnership"
+        },
+        "assignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TaskAssignment"
+          },
+          "description": "Users assigned to this task"
+        },
+        "hubLink": {
+          "$ref": "#/definitions/TaskHubLink",
+          "description": "Optional link to a hub/tool/entity"
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the task is due"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When work should start"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the task was completed"
+        },
+        "completedBy": {
+          "type": "string",
+          "description": "User ID of who completed the task"
+        },
+        "recurrence": {
+          "$ref": "#/definitions/TaskRecurrence",
+          "description": "Recurrence settings for repeating tasks"
+        },
+        "parentTaskId": {
+          "$ref": "#/definitions/TaskId",
+          "description": "For recurring tasks: ID of the recurring series parent"
+        },
+        "reminders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TaskReminder"
+          },
+          "description": "Reminders configured for this task"
+        },
+        "checklist": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TaskChecklist"
+          },
+          "description": "Subtasks/checklist items"
+        },
+        "comments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TaskComment"
+          },
+          "description": "Comments on this task"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "description": "User-defined tags for categorisation"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "fileName", "url"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "fileName": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "mimeType": {
+                "type": "string"
+              },
+              "sizeBytes": {
+                "type": "integer"
+              },
+              "uploadedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "uploadedBy": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "File attachments"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "User ID of the creator"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedBy": {
+          "type": "string",
+          "description": "User ID of last updater"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Optimistic concurrency version"
+        }
+      }
+    },
+
+    "TaskSummary": {
+      "type": "object",
+      "description": "Lightweight task representation for lists",
+      "required": ["id", "title", "status", "priority", "ownership"],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/TaskId"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/TaskStatus"
+        },
+        "priority": {
+          "$ref": "#/definitions/TaskPriority"
+        },
+        "ownership": {
+          "$ref": "#/definitions/TaskOwnership"
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "assigneeCount": {
+          "type": "integer",
+          "description": "Number of users assigned"
+        },
+        "hubId": {
+          "type": "string",
+          "description": "Hub ID if linked"
+        },
+        "hubDisplayName": {
+          "type": "string"
+        },
+        "hasRecurrence": {
+          "type": "boolean"
+        },
+        "checklistProgress": {
+          "type": "object",
+          "properties": {
+            "completed": {
+              "type": "integer"
+            },
+            "total": {
+              "type": "integer"
+            }
+          }
+        },
+        "commentCount": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+
+  "type": "object",
+  "$ref": "#/definitions/Task"
+}

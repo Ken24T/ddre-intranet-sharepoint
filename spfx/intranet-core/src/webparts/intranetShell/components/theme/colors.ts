@@ -1,16 +1,16 @@
 /**
  * DDRE Intranet Theme Colors
  * 
- * TODO: Update these values when official brand colors are provided.
- * These are placeholder colors for development.
+ * Official DDRE (Doug Disher Real Estate) brand colours.
  */
 
-// Primary brand colors (update these when you have official colors)
+// Primary brand colors
 export const brandColors = {
-  primary: '#0078d4',       // Main brand color
-  primaryDark: '#005a9e',   // Darker variant
-  primaryLight: '#c7e0f4',  // Lighter variant
-  accent: '#00bcf2',        // Accent color
+  primary: '#001CAD',       // DDRE Blue - main brand colour
+  primaryDark: '#001589',   // Darker variant for hover states
+  primaryLight: '#EEF2F8',  // Light Blue - backgrounds, panels
+  eggshell: '#F6F6F6',      // Eggshell - page backgrounds, cards
+  accent: '#001CAD',        // Accent color (same as primary)
 };
 
 // Hub-specific colors for hero banners
@@ -20,8 +20,8 @@ export const hubColors: Record<string, { gradient: string; accent: string }> = {
     accent: '#c28a00',
   },
   home: {
-    gradient: 'linear-gradient(135deg, #0078d4 0%, #005a9e 100%)',
-    accent: '#0078d4',
+    gradient: 'linear-gradient(135deg, #001CAD 0%, #001589 100%)',
+    accent: '#001CAD',
   },
   library: {
     gradient: 'linear-gradient(135deg, #107c10 0%, #0b5c0b 100%)',
@@ -54,14 +54,14 @@ export const semanticColors = {
   success: '#107c10',
   warning: '#ffb900',
   error: '#d13438',
-  info: '#0078d4',
+  info: '#001CAD',        // DDRE Blue
 };
 
 // Neutral colors
 export const neutralColors = {
   white: '#ffffff',
-  lighterAlt: '#faf9f8',
-  lighter: '#f3f2f1',
+  lighterAlt: '#F6F6F6',  // Eggshell
+  lighter: '#EEF2F8',     // Light Blue
   light: '#edebe9',
   quaternaryAlt: '#e1dfdd',
   quaternary: '#d0d0d0',

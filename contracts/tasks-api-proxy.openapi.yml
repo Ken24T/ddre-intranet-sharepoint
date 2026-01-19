@@ -1,0 +1,1500 @@
+openapi: 3.0.3
+info:
+  title: DDRE Tasks API Proxy
+  description: |
+    Azure Functions proxy for the DDRE Tasks service.
+    Handles task CRUD, queries, recurrence management, and reminder scheduling.
+    All requests require valid SharePoint/Entra ID authentication.
+  version: 1.0.0
+  contact:
+    name: DDRE Digital Team
+
+servers:
+  - url: https://ddre-tasks-api.azurewebsites.net/api
+    description: Production
+  - url: https://ddre-tasks-api-test.azurewebsites.net/api
+    description: Test/Staging
+  - url: http://localhost:7073/api
+    description: Local development
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Tasks
+    description: Task CRUD operations
+  - name: Queries
+    description: Task query and search endpoints
+  - name: Recurrence
+    description: Recurring task management
+  - name: Reminders
+    description: Reminder management
+  - name: Comments
+    description: Task comment operations
+  - name: Checklist
+    description: Checklist/subtask operations
+
+paths:
+  /tasks:
+    get:
+      operationId: listTasks
+      summary: List tasks for current user
+      description: Returns tasks the user owns, is assigned to, or can view
+      tags: [Queries]
+      parameters:
+        - $ref: '#/components/parameters/StatusFilter'
+        - $ref: '#/components/parameters/PriorityFilter'
+        - $ref: '#/components/parameters/HubFilter'
+        - $ref: '#/components/parameters/OwnershipTypeFilter'
+        - $ref: '#/components/parameters/DueDateFrom'
+        - $ref: '#/components/parameters/DueDateTo'
+        - $ref: '#/components/parameters/IncludeCompleted'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/ContinuationToken'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      operationId: createTask
+      summary: Create a new task
+      tags: [Tasks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '201':
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/{taskId}:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+
+    get:
+      operationId: getTask
+      summary: Get a task by ID
+      tags: [Tasks]
+      responses:
+        '200':
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    patch:
+      operationId: updateTask
+      summary: Update a task
+      tags: [Tasks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskRequest'
+      responses:
+        '200':
+          description: Task updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      operationId: deleteTask
+      summary: Delete a task
+      tags: [Tasks]
+      parameters:
+        - name: deleteRecurringSeries
+          in: query
+          description: If true and task is recurring, delete entire series
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '204':
+          description: Task deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/{taskId}/status:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+
+    patch:
+      operationId: updateTaskStatus
+      summary: Update task status (quick action)
+      tags: [Tasks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  $ref: '#/components/schemas/TaskStatus'
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/{taskId}/assignments:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+
+    post:
+      operationId: addAssignment
+      summary: Add a user assignment to a task
+      tags: [Tasks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddAssignmentRequest'
+      responses:
+        '200':
+          description: Assignment added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/{taskId}/assignments/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+
+    delete:
+      operationId: removeAssignment
+      summary: Remove a user assignment from a task
+      tags: [Tasks]
+      responses:
+        '200':
+          description: Assignment removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/my:
+    get:
+      operationId: getMyTasks
+      summary: Get tasks assigned to or owned by current user
+      description: Convenience endpoint for "My Tasks" view
+      tags: [Queries]
+      parameters:
+        - $ref: '#/components/parameters/StatusFilter'
+        - $ref: '#/components/parameters/IncludeCompleted'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/ContinuationToken'
+      responses:
+        '200':
+          description: User's tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/team/{teamId}:
+    parameters:
+      - name: teamId
+        in: path
+        required: true
+        schema:
+          type: string
+
+    get:
+      operationId: getTeamTasks
+      summary: Get tasks owned by a team
+      tags: [Queries]
+      parameters:
+        - $ref: '#/components/parameters/StatusFilter'
+        - $ref: '#/components/parameters/IncludeCompleted'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/ContinuationToken'
+      responses:
+        '200':
+          description: Team's tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/hub/{hubId}:
+    parameters:
+      - name: hubId
+        in: path
+        required: true
+        schema:
+          type: string
+
+    get:
+      operationId: getHubTasks
+      summary: Get tasks linked to a hub
+      tags: [Queries]
+      parameters:
+        - name: entityType
+          in: query
+          schema:
+            type: string
+          description: Filter by entity type within hub
+        - name: entityId
+          in: query
+          schema:
+            type: string
+          description: Filter by specific entity
+        - $ref: '#/components/parameters/StatusFilter'
+        - $ref: '#/components/parameters/IncludeCompleted'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/ContinuationToken'
+      responses:
+        '200':
+          description: Hub's linked tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/search:
+    post:
+      operationId: searchTasks
+      summary: Search tasks with complex criteria
+      tags: [Queries]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskSearchRequest'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/due-soon:
+    get:
+      operationId: getDueSoonTasks
+      summary: Get tasks due within a timeframe
+      description: Returns tasks due within the specified hours (default 48)
+      tags: [Queries]
+      parameters:
+        - name: withinHours
+          in: query
+          schema:
+            type: integer
+            default: 48
+            minimum: 1
+            maximum: 720
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Tasks due soon
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/overdue:
+    get:
+      operationId: getOverdueTasks
+      summary: Get overdue tasks
+      tags: [Queries]
+      parameters:
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Overdue tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/{taskId}/recurrence:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+
+    put:
+      operationId: setRecurrence
+      summary: Set or update recurrence for a task
+      tags: [Recurrence]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRecurrence'
+      responses:
+        '200':
+          description: Recurrence set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      operationId: removeRecurrence
+      summary: Remove recurrence from a task
+      tags: [Recurrence]
+      parameters:
+        - name: keepFutureInstances
+          in: query
+          description: If true, keep already-generated future instances
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Recurrence removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/{taskId}/recurrence/skip:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+
+    post:
+      operationId: skipRecurrenceInstance
+      summary: Skip a specific recurrence instance
+      tags: [Recurrence]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [instanceDate]
+              properties:
+                instanceDate:
+                  type: string
+                  format: date
+                  description: The date of the instance to skip
+      responses:
+        '200':
+          description: Instance skipped
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/{taskId}/reminders:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+
+    get:
+      operationId: getReminders
+      summary: Get reminders for a task
+      tags: [Reminders]
+      responses:
+        '200':
+          description: Task reminders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskReminder'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      operationId: addReminder
+      summary: Add a reminder to a task
+      tags: [Reminders]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReminderRequest'
+      responses:
+        '201':
+          description: Reminder added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskReminder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/{taskId}/reminders/{reminderId}:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+      - name: reminderId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    delete:
+      operationId: removeReminder
+      summary: Remove a reminder from a task
+      tags: [Reminders]
+      responses:
+        '204':
+          description: Reminder removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/{taskId}/comments:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+
+    get:
+      operationId: getComments
+      summary: Get comments for a task
+      tags: [Comments]
+      parameters:
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/ContinuationToken'
+      responses:
+        '200':
+          description: Task comments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      operationId: addComment
+      summary: Add a comment to a task
+      tags: [Comments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                  maxLength: 5000
+      responses:
+        '201':
+          description: Comment added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskComment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/{taskId}/comments/{commentId}:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    patch:
+      operationId: updateComment
+      summary: Update a comment
+      tags: [Comments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                  maxLength: 5000
+      responses:
+        '200':
+          description: Comment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskComment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      operationId: deleteComment
+      summary: Delete a comment
+      tags: [Comments]
+      responses:
+        '204':
+          description: Comment deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/{taskId}/checklist:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+
+    post:
+      operationId: addChecklistItem
+      summary: Add a checklist item to a task
+      tags: [Checklist]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                  maxLength: 500
+                sortOrder:
+                  type: integer
+      responses:
+        '201':
+          description: Checklist item added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tasks/{taskId}/checklist/{itemId}:
+    parameters:
+      - $ref: '#/components/parameters/TaskId'
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    patch:
+      operationId: updateChecklistItem
+      summary: Update a checklist item
+      tags: [Checklist]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 500
+                completed:
+                  type: boolean
+                sortOrder:
+                  type: integer
+      responses:
+        '200':
+          description: Checklist item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      operationId: deleteChecklistItem
+      summary: Delete a checklist item
+      tags: [Checklist]
+      responses:
+        '200':
+          description: Checklist item deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Entra ID access token from SharePoint context
+
+  parameters:
+    TaskId:
+      name: taskId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    StatusFilter:
+      name: status
+      in: query
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/TaskStatus'
+      style: form
+      explode: true
+
+    PriorityFilter:
+      name: priority
+      in: query
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/TaskPriority'
+      style: form
+      explode: true
+
+    HubFilter:
+      name: hubId
+      in: query
+      schema:
+        type: string
+
+    OwnershipTypeFilter:
+      name: ownershipType
+      in: query
+      schema:
+        $ref: '#/components/schemas/OwnershipType'
+
+    DueDateFrom:
+      name: dueDateFrom
+      in: query
+      schema:
+        type: string
+        format: date-time
+
+    DueDateTo:
+      name: dueDateTo
+      in: query
+      schema:
+        type: string
+        format: date-time
+
+    IncludeCompleted:
+      name: includeCompleted
+      in: query
+      schema:
+        type: boolean
+        default: false
+
+    PageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    ContinuationToken:
+      name: continuationToken
+      in: query
+      schema:
+        type: string
+      description: Token for fetching next page
+
+    SortBy:
+      name: sortBy
+      in: query
+      schema:
+        type: string
+        enum: [dueDate, priority, createdAt, updatedAt, title]
+        default: dueDate
+
+    SortOrder:
+      name: sortOrder
+      in: query
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: asc
+
+  schemas:
+    TaskStatus:
+      type: string
+      enum: [not-started, in-progress, completed, cancelled]
+
+    TaskPriority:
+      type: string
+      enum: [low, medium, high, urgent]
+
+    OwnershipType:
+      type: string
+      enum: [user, team, group]
+
+    TaskRole:
+      type: string
+      enum: [owner, assignee, viewer]
+
+    RecurrencePattern:
+      type: string
+      enum: [daily, weekly, fortnightly, monthly, yearly, custom]
+
+    ReminderChannel:
+      type: string
+      enum: [intranet, email, teams]
+
+    ReminderTiming:
+      type: string
+      enum: [before-due, on-due, custom]
+
+    TaskOwnership:
+      type: object
+      required: [type, ownerId]
+      properties:
+        type:
+          $ref: '#/components/schemas/OwnershipType'
+        ownerId:
+          type: string
+        ownerDisplayName:
+          type: string
+
+    TaskAssignment:
+      type: object
+      required: [userId, role]
+      properties:
+        userId:
+          type: string
+        userDisplayName:
+          type: string
+        userEmail:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/TaskRole'
+        assignedAt:
+          type: string
+          format: date-time
+        assignedBy:
+          type: string
+
+    TaskHubLink:
+      type: object
+      required: [hubId]
+      properties:
+        hubId:
+          type: string
+        hubDisplayName:
+          type: string
+        toolId:
+          type: string
+        toolDisplayName:
+          type: string
+        entityType:
+          type: string
+        entityId:
+          type: string
+        entityDisplayName:
+          type: string
+
+    TaskRecurrence:
+      type: object
+      required: [pattern, startDate]
+      properties:
+        pattern:
+          $ref: '#/components/schemas/RecurrencePattern'
+        interval:
+          type: integer
+          minimum: 1
+          default: 1
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        occurrenceCount:
+          type: integer
+          minimum: 1
+        daysOfWeek:
+          type: array
+          items:
+            type: string
+            enum: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+        dayOfMonth:
+          type: integer
+          minimum: 1
+          maximum: 31
+        monthOfYear:
+          type: integer
+          minimum: 1
+          maximum: 12
+        weekOfMonth:
+          type: string
+          enum: [first, second, third, fourth, last]
+
+    TaskReminder:
+      type: object
+      required: [id, timing, channels]
+      properties:
+        id:
+          type: string
+          format: uuid
+        timing:
+          $ref: '#/components/schemas/ReminderTiming'
+        offsetMinutes:
+          type: integer
+        customDateTime:
+          type: string
+          format: date-time
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReminderChannel'
+          minItems: 1
+        recipientUserIds:
+          type: array
+          items:
+            type: string
+        sent:
+          type: boolean
+        sentAt:
+          type: string
+          format: date-time
+
+    TaskComment:
+      type: object
+      required: [id, authorId, content, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        authorId:
+          type: string
+        authorDisplayName:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        isEdited:
+          type: boolean
+
+    TaskChecklist:
+      type: object
+      required: [id, title, completed]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        completed:
+          type: boolean
+        completedAt:
+          type: string
+          format: date-time
+        completedBy:
+          type: string
+        sortOrder:
+          type: integer
+
+    Task:
+      type: object
+      required: [id, title, status, priority, ownership, createdAt, createdBy]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        ownership:
+          $ref: '#/components/schemas/TaskOwnership'
+        assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskAssignment'
+        hubLink:
+          $ref: '#/components/schemas/TaskHubLink'
+        dueDate:
+          type: string
+          format: date-time
+        startDate:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        completedBy:
+          type: string
+        recurrence:
+          $ref: '#/components/schemas/TaskRecurrence'
+        parentTaskId:
+          type: string
+          format: uuid
+        reminders:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskReminder'
+        checklist:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskChecklist'
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskComment'
+        tags:
+          type: array
+          items:
+            type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              fileName:
+                type: string
+              url:
+                type: string
+                format: uri
+              mimeType:
+                type: string
+              sizeBytes:
+                type: integer
+              uploadedAt:
+                type: string
+                format: date-time
+              uploadedBy:
+                type: string
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+        version:
+          type: integer
+
+    TaskSummary:
+      type: object
+      required: [id, title, status, priority, ownership]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        ownership:
+          $ref: '#/components/schemas/TaskOwnership'
+        dueDate:
+          type: string
+          format: date-time
+        assigneeCount:
+          type: integer
+        hubId:
+          type: string
+        hubDisplayName:
+          type: string
+        hasRecurrence:
+          type: boolean
+        checklistProgress:
+          type: object
+          properties:
+            completed:
+              type: integer
+            total:
+              type: integer
+        commentCount:
+          type: integer
+
+    TaskListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskSummary'
+        totalCount:
+          type: integer
+          description: Total items matching query (if available)
+        continuationToken:
+          type: string
+          description: Token to fetch next page
+
+    CreateTaskRequest:
+      type: object
+      required: [title, ownership]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 500
+        description:
+          type: string
+          maxLength: 10000
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+          default: medium
+        ownership:
+          $ref: '#/components/schemas/TaskOwnership'
+        assignments:
+          type: array
+          items:
+            type: object
+            required: [userId, role]
+            properties:
+              userId:
+                type: string
+              role:
+                $ref: '#/components/schemas/TaskRole'
+        hubLink:
+          $ref: '#/components/schemas/TaskHubLink'
+        dueDate:
+          type: string
+          format: date-time
+        startDate:
+          type: string
+          format: date-time
+        recurrence:
+          $ref: '#/components/schemas/TaskRecurrence'
+        reminders:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateReminderRequest'
+        checklist:
+          type: array
+          items:
+            type: object
+            required: [title]
+            properties:
+              title:
+                type: string
+                maxLength: 500
+        tags:
+          type: array
+          items:
+            type: string
+            maxLength: 50
+
+    UpdateTaskRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 500
+        description:
+          type: string
+          maxLength: 10000
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        dueDate:
+          type: string
+          format: date-time
+        startDate:
+          type: string
+          format: date-time
+        hubLink:
+          $ref: '#/components/schemas/TaskHubLink'
+        tags:
+          type: array
+          items:
+            type: string
+            maxLength: 50
+        version:
+          type: integer
+          description: Required for optimistic concurrency
+
+    AddAssignmentRequest:
+      type: object
+      required: [userId, role]
+      properties:
+        userId:
+          type: string
+        role:
+          $ref: '#/components/schemas/TaskRole'
+
+    CreateReminderRequest:
+      type: object
+      required: [timing, channels]
+      properties:
+        timing:
+          $ref: '#/components/schemas/ReminderTiming'
+        offsetMinutes:
+          type: integer
+          description: For before-due timing
+        customDateTime:
+          type: string
+          format: date-time
+          description: For custom timing
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReminderChannel'
+          minItems: 1
+        recipientUserIds:
+          type: array
+          items:
+            type: string
+
+    TaskSearchRequest:
+      type: object
+      properties:
+        query:
+          type: string
+          description: Full-text search query
+        status:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskStatus'
+        priority:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskPriority'
+        ownershipType:
+          $ref: '#/components/schemas/OwnershipType'
+        ownerId:
+          type: string
+        assigneeId:
+          type: string
+        hubId:
+          type: string
+        entityType:
+          type: string
+        entityId:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        dueDateFrom:
+          type: string
+          format: date-time
+        dueDateTo:
+          type: string
+          format: date-time
+        createdFrom:
+          type: string
+          format: date-time
+        createdTo:
+          type: string
+          format: date-time
+        includeCompleted:
+          type: boolean
+          default: false
+        hasRecurrence:
+          type: boolean
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        continuationToken:
+          type: string
+        sortBy:
+          type: string
+          enum: [dueDate, priority, createdAt, updatedAt, title]
+        sortOrder:
+          type: string
+          enum: [asc, desc]
+
+    CommentListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskComment'
+        continuationToken:
+          type: string
+
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        requestId:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Conflict:
+      description: Conflict (e.g., version mismatch)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
