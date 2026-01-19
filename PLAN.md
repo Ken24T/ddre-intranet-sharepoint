@@ -410,7 +410,7 @@ with optional hub association and recurring schedules.
       (compact card for grid/kanban views)
 - [x] 15.5.3 TaskDetailPanel component
       (full task view with comments, activity)
-- [ ] 15.5.4 TaskEditor component
+- [x] 15.5.4 TaskEditor component
       (create/edit form with validation)
 - [x] 15.5.5 TaskStatusBadge component
       (coloured status indicator)
@@ -420,12 +420,12 @@ with optional hub association and recurring schedules.
       (due date with urgency indicators)
 - [x] 15.5.8 TaskChecklistProgress component
       (visual progress for checklists)
-- [ ] 15.5.9 TaskAssignmentPicker component
-      (user/team/group selection)
-- [ ] 15.5.10 TaskRecurrenceEditor component
-      (pattern configuration UI)
-- [ ] 15.5.11 TaskReminderConfig component
-      (reminder setup UI)
+- [x] 15.5.9 TaskAssignmentPicker component
+      (user/team/group selection with role assignment)
+- [x] 15.5.10 TaskRecurrenceEditor component
+      (pattern configuration UI with all recurrence patterns)
+- [x] 15.5.11 TaskReminderConfig component
+      (reminder setup UI with channels and timing)
 
 #### 15.6 Shell Integration
 

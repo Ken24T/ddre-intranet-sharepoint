@@ -1,0 +1,111 @@
+@import '~@fluentui/react/dist/sass/References.scss';
+
+.taskReminderConfig {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .presets {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background-color: $ms-color-neutralLighterAlt;
+    border-radius: 4px;
+  }
+
+  .presetsLabel {
+    color: $ms-color-neutralSecondary;
+  }
+
+  .presetButton {
+    min-width: auto;
+    padding: 4px 12px;
+    font-size: 12px;
+  }
+
+  .reminderList {
+    margin-top: 8px;
+  }
+
+  .reminderItem {
+    padding: 12px;
+    background-color: $ms-color-white;
+    border: 1px solid $ms-color-neutralLight;
+    border-radius: 4px;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: $ms-color-neutralLighter;
+    }
+
+    &.sent {
+      opacity: 0.7;
+      background-color: $ms-color-neutralLighterAlt;
+    }
+  }
+
+  .reminderHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .reminderSummary {
+    flex: 1;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .sentLabel {
+    color: $ms-color-green;
+    font-weight: 600;
+    padding: 2px 8px;
+    background-color: $ms-color-greenLight;
+    border-radius: 4px;
+  }
+
+  .deleteButton {
+    color: $ms-color-neutralSecondary;
+
+    &:hover {
+      color: $ms-color-redDark;
+      background-color: transparent;
+    }
+  }
+
+  .reminderSettings {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid $ms-color-neutralLight;
+  }
+
+  .channelsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .noReminders {
+    color: $ms-color-neutralTertiary;
+    font-style: italic;
+    padding: 12px 0;
+  }
+
+  .addButton {
+    align-self: flex-start;
+  }
+
+  .maxReached {
+    color: $ms-color-neutralSecondary;
+    font-style: italic;
+  }
+}

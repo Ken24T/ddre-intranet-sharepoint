@@ -28,3 +28,16 @@ export type { ITaskListProps } from './TaskList';
 // Panel components
 export { TaskDetailPanel } from './TaskDetailPanel';
 export type { ITaskDetailPanelProps } from './TaskDetailPanel';
+
+export { TaskEditor } from './TaskEditor';
+export type { ITaskEditorProps } from './TaskEditor';
+
+// Picker and editor components
+export { TaskAssignmentPicker } from './TaskAssignmentPicker';
+export type { ITaskAssignmentPickerProps } from './TaskAssignmentPicker';
+
+export { TaskRecurrenceEditor } from './TaskRecurrenceEditor';
+export type { ITaskRecurrenceEditorProps } from './TaskRecurrenceEditor';
+
+export { TaskReminderConfig } from './TaskReminderConfig';
+export type { ITaskReminderConfigProps } from './TaskReminderConfig';

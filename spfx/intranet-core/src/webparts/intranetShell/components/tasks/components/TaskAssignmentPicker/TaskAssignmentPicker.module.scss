@@ -1,0 +1,95 @@
+@import '~@fluentui/react/dist/sass/References.scss';
+
+.taskAssignmentPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .picker {
+    :global(.ms-TagItem) {
+      background-color: $ms-color-themeLighter;
+      border-radius: 4px;
+      
+      &:hover {
+        background-color: $ms-color-themeLight;
+      }
+    }
+
+    :global(.ms-TagItem-close) {
+      color: $ms-color-themePrimary;
+      
+      &:hover {
+        background-color: $ms-color-themeTertiary;
+        color: $ms-color-white;
+      }
+    }
+  }
+
+  .suggestionItem {
+    padding: 8px 12px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $ms-color-neutralLighter;
+    }
+  }
+
+  .assignmentList {
+    margin-top: 8px;
+    padding: 8px;
+    background-color: $ms-color-neutralLighterAlt;
+    border-radius: 4px;
+  }
+
+  .assignmentItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background-color: $ms-color-white;
+    border-radius: 4px;
+    border: 1px solid $ms-color-neutralLight;
+
+    &:hover {
+      background-color: $ms-color-neutralLighter;
+    }
+  }
+
+  .roleDropdown {
+    width: 110px;
+    
+    :global(.ms-Dropdown-title) {
+      font-size: 12px;
+      padding: 0 8px;
+      min-height: 28px;
+      line-height: 28px;
+    }
+  }
+
+  .removeButton {
+    color: $ms-color-neutralSecondary;
+    
+    &:hover {
+      color: $ms-color-redDark;
+      background-color: $ms-color-neutralLighter;
+    }
+  }
+
+  .searching {
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .maxReached {
+    color: $ms-color-neutralSecondary;
+    font-style: italic;
+    padding: 8px 0;
+  }
+
+  .noAssignments {
+    color: $ms-color-neutralTertiary;
+    font-style: italic;
+    padding: 8px 0;
+  }
+}
