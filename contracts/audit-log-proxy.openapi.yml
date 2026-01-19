@@ -1,0 +1,544 @@
+openapi: 3.0.3
+info:
+  title: DDRE Intranet Audit Log Proxy
+  version: 0.1.0
+  description: |
+    Azure proxy for audit log ingestion and retrieval.
+    
+    This proxy:
+    - Receives client-side events from SPFx
+    - Validates event schema
+    - Enriches events with server-side data (tenant, user groups)
+    - Stores events in partitioned storage
+    - Provides admin-only query access
+    
+    **Security:** Admin-only access enforced via SharePoint group membership.
+    
+    **Consumer:** Intranet Shell (SPFx), Admin UI
+    
+    **Retention:** Indefinite (policy to be refined later)
+
+servers:
+  - url: https://api-dev.dougdisher.com.au
+    description: Development
+  - url: https://api-test.dougdisher.com.au
+    description: Test
+  - url: https://api.dougdisher.com.au
+    description: Production
+
+tags:
+  - name: Ingestion
+    description: Client event submission
+  - name: Query
+    description: Admin log retrieval (admin-only)
+  - name: System
+    description: Health and diagnostics
+
+paths:
+  # =========================================================================
+  # HEALTH
+  # =========================================================================
+  /api/v1/audit/health:
+    get:
+      operationId: getHealth
+      summary: Health check
+      tags: [System]
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  # =========================================================================
+  # EVENT INGESTION
+  # =========================================================================
+  /api/v1/audit/events:
+    post:
+      operationId: submitEvents
+      summary: Submit audit events
+      description: |
+        Submit one or more audit events from the client.
+        Events are validated, enriched, and stored.
+        
+        Supports batching for efficiency (recommended batch size: 10-50 events).
+      tags: [Ingestion]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventBatch'
+      responses:
+        '202':
+          description: Events accepted for processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventBatchResponse'
+        '400':
+          description: Invalid event schema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthorized
+        '429':
+          description: Rate limit exceeded
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds to wait before retrying
+
+  # =========================================================================
+  # QUERY (Admin Only)
+  # =========================================================================
+  /api/v1/audit/logs:
+    get:
+      operationId: queryLogs
+      summary: Query audit logs
+      description: |
+        Search and retrieve audit logs with filtering.
+        
+        **Access:** Admin users only (enforced via SharePoint group membership).
+      tags: [Query]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageNumber'
+        - $ref: '#/components/parameters/PageSize'
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: Filter by user ID or UPN
+        - name: eventType
+          in: query
+          schema:
+            $ref: '#/components/schemas/EventType'
+          description: Filter by event type
+        - name: action
+          in: query
+          schema:
+            type: string
+          description: Filter by specific action
+        - name: hub
+          in: query
+          schema:
+            type: string
+          description: Filter by hub
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Start of date range (inclusive)
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: End of date range (inclusive)
+        - name: sessionId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by session ID
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Full-text search in metadata
+      responses:
+        '200':
+          description: Audit logs matching criteria
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogQueryResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+
+  /api/v1/audit/logs/export:
+    post:
+      operationId: exportLogs
+      summary: Export audit logs
+      description: |
+        Export audit logs in CSV or JSON format.
+        Large exports are processed asynchronously.
+        
+        **Access:** Admin users only.
+      tags: [Query]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportRequest'
+      responses:
+        '200':
+          description: Export ready (small datasets)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportResponse'
+        '202':
+          description: Export processing (large datasets)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportJobResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+
+  /api/v1/audit/stats:
+    get:
+      operationId: getStats
+      summary: Get audit log statistics
+      description: |
+        Retrieve summary statistics for audit logs.
+        Useful for dashboard widgets and monitoring.
+        
+        **Access:** Admin users only.
+      tags: [Query]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Start of date range
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: End of date range
+        - name: groupBy
+          in: query
+          schema:
+            type: string
+            enum: [eventType, action, hub, user, hour, day]
+          description: Grouping dimension for stats
+      responses:
+        '200':
+          description: Statistics for the specified period
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: SharePoint-issued access token
+
+  parameters:
+    PageNumber:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number (1-based)
+    PageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+      description: Number of items per page
+
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, timestamp]
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        storageStatus:
+          type: string
+          enum: [connected, disconnected]
+        version:
+          type: string
+
+    EventType:
+      type: string
+      enum:
+        - navigation
+        - card_action
+        - settings
+        - content_view
+        - search
+        - user_interaction
+        - notification
+        - system
+        - error
+
+    AuditEvent:
+      type: object
+      required: [eventId, eventType, action, timestamp, userId, sessionId, appVersion]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          $ref: '#/components/schemas/EventType'
+        action:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        userId:
+          type: string
+        userDisplayName:
+          type: string
+        sessionId:
+          type: string
+          format: uuid
+        appVersion:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+        hub:
+          type: string
+        tool:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        userAgent:
+          type: string
+        screenResolution:
+          type: string
+        referrer:
+          type: string
+
+    EventBatch:
+      type: object
+      required: [events]
+      properties:
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEvent'
+          minItems: 1
+          maxItems: 100
+        clientTimestamp:
+          type: string
+          format: date-time
+          description: When the batch was prepared (for latency tracking)
+
+    EventBatchResponse:
+      type: object
+      required: [accepted, failed]
+      properties:
+        accepted:
+          type: integer
+          description: Number of events successfully accepted
+        failed:
+          type: integer
+          description: Number of events that failed validation
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              eventId:
+                type: string
+              error:
+                type: string
+
+    ValidationError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              error:
+                type: string
+
+    EnrichedAuditEvent:
+      allOf:
+        - $ref: '#/components/schemas/AuditEvent'
+        - type: object
+          description: Server-enriched fields
+          properties:
+            serverTimestamp:
+              type: string
+              format: date-time
+              description: When the server received the event
+            tenantId:
+              type: string
+              description: SharePoint tenant ID
+            userGroups:
+              type: array
+              items:
+                type: string
+              description: User's SharePoint group memberships
+            geoLocation:
+              type: string
+              description: Approximate location from IP (if available)
+
+    LogQueryResponse:
+      type: object
+      required: [items, pagination]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrichedAuditEvent'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      required: [page, pageSize, totalItems, totalPages]
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+
+    ExportRequest:
+      type: object
+      required: [format]
+      properties:
+        format:
+          type: string
+          enum: [csv, json]
+        filters:
+          type: object
+          properties:
+            userId:
+              type: string
+            eventType:
+              $ref: '#/components/schemas/EventType'
+            hub:
+              type: string
+            startDate:
+              type: string
+              format: date-time
+            endDate:
+              type: string
+              format: date-time
+        columns:
+          type: array
+          items:
+            type: string
+          description: Specific columns to include (all if not specified)
+
+    ExportResponse:
+      type: object
+      required: [downloadUrl, expiresAt]
+      properties:
+        downloadUrl:
+          type: string
+          format: uri
+        expiresAt:
+          type: string
+          format: date-time
+        recordCount:
+          type: integer
+
+    ExportJobResponse:
+      type: object
+      required: [jobId, status]
+      properties:
+        jobId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [queued, processing, completed, failed]
+        estimatedCompletionTime:
+          type: string
+          format: date-time
+
+    StatsResponse:
+      type: object
+      properties:
+        totalEvents:
+          type: integer
+        uniqueUsers:
+          type: integer
+        uniqueSessions:
+          type: integer
+        dateRange:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+        breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              count:
+                type: integer
+              percentage:
+                type: number
+        topActions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+              count:
+                type: integer
+        peakHours:
+          type: array
+          items:
+            type: object
+            properties:
+              hour:
+                type: integer
+              count:
+                type: integer

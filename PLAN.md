@@ -219,20 +219,24 @@ The foundation SPFx solution providing the layout frame for all intranet content
       (title, body, hub scope, severity)
 - [ ] 14.11 Add notification governance
       (approvals, audit trail, editing rules)
-- [ ] 14.12 Define audit logging scope
+- [x] 14.12 Define audit logging scope
       (log all user actions across all hubs and tools)
-- [ ] 14.12.1 Define event taxonomy
+- [x] 14.12.1 Define event taxonomy
       (navigation, card actions, settings changes, content views)
-- [ ] 14.12.2 Define event payload schema
+      → contracts/audit-log-events.schema.json
+- [x] 14.12.2 Define event payload schema
       (user id, hub, tool, action, timestamps, metadata)
-- [ ] 14.12.3 Define correlation strategy
+      → contracts/audit-log-events.schema.json
+- [x] 14.12.3 Define correlation strategy
       (session id, request id, cross-app trace)
-- [ ] 14.12.4 Define PII handling rules
+      → sessionId in schema; serverTimestamp for server correlation
+- [x] 14.12.4 Define PII handling rules
       (log everything for now; refine later)
-- [ ] 14.12.5 Define retention policy
+- [x] 14.12.5 Define retention policy
       (retain indefinitely for now; apply rules later)
-- [ ] 14.12.6 Define access control
+- [x] 14.12.6 Define access control
       (admins only)
+      → contracts/audit-log-proxy.openapi.yml (403 on non-admin)
 - [ ] 14.12.7 Capture volume assumptions
       (unknown at this stage; revisit after pilot)
 - [ ] 14.13 Implement audit logging pipeline

@@ -1,0 +1,293 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://dougdisher.com.au/schemas/audit-log-events.schema.json",
+  "title": "DDRE Intranet Audit Log Events",
+  "description": "Schema for all user action events logged across the intranet. Covers 14.12.1 (taxonomy) and 14.12.2 (payload structure).",
+  "type": "object",
+  "required": ["eventId", "eventType", "action", "timestamp", "userId", "sessionId", "appVersion"],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this event (generated client-side)"
+    },
+    "eventType": {
+      "$ref": "#/definitions/EventType"
+    },
+    "action": {
+      "type": "string",
+      "description": "Specific action within the event type (e.g., 'hub_changed', 'card_opened')"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the action occurred (client time)"
+    },
+    "userId": {
+      "type": "string",
+      "description": "SharePoint user ID or UPN of the user performing the action"
+    },
+    "userDisplayName": {
+      "type": "string",
+      "description": "Display name of the user (for easier log reading)"
+    },
+    "sessionId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique session identifier (generated on page load, persists across navigation)"
+    },
+    "appVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "SPFx solution version (e.g., '0.4.1')"
+    },
+    "hub": {
+      "type": "string",
+      "description": "Current hub context (e.g., 'home', 'sales', 'admin')",
+      "examples": ["home", "sales", "admin", "operations", "hr"]
+    },
+    "tool": {
+      "type": "string",
+      "description": "Specific tool or function card within the hub",
+      "examples": ["vault-dashboard", "property-search", "ai-assistant"]
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Action-specific additional data",
+      "additionalProperties": true
+    },
+    "userAgent": {
+      "type": "string",
+      "description": "Browser user agent string"
+    },
+    "screenResolution": {
+      "type": "string",
+      "pattern": "^\\d+x\\d+$",
+      "description": "Screen resolution (e.g., '1920x1080')"
+    },
+    "referrer": {
+      "type": "string",
+      "description": "Previous page or action that led to this event"
+    }
+  },
+  "definitions": {
+    "EventType": {
+      "type": "string",
+      "description": "High-level category of the event (taxonomy)",
+      "enum": [
+        "navigation",
+        "card_action",
+        "settings",
+        "content_view",
+        "search",
+        "user_interaction",
+        "notification",
+        "system",
+        "error"
+      ]
+    },
+    "NavigationActions": {
+      "description": "Actions within the 'navigation' event type",
+      "type": "string",
+      "enum": [
+        "hub_changed",
+        "page_view",
+        "sidebar_expanded",
+        "sidebar_collapsed",
+        "breadcrumb_clicked",
+        "back_navigation",
+        "external_link_clicked"
+      ]
+    },
+    "CardActions": {
+      "description": "Actions within the 'card_action' event type",
+      "type": "string",
+      "enum": [
+        "card_opened",
+        "card_closed",
+        "card_favourited",
+        "card_unfavourited",
+        "card_settings_opened",
+        "card_refreshed",
+        "card_expanded",
+        "card_collapsed"
+      ]
+    },
+    "SettingsActions": {
+      "description": "Actions within the 'settings' event type",
+      "type": "string",
+      "enum": [
+        "theme_changed",
+        "layout_changed",
+        "preference_updated",
+        "sidebar_pinned",
+        "sidebar_unpinned",
+        "notifications_toggled",
+        "settings_panel_opened",
+        "settings_panel_closed"
+      ]
+    },
+    "ContentViewActions": {
+      "description": "Actions within the 'content_view' event type",
+      "type": "string",
+      "enum": [
+        "document_opened",
+        "document_downloaded",
+        "dashboard_viewed",
+        "report_viewed",
+        "list_viewed",
+        "detail_viewed",
+        "preview_opened"
+      ]
+    },
+    "SearchActions": {
+      "description": "Actions within the 'search' event type",
+      "type": "string",
+      "enum": [
+        "search_executed",
+        "search_result_clicked",
+        "search_cleared",
+        "filter_applied",
+        "filter_cleared",
+        "sort_changed"
+      ]
+    },
+    "UserInteractionActions": {
+      "description": "Actions within the 'user_interaction' event type",
+      "type": "string",
+      "enum": [
+        "chat_started",
+        "chat_message_sent",
+        "chat_ended",
+        "message_sent",
+        "message_read",
+        "user_profile_viewed",
+        "ai_query_submitted",
+        "ai_response_received",
+        "ai_feedback_given"
+      ]
+    },
+    "NotificationActions": {
+      "description": "Actions within the 'notification' event type",
+      "type": "string",
+      "enum": [
+        "notification_received",
+        "notification_clicked",
+        "notification_dismissed",
+        "notification_settings_changed",
+        "notification_created",
+        "notification_scheduled"
+      ]
+    },
+    "SystemActions": {
+      "description": "Actions within the 'system' event type",
+      "type": "string",
+      "enum": [
+        "session_started",
+        "session_ended",
+        "session_timeout",
+        "app_loaded",
+        "app_error",
+        "api_call_made",
+        "api_call_failed"
+      ]
+    },
+    "ErrorActions": {
+      "description": "Actions within the 'error' event type",
+      "type": "string",
+      "enum": [
+        "javascript_error",
+        "api_error",
+        "permission_denied",
+        "resource_not_found",
+        "validation_error"
+      ]
+    }
+  },
+  "examples": [
+    {
+      "eventId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "eventType": "navigation",
+      "action": "hub_changed",
+      "timestamp": "2026-01-20T10:30:00.000Z",
+      "userId": "ken.boyle@dougdisher.com.au",
+      "userDisplayName": "Ken Boyle",
+      "sessionId": "f1e2d3c4-b5a6-7890-1234-567890abcdef",
+      "appVersion": "0.4.1",
+      "hub": "sales",
+      "tool": null,
+      "metadata": {
+        "previousHub": "home",
+        "navigationSource": "sidebar"
+      },
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",
+      "screenResolution": "1920x1080"
+    },
+    {
+      "eventId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "eventType": "card_action",
+      "action": "card_opened",
+      "timestamp": "2026-01-20T10:31:15.000Z",
+      "userId": "ken.boyle@dougdisher.com.au",
+      "userDisplayName": "Ken Boyle",
+      "sessionId": "f1e2d3c4-b5a6-7890-1234-567890abcdef",
+      "appVersion": "0.4.1",
+      "hub": "sales",
+      "tool": "vault-dashboard",
+      "metadata": {
+        "cardId": "vault-contacts",
+        "cardTitle": "Vault Contacts"
+      }
+    },
+    {
+      "eventId": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "eventType": "search",
+      "action": "search_executed",
+      "timestamp": "2026-01-20T10:32:00.000Z",
+      "userId": "ken.boyle@dougdisher.com.au",
+      "userDisplayName": "Ken Boyle",
+      "sessionId": "f1e2d3c4-b5a6-7890-1234-567890abcdef",
+      "appVersion": "0.4.1",
+      "hub": "sales",
+      "tool": "vault-dashboard",
+      "metadata": {
+        "query": "Smith",
+        "resultCount": 15,
+        "searchDurationMs": 245
+      }
+    },
+    {
+      "eventId": "d4e5f6a7-b8c9-0123-def0-234567890123",
+      "eventType": "settings",
+      "action": "theme_changed",
+      "timestamp": "2026-01-20T10:35:00.000Z",
+      "userId": "ken.boyle@dougdisher.com.au",
+      "userDisplayName": "Ken Boyle",
+      "sessionId": "f1e2d3c4-b5a6-7890-1234-567890abcdef",
+      "appVersion": "0.4.1",
+      "hub": "home",
+      "metadata": {
+        "previousTheme": "light",
+        "newTheme": "dark"
+      }
+    },
+    {
+      "eventId": "e5f6a7b8-c9d0-1234-ef01-345678901234",
+      "eventType": "error",
+      "action": "api_error",
+      "timestamp": "2026-01-20T10:40:00.000Z",
+      "userId": "ken.boyle@dougdisher.com.au",
+      "userDisplayName": "Ken Boyle",
+      "sessionId": "f1e2d3c4-b5a6-7890-1234-567890abcdef",
+      "appVersion": "0.4.1",
+      "hub": "sales",
+      "tool": "vault-dashboard",
+      "metadata": {
+        "endpoint": "/api/v1/vault/contacts",
+        "statusCode": 503,
+        "errorMessage": "Service temporarily unavailable",
+        "retryAttempt": 2
+      }
+    }
+  ]
+}
