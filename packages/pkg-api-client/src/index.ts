@@ -34,3 +34,21 @@ export type {
   MaintenanceRequest,
   DashboardSummary,
 } from "./clients/PropertyMeClient";
+
+export { createAuditClient } from "./clients/AuditClient";
+export type {
+  EventType,
+  NavigationAction,
+  CardAction,
+  SettingsAction,
+  ContentViewAction,
+  SearchAction,
+  UserInteractionAction,
+  NotificationAction,
+  SystemAction,
+  ErrorAction,
+  AuditEvent,
+  EventBatch,
+  EventBatchResponse,
+  AuditClientConfig,
+} from "./clients/AuditClient";
