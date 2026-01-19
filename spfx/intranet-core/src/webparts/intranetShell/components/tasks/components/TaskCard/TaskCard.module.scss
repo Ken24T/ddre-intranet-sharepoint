@@ -1,0 +1,166 @@
+// Task card styles
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #edebe9;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+
+  &:hover {
+    background: #faf9f8;
+    border-color: #c8c6c4;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #0078d4;
+    box-shadow: 0 0 0 1px #0078d4;
+  }
+
+  // States
+  &.selected {
+    background: #f0f6ff;
+    border-color: #0078d4;
+  }
+
+  &.inactive {
+    .title {
+      text-decoration: line-through;
+      color: #8a8886;
+    }
+
+    .content {
+      opacity: 0.7;
+    }
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+
+    &:hover {
+      background: #ffffff;
+      border-color: #edebe9;
+    }
+  }
+
+  // Variants
+  &.compact {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  &.detailed {
+    flex-direction: column;
+    gap: 8px;
+
+    .leading {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+    }
+
+    .content {
+      padding-left: 36px;
+      width: 100%;
+    }
+
+    .trailing {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+    }
+  }
+}
+
+.leading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.checkbox {
+  margin: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #323130;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  color: #605e5c;
+}
+
+.hub {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #605e5c;
+
+  .hubIcon {
+    font-size: 12px;
+    color: #8a8886;
+  }
+
+  .hubName {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.description {
+  font-size: 13px;
+  color: #605e5c;
+  line-height: 1.5;
+  margin: 4px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.trailing {
+  flex-shrink: 0;
+}
+
+.menuButton {
+  color: #605e5c;
+  
+  &:hover {
+    background: #edebe9;
+    color: #323130;
+  }
+}

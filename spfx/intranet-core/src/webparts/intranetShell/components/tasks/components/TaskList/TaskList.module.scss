@@ -1,0 +1,117 @@
+// Task list styles
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #323130;
+  margin: 0;
+}
+
+.commandBar {
+  background: transparent;
+  padding: 0;
+
+  :global(.ms-CommandBar) {
+    background: transparent;
+    padding: 0;
+  }
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.searchBox {
+  min-width: 200px;
+  max-width: 320px;
+  flex: 1;
+}
+
+.filterDropdown {
+  min-width: 140px;
+}
+
+.error {
+  margin-bottom: 8px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background: #faf9f8;
+  border: 1px dashed #c8c6c4;
+  border-radius: 4px;
+  text-align: center;
+
+  p {
+    font-size: 14px;
+    color: #605e5c;
+    margin: 0 0 16px;
+  }
+}
+
+.emptyAction {
+  background: #0078d4;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: #106ebe;
+  }
+
+  &:focus {
+    outline: 2px solid #0078d4;
+    outline-offset: 2px;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid #edebe9;
+}
+
+.count {
+  font-size: 12px;
+  color: #8a8886;
+}

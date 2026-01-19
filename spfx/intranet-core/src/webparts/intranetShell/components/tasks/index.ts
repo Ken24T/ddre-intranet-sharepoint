@@ -68,3 +68,23 @@ export type {
   UseTaskRemindersResult,
   UseHubTasksResult,
 } from './hooks';
+
+// UI Components
+export {
+  TaskStatusBadge,
+  TaskPriorityIndicator,
+  TaskDueDateLabel,
+  TaskChecklistProgress,
+  TaskCard,
+  TaskList,
+  TaskDetailPanel,
+} from './components';
+export type {
+  ITaskStatusBadgeProps,
+  ITaskPriorityIndicatorProps,
+  ITaskDueDateLabelProps,
+  ITaskChecklistProgressProps,
+  ITaskCardProps,
+  ITaskListProps,
+  ITaskDetailPanelProps,
+} from './components';

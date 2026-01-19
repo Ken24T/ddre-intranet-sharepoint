@@ -404,23 +404,27 @@ with optional hub association and recurring schedules.
 
 #### 15.5 UI Components
 
-- [ ] 15.5.1 TaskList component
+- [x] 15.5.1 TaskList component
       (filterable, sortable list view)
-- [ ] 15.5.2 TaskCard component
+- [x] 15.5.2 TaskCard component
       (compact card for grid/kanban views)
-- [ ] 15.5.3 TaskDetailPanel component
+- [x] 15.5.3 TaskDetailPanel component
       (full task view with comments, activity)
 - [ ] 15.5.4 TaskEditor component
       (create/edit form with validation)
-- [ ] 15.5.5 TaskStatusBadge component
+- [x] 15.5.5 TaskStatusBadge component
       (coloured status indicator)
-- [ ] 15.5.6 TaskPriorityIndicator component
+- [x] 15.5.6 TaskPriorityIndicator component
       (visual priority marker)
-- [ ] 15.5.7 TaskAssignmentPicker component
+- [x] 15.5.7 TaskDueDateLabel component
+      (due date with urgency indicators)
+- [x] 15.5.8 TaskChecklistProgress component
+      (visual progress for checklists)
+- [ ] 15.5.9 TaskAssignmentPicker component
       (user/team/group selection)
-- [ ] 15.5.8 TaskRecurrenceEditor component
+- [ ] 15.5.10 TaskRecurrenceEditor component
       (pattern configuration UI)
-- [ ] 15.5.9 TaskReminderConfig component
+- [ ] 15.5.11 TaskReminderConfig component
       (reminder setup UI)
 
 #### 15.6 Shell Integration

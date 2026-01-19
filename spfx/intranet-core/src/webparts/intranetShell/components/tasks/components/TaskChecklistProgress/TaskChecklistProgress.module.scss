@@ -1,0 +1,67 @@
+// Task checklist progress styles
+
+.container {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #605e5c;
+
+  &.complete {
+    color: #107c10;
+
+    .icon {
+      color: #107c10;
+    }
+  }
+
+  // Size variants
+  &.small {
+    font-size: 11px;
+
+    .icon {
+      font-size: 12px;
+    }
+  }
+
+  &.medium {
+    font-size: 12px;
+
+    .icon {
+      font-size: 14px;
+    }
+  }
+
+  // Variant: bar
+  &.bar {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+
+    .label {
+      flex-shrink: 0;
+      min-width: 32px;
+      text-align: right;
+    }
+  }
+
+  // Variant: text
+  &.text {
+    gap: 4px;
+  }
+
+  // Variant: compact
+  &.compact {
+    gap: 4px;
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  color: #8a8886;
+}
+
+.label {
+  line-height: 1;
+  white-space: nowrap;
+}
