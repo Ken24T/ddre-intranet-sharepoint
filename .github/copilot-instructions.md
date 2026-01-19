@@ -98,20 +98,24 @@ When the user says **SHIP**, execute the following steps as appropriate:
 | **Test** | Run `npm run lint` and `npm run test` | Docs-only changes, config tweaks |
 | **Problems** | Check VS Code Problems panel (`get_errors`) – must be 0 | Never skip |
 | **Commit** | Stage and commit with conventional message | Never skip |
-| **Tag** | Create semantic version tag (`vX.Y.Z`) | Feature work (non-release) |
-| **Bump** | Update version in `package.json` + `package-solution.json` | Feature work (non-release) |
-| **Push** | Push commits and tags to remote | Never skip |
+| **Bump** | Increment patch version (`0.4.x`) in `package.json` + `package-solution.json` | Docs-only changes |
+| **Push** | Push commits to remote | Never skip |
 
 **Conventional commit prefixes:** `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`
 
-For versioned releases, use the release script (handles Tag + Bump):
+**Versioning strategy:**
+- **Patch (`0.4.x`)** – Increment with each commit during feature work
+- **Minor (`0.x.0`)** – Bump when branch is merged/released (use release script)
+- **Major (`x.0.0`)** – Breaking changes or major milestones
+
+For minor/major releases, use the release script:
 
 ```powershell
-./scripts/release.ps1 -Bump patch -Message "fix: description"
-./scripts/release.ps1 -Bump minor -DryRun  # Preview changes
+./scripts/release.ps1 -Bump minor -Message "feat: feature description"
+./scripts/release.ps1 -Bump major -Message "feat!: breaking change"
 ```
 
-Git tags use semantic versioning (`vX.Y.Z`) and must match SPFx solution version.
+Git tags (`vX.Y.Z`) are created only for minor/major releases and must match SPFx solution version.
 
 ## File Organization
 
