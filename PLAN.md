@@ -237,8 +237,11 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [x] 14.12.6 Define access control
       (admins only)
       → contracts/audit-log-proxy.openapi.yml (403 on non-admin)
-- [ ] 14.12.7 Capture volume assumptions
-      (unknown at this stage; revisit after pilot)
+- [x] 14.12.7 Capture volume assumptions
+      ~50 users × ~100 events/user/day = ~5,000 events/day
+      Peak: ~500 events/hour during business hours (9am-5pm AEST)
+      Storage: ~1KB/event avg → ~1.8GB/year uncompressed
+      Retention: Indefinite (compress after 90 days)
 - [ ] 14.13 Implement audit logging pipeline
       (client events → Azure proxy → storage)
 - [x] 14.13.1 Build logging client helper
@@ -255,14 +258,18 @@ The foundation SPFx solution providing the layout frame for all intranet content
       (by tenant/date/hub for querying)
 - [ ] 14.13.5 Add failure handling
       (dead-letter queue, alerts)
-- [ ] 14.14 Build audit log viewer UI
+- [x] 14.14 Build audit log viewer UI
       (filters, date range, export)
-- [ ] 14.14.1 Define search/filter UX
-      (user, hub, action, date range, severity)
-- [ ] 14.14.2 Add summary widgets
-      (top actions, active users, peak times)
-- [ ] 14.14.3 Add export options
-      (CSV, JSON, scheduled reports)
+      → components/AuditLogViewer (attached to Audit Logs card)
+- [x] 14.14.1 Define search/filter UX
+      (user, hub, action, date range, event type)
+      → Filter bar with dropdowns, date pickers, search field
+- [x] 14.14.2 Add summary widgets
+      (event counts by type, top users, activity sparkline)
+- [x] 14.14.3 Add export options
+      (CSV export with filtered results)
+- [x] 14.14.3.1 Add unit tests for AuditLogViewer
+      (17 test cases covering rendering, filtering, export, callbacks)
 - [ ] 14.14.4 Add access control
       (admin-only, audit viewer role)
 - [ ] 14.15 Add privacy & retention policy for logs

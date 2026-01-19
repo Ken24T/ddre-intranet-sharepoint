@@ -16,6 +16,9 @@ import {
   Icon,
   TooltipHost,
   DirectionalHint,
+  Modal,
+  IconButton,
+  Selection,
 } from '@fluentui/react';
 import { useAudit } from '../AuditContext';
 import type { EventType } from '../AuditContext';
@@ -39,11 +42,14 @@ interface IAuditLogEntry {
   metadata?: Record<string, unknown>;
 }
 
+type DateRangePreset = 'today' | 'last7' | 'last30' | 'custom';
+
 interface IFilters {
   userId: string;
   eventType: EventType | '';
   hub: string;
   action: string;
+  datePreset: DateRangePreset;
   startDate: Date | undefined;
   endDate: Date | undefined;
 }
@@ -245,6 +251,206 @@ function getEventTypeColor(eventType: EventType): string {
   }
 }
 
+function getDateRangeFromPreset(preset: DateRangePreset): { start: Date | undefined; end: Date | undefined } {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  switch (preset) {
+    case 'today':
+      return { start: today, end: now };
+    case 'last7': {
+      const weekAgo = new Date(today);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return { start: weekAgo, end: now };
+    }
+    case 'last30': {
+      const monthAgo = new Date(today);
+      monthAgo.setDate(monthAgo.getDate() - 30);
+      return { start: monthAgo, end: now };
+    }
+    case 'custom':
+    default:
+      return { start: undefined, end: undefined };
+  }
+}
+
+// =============================================================================
+// SUMMARY WIDGET COMPONENT
+// =============================================================================
+
+interface ISummaryStats {
+  totalEvents: number;
+  eventsByType: Record<EventType, number>;
+  topUsers: Array<{ name: string; count: number }>;
+  eventsByHour: number[];
+}
+
+function calculateStats(logs: IAuditLogEntry[]): ISummaryStats {
+  const eventsByType: Record<string, number> = {};
+  const userCounts: Record<string, { name: string; count: number }> = {};
+  const eventsByHour: number[] = new Array(24).fill(0);
+
+  for (const log of logs) {
+    // Count by type
+    eventsByType[log.eventType] = (eventsByType[log.eventType] || 0) + 1;
+    
+    // Count by user
+    const userName = log.userDisplayName || log.userId;
+    if (!userCounts[log.userId]) {
+      userCounts[log.userId] = { name: userName, count: 0 };
+    }
+    userCounts[log.userId].count++;
+    
+    // Count by hour
+    const hour = new Date(log.timestamp).getHours();
+    eventsByHour[hour]++;
+  }
+
+  const topUsers = Object.keys(userCounts)
+    .map((key) => userCounts[key])
+    .sort((a: { name: string; count: number }, b: { name: string; count: number }) => b.count - a.count)
+    .slice(0, 5);
+
+  return {
+    totalEvents: logs.length,
+    eventsByType: eventsByType as Record<EventType, number>,
+    topUsers,
+    eventsByHour,
+  };
+}
+
+const SummaryWidgets: React.FC<{ stats: ISummaryStats }> = ({ stats }) => {
+  const maxHourValue = Math.max(...stats.eventsByHour, 1);
+  
+  // Get top event types for display
+  const eventTypeKeys = Object.keys(stats.eventsByType) as EventType[];
+  const topEventTypes = eventTypeKeys
+    .map((key) => ({ type: key, count: stats.eventsByType[key] || 0 }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 4);
+
+  return (
+    <div className={styles.summaryWidgets}>
+      <div className={styles.widget}>
+        <div className={styles.widgetLabel}>Total Events</div>
+        <div className={styles.widgetValue}>{stats.totalEvents.toLocaleString()}</div>
+      </div>
+      
+      <div className={styles.widget}>
+        <div className={styles.widgetLabel}>By Type</div>
+        <div className={styles.eventTypeBars}>
+          {topEventTypes.map((item) => (
+            <TooltipHost key={item.type} content={`${item.type}: ${item.count}`}>
+              <div className={styles.eventTypeBar}>
+                <Icon
+                  iconName={getEventTypeIcon(item.type)}
+                  style={{ color: getEventTypeColor(item.type), fontSize: 14 }}
+                />
+                <span className={styles.eventTypeCount}>{item.count}</span>
+              </div>
+            </TooltipHost>
+          ))}
+        </div>
+      </div>
+      
+      <div className={styles.widget}>
+        <div className={styles.widgetLabel}>Top Users</div>
+        <div className={styles.topUsers}>
+          {stats.topUsers.slice(0, 3).map((user, i) => (
+            <TooltipHost key={i} content={`${user.name}: ${user.count} events`}>
+              <span className={styles.topUser}>
+                {user.name.split(' ')[0]} ({user.count})
+              </span>
+            </TooltipHost>
+          ))}
+        </div>
+      </div>
+      
+      <div className={styles.widget}>
+        <div className={styles.widgetLabel}>Activity (24h)</div>
+        <div className={styles.sparkline}>
+          {stats.eventsByHour.map((count, hour) => (
+            <TooltipHost key={hour} content={`${hour}:00 - ${count} events`}>
+              <div
+                className={styles.sparklineBar}
+                style={{ height: `${(count / maxHourValue) * 100}%` }}
+              />
+            </TooltipHost>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// =============================================================================
+// DETAIL MODAL COMPONENT
+// =============================================================================
+
+interface IDetailModalProps {
+  entry: IAuditLogEntry | undefined;
+  onDismiss: () => void;
+}
+
+const DetailModal: React.FC<IDetailModalProps> = ({ entry, onDismiss }) => {
+  if (!entry) return <></>;
+
+  const fields = [
+    { label: 'Event ID', value: entry.eventId },
+    { label: 'Timestamp', value: formatTimestamp(entry.timestamp) },
+    { label: 'User', value: entry.userDisplayName || entry.userId },
+    { label: 'Email', value: entry.userId },
+    { label: 'Session', value: entry.sessionId },
+    { label: 'Event Type', value: entry.eventType },
+    { label: 'Action', value: entry.action },
+    { label: 'Hub', value: entry.hub || '—' },
+    { label: 'Tool', value: entry.tool || '—' },
+    { label: 'App Version', value: entry.appVersion },
+  ];
+
+  return (
+    <Modal
+      isOpen={true}
+      onDismiss={onDismiss}
+      isBlocking={false}
+      containerClassName={styles.detailModal}
+    >
+      <div className={styles.modalHeader}>
+        <div className={styles.modalTitle}>
+          <Icon
+            iconName={getEventTypeIcon(entry.eventType)}
+            style={{ color: getEventTypeColor(entry.eventType) }}
+          />
+          <span>Event Details</span>
+        </div>
+        <IconButton
+          iconProps={{ iconName: 'Cancel' }}
+          ariaLabel="Close"
+          onClick={onDismiss}
+        />
+      </div>
+      <div className={styles.modalBody}>
+        <div className={styles.detailFields}>
+          {fields.map((field) => (
+            <div key={field.label} className={styles.detailField}>
+              <span className={styles.detailLabel}>{field.label}</span>
+              <span className={styles.detailValue}>{field.value}</span>
+            </div>
+          ))}
+        </div>
+        {entry.metadata && Object.keys(entry.metadata).length > 0 && (
+          <div className={styles.metadataSection}>
+            <h4 className={styles.metadataTitle}>Metadata</h4>
+            <pre className={styles.metadataJson}>
+              {JSON.stringify(entry.metadata, null, 2)}
+            </pre>
+          </div>
+        )}
+      </div>
+    </Modal>
+  );
+};
+
 // =============================================================================
 // COMPONENT
 // =============================================================================
@@ -259,15 +465,32 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
   // State
   const [logs, setLogs] = React.useState<IAuditLogEntry[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string | undefined>(undefined);
+  const [selectedEntry, setSelectedEntry] = React.useState<IAuditLogEntry | undefined>(undefined);
   const [filters, setFilters] = React.useState<IFilters>({
     userId: '',
     eventType: '',
     hub: '',
     action: '',
+    datePreset: 'last7',
     startDate: undefined,
     endDate: undefined,
   });
+
+  // Selection for row clicks
+  const selection = React.useMemo(
+    () =>
+      new Selection({
+        onSelectionChanged: () => {
+          const selected = selection.getSelection()[0] as IAuditLogEntry | undefined;
+          if (selected) {
+            setSelectedEntry(selected);
+            selection.setAllSelected(false);
+          }
+        },
+      }),
+    []
+  );
 
   // Log that user viewed audit logs
   React.useEffect(() => {
@@ -280,7 +503,7 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
   // Simulate loading logs (mock data for now)
   React.useEffect(() => {
     setIsLoading(true);
-    setError(null);
+    setError(undefined);
 
     // Simulate API call
     const timer = setTimeout(() => {
@@ -295,6 +518,14 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Calculate effective date range from preset or custom dates
+  const effectiveDates = React.useMemo(() => {
+    if (filters.datePreset === 'custom') {
+      return { start: filters.startDate, end: filters.endDate };
+    }
+    return getDateRangeFromPreset(filters.datePreset);
+  }, [filters.datePreset, filters.startDate, filters.endDate]);
 
   // Filter logs
   const filteredLogs = React.useMemo(() => {
@@ -312,19 +543,22 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
       if (filters.action && !log.action.toLowerCase().includes(filters.action.toLowerCase())) {
         return false;
       }
-      if (filters.startDate) {
+      if (effectiveDates.start) {
         const logDate = new Date(log.timestamp);
-        if (logDate < filters.startDate) return false;
+        if (logDate < effectiveDates.start) return false;
       }
-      if (filters.endDate) {
+      if (effectiveDates.end) {
         const logDate = new Date(log.timestamp);
-        const endOfDay = new Date(filters.endDate);
+        const endOfDay = new Date(effectiveDates.end);
         endOfDay.setHours(23, 59, 59, 999);
         if (logDate > endOfDay) return false;
       }
       return true;
     });
-  }, [logs, filters]);
+  }, [logs, filters.userId, filters.eventType, filters.hub, filters.action, effectiveDates]);
+
+  // Calculate summary stats
+  const stats = React.useMemo(() => calculateStats(filteredLogs), [filteredLogs]);
 
   // Column definitions
   const columns: IColumn[] = React.useMemo(
@@ -453,12 +687,21 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
     { key: 'library', text: 'Library' },
   ];
 
+  // Date preset options
+  const datePresetOptions: IDropdownOption[] = [
+    { key: 'today', text: 'Today' },
+    { key: 'last7', text: 'Last 7 days' },
+    { key: 'last30', text: 'Last 30 days' },
+    { key: 'custom', text: 'Custom range' },
+  ];
+
   const handleClearFilters = (): void => {
     setFilters({
       userId: '',
       eventType: '',
       hub: '',
       action: '',
+      datePreset: 'last7',
       startDate: undefined,
       endDate: undefined,
     });
@@ -497,8 +740,15 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
     });
   };
 
-  const hasFilters = filters.userId || filters.eventType || filters.hub || 
-                     filters.action || filters.startDate || filters.endDate;
+  const hasFilters = Boolean(
+    filters.userId ||
+    filters.eventType ||
+    filters.hub ||
+    filters.action ||
+    filters.datePreset !== 'last7' ||
+    filters.startDate ||
+    filters.endDate
+  );
 
   return (
     <div className={styles.auditLogViewer}>
@@ -529,6 +779,9 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
           )}
         </div>
       </div>
+
+      {/* Summary Widgets */}
+      {!isLoading && filteredLogs.length > 0 && <SummaryWidgets stats={stats} />}
 
       <div className={styles.filters}>
         <TextField
@@ -562,18 +815,37 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
           onChange={(_, value) => setFilters((f) => ({ ...f, action: value || '' }))}
           className={styles.filterField}
         />
-        <DatePicker
-          placeholder="Start date"
-          value={filters.startDate}
-          onSelectDate={(date) => setFilters((f) => ({ ...f, startDate: date || undefined }))}
-          className={styles.filterDate}
+        <Dropdown
+          placeholder="Date range"
+          options={datePresetOptions}
+          selectedKey={filters.datePreset}
+          onChange={(_, option) =>
+            setFilters((f) => ({
+              ...f,
+              datePreset: (option?.key as DateRangePreset) || 'last7',
+              // Clear custom dates when switching to preset
+              startDate: option?.key === 'custom' ? f.startDate : undefined,
+              endDate: option?.key === 'custom' ? f.endDate : undefined,
+            }))
+          }
+          className={styles.filterDropdown}
         />
-        <DatePicker
-          placeholder="End date"
-          value={filters.endDate}
-          onSelectDate={(date) => setFilters((f) => ({ ...f, endDate: date || undefined }))}
-          className={styles.filterDate}
-        />
+        {filters.datePreset === 'custom' && (
+          <>
+            <DatePicker
+              placeholder="Start date"
+              value={filters.startDate}
+              onSelectDate={(date) => setFilters((f) => ({ ...f, startDate: date || undefined }))}
+              className={styles.filterDate}
+            />
+            <DatePicker
+              placeholder="End date"
+              value={filters.endDate}
+              onSelectDate={(date) => setFilters((f) => ({ ...f, endDate: date || undefined }))}
+              className={styles.filterDate}
+            />
+          </>
+        )}
         {hasFilters && (
           <DefaultButton
             iconProps={{ iconName: 'ClearFilter' }}
@@ -584,7 +856,7 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
       </div>
 
       {error && (
-        <MessageBar messageBarType={MessageBarType.error} onDismiss={() => setError(null)}>
+        <MessageBar messageBarType={MessageBarType.error} onDismiss={() => setError(undefined)}>
           {error}
         </MessageBar>
       )}
@@ -609,7 +881,8 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
             items={filteredLogs}
             columns={columns}
             layoutMode={DetailsListLayoutMode.justified}
-            selectionMode={SelectionMode.none}
+            selectionMode={SelectionMode.single}
+            selection={selection}
             isHeaderVisible={true}
             compact={true}
           />
@@ -621,6 +894,9 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
           <Icon iconName="Info" /> Logs are retained indefinitely. Admin access only.
         </span>
       </div>
+
+      {/* Detail Modal */}
+      <DetailModal entry={selectedEntry} onDismiss={() => setSelectedEntry(undefined)} />
     </div>
   );
 };
