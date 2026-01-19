@@ -19,6 +19,7 @@ import { SettingsPanel } from './SettingsPanel';
 import { SearchResultsPage } from './SearchResultsPage';
 import { AiAssistant } from './AiAssistant';
 import { HelpCenter } from './HelpCenter/HelpCenter';
+import { AuditLogViewer } from './AuditLogViewer';
 import { SkipLinks } from './SkipLinks';
 import { sampleCards, hubInfo } from './data';
 import type { CardOpenBehavior, IFunctionCard } from './FunctionCard';
@@ -711,27 +712,31 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
                   Back to cards
                 </button>
               </div>
-              <>
-                <div className={styles.cardDetailFrame}>
-                  <iframe
-                    src={activeCard.url || undefined}
-                    srcDoc={activeCard.url ? undefined : this.getMockCardHtml(activeCard)}
-                    title={activeCard.title}
-                    className={styles.cardDetailIframe}
-                  />
-                </div>
-                <button
-                  className={styles.cardDetailAction}
-                  onClick={() =>
-                    activeCard.url
-                      ? window.open(activeCard.url, '_blank')
-                      : this.openMockCardWindow(activeCard, false)
-                  }
-                  type="button"
-                >
-                  Open in new tab
-                </button>
-              </>
+              {activeCard.id === 'audit-logs' ? (
+                <AuditLogViewer />
+              ) : (
+                <>
+                  <div className={styles.cardDetailFrame}>
+                    <iframe
+                      src={activeCard.url || undefined}
+                      srcDoc={activeCard.url ? undefined : this.getMockCardHtml(activeCard)}
+                      title={activeCard.title}
+                      className={styles.cardDetailIframe}
+                    />
+                  </div>
+                  <button
+                    className={styles.cardDetailAction}
+                    onClick={() =>
+                      activeCard.url
+                        ? window.open(activeCard.url, '_blank')
+                        : this.openMockCardWindow(activeCard, false)
+                    }
+                    type="button"
+                  >
+                    Open in new tab
+                  </button>
+                </>
+              )}
             </div>
           ) : (
             <>
