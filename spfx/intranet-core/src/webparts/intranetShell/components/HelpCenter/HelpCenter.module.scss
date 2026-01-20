@@ -443,3 +443,160 @@
   outline: 2px solid rgba(122, 75, 0, 0.6);
   outline-offset: 2px;
 }
+
+// Dark mode overrides
+.dark {
+  color: var(--neutralPrimary, #ffffff);
+
+  .hero {
+    background: linear-gradient(135deg, #2b2412 0%, #3b2f12 100%);
+    color: #f4e7c1;
+  }
+
+  .hero::before {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f4e7c1' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .heroSubtitle {
+    color: #d8c48a;
+  }
+
+  .searchRow :global(.ms-SearchBox),
+  .searchRow :global(.ms-Dropdown) {
+    background: var(--neutralLighterAlt, #1c1c1c);
+    border: 1px solid var(--neutralLight, #343434);
+    box-shadow: none;
+  }
+
+  .searchRow :global(.ms-SearchBox:hover),
+  .searchRow :global(.ms-Dropdown:hover) {
+    background: var(--neutralLighter, #252525);
+    border-color: var(--neutralQuaternary, #454545);
+  }
+
+  .searchRow :global(.ms-SearchBox-field),
+  .searchRow :global(.ms-Dropdown-title) {
+    color: var(--neutralPrimary, #ffffff);
+  }
+
+  .searchRow :global(.ms-SearchBox-icon),
+  .searchRow :global(.ms-SearchBox-clearButton .ms-Button-icon),
+  .searchRow :global(.ms-Dropdown-caretDownWrapper) {
+    color: var(--neutralSecondary, #d0d0d0);
+  }
+
+  .buttonGroup {
+    background: var(--neutralLighterAlt, #1c1c1c);
+    border: 1px solid var(--neutralLight, #343434);
+  }
+
+  .buttonGroupLabel {
+    color: var(--neutralSecondary, #d0d0d0);
+  }
+
+  .buttonGroupToggle {
+    border: 1px solid var(--neutralLight, #343434);
+    background: var(--neutralLighter, #252525);
+    color: var(--neutralPrimary, #ffffff);
+  }
+
+  .buttonGroupToggle:hover {
+    background: var(--neutralQuaternary, #454545);
+    border-color: var(--neutralTertiaryAlt, #656565);
+  }
+
+  .sectionTitle {
+    color: var(--neutralPrimary, #ffffff);
+  }
+
+  .sectionSubtitle {
+    color: var(--neutralSecondary, #d0d0d0);
+  }
+
+  .categoryChip {
+    background: var(--neutralLighterAlt, #1c1c1c);
+    border: 1px solid var(--neutralLight, #343434);
+    color: var(--neutralSecondary, #d0d0d0);
+  }
+
+  .categoryChip:hover {
+    background: var(--neutralLighter, #252525);
+    border-color: var(--neutralQuaternary, #454545);
+  }
+
+  .categoryChipActive {
+    background: var(--neutralQuaternary, #454545);
+    border-color: var(--neutralTertiaryAlt, #656565);
+    color: var(--neutralPrimary, #ffffff);
+  }
+
+  .articleCard {
+    background: var(--neutralLighterAlt, #1c1c1c);
+    border: 1px solid var(--neutralLight, #343434);
+    border-top: 3px solid var(--themePrimary, #3aa0f3);
+    box-shadow: none;
+  }
+
+  .articleHeader {
+    color: var(--neutralSecondary, #d0d0d0);
+  }
+
+  .articleType {
+    background: var(--neutralQuaternary, #454545);
+    color: var(--neutralPrimary, #ffffff);
+  }
+
+  .articleTitle {
+    color: var(--neutralPrimary, #ffffff);
+  }
+
+  .articleSummary,
+  .articleMeta,
+  .articleFeedback {
+    color: var(--neutralSecondary, #d0d0d0);
+  }
+
+  .articleAction {
+    color: var(--themePrimary, #3aa0f3);
+  }
+
+  .feedbackButton {
+    border: 1px solid var(--neutralLight, #343434);
+    background: var(--neutralLighter, #252525);
+    color: var(--neutralPrimary, #ffffff);
+  }
+
+  .feedbackButton:hover {
+    background: var(--neutralQuaternary, #454545);
+    border-color: var(--neutralTertiaryAlt, #656565);
+  }
+
+  .ctaPanel {
+    background: linear-gradient(135deg, #1c1c1c 0%, #252525 100%);
+    border: 1px solid var(--neutralLight, #343434);
+  }
+
+  .ctaTitle {
+    color: var(--neutralPrimary, #ffffff);
+  }
+
+  .ctaText {
+    color: var(--neutralSecondary, #d0d0d0);
+  }
+
+  .ctaButton {
+    background: var(--neutralQuaternary, #454545);
+    border: 1px solid var(--neutralTertiaryAlt, #656565);
+    color: var(--neutralPrimary, #ffffff);
+    box-shadow: none;
+  }
+
+  .ctaButton :global(.ms-Button-icon) {
+    color: var(--neutralPrimary, #ffffff);
+  }
+
+  .ctaButton:hover {
+    background: var(--neutralTertiaryAlt, #656565);
+    border-color: var(--neutralTertiary, #c8c8c8);
+  }
+}

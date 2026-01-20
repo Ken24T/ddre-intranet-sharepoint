@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DefaultButton, Dropdown, Icon, SearchBox } from '@fluentui/react';
+import { DefaultButton, Dropdown, Icon, SearchBox, useTheme } from '@fluentui/react';
 import styles from './HelpCenter.module.scss';
 import type { IFunctionCard } from '../FunctionCard';
 import { hubInfo } from '../data';
@@ -134,6 +134,7 @@ const generalHelpCards: IGeneralHelpCard[] = [
   },
 ];
 export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
+  const theme = useTheme();
   const [searchText, setSearchText] = React.useState('');
   const [appliedQuery, setAppliedQuery] = React.useState('');
   const generalButtons = [
@@ -298,8 +299,10 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
     setExpandedGroup((prev) => (prev === group ? null : group));
   };
 
+  const helpCenterClassName = `${styles.helpCenter} ${theme.isInverted ? styles.dark : ''}`;
+
   return (
-    <div className={styles.helpCenter}>
+    <div className={helpCenterClassName}>
       <div className={styles.hero}>
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>Help Centre</h1>
