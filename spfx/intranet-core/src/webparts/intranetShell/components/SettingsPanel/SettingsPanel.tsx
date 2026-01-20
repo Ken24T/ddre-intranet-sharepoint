@@ -8,7 +8,9 @@ import {
   DefaultButton,
   ActionButton,
   Icon,
+  useTheme,
 } from '@fluentui/react';
+import type { IStyle } from '@fluentui/merge-styles';
 import { ConfirmationDialog } from '../Modal/ConfirmationDialog';
 import { HiddenCardsManager } from '../Modal/HiddenCardsManager';
 import type { CardOpenBehavior } from '../FunctionCard';
@@ -77,6 +79,7 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
   const [showResetDialog, setShowResetDialog] = React.useState(false);
   const [showHiddenCardsManager, setShowHiddenCardsManager] = React.useState(false);
   const [isCardBehaviorExpanded, setIsCardBehaviorExpanded] = React.useState(false);
+  const theme = useTheme();
 
   // Log when settings panel opens
   React.useEffect(() => {
@@ -110,8 +113,17 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
 
   const panelStyles = React.useMemo<Partial<IPanelStyles>>(
     () => ({
+      root: {
+        ['--panel-bg' as string]: theme.palette.neutralLighterAlt,
+        ['--panel-section-bg' as string]: theme.palette.neutralLighter,
+        ['--panel-card-bg' as string]: theme.palette.white,
+        ['--panel-border' as string]: theme.palette.neutralLight,
+        ['--panel-text' as string]: theme.palette.neutralPrimary,
+        ['--panel-muted' as string]: theme.palette.neutralSecondary,
+        ['--panel-accent' as string]: theme.palette.themePrimary,
+      } as IStyle,
       main: {
-        background: '#F6F6F6',
+        background: theme.palette.neutralLighterAlt,
         boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
         borderLeft: '3px solid #001CAD',
       },
@@ -121,7 +133,7 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
       headerText: {
         fontSize: 20,
         fontWeight: 600,
-        color: '#001CAD',
+        color: theme.palette.neutralPrimary,
       },
       commands: {
         marginTop: 4,
@@ -133,7 +145,7 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
         padding: '0 24px 24px',
       },
     }),
-    []
+    [theme]
   );
 
   const themeOptions: IDropdownOption[] = [

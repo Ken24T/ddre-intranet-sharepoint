@@ -23,8 +23,10 @@ import {
   Icon,
   Dropdown,
   IDropdownOption,
-  getTheme,
+  useTheme,
+  IPanelStyles,
 } from '@fluentui/react';
+import type { IStyle } from '@fluentui/merge-styles';
 import { SearchBox as IntranetSearchBox } from '../../SearchBox';
 import { TaskDetailPanel } from '../components/TaskDetailPanel';
 import { TaskEditor } from '../components/TaskEditor';
@@ -124,7 +126,27 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
   const [cloneDraft, setCloneDraft] = React.useState<CreateTaskRequest | undefined>(
     undefined
   );
-  const theme = getTheme();
+  const theme = useTheme();
+  const panelStyles = React.useMemo<Partial<IPanelStyles>>(
+    () => ({
+      root: {
+        ['--panel-bg' as string]: theme.palette.neutralLighterAlt,
+        ['--panel-section-bg' as string]: theme.palette.neutralLighter,
+        ['--panel-border' as string]: theme.palette.neutralLight,
+        ['--panel-accent' as string]: theme.palette.themePrimary,
+        ['--panel-text' as string]: theme.palette.neutralPrimary,
+        ['--panel-muted' as string]: theme.palette.neutralSecondary,
+      } as IStyle,
+      main: {
+        background: theme.palette.neutralLighterAlt,
+        borderLeft: `3px solid ${theme.palette.themePrimary}`,
+      },
+      headerText: {
+        color: theme.palette.themePrimary,
+      },
+    }),
+    [theme]
+  );
 
   const handleTaskClickSafe = React.useCallback(
     (taskId: string) => {
@@ -680,6 +702,7 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
       headerText={headerText}
       closeButtonAriaLabel="Close tasks panel"
       className={styles.panel}
+      styles={panelStyles}
       isLightDismiss={viewMode === 'list'}
     >
       <div className={styles.panelContent}>{renderContent()}</div>

@@ -6,7 +6,9 @@ import {
   DirectionalHint,
   Icon,
   FocusZone,
+  useTheme,
 } from '@fluentui/react';
+import type { IStyle } from '@fluentui/merge-styles';
 import styles from './UserProfileMenu.module.scss';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
@@ -61,6 +63,32 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const theme = useTheme();
+  const calloutStyles = React.useMemo(
+    () => {
+      const background = theme.isInverted
+        ? theme.palette.neutralLighterAlt
+        : theme.palette.white;
+
+      return {
+        root: {
+          ['--neutralPrimary' as string]: theme.palette.neutralPrimary,
+          ['--neutralSecondary' as string]: theme.palette.neutralSecondary,
+          ['--neutralLight' as string]: theme.palette.neutralLight,
+          ['--neutralLighter' as string]: theme.palette.neutralLighter,
+          ['--neutralLighterAlt' as string]: theme.palette.neutralLighterAlt,
+          ['--neutralTertiary' as string]: theme.palette.neutralTertiary,
+        } as IStyle,
+        calloutMain: {
+          backgroundColor: background,
+          color: theme.palette.neutralPrimary,
+          border: `1px solid ${theme.palette.neutralLight}`,
+          borderRadius: 8,
+        } as IStyle,
+      };
+    },
+    [theme]
+  );
 
   const toggleMenu = (): void => {
     setIsOpen(!isOpen);
@@ -160,6 +188,7 @@ export const UserProfileMenu: React.FC<IUserProfileMenuProps> = ({
           gapSpace={4}
           calloutWidth={280}
           className={styles.callout}
+          styles={calloutStyles}
         >
           <FocusZone>
             <div className={styles.menu}>

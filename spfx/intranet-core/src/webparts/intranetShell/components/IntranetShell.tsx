@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ThemeProvider } from '@fluentui/react';
+import type { ITheme } from '@fluentui/react';
 import styles from './IntranetShell.module.scss';
 import type { IIntranetShellProps } from './IIntranetShellProps';
 
@@ -128,7 +129,18 @@ const toRgba = (hex: string, alpha: number): string => {
   return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
 };
 
-const getHubSurfaceColors = (accentColor?: string): { background: string; border: string } => {
+const getHubSurfaceColors = (
+  accentColor: string | undefined,
+  theme: ITheme,
+  isDark: boolean
+): { background: string; border: string } => {
+  if (isDark) {
+    return {
+      background: theme.palette.neutralLighter,
+      border: theme.palette.neutralLight,
+    };
+  }
+
   if (!accentColor) {
     return {
       background: 'var(--neutralLighter, #f3f2f1)',
@@ -589,10 +601,14 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       hubKey: card.hubKey,
     }));
 
+    // Resolve theme based on mode (light/dark/system)
+    const resolvedTheme = getResolvedTheme(themeMode);
+    const isCurrentlyDark = isDarkTheme(themeMode);
+
     // Get hub-specific colors
     const themeHubKey = isHelpOpen ? 'help' : activeHubKey;
     const hubColor = getHubColor(themeHubKey);
-    const hubSurface = getHubSurfaceColors(hubColor.accent);
+    const hubSurface = getHubSurfaceColors(hubColor.accent, resolvedTheme, isCurrentlyDark);
     const aiAccentColor = hubColor.accent;
     const searchThemeVars = ((): React.CSSProperties => {
       if (isHelpOpen) {
@@ -653,15 +669,12 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       } as React.CSSProperties;
     })();
 
-    // Resolve theme based on mode (light/dark/system)
-    const resolvedTheme = getResolvedTheme(themeMode);
     const themeCssVars = getThemeCssVars(resolvedTheme);
     const shellStyle = {
       ...themeCssVars,
       '--hub-surface-bg': hubSurface.background,
       '--hub-surface-border': hubSurface.border,
     } as React.CSSProperties;
-    const isCurrentlyDark = isDarkTheme(themeMode);
 
     // Build shell class with theme modifier
     const shellClassName = [
