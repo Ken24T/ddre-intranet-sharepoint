@@ -28,21 +28,31 @@ export const TasksPanelContainer: React.FC<ITasksPanelContainerProps> = ({
   onDismiss,
   defaultOwnership,
 }) => {
-  const { state } = useTasks();
-  const { tasks, selectedTask, isLoading, error } = state;
+  const {
+    state,
+    createTask,
+    updateTask,
+    deleteTask,
+    toggleChecklistItem,
+    setFilters,
+    refreshTasks,
+    selectTask,
+  } = useTasks();
+  const { tasks, selectedTask, isLoading, isLoadingTask, error } = state;
   const { overdueCount } = useTaskCounts();
 
   const handleTaskClick = React.useCallback(
-    (taskId: string) => {
-      // In a real implementation, this would load the full task via context
-      console.log('[Tasks] Task clicked:', taskId);
+    async (taskId: string) => {
+      await selectTask(taskId);
     },
-    []
+    [selectTask]
   );
 
   const handleTaskDetailClose = React.useCallback(() => {
-    console.log('[Tasks] Task detail closed');
-  }, []);
+    selectTask(undefined).catch(() => {
+      // Ignore
+    });
+  }, [selectTask]);
 
   const handleAddTask = React.useCallback(() => {
     console.log('[Tasks] Add task clicked');
@@ -56,18 +66,24 @@ export const TasksPanelContainer: React.FC<ITasksPanelContainerProps> = ({
       isLoading={isLoading}
       error={error?.message}
       selectedTask={selectedTask}
-      isSelectedTaskLoading={isLoading}
+      isSelectedTaskLoading={isLoadingTask}
       onTaskClick={handleTaskClick}
       onTaskDetailClose={handleTaskDetailClose}
       onAddTask={handleAddTask}
-      onCreateTask={async () => {
-        // Task creation is handled via mutations
-        return Promise.resolve();
+      onCreateTask={async (request) => {
+        await createTask(request);
       }}
-      onUpdateTask={async () => {
-        // Task update is handled via mutations
-        return Promise.resolve();
+      onUpdateTask={async (taskId, request) => {
+        await updateTask(taskId, request);
       }}
+      onDeleteTask={async (taskId) => {
+        await deleteTask(taskId);
+      }}
+      onChecklistToggle={async (taskId, itemId, completed) => {
+        await toggleChecklistItem(taskId, itemId, completed);
+      }}
+      onFiltersChange={setFilters}
+      onRefresh={refreshTasks}
       defaultOwnership={defaultOwnership}
       headerText={`My Tasks (${overdueCount} overdue)`}
     />

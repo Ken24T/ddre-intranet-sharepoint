@@ -145,6 +145,7 @@ function createMockClient(): MockTasksClient {
         items: mockTasks.map((t) => ({
           id: t.id,
           title: t.title,
+          description: t.description,
           status: t.status,
           priority: t.priority,
           ownership: t.ownership,
@@ -173,11 +174,11 @@ function createMockClient(): MockTasksClient {
 
     createTask: async (req: CreateTaskRequest) => {
       const now = new Date().toISOString();
-      const task: Task = {
+        const task: Task = {
         id: generateId(),
         title: req.title,
         description: req.description,
-        status: 'not-started',
+          status: req.status ?? 'not-started',
         priority: req.priority ?? 'medium',
         ownership: req.ownership,
         assignments: req.assignments?.map((a) => ({
@@ -208,9 +209,19 @@ function createMockClient(): MockTasksClient {
       const index = mockTasks.findIndex((t) => t.id === id);
       if (index === -1) throw new Error(`Task not found: ${id}`);
 
+      const checklist = req.checklist
+        ? req.checklist.map((item, i) => ({
+            id: item.id ?? generateId(),
+            title: item.title,
+            completed: item.completed ?? false,
+            sortOrder: item.sortOrder ?? i,
+          }))
+        : mockTasks[index].checklist;
+
       const updated: Task = {
         ...mockTasks[index],
         ...req,
+        checklist,
         updatedAt: new Date().toISOString(),
         updatedBy: 'mock-user',
         version: (mockTasks[index].version ?? 1) + 1,
@@ -322,6 +333,8 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
     ...defaultState,
     filters: { ...defaultState.filters, ...initialFilters },
   }));
+
+  const manualStatusOverrides = React.useRef<Record<string, boolean>>({});
 
   // Load tasks
   const refreshTasks = React.useCallback(async () => {
@@ -435,6 +448,9 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
   // Update task
   const updateTask = React.useCallback(
     async (taskId: string, request: UpdateTaskRequest): Promise<Task> => {
+      if (request.status) {
+        manualStatusOverrides.current[taskId] = true;
+      }
       const task = await tasksClient.updateTask(taskId, request);
 
       // Update in list
@@ -448,6 +464,12 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
                 status: request.status ?? t.status,
                 priority: request.priority ?? t.priority,
                 dueDate: request.dueDate ?? t.dueDate,
+                checklistProgress: request.checklist
+                  ? {
+                      completed: request.checklist.filter((c) => c.completed).length,
+                      total: request.checklist.length,
+                    }
+                  : t.checklistProgress,
               }
             : t
         ),
@@ -476,6 +498,7 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
   // Quick status change
   const updateTaskStatus = React.useCallback(
     async (taskId: string, status: TaskStatus): Promise<void> => {
+      manualStatusOverrides.current[taskId] = true;
       // Optimistic update
       setState((prev) => ({
         ...prev,
@@ -506,21 +529,43 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
   // Toggle checklist item
   const toggleChecklistItem = React.useCallback(
     async (taskId: string, itemId: string, completed: boolean): Promise<void> => {
-      const task = await tasksClient.toggleChecklistItem(taskId, itemId, completed);
+      const baseTask = await tasksClient.toggleChecklistItem(taskId, itemId, completed);
+
+      const checklist = baseTask.checklist ?? [];
+      const total = checklist.length;
+      const completedCount = checklist.filter((item: TaskChecklist) => item.completed).length;
+
+      let autoStatus: TaskStatus | undefined;
+      const hasManualOverride = manualStatusOverrides.current[taskId];
+      if (!hasManualOverride) {
+        if (total > 0 && completedCount === total) {
+          autoStatus = 'completed';
+        } else if (completedCount > 0) {
+          autoStatus = 'in-progress';
+        } else if (total > 0) {
+          autoStatus = 'not-started';
+        }
+      }
+
+      const finalTask =
+        autoStatus && autoStatus !== baseTask.status
+          ? await tasksClient.updateTaskStatus(taskId, autoStatus)
+          : baseTask;
 
       // Update selected task if viewing
       setState((prev) => ({
         ...prev,
-        selectedTask: prev.selectedTask?.id === taskId ? task : prev.selectedTask,
+        selectedTask: prev.selectedTask?.id === taskId ? finalTask : prev.selectedTask,
         // Update checklist progress in list
         tasks: prev.tasks.map((t) =>
           t.id === taskId
             ? {
                 ...t,
-                checklistProgress: task.checklist
+                status: finalTask.status,
+                checklistProgress: finalTask.checklist
                   ? {
-                      completed: task.checklist.filter((c: TaskChecklist) => c.completed).length,
-                      total: task.checklist.length,
+                      completed: finalTask.checklist.filter((c: TaskChecklist) => c.completed).length,
+                      total: finalTask.checklist.length,
                     }
                   : t.checklistProgress,
               }

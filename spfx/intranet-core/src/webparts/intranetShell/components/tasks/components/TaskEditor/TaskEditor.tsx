@@ -27,7 +27,9 @@ import type {
   UpdateTaskRequest,
   TaskOwnership,
   TaskHubLink,
+  TaskAssignment,
 } from '../../types';
+import { TaskAssignmentPicker } from '../TaskAssignmentPicker';
 import styles from './TaskEditor.module.scss';
 
 export interface ITaskEditorProps {
@@ -45,6 +47,10 @@ export interface ITaskEditorProps {
   defaultHubLink?: TaskHubLink;
   /** Available hubs for linking */
   availableHubs?: Array<{ key: string; text: string }>;
+  /** Initial draft values for create mode */
+  initialDraft?: Partial<CreateTaskRequest>;
+  /** Existing task titles to prevent duplicates */
+  existingTitles?: string[];
   /** Loading state */
   loading?: boolean;
 }
@@ -58,6 +64,10 @@ interface FormState {
   hubId: string;
   checklist: TaskChecklist[];
   newChecklistItem: string;
+  ownershipType: TaskOwnership['type'];
+  ownerId: string;
+  ownerDisplayName: string;
+  assignments: TaskAssignment[];
 }
 
 interface FormErrors {
@@ -79,6 +89,12 @@ const priorityOptions: IDropdownOption[] = [
   { key: 'urgent', text: 'Urgent' },
 ];
 
+const ownershipOptions: IDropdownOption[] = [
+  { key: 'user', text: 'User' },
+  { key: 'team', text: 'Team' },
+  { key: 'group', text: 'Group' },
+];
+
 /** Generate a simple unique ID */
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -92,6 +108,8 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
   defaultOwnership,
   defaultHubLink,
   availableHubs = [],
+  initialDraft,
+  existingTitles = [],
   loading = false,
 }) => {
   const isEditMode = !!task;
@@ -106,6 +124,10 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
     hubId: '',
     checklist: [],
     newChecklistItem: '',
+    ownershipType: defaultOwnership?.type ?? 'user',
+    ownerId: defaultOwnership?.ownerId ?? '',
+    ownerDisplayName: defaultOwnership?.ownerDisplayName ?? '',
+    assignments: [],
   });
 
   const [errors, setErrors] = React.useState<FormErrors>({});
@@ -124,22 +146,43 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
           hubId: task.hubLink?.hubId ?? '',
           checklist: task.checklist ?? [],
           newChecklistItem: '',
+          ownershipType: task.ownership.type,
+          ownerId: task.ownership.ownerId,
+          ownerDisplayName: task.ownership.ownerDisplayName ?? '',
+          assignments: task.assignments ?? [],
         });
       } else {
         setForm({
-          title: '',
-          description: '',
-          status: 'not-started',
-          priority: 'medium',
-          dueDate: undefined,
-          hubId: defaultHubLink?.hubId ?? '',
-          checklist: [],
+          title: initialDraft?.title ?? '',
+          description: initialDraft?.description ?? '',
+          status: initialDraft?.status ?? 'not-started',
+          priority: initialDraft?.priority ?? 'medium',
+          dueDate: initialDraft?.dueDate ? new Date(initialDraft.dueDate) : undefined,
+          hubId: initialDraft?.hubLink?.hubId ?? defaultHubLink?.hubId ?? '',
+          checklist:
+            initialDraft?.checklist?.map((item, index) => ({
+              id: generateId(),
+              title: item.title,
+              completed: false,
+              sortOrder: index,
+            })) ?? [],
           newChecklistItem: '',
+          ownershipType: initialDraft?.ownership?.type ?? defaultOwnership?.type ?? 'user',
+          ownerId: initialDraft?.ownership?.ownerId ?? defaultOwnership?.ownerId ?? '',
+          ownerDisplayName:
+            initialDraft?.ownership?.ownerDisplayName ??
+            defaultOwnership?.ownerDisplayName ??
+            '',
+          assignments:
+            initialDraft?.assignments?.map((assignment) => ({
+              userId: assignment.userId,
+              role: assignment.role,
+            })) ?? [],
         });
       }
       setErrors({});
     }
-  }, [isOpen, task, defaultHubLink]);
+  }, [isOpen, task, defaultHubLink, initialDraft, defaultOwnership]);
 
   // Form field handlers
   const handleTitleChange = React.useCallback(
@@ -189,6 +232,33 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
     },
     []
   );
+
+  const handleOwnershipTypeChange = React.useCallback(
+    (_: React.FormEvent, option?: IDropdownOption) => {
+      if (option) {
+        setForm((prev) => ({ ...prev, ownershipType: option.key as TaskOwnership['type'] }));
+      }
+    },
+    []
+  );
+
+  const handleOwnerIdChange = React.useCallback(
+    (_: React.FormEvent, value?: string) => {
+      setForm((prev) => ({ ...prev, ownerId: value ?? '' }));
+    },
+    []
+  );
+
+  const handleOwnerDisplayNameChange = React.useCallback(
+    (_: React.FormEvent, value?: string) => {
+      setForm((prev) => ({ ...prev, ownerDisplayName: value ?? '' }));
+    },
+    []
+  );
+
+  const handleAssignmentsChange = React.useCallback((assignments: TaskAssignment[]) => {
+    setForm((prev) => ({ ...prev, assignments }));
+  }, []);
 
   // Checklist handlers
   const handleNewChecklistItemChange = React.useCallback(
@@ -250,9 +320,23 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
       newErrors.title = 'Title must be 200 characters or fewer';
     }
 
+    if (!isEditMode) {
+      const normalisedTitles = existingTitles.map((t) => t.trim().toLowerCase());
+      const nextTitle = form.title.trim().toLowerCase();
+      const draftTitle = initialDraft?.title?.trim().toLowerCase();
+      const isSameAsDraft = draftTitle ? draftTitle === nextTitle : false;
+      if (nextTitle && normalisedTitles.indexOf(nextTitle) !== -1 && !isSameAsDraft) {
+        newErrors.title = 'A task with this title already exists';
+      }
+    }
+
+    if (!isEditMode && form.ownershipType !== 'user' && !form.ownerId.trim()) {
+      newErrors.general = 'Please provide an owner ID for team or group tasks.';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [form.title]);
+  }, [form.title, form.ownerId, form.ownershipType, isEditMode, existingTitles, initialDraft]);
 
   // Save handler
   const handleSave = React.useCallback(async () => {
@@ -277,20 +361,35 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
           status: form.status,
           priority: form.priority,
           dueDate: form.dueDate?.toISOString(),
+          checklist: form.checklist.map((item) => ({
+            id: item.id,
+            title: item.title,
+            completed: item.completed,
+            sortOrder: item.sortOrder,
+          })),
         };
         await onSave(updateData);
       } else {
         // Create new task
-        const ownership = defaultOwnership ?? {
-          type: 'user' as const,
-          ownerId: 'current-user', // This would be replaced with actual user ID
+        const ownership: TaskOwnership = {
+          type: form.ownershipType,
+          ownerId:
+            form.ownerId.trim() ||
+            defaultOwnership?.ownerId ||
+            'current-user',
+          ownerDisplayName: form.ownerDisplayName || defaultOwnership?.ownerDisplayName,
         };
 
         const createData: CreateTaskRequest = {
           title: form.title,
           description: form.description || undefined,
+          status: form.status,
           priority: form.priority,
           ownership,
+          assignments: form.assignments.map((assignment) => ({
+            userId: assignment.userId,
+            role: assignment.role,
+          })),
           hubLink,
           dueDate: form.dueDate?.toISOString(),
           checklist: form.checklist.map((item) => ({ title: item.title })),
@@ -390,23 +489,21 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
 
           {/* Status and Priority row */}
           <div className={styles.row}>
-            {isEditMode && (
-              <Dropdown
-                label="Status"
-                options={statusOptions}
-                selectedKey={form.status}
-                onChange={handleStatusChange}
-                disabled={saving}
-                className={styles.halfWidth}
-              />
-            )}
+            <Dropdown
+              label="Status"
+              options={statusOptions}
+              selectedKey={form.status}
+              onChange={handleStatusChange}
+              disabled={saving}
+              className={styles.halfWidth}
+            />
             <Dropdown
               label="Priority"
               options={priorityOptions}
               selectedKey={form.priority}
               onChange={handlePriorityChange}
               disabled={saving}
-              className={isEditMode ? styles.halfWidth : styles.fullWidth}
+              className={styles.halfWidth}
             />
           </div>
 
@@ -421,10 +518,50 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
             allowTextInput
           />
 
+          {/* Ownership */}
+          <div className={styles.section}>
+            <Label>Assign to</Label>
+            <div className={styles.row}>
+              <Dropdown
+                label="Owner type"
+                options={ownershipOptions}
+                selectedKey={form.ownershipType}
+                onChange={handleOwnershipTypeChange}
+                disabled={saving || isEditMode}
+                className={styles.halfWidth}
+              />
+              <TextField
+                label={form.ownershipType === 'user' ? 'Owner user ID' : 'Owner group/team ID'}
+                value={form.ownerId}
+                onChange={handleOwnerIdChange}
+                placeholder={
+                  form.ownershipType === 'user'
+                    ? 'Leave blank to assign to yourself'
+                    : 'Enter group or team ID'
+                }
+                disabled={saving || isEditMode}
+                className={styles.halfWidth}
+              />
+            </div>
+            <TextField
+              label="Owner display name (optional)"
+              value={form.ownerDisplayName}
+              onChange={handleOwnerDisplayNameChange}
+              placeholder="Name shown to users"
+              disabled={saving || isEditMode}
+            />
+            <TaskAssignmentPicker
+              assignments={form.assignments}
+              onChange={handleAssignmentsChange}
+              label="Additional assignees"
+              disabled={saving || isEditMode}
+            />
+          </div>
+
           {/* Hub Link */}
           {hubOptions.length > 1 && (
             <Dropdown
-              label="Link to hub"
+              label="Assign to hub"
               options={hubOptions}
               selectedKey={form.hubId}
               onChange={handleHubChange}

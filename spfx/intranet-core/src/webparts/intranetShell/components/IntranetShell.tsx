@@ -22,6 +22,7 @@ import { HelpCenter } from './HelpCenter/HelpCenter';
 import { AuditLogViewer } from './AuditLogViewer';
 import { SkipLinks } from './SkipLinks';
 import { TasksPanelContainer } from './tasks/widgets/TasksPanelContainer';
+import { MyTasksWidgetContainer } from './tasks/widgets/MyTasksWidgetContainer';
 import { sampleCards, hubInfo } from './data';
 import type { CardOpenBehavior, IFunctionCard } from './FunctionCard';
 import type { IFavouriteCard } from './favouritesTypes';
@@ -733,6 +734,16 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
               </div>
               {activeCard.id === 'audit-logs' ? (
                 <AuditLogViewer />
+              ) : activeCard.id === 'my-tasks' ? (
+                <div className={styles.cardDetailFrame}>
+                  <div className={styles.cardDetailWidget}>
+                    <MyTasksWidgetContainer
+                      accentColor={hubColor.accent}
+                      onViewAll={this.handleToggleTasksPanel}
+                      onAddTask={this.handleToggleTasksPanel}
+                    />
+                  </div>
+                </div>
               ) : (
                 <>
                   <div className={styles.cardDetailFrame}>

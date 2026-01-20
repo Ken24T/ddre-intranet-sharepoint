@@ -6,6 +6,9 @@
 export { MyTasksWidget } from './MyTasksWidget';
 export type { IMyTasksWidgetProps } from './MyTasksWidget';
 
+export { MyTasksWidgetContainer } from './MyTasksWidgetContainer';
+export type { IMyTasksWidgetContainerProps } from './MyTasksWidgetContainer';
+
 export { TasksNavButton } from './TasksNavButton';
 export type { ITasksNavButtonProps } from './TasksNavButton';
 

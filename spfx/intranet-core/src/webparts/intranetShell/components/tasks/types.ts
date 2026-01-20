@@ -155,6 +155,7 @@ export interface Task {
 export interface TaskSummary {
   id: string;
   title: string;
+  description?: string;
   status: TaskStatus;
   priority: TaskPriority;
   ownership: TaskOwnership;
@@ -177,6 +178,7 @@ export interface TaskSummary {
 export interface CreateTaskRequest {
   title: string;
   description?: string;
+  status?: TaskStatus;
   priority?: TaskPriority;
   ownership: TaskOwnership;
   assignments?: Array<{
@@ -200,6 +202,12 @@ export interface UpdateTaskRequest {
   dueDate?: string;
   startDate?: string;
   hubLink?: TaskHubLink;
+  checklist?: Array<{
+    id?: string;
+    title: string;
+    completed?: boolean;
+    sortOrder?: number;
+  }>;
   tags?: string[];
   version?: number;
 }

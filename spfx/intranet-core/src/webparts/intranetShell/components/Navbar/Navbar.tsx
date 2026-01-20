@@ -159,7 +159,7 @@ export const Navbar: React.FC<INavbarProps> = ({
             onClick={onOpenHelp}
             type="button"
           >
-            <Icon iconName="Help" />
+            <Icon iconName="Lightbulb" />
           </button>
         )}
 

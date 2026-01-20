@@ -22,12 +22,15 @@ import {
   MessageBarType,
   IconButton,
   Icon,
+  Dropdown,
+  IDropdownOption,
 } from '@fluentui/react';
 import { TaskDetailPanel } from '../components/TaskDetailPanel';
 import { TaskEditor } from '../components/TaskEditor';
 import { TaskStatusBadge } from '../components/TaskStatusBadge';
 import { TaskPriorityIndicator } from '../components/TaskPriorityIndicator';
 import { TaskDueDateLabel } from '../components/TaskDueDateLabel';
+import { hubInfo } from '../../data';
 import type {
   TaskSummary,
   Task,
@@ -55,7 +58,7 @@ export interface ITasksPanelProps {
   /** Whether the selected task is loading */
   isSelectedTaskLoading?: boolean;
   /** Callback when a task is clicked */
-  onTaskClick: (taskId: string) => void;
+  onTaskClick: (taskId: string) => Promise<void>;
   /** Callback to close task detail */
   onTaskDetailClose: () => void;
   /** Callback when add task is clicked */
@@ -64,8 +67,12 @@ export interface ITasksPanelProps {
   onCreateTask: (data: CreateTaskRequest) => Promise<void>;
   /** Callback to update an existing task */
   onUpdateTask: (taskId: string, data: UpdateTaskRequest) => Promise<void>;
+  /** Callback to delete an existing task */
+  onDeleteTask: (taskId: string) => Promise<void>;
   /** Callback when filters change */
   onFiltersChange?: (filters: TaskFilters) => void;
+  /** Callback when checklist item toggled */
+  onChecklistToggle?: (taskId: string, itemId: string, completed: boolean) => void;
   /** Callback to refresh tasks */
   onRefresh?: () => void;
   /** Default ownership for new tasks */
@@ -75,6 +82,13 @@ export interface ITasksPanelProps {
 }
 
 type ViewMode = 'list' | 'detail' | 'create' | 'edit';
+
+const statusOptions: IDropdownOption[] = [
+  { key: 'not-started', text: 'Not started' },
+  { key: 'in-progress', text: 'In progress' },
+  { key: 'completed', text: 'Completed' },
+  { key: 'cancelled', text: 'Cancelled' },
+];
 
 /**
  * Full task management panel with list, filters, and detail views
@@ -92,7 +106,9 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
   onAddTask,
   onCreateTask,
   onUpdateTask,
+  onDeleteTask,
   onFiltersChange,
+  onChecklistToggle,
   onRefresh,
   defaultOwnership,
   headerText = 'My Tasks',
@@ -101,6 +117,21 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedPivotKey, setSelectedPivotKey] = React.useState<string>('all');
   const [isSaving, setIsSaving] = React.useState(false);
+  const [duplicateSourceId, setDuplicateSourceId] = React.useState<string | undefined>(
+    undefined
+  );
+  const [cloneDraft, setCloneDraft] = React.useState<CreateTaskRequest | undefined>(
+    undefined
+  );
+
+  const handleTaskClickSafe = React.useCallback(
+    (taskId: string) => {
+      onTaskClick(taskId).catch(() => {
+        // Error handled by parent
+      });
+    },
+    [onTaskClick]
+  );
 
   // Reset view when panel opens
   React.useEffect(() => {
@@ -112,10 +143,53 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
 
   // Switch to detail view when a task is selected
   React.useEffect(() => {
-    if (selectedTask) {
+    if (selectedTask && viewMode !== 'edit' && viewMode !== 'create') {
       setViewMode('detail');
     }
-  }, [selectedTask]);
+  }, [selectedTask, viewMode]);
+
+  React.useEffect(() => {
+    if (!duplicateSourceId) return;
+    if (!selectedTask || selectedTask.id !== duplicateSourceId) return;
+
+    const existingTitles = tasks.map((t) => t.title.toLowerCase());
+    const makeDuplicateTitle = (title: string): string => {
+      const base = `${title} (Copy)`;
+      if (existingTitles.indexOf(base.toLowerCase()) === -1) return base;
+      let i = 2;
+      while (existingTitles.indexOf(`${base} ${i}`.toLowerCase()) !== -1) {
+        i += 1;
+      }
+      return `${base} ${i}`;
+    };
+
+    setCloneDraft({
+      title: makeDuplicateTitle(selectedTask.title),
+      description: selectedTask.description,
+      status: selectedTask.status,
+      priority: selectedTask.priority,
+      ownership: selectedTask.ownership,
+      assignments: selectedTask.assignments?.map((assignment) => ({
+        userId: assignment.userId,
+        role: assignment.role,
+      })),
+      hubLink: selectedTask.hubLink,
+      dueDate: selectedTask.dueDate,
+      startDate: selectedTask.startDate,
+      recurrence: selectedTask.recurrence,
+      reminders: selectedTask.reminders?.map((reminder) => ({
+        timing: reminder.timing,
+        offsetMinutes: reminder.offsetMinutes,
+        customDateTime: reminder.customDateTime,
+        channels: reminder.channels,
+        recipientUserIds: reminder.recipientUserIds,
+      })),
+      checklist: selectedTask.checklist?.map((item) => ({
+        title: item.title,
+      })),
+      tags: selectedTask.tags,
+    });
+  }, [duplicateSourceId, selectedTask, tasks]);
 
   const handleBackToList = (): void => {
     setViewMode('list');
@@ -145,23 +219,50 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
       }
       setViewMode('list');
       onTaskDetailClose();
+      setDuplicateSourceId(undefined);
+      setCloneDraft(undefined);
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleCancelEdit = (): void => {
-    if (selectedTask && viewMode === 'edit') {
-      setViewMode('detail');
-    } else {
-      setViewMode('list');
-    }
+    setViewMode('list');
+    onTaskDetailClose();
   };
 
   const handleStatusChange = (taskId: string, status: TaskStatus): void => {
     onUpdateTask(taskId, { status }).catch(() => {
       // Error handled by parent
     });
+  };
+
+  const handleEditTaskFromList = (taskId: string): void => {
+    handleTaskClickSafe(taskId);
+    setViewMode('edit');
+  };
+
+  const handleDeleteTask = (taskId: string, title: string): void => {
+    const confirmDelete = window.confirm(
+      `Delete "${title}"? This can’t be undone.`
+    );
+    if (!confirmDelete) return;
+
+    onDeleteTask(taskId)
+      .then(() => {
+        onTaskDetailClose();
+        setViewMode('list');
+      })
+      .catch(() => {
+        // Error handled by parent
+      });
+  };
+
+  const handleDuplicateTaskFromList = (taskId: string): void => {
+    setDuplicateSourceId(taskId);
+    setCloneDraft(undefined);
+    handleTaskClickSafe(taskId);
+    setViewMode('create');
   };
 
   const handlePivotChange = (item?: PivotItem): void => {
@@ -218,14 +319,39 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
   ];
 
   const filteredTasks = React.useMemo(() => {
-    if (!searchQuery) return tasks;
+    const now = new Date();
+    let scopedTasks = tasks;
+
+    switch (selectedPivotKey) {
+      case 'pending':
+        scopedTasks = tasks.filter(
+          (t) => t.status === 'not-started' || t.status === 'in-progress'
+        );
+        break;
+      case 'completed':
+        scopedTasks = tasks.filter((t) => t.status === 'completed');
+        break;
+      case 'overdue':
+        scopedTasks = tasks.filter(
+          (t) =>
+            t.dueDate &&
+            new Date(t.dueDate) < now &&
+            t.status !== 'completed' &&
+            t.status !== 'cancelled'
+        );
+        break;
+      default:
+        break;
+    }
+
+    if (!searchQuery) return scopedTasks;
     const query = searchQuery.toLowerCase();
-    return tasks.filter(
+    return scopedTasks.filter(
       (t) =>
         t.title.toLowerCase().includes(query) ||
         t.hubDisplayName?.toLowerCase().includes(query)
     );
-  }, [tasks, searchQuery]);
+  }, [tasks, searchQuery, selectedPivotKey]);
 
   // Count tasks by category
   const counts = React.useMemo(() => {
@@ -247,82 +373,85 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
   }, [tasks]);
 
   const renderListView = (): React.ReactElement => (
-    <Stack className={styles.listView} tokens={{ childrenGap: 16 }}>
-      <CommandBar items={commandBarItems} styles={{ root: { padding: 0 } }} />
+    <Stack className={styles.listView}>
+      <div className={styles.listHeader}>
+        <CommandBar items={commandBarItems} styles={{ root: { padding: 0 } }} />
 
-      <SearchBox
-        placeholder="Search tasks..."
-        value={searchQuery}
-        onChange={(_, newValue) => handleSearch(newValue)}
-        className={styles.searchBox}
-      />
+        <SearchBox
+          placeholder="Search tasks..."
+          value={searchQuery}
+          onChange={(_, newValue) => handleSearch(newValue)}
+          className={styles.searchBox}
+        />
+      </div>
 
-      <Pivot
-        selectedKey={selectedPivotKey}
-        onLinkClick={handlePivotChange}
-        className={styles.pivot}
-      >
-        <PivotItem
-          headerText={`All (${counts.all})`}
-          itemKey="all"
-          itemIcon="TaskLogo"
-        />
-        <PivotItem
-          headerText={`Pending (${counts.pending})`}
-          itemKey="pending"
-          itemIcon="Clock"
-        />
-        <PivotItem
-          headerText={`Completed (${counts.completed})`}
-          itemKey="completed"
-          itemIcon="Completed"
-        />
-        {counts.overdue > 0 && (
+      <div className={styles.listBody}>
+        <Pivot
+          selectedKey={selectedPivotKey}
+          onLinkClick={handlePivotChange}
+          className={styles.pivot}
+        >
           <PivotItem
-            headerText={`Overdue (${counts.overdue})`}
-            itemKey="overdue"
-            itemIcon="Warning"
+            headerText={`All (${counts.all})`}
+            itemKey="all"
+            itemIcon="TaskLogo"
           />
+          <PivotItem
+            headerText={`Pending (${counts.pending})`}
+            itemKey="pending"
+            itemIcon="Clock"
+          />
+          <PivotItem
+            headerText={`Completed (${counts.completed})`}
+            itemKey="completed"
+            itemIcon="Completed"
+          />
+          {counts.overdue > 0 && (
+            <PivotItem
+              headerText={`Overdue (${counts.overdue})`}
+              itemKey="overdue"
+              itemIcon="Warning"
+            />
+          )}
+        </Pivot>
+
+        {error && (
+          <MessageBar messageBarType={MessageBarType.error}>{error}</MessageBar>
         )}
-      </Pivot>
 
-      {error && (
-        <MessageBar messageBarType={MessageBarType.error}>{error}</MessageBar>
-      )}
+        {isLoading && (
+          <Stack horizontalAlign="center" className={styles.loading}>
+            <Spinner size={SpinnerSize.medium} label="Loading tasks..." />
+          </Stack>
+        )}
 
-      {isLoading && (
-        <Stack horizontalAlign="center" className={styles.loading}>
-          <Spinner size={SpinnerSize.medium} label="Loading tasks..." />
-        </Stack>
-      )}
+        {!isLoading && !error && filteredTasks.length === 0 && (
+          <Stack className={styles.emptyState} horizontalAlign="center">
+            <Text variant="large">No tasks found</Text>
+            <Text variant="small" className={styles.emptySubtext}>
+              {searchQuery
+                ? 'Try a different search term'
+                : 'Create a task to get started'}
+            </Text>
+          </Stack>
+        )}
 
-      {!isLoading && !error && filteredTasks.length === 0 && (
-        <Stack className={styles.emptyState} horizontalAlign="center">
-          <Text variant="large">No tasks found</Text>
-          <Text variant="small" className={styles.emptySubtext}>
-            {searchQuery
-              ? 'Try a different search term'
-              : 'Create a task to get started'}
-          </Text>
-        </Stack>
-      )}
-
-      {!isLoading && filteredTasks.length > 0 && (
-        <div className={styles.summaryList}>
-          {filteredTasks.map((task) => (
-            <div
-              key={task.id}
-              className={styles.summaryItem}
-              onClick={() => onTaskClick(task.id)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onTaskClick(task.id);
-                }
-              }}
-              role="button"
-              tabIndex={0}
-            >
+        {!isLoading && filteredTasks.length > 0 && (
+          <div className={styles.summaryList}>
+            {filteredTasks.map((task) => (
+              <div
+                key={task.id}
+                className={styles.summaryItem}
+                onClick={() => handleTaskClickSafe(task.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleTaskClickSafe(task.id);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+              >
               <div className={styles.summaryLeading}>
                 <TaskPriorityIndicator
                   priority={task.priority}
@@ -339,6 +468,11 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
                     showIcon={false}
                   />
                 </div>
+                {task.description && (
+                  <div className={styles.summaryDescription}>
+                    {task.description}
+                  </div>
+                )}
                 <div className={styles.summaryMeta}>
                   {task.dueDate && (
                     <TaskDueDateLabel
@@ -362,10 +496,52 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
                   )}
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+              <div className={styles.summaryActions}>
+                <Dropdown
+                  options={statusOptions}
+                  selectedKey={task.status}
+                  onChange={(_, option) => {
+                    if (option) {
+                      handleStatusChange(task.id, option.key as TaskStatus);
+                    }
+                  }}
+                  className={styles.summaryStatus}
+                  onClick={(e) => e.stopPropagation()}
+                  ariaLabel="Change status"
+                />
+                <IconButton
+                  iconProps={{ iconName: 'Copy' }}
+                  title="Duplicate task"
+                  ariaLabel="Duplicate task"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDuplicateTaskFromList(task.id);
+                  }}
+                />
+                <IconButton
+                  iconProps={{ iconName: 'Delete' }}
+                  title="Delete task"
+                  ariaLabel="Delete task"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteTask(task.id, task.title);
+                  }}
+                />
+                <IconButton
+                  iconProps={{ iconName: 'Edit' }}
+                  title="Edit task"
+                  ariaLabel="Edit task"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditTaskFromList(task.id);
+                  }}
+                />
+              </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </Stack>
   );
 
@@ -411,6 +587,7 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
             onDismiss={handleBackToList}
             onEdit={handleEditTask}
             onStatusChange={handleStatusChange}
+            onChecklistToggle={onChecklistToggle}
           />
         )}
       </Stack>
@@ -418,6 +595,15 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
   };
 
   const renderEditView = (): React.ReactElement => {
+    const hubOptions = Object.keys(hubInfo)
+      .filter((key) => key !== 'help' && key !== 'favourites')
+      .map((key) => ({
+        key,
+        text: hubInfo[key as keyof typeof hubInfo].title,
+      }));
+
+    const isDuplicating = viewMode === 'create' && !!duplicateSourceId && !cloneDraft;
+
     return (
       <Stack className={styles.editView}>
         <Stack
@@ -435,14 +621,26 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
           </Text>
         </Stack>
 
-        <TaskEditor
-          task={viewMode === 'edit' ? selectedTask : undefined}
-          isOpen={true}
-          onDismiss={handleCancelEdit}
-          onSave={handleSave}
-          defaultOwnership={defaultOwnership}
-          loading={isSaving}
-        />
+        {(viewMode === 'edit' && !selectedTask) || isDuplicating ? (
+          <Stack horizontalAlign="center" className={styles.loading}>
+            <Spinner
+              size={SpinnerSize.medium}
+              label={isDuplicating ? 'Preparing duplicate...' : 'Loading task...'}
+            />
+          </Stack>
+        ) : (
+          <TaskEditor
+            task={viewMode === 'edit' ? selectedTask : undefined}
+            isOpen={true}
+            onDismiss={handleCancelEdit}
+            onSave={handleSave}
+            defaultOwnership={defaultOwnership}
+            availableHubs={hubOptions}
+            loading={isSaving}
+            initialDraft={viewMode === 'create' ? cloneDraft : undefined}
+            existingTitles={tasks.map((t) => t.title)}
+          />
+        )}
       </Stack>
     );
   };
