@@ -9,7 +9,7 @@ import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
 import { IReadonlyTheme } from "@microsoft/sp-component-base";
 
 import * as strings from "IntranetShellWebPartStrings";
-import IntranetShell from "./components/IntranetShell";
+import { IntranetShellWithTasks } from "./components/IntranetShellWithTasks";
 import { IntranetShellWrapper } from "./components/IntranetShellWrapper";
 import { IIntranetShellProps } from "./components/IIntranetShellProps";
 
@@ -23,7 +23,7 @@ export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntrane
 
   public render(): void {
     const shellElement: React.ReactElement<IIntranetShellProps> =
-      React.createElement(IntranetShell, {
+      React.createElement(IntranetShellWithTasks, {
         userDisplayName: this.context.pageContext.user.displayName,
         userEmail: this.context.pageContext.user.email || '',
         siteTitle: this.context.pageContext.web.title,

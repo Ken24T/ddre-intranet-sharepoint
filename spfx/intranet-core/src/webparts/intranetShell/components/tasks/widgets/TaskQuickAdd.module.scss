@@ -1,0 +1,73 @@
+@import '~@fluentui/react/dist/sass/References.scss';
+
+.callout {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.container {
+  padding: 16px;
+  min-width: 320px;
+  max-width: 400px;
+}
+
+.header {
+  margin-bottom: 4px;
+}
+
+.title {
+  flex: 1;
+  font-weight: 600;
+  color: $ms-color-neutralPrimary;
+}
+
+.closeButton {
+  margin-right: -8px;
+  color: $ms-color-neutralSecondary;
+
+  &:hover {
+    color: $ms-color-neutralPrimary;
+  }
+}
+
+.hubContext {
+  padding: 8px 12px;
+  background-color: $ms-color-neutralLighterAlt;
+  border-radius: 4px;
+  border-left: 3px solid $ms-color-themePrimary;
+}
+
+.hubLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: $ms-color-neutralSecondary;
+}
+
+.hubIcon {
+  font-size: 12px;
+}
+
+.optionButton {
+  flex-shrink: 0;
+}
+
+.actions {
+  margin-left: auto;
+}
+
+.spinner {
+  margin-right: 8px;
+}
+
+// Dark theme support
+:global(.ms-Fabric--theme-dark) {
+  .callout {
+    background-color: $ms-color-neutralLighter;
+  }
+
+  .hubContext {
+    background-color: $ms-color-neutralLight;
+  }
+}

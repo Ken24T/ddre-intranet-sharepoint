@@ -279,6 +279,191 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [ ] 14.15.2 Define compliance review process
       (audit access, review cadence)
 
+### Phase 15: User Tasks & Reminders
+
+A comprehensive task management system supporting personal, shared, and team-based tasks
+with optional hub association and recurring schedules.
+
+#### 15.1 Data Model & Schema
+
+- [x] 15.1.1 Define task entity schema (contracts/tasks.schema.json)
+      ```
+      Task {
+        id: string (GUID)
+        title: string (required, max 200 chars)
+        description: string (optional, markdown supported)
+        status: 'pending' | 'in-progress' | 'completed' | 'cancelled'
+        priority: 'low' | 'normal' | 'high' | 'urgent'
+        createdBy: UserRef
+        createdAt: datetime
+        updatedAt: datetime
+        dueDate: datetime (optional)
+        completedAt: datetime (optional)
+        completedBy: UserRef (optional)
+      }
+      ```
+- [x] 15.1.2 Define ownership model
+      ```
+      TaskOwnership {
+        taskId: string
+        ownerType: 'user' | 'team' | 'group'
+        ownerId: string (user email, team ID, or Entra group ID)
+        role: 'owner' | 'assignee' | 'viewer'
+      }
+      ```
+      - Owner: can edit, delete, reassign
+      - Assignee: can update status, add comments
+      - Viewer: read-only access
+- [x] 15.1.3 Define hub association (optional)
+      ```
+      TaskHubLink {
+        taskId: string
+        hubKey: 'sales' | 'property-management' | 'office' | 'administration' | null
+        toolKey: string (optional, e.g., 'property-inspections')
+        entityId: string (optional, link to specific record)
+      }
+      ```
+- [x] 15.1.4 Define recurrence model
+      ```
+      TaskRecurrence {
+        taskId: string
+        pattern: 'daily' | 'weekly' | 'fortnightly' | 'monthly' | 'yearly' | 'custom'
+        interval: number (e.g., every 2 weeks)
+        daysOfWeek: number[] (for weekly: 0=Sun, 1=Mon, etc.)
+        dayOfMonth: number (for monthly)
+        endType: 'never' | 'after-count' | 'by-date'
+        endAfterCount: number (optional)
+        endByDate: datetime (optional)
+        nextOccurrence: datetime
+      }
+      ```
+- [x] 15.1.5 Define reminder model
+      ```
+      TaskReminder {
+        id: string
+        taskId: string
+        userId: string (who receives reminder)
+        reminderType: 'before-due' | 'on-due' | 'custom'
+        offsetMinutes: number (negative = before due)
+        channel: 'intranet' | 'email' | 'teams' | 'all'
+        sent: boolean
+        sentAt: datetime (optional)
+      }
+      ```
+- [x] 15.1.6 Define comments/activity model
+      ```
+      TaskComment {
+        id: string
+        taskId: string
+        authorId: string
+        content: string (markdown)
+        createdAt: datetime
+        editedAt: datetime (optional)
+        type: 'comment' | 'status-change' | 'assignment' | 'system'
+      }
+      ```
+
+#### 15.2 API Contracts
+
+- [x] 15.2.1 Create tasks-api-proxy.openapi.yml (contracts/tasks-api-proxy.openapi.yml)
+      (CRUD operations, filtering, search)
+- [x] 15.2.2 Define query endpoints
+      - GET /tasks (my tasks, with filters)
+      - GET /tasks/assigned (tasks assigned to me)
+      - GET /tasks/team/{teamId} (team tasks)
+      - GET /tasks/hub/{hubKey} (hub-specific tasks)
+      - GET /tasks/{id} (single task with comments)
+- [x] 15.2.3 Define mutation endpoints
+      - POST /tasks (create)
+      - PUT /tasks/{id} (update)
+      - PATCH /tasks/{id}/status (quick status change)
+      - DELETE /tasks/{id} (soft delete)
+      - POST /tasks/{id}/comments (add comment)
+- [x] 15.2.4 Define recurrence endpoints
+      - POST /tasks/{id}/recurrence (set up recurrence)
+      - DELETE /tasks/{id}/recurrence (remove recurrence)
+      - POST /tasks/{id}/skip-next (skip next occurrence)
+
+#### 15.3 API Client (pkg-api-client)
+
+- [x] 15.3.1 Create TasksClient class (pkg-api-client/src/clients/TasksClient.ts)
+      (typed methods for all endpoints)
+- [x] 15.3.2 Add optimistic updates for status changes (cache invalidation pattern)
+- [x] 15.3.3 Add local caching with background sync (30s TTL cache)
+- [ ] 15.3.4 Add offline queue for mutations
+
+#### 15.4 React Context & Hooks
+
+- [x] 15.4.1 Create TasksContext and TasksProvider (tasks/TasksContext.tsx)
+- [x] 15.4.2 Create useTasks hook (list with filters)
+- [x] 15.4.3 Create useTask hook (single task)
+- [x] 15.4.4 Create useTaskMutations hook (create, update, delete)
+- [x] 15.4.5 Create useTaskReminders hook (upcoming reminders)
+- [x] 15.4.6 Create useTaskList, useTaskCounts, useHubTasks hooks (tasks/hooks.ts)
+- [x] 15.4.7 Create task types and helpers (tasks/types.ts)
+
+#### 15.5 UI Components
+
+- [x] 15.5.1 TaskList component
+      (filterable, sortable list view)
+- [x] 15.5.2 TaskCard component
+      (compact card for grid/kanban views)
+- [x] 15.5.3 TaskDetailPanel component
+      (full task view with comments, activity)
+- [x] 15.5.4 TaskEditor component
+      (create/edit form with validation)
+- [x] 15.5.5 TaskStatusBadge component
+      (coloured status indicator)
+- [x] 15.5.6 TaskPriorityIndicator component
+      (visual priority marker)
+- [x] 15.5.7 TaskDueDateLabel component
+      (due date with urgency indicators)
+- [x] 15.5.8 TaskChecklistProgress component
+      (visual progress for checklists)
+- [x] 15.5.9 TaskAssignmentPicker component
+      (user/team/group selection with role assignment)
+- [x] 15.5.10 TaskRecurrenceEditor component
+      (pattern configuration UI with all recurrence patterns)
+- [x] 15.5.11 TaskReminderConfig component
+      (reminder setup UI with channels and timing)
+
+#### 15.6 Shell Integration
+
+- [ ] 15.6.1 Add "My Tasks" widget to Home dashboard
+      (top 5 pending tasks, quick actions)
+- [ ] 15.6.2 Add Tasks icon to navbar
+      (with badge showing pending count)
+- [ ] 15.6.3 Add Tasks panel (slide-out or modal)
+      (full task management without leaving context)
+- [ ] 15.6.4 Add task quick-add from any hub
+      (auto-link to current hub/tool context)
+- [ ] 15.6.5 Add task reminders to notification system
+      (integrate with existing notifications)
+
+#### 15.7 Hub-Specific Views
+
+- [ ] 15.7.1 Add Tasks card to each hub's card grid
+      (filtered to hub's tasks)
+- [ ] 15.7.2 Add "Create Task" action to hub context menus
+      (pre-fill hub association)
+- [ ] 15.7.3 Add task linking from business records
+      (e.g., create task from property inspection)
+
+#### 15.8 Permissions & Security
+
+- [ ] 15.8.1 Define task visibility rules
+      (owner, assignees, team members, admins)
+- [ ] 15.8.2 Implement permission checks in API
+- [ ] 15.8.3 Add admin task management view
+      (all tasks, reassignment, bulk actions)
+
+#### 15.9 Testing
+
+- [ ] 15.9.1 Unit tests for TasksClient
+- [ ] 15.9.2 Unit tests for TasksContext/hooks
+- [ ] 15.9.3 Unit tests for UI components
+- [ ] 15.9.4 E2E tests for task workflows
+
 ---
 
 ## 2. Shared Packages

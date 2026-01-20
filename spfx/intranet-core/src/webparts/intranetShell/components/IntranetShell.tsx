@@ -21,6 +21,8 @@ import { AiAssistant } from './AiAssistant';
 import { HelpCenter } from './HelpCenter/HelpCenter';
 import { AuditLogViewer } from './AuditLogViewer';
 import { SkipLinks } from './SkipLinks';
+import { TasksPanelContainer } from './tasks/widgets/TasksPanelContainer';
+import { MyTasksWidgetContainer } from './tasks/widgets/MyTasksWidgetContainer';
 import { sampleCards, hubInfo } from './data';
 import type { CardOpenBehavior, IFunctionCard } from './FunctionCard';
 import type { IFavouriteCard } from './favouritesTypes';
@@ -56,6 +58,8 @@ export interface IIntranetShellState {
   isHelpOpen: boolean;
   /** User favourites (per-user storage) */
   favourites: IFavouriteCard[];
+  /** Tasks panel open state */
+  isTasksPanelOpen: boolean;
 }
 
 /**
@@ -186,6 +190,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       isAiAssistantHidden: isAiHidden,
       isHelpOpen: false,
       favourites: loadFromStorage(STORAGE_KEYS.FAVOURITES, []),
+      isTasksPanelOpen: false,
     };
   }
 
@@ -497,6 +502,16 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     this.setState({ isHelpOpen: false });
   };
 
+  private handleToggleTasksPanel = (): void => {
+    this.setState((prevState) => ({
+      isTasksPanelOpen: !prevState.isTasksPanelOpen,
+    }));
+  };
+
+  private handleCloseTasksPanel = (): void => {
+    this.setState({ isTasksPanelOpen: false });
+  };
+
   private handleCardHelp = (card: IFunctionCard): void => {
     openMockHelpWindow({
       title: card.title,
@@ -540,6 +555,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       isAiAssistantHidden,
       isHelpOpen,
       favourites,
+      isTasksPanelOpen,
     } = this.state;
 
     // Get cards for current hub
@@ -678,6 +694,10 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           isAiAssistantHidden={isAiAssistantHidden}
           onShowAiAssistant={this.handleShowAiAssistant}
           onHideAiAssistant={this.handleHideAiAssistant}
+          pendingTaskCount={0}
+          isTasksLoading={false}
+          isTasksPanelOpen={isTasksPanelOpen}
+          onToggleTasks={this.handleToggleTasksPanel}
         />
         <Sidebar
           isCollapsed={isSidebarCollapsed}
@@ -714,6 +734,16 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
               </div>
               {activeCard.id === 'audit-logs' ? (
                 <AuditLogViewer />
+              ) : activeCard.id === 'my-tasks' ? (
+                <div className={styles.cardDetailFrame}>
+                  <div className={styles.cardDetailWidget}>
+                    <MyTasksWidgetContainer
+                      accentColor={hubColor.accent}
+                      onViewAll={this.handleToggleTasksPanel}
+                      onAddTask={this.handleToggleTasksPanel}
+                    />
+                  </div>
+                </div>
               ) : (
                 <>
                   <div className={styles.cardDetailFrame}>
@@ -839,6 +869,12 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           isAiAssistantHidden={isAiAssistantHidden}
           onShowAiAssistant={this.handleShowAiAssistant}
           onHideAiAssistant={this.handleHideAiAssistant}
+        />
+
+        {/* Tasks Panel - Phase 15 */}
+        <TasksPanelContainer
+          isOpen={isTasksPanelOpen}
+          onDismiss={this.handleCloseTasksPanel}
         />
 
         {/* AI Assistant */}

@@ -10,17 +10,19 @@
 
 /**
  * Primary brand colors.
- * These define the core DDRE identity.
+ * These define the core DDRE (Doug Disher Real Estate) identity.
  */
 export const brandColors = {
-  /** Main brand color - used for primary actions, links */
-  primary: '#0078d4',
+  /** DDRE Blue - main brand colour for primary actions, links, headers */
+  primary: '#001CAD',
   /** Darker variant - used for hover states */
-  primaryDark: '#005a9e',
-  /** Lighter variant - used for backgrounds, highlights */
-  primaryLight: '#c7e0f4',
+  primaryDark: '#001589',
+  /** Light Blue - used for backgrounds, highlights, panels */
+  primaryLight: '#EEF2F8',
+  /** Eggshell - used for page backgrounds, cards */
+  eggshell: '#F6F6F6',
   /** Accent color - used for secondary emphasis */
-  accent: '#00bcf2',
+  accent: '#001CAD',
 } as const;
 
 // =============================================================================
@@ -44,8 +46,8 @@ export interface HubColor {
  */
 export const hubColors: Record<string, HubColor> = {
   home: {
-    gradient: 'linear-gradient(135deg, #0078d4 0%, #005a9e 100%)',
-    accent: '#0078d4',
+    gradient: 'linear-gradient(135deg, #001CAD 0%, #001589 100%)',
+    accent: '#001CAD',
   },
   library: {
     gradient: 'linear-gradient(135deg, #107c10 0%, #0b5c0b 100%)',

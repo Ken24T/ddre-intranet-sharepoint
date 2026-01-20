@@ -1,0 +1,85 @@
+// Task priority indicator styles
+
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  // Size variants
+  &.small {
+    .icon {
+      font-size: 12px;
+    }
+    .label {
+      font-size: 11px;
+    }
+  }
+
+  &.medium {
+    .icon {
+      font-size: 14px;
+    }
+    .label {
+      font-size: 12px;
+    }
+  }
+
+  &.large {
+    .icon {
+      font-size: 16px;
+    }
+    .label {
+      font-size: 14px;
+    }
+  }
+
+  // Priority variants
+  &.urgent {
+    .icon {
+      color: #d13438; // Error red
+    }
+    .label {
+      color: #a4262c;
+      font-weight: 600;
+    }
+  }
+
+  &.high {
+    .icon {
+      color: #ff8c00; // Dark orange
+    }
+    .label {
+      color: #c45d00;
+      font-weight: 500;
+    }
+  }
+
+  &.medium {
+    .icon {
+      color: #0078d4; // Info blue
+    }
+    .label {
+      color: #004578;
+    }
+  }
+
+  &.low {
+    .icon {
+      color: #8a8886; // Grey
+    }
+    .label {
+      color: #605e5c;
+    }
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.label {
+  line-height: 1;
+  white-space: nowrap;
+}

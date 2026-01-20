@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Icon, Toggle } from '@fluentui/react';
 import { UserProfileMenu, ThemeMode } from '../UserProfileMenu';
 import { SearchBox, ISearchResult } from '../SearchBox';
+import { TasksNavButton } from '../tasks/widgets/TasksNavButton';
 import styles from '../IntranetShell.module.scss';
 
 export interface INavbarProps {
@@ -37,6 +38,14 @@ export interface INavbarProps {
   onShowAiAssistant?: () => void;
   /** Called when user wants to hide AI Assistant */
   onHideAiAssistant?: () => void;
+  /** Number of pending tasks */
+  pendingTaskCount?: number;
+  /** Whether tasks are loading */
+  isTasksLoading?: boolean;
+  /** Whether tasks panel is open */
+  isTasksPanelOpen?: boolean;
+  /** Called when user clicks tasks button */
+  onToggleTasks?: () => void;
 }
 
 /**
@@ -64,6 +73,10 @@ export const Navbar: React.FC<INavbarProps> = ({
   isAiAssistantHidden = false,
   onShowAiAssistant,
   onHideAiAssistant,
+  pendingTaskCount = 0,
+  isTasksLoading = false,
+  isTasksPanelOpen = false,
+  onToggleTasks,
 }) => {
   return (
     <nav
@@ -123,6 +136,16 @@ export const Navbar: React.FC<INavbarProps> = ({
       )}
 
       <div className={styles.navbarActions}>
+        {/* Tasks button */}
+        {onToggleTasks && (
+          <TasksNavButton
+            pendingCount={pendingTaskCount}
+            isLoading={isTasksLoading}
+            isActive={isTasksPanelOpen}
+            onClick={onToggleTasks}
+          />
+        )}
+
         {/* Notifications placeholder - Phase 5 */}
         <button className={styles.toggleButton} aria-label="Notifications" title="Notifications">
           <Icon iconName="Ringer" />
@@ -136,7 +159,7 @@ export const Navbar: React.FC<INavbarProps> = ({
             onClick={onOpenHelp}
             type="button"
           >
-            <Icon iconName="Help" />
+            <Icon iconName="Lightbulb" />
           </button>
         )}
 

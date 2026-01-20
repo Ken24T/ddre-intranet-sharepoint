@@ -1,0 +1,84 @@
+// Task status badge styles
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  // Size variants
+  &.small {
+    padding: 2px 6px;
+    font-size: 11px;
+
+    .icon {
+      font-size: 10px;
+    }
+  }
+
+  &.medium {
+    padding: 4px 10px;
+    font-size: 12px;
+
+    .icon {
+      font-size: 12px;
+    }
+  }
+
+  &.large {
+    padding: 6px 14px;
+    font-size: 14px;
+
+    .icon {
+      font-size: 14px;
+    }
+  }
+
+  // Status variants
+  &.not-started {
+    background-color: #f3f2f1;
+    color: #605e5c;
+
+    .icon {
+      color: #8a8886;
+    }
+  }
+
+  &.in-progress {
+    background-color: #deecf9;
+    color: #004578;
+
+    .icon {
+      color: #0078d4;
+    }
+  }
+
+  &.completed {
+    background-color: #dff6dd;
+    color: #0b6a0b;
+
+    .icon {
+      color: #107c10;
+    }
+  }
+
+  &.cancelled {
+    background-color: #fde7e9;
+    color: #a4262c;
+
+    .icon {
+      color: #d13438;
+    }
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+}
+
+.label {
+  line-height: 1;
+}

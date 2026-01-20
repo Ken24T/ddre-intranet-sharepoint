@@ -1,0 +1,121 @@
+// Task editor panel styles
+
+.panel {
+  :global(.ms-Panel-content) {
+    padding: 0 24px 24px;
+  }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+}
+
+.errorBar {
+  margin-bottom: 8px;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.halfWidth {
+  flex: 1;
+  min-width: 0;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.checklistSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checklistItems {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.checklistItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: #faf9f8;
+  border-radius: 4px;
+
+  &:hover {
+    background: #f3f2f1;
+
+    .removeButton {
+      opacity: 1;
+    }
+  }
+}
+
+.checklistCheckbox {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.checklistText {
+  flex: 1;
+  font-size: 14px;
+  color: #323130;
+
+  &.completed {
+    text-decoration: line-through;
+    color: #8a8886;
+  }
+}
+
+.removeButton {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  color: #a4262c;
+
+  &:hover {
+    background: #fde7e9;
+  }
+}
+
+.addChecklistItem {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.checklistInput {
+  flex: 1;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid #edebe9;
+}
