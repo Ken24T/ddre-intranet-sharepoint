@@ -111,9 +111,9 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
   const panelStyles = React.useMemo<Partial<IPanelStyles>>(
     () => ({
       main: {
-        background: 'var(--color-background, #ffffff)',
+        background: '#F6F6F6',
         boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
-        borderLeft: '1px solid var(--neutralLight, #edebe9)',
+        borderLeft: '3px solid #001CAD',
       },
       header: {
         padding: '24px 24px 8px',
@@ -121,7 +121,7 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
       headerText: {
         fontSize: 20,
         fontWeight: 600,
-        color: 'var(--neutralPrimary, #323130)',
+        color: '#001CAD',
       },
       commands: {
         marginTop: 4,
@@ -244,6 +244,7 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
         onRenderFooterContent={onRenderFooterContent}
         isFooterAtBottom={true}
         styles={panelStyles}
+        className={styles.panel}
       >
         <div className={styles.content}>
           {/* Appearance Section */}

@@ -1,12 +1,19 @@
+.panel {
+  :global(.ms-Panel-content) {
+    background: #f6f6f6;
+  }
+}
+
 .content {
   padding: 8px 24px 24px;
+  background: #f6f6f6;
 }
 
 .section {
   margin-bottom: 20px;
   padding: 16px 16px 18px;
-  background: var(--neutralLighterAlt, #faf9f8);
-  border: 1px solid var(--neutralLight, #edebe9);
+  background: #eef2f8;
+  border: 1px solid rgba(0, 28, 173, 0.12);
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
@@ -14,7 +21,7 @@
 .sectionTitle {
   font-size: 14px;
   font-weight: 600;
-  color: var(--neutralPrimary, #323130);
+  color: #001cad;
   margin: 0 0 12px 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -65,8 +72,8 @@
   font-size: 14px;
   margin: 0;
   padding: 12px;
-  background-color: var(--white, #ffffff);
-  border: 1px solid var(--neutralLight, #edebe9);
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 28, 173, 0.12);
   border-radius: 8px;
 }
 
@@ -86,8 +93,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px;
-  background-color: var(--neutralLighterAlt, #faf9f8);
-  border: 1px solid var(--neutralLight, #edebe9);
+  background-color: #eef2f8;
+  border: 1px solid rgba(0, 28, 173, 0.12);
   border-radius: 4px;
   transition: background-color 0.15s ease;
 
@@ -115,7 +122,7 @@
 }
 
 .restoreButton {
-  color: var(--themePrimary, #0078d4);
+  color: #001cad;
 
   &:hover {
     background-color: var(--themeLight, #c7e0f4);
@@ -124,7 +131,7 @@
 
 .manageButton {
   margin-top: 8px;
-  color: var(--themePrimary, #0078d4);
+  color: #001cad;
   padding-left: 0;
 
   &:hover {
@@ -145,8 +152,8 @@
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  background-color: var(--neutralLighterAlt, #faf9f8);
-  border: 1px solid var(--neutralLight, #edebe9);
+  background-color: #eef2f8;
+  border: 1px solid rgba(0, 28, 173, 0.12);
   border-radius: 8px;
 }
 
@@ -170,8 +177,8 @@
   justify-content: space-between;
   gap: 16px;
   padding: 12px;
-  background-color: var(--white, #ffffff);
-  border: 1px solid var(--neutralLight, #edebe9);
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 28, 173, 0.12);
   border-radius: 8px;
 }
 

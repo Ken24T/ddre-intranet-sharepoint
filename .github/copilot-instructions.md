@@ -55,6 +55,12 @@ Use these configs for API endpoints and feature flags. Never hard-code environme
 
 SPFx solutions consume these via local npm install (not published to registry yet).
 
+## DDRE Brand Colours
+
+- **DDRE Blue:** `#001CAD`
+- **Eggshell:** `#F6F6F6`
+- **Light Blue:** `#EEF2F8`
+
 ## Code Patterns
 
 ### SPFx Web Parts

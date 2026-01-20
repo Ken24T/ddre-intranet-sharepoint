@@ -15,7 +15,6 @@ import {
   ICommandBarItemProps,
   Pivot,
   PivotItem,
-  SearchBox,
   Spinner,
   SpinnerSize,
   MessageBar,
@@ -24,7 +23,9 @@ import {
   Icon,
   Dropdown,
   IDropdownOption,
+  getTheme,
 } from '@fluentui/react';
+import { SearchBox as IntranetSearchBox } from '../../SearchBox';
 import { TaskDetailPanel } from '../components/TaskDetailPanel';
 import { TaskEditor } from '../components/TaskEditor';
 import { TaskStatusBadge } from '../components/TaskStatusBadge';
@@ -123,6 +124,7 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
   const [cloneDraft, setCloneDraft] = React.useState<CreateTaskRequest | undefined>(
     undefined
   );
+  const theme = getTheme();
 
   const handleTaskClickSafe = React.useCallback(
     (taskId: string) => {
@@ -376,13 +378,24 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
     <Stack className={styles.listView}>
       <div className={styles.listHeader}>
         <CommandBar items={commandBarItems} styles={{ root: { padding: 0 } }} />
-
-        <SearchBox
-          placeholder="Search tasks..."
-          value={searchQuery}
-          onChange={(_, newValue) => handleSearch(newValue)}
-          className={styles.searchBox}
-        />
+        <div className={styles.searchBox}>
+          <IntranetSearchBox
+            placeholder="Search tasks..."
+            onQueryChange={handleSearch}
+            defaultExpanded={true}
+            collapseOnBlur={false}
+            showResults={false}
+            themeVars={{
+              width: '100%',
+              ['--search-input-bg' as string]: theme.palette.white,
+              ['--search-icon-color' as string]: theme.palette.neutralPrimary,
+              ['--search-input-text' as string]: theme.palette.neutralPrimary,
+              ['--search-input-placeholder' as string]: theme.palette.neutralSecondary,
+              ['--search-clear-color' as string]: theme.palette.neutralSecondary,
+              ['--search-clear-hover-color' as string]: theme.palette.neutralPrimary,
+            }}
+          />
+        </div>
       </div>
 
       <div className={styles.listBody}>

@@ -23,12 +23,20 @@ export interface ISearchBoxProps {
   placeholder?: string;
   /** Called when search is submitted (Enter key or click result) */
   onSearch?: (query: string) => void;
+  /** Called when query changes */
+  onQueryChange?: (query: string) => void;
   /** Called when a result is selected */
   onResultSelect?: (result: ISearchResult) => void;
   /** Optional: provide custom search function for quick results */
   searchFn?: (query: string) => Promise<ISearchResult[]>;
   /** Optional theme variables for styling */
   themeVars?: React.CSSProperties;
+  /** Start expanded (shows input by default) */
+  defaultExpanded?: boolean;
+  /** Disable collapsing on outside click */
+  collapseOnBlur?: boolean;
+  /** Toggle quick results dropdown */
+  showResults?: boolean;
 }
 
 // =============================================================================
@@ -108,12 +116,16 @@ function getTypeLabel(type: SearchResultType): string {
 export const SearchBox: React.FC<ISearchBoxProps> = ({
   placeholder = 'Search pages, documents, people...',
   onSearch,
+  onQueryChange,
   onResultSelect,
   searchFn = mockSearch,
   themeVars,
+  defaultExpanded = false,
+  collapseOnBlur = true,
+  showResults = true,
 }) => {
   const audit = useAudit();
-  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
   const [query, setQuery] = React.useState('');
   const [results, setResults] = React.useState<ISearchResult[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -137,6 +149,13 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
   React.useEffect(() => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
+    }
+
+    if (!showResults) {
+      setResults([]);
+      setShowDropdown(false);
+      setHasSearched(false);
+      return;
     }
 
     if (query.length < 2) {
@@ -168,13 +187,15 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
         clearTimeout(debounceRef.current);
       }
     };
-  }, [query, searchFn]);
+  }, [query, searchFn, showResults]);
 
   // Click outside to close
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent): void => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsExpanded(false);
+        if (collapseOnBlur) {
+          setIsExpanded(false);
+        }
         setShowDropdown(false);
       }
     };
@@ -196,11 +217,17 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
 
   const handleClear = (): void => {
     setQuery('');
+    onQueryChange?.('');
     setResults([]);
     setShowDropdown(false);
     setSelectedIndex(-1);
     setHasSearched(false);
     inputRef.current?.focus();
+  };
+
+  const handleQueryChange = (value: string): void => {
+    setQuery(value);
+    onQueryChange?.(value);
   };
 
   const handleClose = (): void => {
@@ -291,7 +318,7 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
             className={styles.searchInput}
             placeholder={placeholder}
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={(e) => handleQueryChange(e.target.value)}
             onKeyDown={handleKeyDown}
             aria-label="Search"
             aria-expanded={showDropdown}
@@ -314,7 +341,7 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
       )}
 
       {/* Quick Results Dropdown */}
-      {showDropdown && isExpanded && (
+      {showResults && showDropdown && isExpanded && (
         <div 
           className={styles.dropdown}
           role="listbox"

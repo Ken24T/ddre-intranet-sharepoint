@@ -1,6 +1,15 @@
 @import '@fluentui/react/dist/sass/References.scss';
 
 .panel {
+  :global(.ms-Panel-main) {
+    background: #f6f6f6;
+    border-left: 3px solid #001cad;
+  }
+
+  :global(.ms-Panel-headerText) {
+    color: #001cad;
+  }
+
   :global(.ms-Panel-content) {
     padding: 0;
     height: 100%;
@@ -32,6 +41,7 @@
   overflow: hidden;
   flex: 1;
   min-height: 0;
+  background: #f6f6f6;
 }
 
 .listView {
@@ -39,6 +49,7 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  width: 100%;
 }
 
 .listHeader {
@@ -47,8 +58,8 @@
   gap: 12px;
   padding: 12px 16px 16px;
   border-radius: 12px;
-  background: $ms-color-neutralLighterAlt;
-  border: 1px solid $ms-color-neutralLight;
+  background: #eef2f8;
+  border: 1px solid rgba(0, 28, 173, 0.15);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
@@ -64,6 +75,7 @@
 
 .searchBox {
   margin-bottom: 0;
+  width: 100%;
 }
 
 .pivot {
