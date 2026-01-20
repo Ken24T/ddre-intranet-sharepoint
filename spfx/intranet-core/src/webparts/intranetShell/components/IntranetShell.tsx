@@ -692,7 +692,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           userDisplayName={userDisplayName}
           userEmail={userEmail}
           hubGradient={hubColor.gradient}
-          textColor={isHelpOpen ? '#4a3200' : undefined}
+          textColor={isHelpOpen ? '#3b2a00' : undefined}
           searchThemeVars={searchThemeVars}
           avatarAccentColor={aiAccentColor}
           themeMode={themeMode}
@@ -785,8 +785,14 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
             <>
               <div className={styles.heroBanner} style={{ background: hubColor.gradient }}>
                 <div className={styles.heroContent}>
-                  <h1 className={styles.heroTitle}>{currentHub.title}</h1>
-                  <p className={styles.heroSubtitle}>
+                  <h1
+                    className={`${styles.heroTitle} ${activeHubKey === 'home' ? styles.heroTitleHome : ''}`}
+                  >
+                    {currentHub.title}
+                  </h1>
+                  <p
+                    className={`${styles.heroSubtitle} ${activeHubKey === 'home' ? styles.heroSubtitleHome : ''}`}
+                  >
                     {activeHubKey === 'home'
                       ? `Welcome back, ${firstName}!`
                       : currentHub.description}

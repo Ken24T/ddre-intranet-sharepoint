@@ -83,7 +83,15 @@ export const Navbar: React.FC<INavbarProps> = ({
       className={styles.navbar}
       role="navigation"
       aria-label="Main navigation"
-      style={hubGradient || textColor ? { background: hubGradient, color: textColor } : undefined}
+      style={
+        hubGradient || textColor
+          ? ({
+              background: hubGradient,
+              color: textColor,
+              ...(textColor ? { ['--navbar-text' as string]: textColor } : {}),
+            } as React.CSSProperties)
+          : undefined
+      }
     >
       <button
         className={styles.toggleButton}

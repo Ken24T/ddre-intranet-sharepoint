@@ -281,87 +281,98 @@ The foundation SPFx solution providing the layout frame for all intranet content
 
 ### Phase 15: User Tasks & Reminders
 
-A comprehensive task management system supporting personal, shared, and team-based tasks
-with optional hub association and recurring schedules.
+A comprehensive task management system supporting personal, shared, and team-based
+tasks with optional hub association and recurring schedules.
 
 #### 15.1 Data Model & Schema
 
 - [x] 15.1.1 Define task entity schema (contracts/tasks.schema.json)
-      ```
-      Task {
-        id: string (GUID)
-        title: string (required, max 200 chars)
-        description: string (optional, markdown supported)
-        status: 'pending' | 'in-progress' | 'completed' | 'cancelled'
-        priority: 'low' | 'normal' | 'high' | 'urgent'
-        createdBy: UserRef
-        createdAt: datetime
-        updatedAt: datetime
-        dueDate: datetime (optional)
-        completedAt: datetime (optional)
-        completedBy: UserRef (optional)
-      }
-      ```
+
+    Task {
+      id: string (GUID)
+      title: string (required, max 200 chars)
+      description: string (optional, markdown supported)
+      status: 'pending' | 'in-progress' | 'completed' | 'cancelled'
+      priority: 'low' | 'normal' | 'high' | 'urgent'
+      createdBy: UserRef
+      createdAt: datetime
+      updatedAt: datetime
+      dueDate: datetime (optional)
+      completedAt: datetime (optional)
+      completedBy: UserRef (optional)
+    }
+
 - [x] 15.1.2 Define ownership model
-      ```
-      TaskOwnership {
-        taskId: string
-        ownerType: 'user' | 'team' | 'group'
-        ownerId: string (user email, team ID, or Entra group ID)
-        role: 'owner' | 'assignee' | 'viewer'
-      }
-      ```
+
+    TaskOwnership {
+      taskId: string
+      ownerType: 'user' | 'team' | 'group'
+      ownerId: string (user email, team ID, or Entra group ID)
+      role: 'owner' | 'assignee' | 'viewer'
+    }
+
       - Owner: can edit, delete, reassign
       - Assignee: can update status, add comments
       - Viewer: read-only access
+
 - [x] 15.1.3 Define hub association (optional)
-      ```
-      TaskHubLink {
-        taskId: string
-        hubKey: 'sales' | 'property-management' | 'office' | 'administration' | null
-        toolKey: string (optional, e.g., 'property-inspections')
-        entityId: string (optional, link to specific record)
-      }
-      ```
+
+    TaskHubLink {
+      taskId: string
+      hubKey:
+        | 'sales'
+        | 'property-management'
+        | 'office'
+        | 'administration'
+        | null
+      toolKey: string (optional, e.g., 'property-inspections')
+      entityId: string (optional, link to specific record)
+    }
+
 - [x] 15.1.4 Define recurrence model
-      ```
-      TaskRecurrence {
-        taskId: string
-        pattern: 'daily' | 'weekly' | 'fortnightly' | 'monthly' | 'yearly' | 'custom'
-        interval: number (e.g., every 2 weeks)
-        daysOfWeek: number[] (for weekly: 0=Sun, 1=Mon, etc.)
-        dayOfMonth: number (for monthly)
-        endType: 'never' | 'after-count' | 'by-date'
-        endAfterCount: number (optional)
-        endByDate: datetime (optional)
-        nextOccurrence: datetime
-      }
-      ```
+
+    TaskRecurrence {
+      taskId: string
+      pattern:
+        | 'daily'
+        | 'weekly'
+        | 'fortnightly'
+        | 'monthly'
+        | 'yearly'
+        | 'custom'
+      interval: number (e.g., every 2 weeks)
+      daysOfWeek: number[] (for weekly: 0=Sun, 1=Mon, etc.)
+      dayOfMonth: number (for monthly)
+      endType: 'never' | 'after-count' | 'by-date'
+      endAfterCount: number (optional)
+      endByDate: datetime (optional)
+      nextOccurrence: datetime
+    }
+
 - [x] 15.1.5 Define reminder model
-      ```
-      TaskReminder {
-        id: string
-        taskId: string
-        userId: string (who receives reminder)
-        reminderType: 'before-due' | 'on-due' | 'custom'
-        offsetMinutes: number (negative = before due)
-        channel: 'intranet' | 'email' | 'teams' | 'all'
-        sent: boolean
-        sentAt: datetime (optional)
-      }
-      ```
+
+    TaskReminder {
+      id: string
+      taskId: string
+      userId: string (who receives reminder)
+      reminderType: 'before-due' | 'on-due' | 'custom'
+      offsetMinutes: number (negative = before due)
+      channel: 'intranet' | 'email' | 'teams' | 'all'
+      sent: boolean
+      sentAt: datetime (optional)
+    }
+
 - [x] 15.1.6 Define comments/activity model
-      ```
-      TaskComment {
-        id: string
-        taskId: string
-        authorId: string
-        content: string (markdown)
-        createdAt: datetime
-        editedAt: datetime (optional)
-        type: 'comment' | 'status-change' | 'assignment' | 'system'
-      }
-      ```
+
+    TaskComment {
+      id: string
+      taskId: string
+      authorId: string
+      content: string (markdown)
+      createdAt: datetime
+      editedAt: datetime (optional)
+      type: 'comment' | 'status-change' | 'assignment' | 'system'
+    }
 
 #### 15.2 API Contracts
 
