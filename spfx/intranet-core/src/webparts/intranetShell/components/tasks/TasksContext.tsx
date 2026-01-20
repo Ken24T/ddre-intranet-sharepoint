@@ -334,8 +334,6 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
     filters: { ...defaultState.filters, ...initialFilters },
   }));
 
-  const manualStatusOverrides = React.useRef<Record<string, boolean>>({});
-
   // Load tasks
   const refreshTasks = React.useCallback(async () => {
     setState((prev) => ({ ...prev, isLoading: true, error: undefined }));
@@ -448,9 +446,6 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
   // Update task
   const updateTask = React.useCallback(
     async (taskId: string, request: UpdateTaskRequest): Promise<Task> => {
-      if (request.status) {
-        manualStatusOverrides.current[taskId] = true;
-      }
       const task = await tasksClient.updateTask(taskId, request);
 
       // Update in list
@@ -498,7 +493,6 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
   // Quick status change
   const updateTaskStatus = React.useCallback(
     async (taskId: string, status: TaskStatus): Promise<void> => {
-      manualStatusOverrides.current[taskId] = true;
       // Optimistic update
       setState((prev) => ({
         ...prev,
@@ -535,16 +529,15 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
       const total = checklist.length;
       const completedCount = checklist.filter((item: TaskChecklist) => item.completed).length;
 
+      // Auto-update status based on checklist progress
+      // This always applies regardless of any previous manual status changes
       let autoStatus: TaskStatus | undefined;
-      const hasManualOverride = manualStatusOverrides.current[taskId];
-      if (!hasManualOverride) {
-        if (total > 0 && completedCount === total) {
-          autoStatus = 'completed';
-        } else if (completedCount > 0) {
-          autoStatus = 'in-progress';
-        } else if (total > 0) {
-          autoStatus = 'not-started';
-        }
+      if (total > 0 && completedCount === total) {
+        autoStatus = 'completed';
+      } else if (completedCount > 0) {
+        autoStatus = 'in-progress';
+      } else if (total > 0) {
+        autoStatus = 'not-started';
       }
 
       const finalTask =

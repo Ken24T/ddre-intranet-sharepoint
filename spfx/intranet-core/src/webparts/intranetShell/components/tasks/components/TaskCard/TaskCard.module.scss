@@ -165,3 +165,72 @@
     color: #323130;
   }
 }
+
+// Dark theme support
+:global([data-theme="dark"]) {
+  .card {
+    background: #1f1f1f;
+    border-color: #3a3a3a;
+
+    &:hover {
+      background: #252525;
+      border-color: #4a4a4a;
+    }
+
+    &:focus {
+      border-color: #6cb8ff;
+      box-shadow: 0 0 0 1px #6cb8ff;
+    }
+
+    &.selected {
+      background: #1f2a3a;
+      border-color: #3b82f6;
+    }
+
+    &.inactive {
+      .title {
+        color: #a19f9d;
+      }
+
+      .content {
+        opacity: 0.7;
+      }
+    }
+
+    &.disabled {
+      &:hover {
+        background: #1f1f1f;
+        border-color: #3a3a3a;
+      }
+    }
+  }
+
+  .title {
+    color: #f3f2f1;
+  }
+
+  .meta {
+    color: #c8c6c4;
+  }
+
+  .hub {
+    color: #c8c6c4;
+
+    .hubIcon {
+      color: #a19f9d;
+    }
+  }
+
+  .description {
+    color: #c8c6c4;
+  }
+
+  .menuButton {
+    color: #c8c6c4;
+
+    &:hover {
+      background: #2a2a2a;
+      color: #ffffff;
+    }
+  }
+}

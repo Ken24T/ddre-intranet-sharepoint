@@ -686,7 +686,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     return (
       <ThemeProvider theme={resolvedTheme}>
         <SkipLinks />
-        <div className={shellClassName} style={shellStyle}>
+        <div className={shellClassName} style={shellStyle} data-theme={isCurrentlyDark ? 'dark' : 'light'}>
         <Navbar
           siteTitle={siteTitle}
           userDisplayName={userDisplayName}

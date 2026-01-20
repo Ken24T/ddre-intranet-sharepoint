@@ -131,8 +131,9 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
     () => ({
       root: {
         ['--panel-bg' as string]: theme.palette.neutralLighterAlt,
-        ['--panel-section-bg' as string]: theme.palette.neutralLighter,
-        ['--panel-border' as string]: theme.palette.neutralLight,
+        ['--panel-section-bg' as string]: theme.palette.neutralLight,
+        ['--panel-section-hover' as string]: theme.palette.neutralQuaternaryAlt,
+        ['--panel-border' as string]: theme.palette.neutralQuaternary,
         ['--panel-accent' as string]: theme.palette.themePrimary,
         ['--panel-text' as string]: theme.palette.neutralPrimary,
         ['--panel-muted' as string]: theme.palette.neutralSecondary,

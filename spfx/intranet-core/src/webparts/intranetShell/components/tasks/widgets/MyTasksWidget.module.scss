@@ -245,7 +245,7 @@
 }
 
 // Dark theme support
-:global(.ms-Fabric--theme-dark) {
+:global([data-theme="dark"]) {
   .myTasksWidget {
     background-color: $ms-color-neutralLighter;
 

@@ -62,7 +62,7 @@
 }
 
 // Dark theme support
-:global(.ms-Fabric--theme-dark) {
+:global([data-theme="dark"]) {
   .callout {
     background-color: $ms-color-neutralLighter;
   }
