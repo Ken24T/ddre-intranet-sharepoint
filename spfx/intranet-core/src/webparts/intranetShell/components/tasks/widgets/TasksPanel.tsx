@@ -33,6 +33,7 @@ import { TaskEditor } from '../components/TaskEditor';
 import { TaskStatusBadge } from '../components/TaskStatusBadge';
 import { TaskPriorityIndicator } from '../components/TaskPriorityIndicator';
 import { TaskDueDateLabel } from '../components/TaskDueDateLabel';
+import { TaskChecklistProgress } from '../components/TaskChecklistProgress';
 import { hubInfo } from '../../data';
 import type {
   TaskSummary,
@@ -85,13 +86,6 @@ export interface ITasksPanelProps {
 }
 
 type ViewMode = 'list' | 'detail' | 'create' | 'edit';
-
-const statusOptions: IDropdownOption[] = [
-  { key: 'not-started', text: 'Not started' },
-  { key: 'in-progress', text: 'In progress' },
-  { key: 'completed', text: 'Completed' },
-  { key: 'cancelled', text: 'Cancelled' },
-];
 
 const priorityFilterOptions: IDropdownOption[] = [
   { key: 'all', text: 'All priorities' },
@@ -587,26 +581,20 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
                       {task.hubDisplayName}
                     </span>
                   )}
-                  {task.checklistProgress && (
-                    <span className={styles.summaryProgress}>
-                      {task.checklistProgress.completed}/
-                      {task.checklistProgress.total}
-                    </span>
+                  {task.checklistProgress && task.checklist && task.checklist.length > 0 && (
+                    <TaskChecklistProgress
+                      checklist={task.checklist}
+                      variant="compact"
+                      size="small"
+                    />
                   )}
                 </div>
               </div>
               <div className={styles.summaryActions}>
-                <Dropdown
-                  options={statusOptions}
-                  selectedKey={task.status}
-                  onChange={(_, option) => {
-                    if (option) {
-                      handleStatusChange(task.id, option.key as TaskStatus);
-                    }
-                  }}
-                  className={styles.summaryStatus}
-                  onClick={(e) => e.stopPropagation()}
-                  ariaLabel="Change status"
+                <TaskStatusBadge
+                  status={task.status}
+                  size="small"
+                  showIcon={true}
                 />
                 <IconButton
                   iconProps={{ iconName: 'Copy' }}

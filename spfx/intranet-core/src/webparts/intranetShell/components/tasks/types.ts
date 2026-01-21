@@ -168,6 +168,8 @@ export interface TaskSummary {
     completed: number;
     total: number;
   };
+  /** Checklist items for tooltip display */
+  checklist?: TaskChecklist[];
   commentCount?: number;
 }
 

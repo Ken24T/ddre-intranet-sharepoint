@@ -160,6 +160,7 @@ function createMockClient(): MockTasksClient {
                 total: t.checklist.length,
               }
             : undefined,
+          checklist: t.checklist,
           commentCount: t.comments?.length ?? 0,
         })),
         totalCount: mockTasks.length,
@@ -465,6 +466,14 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
                       total: request.checklist.length,
                     }
                   : t.checklistProgress,
+                checklist: request.checklist
+                  ? request.checklist.map((c, i) => ({
+                      id: c.id ?? `item-${i}`,
+                      title: c.title,
+                      completed: c.completed ?? false,
+                      sortOrder: i,
+                    }))
+                  : t.checklist,
               }
             : t
         ),
@@ -549,7 +558,7 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
       setState((prev) => ({
         ...prev,
         selectedTask: prev.selectedTask?.id === taskId ? finalTask : prev.selectedTask,
-        // Update checklist progress in list
+        // Update checklist progress and checklist items in list
         tasks: prev.tasks.map((t) =>
           t.id === taskId
             ? {
@@ -561,6 +570,7 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
                       total: finalTask.checklist.length,
                     }
                   : t.checklistProgress,
+                checklist: finalTask.checklist,
               }
             : t
         ),
