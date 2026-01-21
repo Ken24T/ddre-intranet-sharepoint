@@ -15,6 +15,8 @@ export interface INotificationsContainerProps {
   isOpen: boolean;
   /** Target element ref for the flyout */
   targetRef: React.RefObject<HTMLDivElement>;
+  /** Hub accent color for dynamic theming */
+  hubAccentColor?: string;
   /** Callback when flyout is dismissed */
   onDismiss: () => void;
   /** Callback when a notification is clicked (for deep linking) */
@@ -31,6 +33,7 @@ export interface INotificationsContainerProps {
 export const NotificationsContainer: React.FC<INotificationsContainerProps> = ({
   isOpen,
   targetRef,
+  hubAccentColor,
   onDismiss,
   onNotificationClick,
   onViewAllTasks,
@@ -53,6 +56,7 @@ export const NotificationsContainer: React.FC<INotificationsContainerProps> = ({
       state={state}
       target={targetRef}
       isVisible={isOpen}
+      hubAccentColor={hubAccentColor}
       onDismiss={onDismiss}
       onNotificationClick={onNotificationClick}
       onMarkAsRead={markAsRead}

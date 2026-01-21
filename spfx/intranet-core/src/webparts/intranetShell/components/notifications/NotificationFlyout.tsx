@@ -17,6 +17,8 @@ export interface INotificationFlyoutProps {
   target: React.RefObject<HTMLDivElement>;
   /** Whether the flyout is visible */
   isVisible: boolean;
+  /** Hub accent color for dynamic theming */
+  hubAccentColor?: string;
   /** Callback when flyout is dismissed */
   onDismiss: () => void;
   /** Callback when a notification is clicked */
@@ -165,6 +167,7 @@ export const NotificationFlyout: React.FC<INotificationFlyoutProps> = ({
   state,
   target,
   isVisible,
+  hubAccentColor,
   onDismiss,
   onNotificationClick,
   onMarkAsRead,
@@ -192,6 +195,11 @@ export const NotificationFlyout: React.FC<INotificationFlyoutProps> = ({
 
   const hasNotifications = state.groups.length > 0;
 
+  // Build dynamic style with hub accent color
+  const flyoutStyle: React.CSSProperties = hubAccentColor
+    ? ({ '--notification-accent': hubAccentColor } as React.CSSProperties)
+    : {};
+
   return (
     <Callout
       target={target.current}
@@ -203,7 +211,7 @@ export const NotificationFlyout: React.FC<INotificationFlyoutProps> = ({
       role="dialog"
       aria-label="Notifications"
     >
-      <div className={styles.flyout}>
+      <div className={styles.flyout} style={flyoutStyle}>
         <div className={styles.header}>
           <h3>Notifications</h3>
           <button

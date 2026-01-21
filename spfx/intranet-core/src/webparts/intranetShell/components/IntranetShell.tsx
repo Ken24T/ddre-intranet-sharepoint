@@ -952,6 +952,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
         <NotificationsContainer
           isOpen={this.state.isNotificationFlyoutOpen}
           targetRef={this.notificationButtonRef}
+          hubAccentColor={aiAccentColor}
           onDismiss={this.handleCloseNotificationFlyout}
           onNotificationClick={this.handleNotificationClick}
           onViewAllTasks={this.handleToggleTasksPanel}
