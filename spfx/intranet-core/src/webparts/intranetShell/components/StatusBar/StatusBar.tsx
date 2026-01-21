@@ -4,6 +4,16 @@ import { useApiHealth, type ApiStatus, type IApiHealthState } from './useApiHeal
 import { useNotifications, type ISystemNotification, type NotificationSeverity } from './useNotifications';
 import styles from './StatusBar.module.scss';
 
+/**
+ * Task banner notification for StatusBar.
+ */
+export interface ITaskBannerItem {
+  id: string;
+  title: string;
+  category: 'overdue' | 'due-today';
+  dueDate?: string;
+}
+
 export interface IStatusBarProps {
   /** Current user's display name or email */
   userDisplayName: string;
@@ -11,6 +21,12 @@ export interface IStatusBarProps {
   appVersion: string;
   /** Optional SPFx context for real API health checks */
   context?: unknown;
+  /** Task banner items (overdue/due-today) */
+  taskBannerItems?: ITaskBannerItem[];
+  /** Called when user clicks on a task banner item */
+  onTaskBannerClick?: (taskId: string) => void;
+  /** Called when user dismisses the task banner */
+  onTaskBannerDismiss?: () => void;
 }
 
 /**
@@ -164,10 +180,143 @@ const NotificationItem: React.FC<INotificationItemProps> = ({ notification, onDi
 };
 
 /**
+ * Task banner component for overdue/due-today notifications.
+ */
+interface ITaskBannerProps {
+  items: ITaskBannerItem[];
+  onItemClick?: (taskId: string) => void;
+  onDismiss?: () => void;
+}
+
+/**
+ * Format date for display in tooltip.
+ */
+function formatDueDate(dateStr?: string): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // Reset time for comparison
+  today.setHours(0, 0, 0, 0);
+  tomorrow.setHours(0, 0, 0, 0);
+  const due = new Date(date);
+  due.setHours(0, 0, 0, 0);
+
+  if (due.getTime() === today.getTime()) {
+    return 'Due today';
+  } else if (due < today) {
+    const daysOverdue = Math.floor((today.getTime() - due.getTime()) / (1000 * 60 * 60 * 24));
+    return `${daysOverdue} day${daysOverdue > 1 ? 's' : ''} overdue`;
+  }
+  return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+}
+
+const TaskBanner: React.FC<ITaskBannerProps> = ({ items, onItemClick, onDismiss }) => {
+  if (items.length === 0) return null;
+
+  const overdueItems = items.filter((i) => i.category === 'overdue');
+  const dueTodayItems = items.filter((i) => i.category === 'due-today');
+  const overdueCount = overdueItems.length;
+  const dueTodayCount = dueTodayItems.length;
+
+  // Build message
+  const parts: string[] = [];
+  if (overdueCount > 0) {
+    parts.push(`${overdueCount} overdue`);
+  }
+  if (dueTodayCount > 0) {
+    parts.push(`${dueTodayCount} due today`);
+  }
+  const message = `You have ${parts.join(' and ')} task${items.length > 1 ? 's' : ''}`;
+
+  // Build tooltip content showing task details
+  const tooltipLines: string[] = [];
+  if (overdueItems.length > 0) {
+    tooltipLines.push('⚠️ Overdue:');
+    overdueItems.slice(0, 5).forEach((item) => {
+      const dueInfo = formatDueDate(item.dueDate);
+      tooltipLines.push(`  • ${item.title}${dueInfo ? ` (${dueInfo})` : ''}`);
+    });
+    if (overdueItems.length > 5) {
+      tooltipLines.push(`  ... and ${overdueItems.length - 5} more`);
+    }
+  }
+  if (dueTodayItems.length > 0) {
+    if (tooltipLines.length > 0) tooltipLines.push('');
+    tooltipLines.push('🕐 Due today:');
+    dueTodayItems.slice(0, 5).forEach((item) => {
+      tooltipLines.push(`  • ${item.title}`);
+    });
+    if (dueTodayItems.length > 5) {
+      tooltipLines.push(`  ... and ${dueTodayItems.length - 5} more`);
+    }
+  }
+  tooltipLines.push('');
+  tooltipLines.push('Click to view all tasks');
+
+  const tooltipContent = tooltipLines.join('\n');
+
+  const handleClick = (): void => {
+    // Click the first item to open tasks panel
+    if (items.length > 0 && onItemClick) {
+      onItemClick(items[0].id);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent): void => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
+  return (
+    <TooltipHost
+      content={tooltipContent}
+      directionalHint={DirectionalHint.topCenter}
+      calloutProps={{ gapSpace: 8 }}
+    >
+      <div
+        className={`${styles.taskBanner} ${overdueCount > 0 ? styles.taskBannerOverdue : styles.taskBannerDueToday}`}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-label={message}
+      >
+        <Icon iconName={overdueCount > 0 ? 'Warning' : 'Clock'} className={styles.taskBannerIcon} />
+        <span className={styles.taskBannerMessage}>{message}</span>
+        {onDismiss && (
+          <IconButton
+            iconProps={{ iconName: 'Cancel' }}
+            className={styles.taskBannerDismiss}
+            title="Dismiss for now"
+            ariaLabel="Dismiss task reminder"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDismiss();
+            }}
+          />
+        )}
+      </div>
+    </TooltipHost>
+  );
+};
+
+/**
  * StatusBar - Fixed 24px bottom status bar.
  * Shows API health indicators, current user, and system notifications.
  */
-export const StatusBar: React.FC<IStatusBarProps> = ({ userDisplayName, appVersion, context }) => {
+export const StatusBar: React.FC<IStatusBarProps> = ({
+  userDisplayName,
+  appVersion,
+  context,
+  taskBannerItems = [],
+  onTaskBannerClick,
+  onTaskBannerDismiss,
+}) => {
   const { vault, propertyMe, checkHealth, isChecking } = useApiHealth(context);
   const { notifications, dismissedIds, dismissNotification, isLoading: notificationsLoading } = useNotifications(context);
   const otherActiveUsers = [
@@ -226,6 +375,15 @@ export const StatusBar: React.FC<IStatusBarProps> = ({ userDisplayName, appVersi
             <Icon iconName={isChecking ? 'Sync' : 'Refresh'} className={isChecking ? styles.spinning : ''} />
           </button>
         </div>
+
+        {/* Task Banner - overdue/due-today tasks */}
+        {taskBannerItems.length > 0 && (
+          <TaskBanner
+            items={taskBannerItems}
+            onItemClick={onTaskBannerClick}
+            onDismiss={onTaskBannerDismiss}
+          />
+        )}
 
         {/* Notifications Section */}
         <div className={styles.notificationsSection} aria-live="polite">

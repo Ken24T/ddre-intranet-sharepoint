@@ -5,6 +5,11 @@
   align-items: center;
   gap: 6px;
   color: #605e5c;
+  cursor: pointer;
+
+  &:hover {
+    color: #0078d4;
+  }
 
   &.complete {
     color: #107c10;
@@ -64,4 +69,86 @@
 .label {
   line-height: 1;
   white-space: nowrap;
+}
+
+// Tooltip styles
+.tooltipCallout {
+  :global(.ms-Callout-main) {
+    padding: 0;
+    border-radius: 6px;
+  }
+}
+
+.tooltipContent {
+  min-width: 180px;
+  max-width: 280px;
+  padding: 8px 0;
+}
+
+.tooltipHeader {
+  padding: 4px 12px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #323130;
+  border-bottom: 1px solid #edebe9;
+}
+
+.tooltipList {
+  margin: 0;
+  padding: 8px 0 0;
+  list-style: none;
+}
+
+.tooltipItem,
+.tooltipItemCompleted {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 4px 12px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.tooltipItemCompleted {
+  color: #8a8886;
+  text-decoration: line-through;
+
+  .tooltipIcon {
+    color: #107c10;
+  }
+}
+
+.tooltipIcon {
+  flex-shrink: 0;
+  font-size: 14px;
+  margin-top: 1px;
+}
+
+.tooltipItemText {
+  flex: 1;
+  word-break: break-word;
+}
+
+// Dark mode support
+:global([data-theme='dark']) {
+  .tooltipHeader {
+    color: #f3f2f1;
+    border-bottom-color: #3b3a39;
+  }
+
+  .tooltipItem {
+    color: #f3f2f1;
+  }
+
+  .tooltipItemCompleted {
+    color: #a19f9d;
+
+    .tooltipIcon {
+      color: #6bb700;
+    }
+  }
+
+  .tooltipIcon {
+    color: #a19f9d;
+  }
 }

@@ -8,6 +8,10 @@
     overflow: hidden;
   }
 
+  :global(.ms-Dropdown-title) {
+    border-radius: 6px;
+  }
+
   :global(.ms-Button) {
     border-radius: 8px;
   }

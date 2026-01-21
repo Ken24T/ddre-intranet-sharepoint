@@ -14,7 +14,7 @@ import heroLibraryImageLightBlue from '../assets/hero-library-shop-light-blue.pn
 import { Navbar } from './Navbar/Navbar';
 import { Sidebar } from './Sidebar/Sidebar';
 import { ContentArea } from './ContentArea/ContentArea';
-import { StatusBar } from './StatusBar/StatusBar';
+import { StatusBar, ITaskBannerItem } from './StatusBar/StatusBar';
 import { CardGrid } from './CardGrid';
 import { SettingsPanel } from './SettingsPanel';
 import { SearchResultsPage } from './SearchResultsPage';
@@ -24,6 +24,7 @@ import { AuditLogViewer } from './AuditLogViewer';
 import { SkipLinks } from './SkipLinks';
 import { TasksPanelContainer } from './tasks/widgets/TasksPanelContainer';
 import { MyTasksWidgetContainer } from './tasks/widgets/MyTasksWidgetContainer';
+import { NotificationsContainer, Notification } from './notifications';
 import { sampleCards, hubInfo } from './data';
 import type { CardOpenBehavior, IFunctionCard } from './FunctionCard';
 import type { IFavouriteCard } from './favouritesTypes';
@@ -61,6 +62,18 @@ export interface IIntranetShellState {
   favourites: IFavouriteCard[];
   /** Tasks panel open state */
   isTasksPanelOpen: boolean;
+  /** Notification flyout open state */
+  isNotificationFlyoutOpen: boolean;
+  /** Notification count for navbar badge */
+  notificationCount: number;
+  /** Whether there are overdue notifications */
+  hasOverdueNotifications: boolean;
+  /** Whether notifications are loading */
+  isNotificationsLoading: boolean;
+  /** Task banner items for StatusBar */
+  taskBannerItems: ITaskBannerItem[];
+  /** Whether the task banner has been dismissed */
+  isBannerDismissed: boolean;
 }
 
 /**
@@ -175,6 +188,7 @@ const getHubSurfaceColors = (
  */
 export class IntranetShell extends React.Component<IIntranetShellProps, IIntranetShellState> {
   private systemThemeMediaQuery: MediaQueryList | null = null;
+  private notificationButtonRef = React.createRef<HTMLDivElement>();
 
   constructor(props: IIntranetShellProps) {
     super(props);
@@ -203,6 +217,12 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       isHelpOpen: false,
       favourites: loadFromStorage(STORAGE_KEYS.FAVOURITES, []),
       isTasksPanelOpen: false,
+      isNotificationFlyoutOpen: false,
+      notificationCount: 0,
+      hasOverdueNotifications: false,
+      isNotificationsLoading: false,
+      taskBannerItems: [],
+      isBannerDismissed: false,
     };
   }
 
@@ -524,6 +544,67 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     this.setState({ isTasksPanelOpen: false });
   };
 
+  private handleToggleNotificationFlyout = (): void => {
+    this.setState((prevState) => ({
+      isNotificationFlyoutOpen: !prevState.isNotificationFlyoutOpen,
+    }));
+  };
+
+  private handleCloseNotificationFlyout = (): void => {
+    this.setState({ isNotificationFlyoutOpen: false });
+  };
+
+  // Store the markBannerAsRead function from NotificationsContainer
+  private markBannerAsReadFn: (() => void) | undefined;
+
+  private handleNotificationStateChange = (state: {
+    unreadCount: number;
+    hasOverdue: boolean;
+    isLoading: boolean;
+    bannerItems: ITaskBannerItem[];
+    markBannerAsRead: () => void;
+  }): void => {
+    // Store the function for use by handleTaskBannerDismiss
+    this.markBannerAsReadFn = state.markBannerAsRead;
+
+    // Check if banner items have changed to potentially reset dismissal
+    const currentIds = this.state.taskBannerItems.map((item) => item.id).join(',');
+    const newIds = state.bannerItems.map((item) => item.id).join(',');
+    const shouldResetDismissed = currentIds !== newIds;
+
+    this.setState({
+      notificationCount: state.unreadCount,
+      hasOverdueNotifications: state.hasOverdue,
+      isNotificationsLoading: state.isLoading,
+      taskBannerItems: state.bannerItems,
+      // Reset banner dismissal when the items change
+      isBannerDismissed: shouldResetDismissed ? false : this.state.isBannerDismissed,
+    });
+  };
+
+  private handleNotificationClick = (notification: Notification): void => {
+    // Deep link to task - open the tasks panel
+    if (notification.deepLink?.type === 'task') {
+      this.setState({
+        isTasksPanelOpen: true,
+        isNotificationFlyoutOpen: false,
+      });
+    }
+  };
+
+  private handleTaskBannerClick = (): void => {
+    // Open tasks panel when clicking on task banner
+    this.setState({ isTasksPanelOpen: true });
+  };
+
+  private handleTaskBannerDismiss = (): void => {
+    // Mark banner notifications as read and dismiss the banner
+    if (this.markBannerAsReadFn) {
+      this.markBannerAsReadFn();
+    }
+    this.setState({ isBannerDismissed: true });
+  };
+
   private handleCardHelp = (card: IFunctionCard): void => {
     openMockHelpWindow({
       title: card.title,
@@ -686,7 +767,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     return (
       <ThemeProvider theme={resolvedTheme}>
         <SkipLinks />
-        <div className={shellClassName} style={shellStyle}>
+        <div className={shellClassName} style={shellStyle} data-theme={isCurrentlyDark ? 'dark' : 'light'}>
         <Navbar
           siteTitle={siteTitle}
           userDisplayName={userDisplayName}
@@ -711,6 +792,12 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           isTasksLoading={false}
           isTasksPanelOpen={isTasksPanelOpen}
           onToggleTasks={this.handleToggleTasksPanel}
+          notificationCount={this.state.notificationCount}
+          hasOverdueNotifications={this.state.hasOverdueNotifications}
+          isNotificationsLoading={this.state.isNotificationsLoading}
+          isNotificationFlyoutOpen={this.state.isNotificationFlyoutOpen}
+          notificationButtonRef={this.notificationButtonRef}
+          onToggleNotifications={this.handleToggleNotificationFlyout}
         />
         <Sidebar
           isCollapsed={isSidebarCollapsed}
@@ -869,7 +956,13 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
             </>
           )}
         </ContentArea>
-        <StatusBar userDisplayName={userDisplayName} appVersion={this.props.appVersion} />
+        <StatusBar
+          userDisplayName={userDisplayName}
+          appVersion={this.props.appVersion}
+          taskBannerItems={this.state.isBannerDismissed ? [] : this.state.taskBannerItems}
+          onTaskBannerClick={this.handleTaskBannerClick}
+          onTaskBannerDismiss={this.handleTaskBannerDismiss}
+        />
 
         <SettingsPanel
           isOpen={isSettingsOpen}
@@ -894,6 +987,17 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
         <TasksPanelContainer
           isOpen={isTasksPanelOpen}
           onDismiss={this.handleCloseTasksPanel}
+        />
+
+        {/* Notifications Flyout */}
+        <NotificationsContainer
+          isOpen={this.state.isNotificationFlyoutOpen}
+          targetRef={this.notificationButtonRef}
+          hubAccentColor={aiAccentColor}
+          onDismiss={this.handleCloseNotificationFlyout}
+          onNotificationClick={this.handleNotificationClick}
+          onViewAllTasks={this.handleToggleTasksPanel}
+          onStateChange={this.handleNotificationStateChange}
         />
 
         {/* AI Assistant */}

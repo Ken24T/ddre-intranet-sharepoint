@@ -8,7 +8,7 @@
   .picker {
     :global(.ms-TagItem) {
       background-color: $ms-color-themeLighter;
-      border-radius: 4px;
+      border-radius: 6px;
       
       &:hover {
         background-color: $ms-color-themeLight;
@@ -38,7 +38,7 @@
     margin-top: 8px;
     padding: 8px;
     background-color: $ms-color-neutralLighterAlt;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 
   .assignmentItem {
@@ -47,7 +47,7 @@
     justify-content: space-between;
     padding: 8px 12px;
     background-color: $ms-color-white;
-    border-radius: 4px;
+    border-radius: 6px;
     border: 1px solid $ms-color-neutralLight;
 
     &:hover {
@@ -63,6 +63,7 @@
       padding: 0 8px;
       min-height: 28px;
       line-height: 28px;
+      border-radius: 6px;
     }
   }
 

@@ -1,5 +1,10 @@
 @import '~@fluentui/react/dist/sass/References.scss';
 
+// Dropdown styling
+:global(.ms-Dropdown-title) {
+  border-radius: 6px;
+}
+
 .taskRecurrenceEditor {
   display: flex;
   flex-direction: column;
@@ -11,7 +16,7 @@
     gap: 16px;
     padding: 16px;
     background-color: $ms-color-neutralLighterAlt;
-    border-radius: 4px;
+    border-radius: 6px;
     border: 1px solid $ms-color-neutralLight;
   }
 

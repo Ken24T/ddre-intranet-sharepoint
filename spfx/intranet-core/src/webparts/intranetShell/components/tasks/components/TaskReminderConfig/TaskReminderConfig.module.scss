@@ -1,5 +1,10 @@
 @import '~@fluentui/react/dist/sass/References.scss';
 
+// Dropdown styling
+:global(.ms-Dropdown-title) {
+  border-radius: 6px;
+}
+
 .taskReminderConfig {
   display: flex;
   flex-direction: column;
@@ -11,7 +16,7 @@
     gap: 8px;
     padding: 12px;
     background-color: $ms-color-neutralLighterAlt;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 
   .presetsLabel {
@@ -32,7 +37,7 @@
     padding: 12px;
     background-color: $ms-color-white;
     border: 1px solid $ms-color-neutralLight;
-    border-radius: 4px;
+    border-radius: 6px;
     transition: background-color 0.15s ease;
 
     &:hover {
@@ -67,7 +72,7 @@
     font-weight: 600;
     padding: 2px 8px;
     background-color: $ms-color-greenLight;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 
   .deleteButton {

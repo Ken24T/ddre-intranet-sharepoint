@@ -147,6 +147,10 @@ export interface Task {
   updatedAt?: string;
   updatedBy?: string;
   version?: number;
+  /** Suppress notifications for this task (default: false) */
+  doNotNotify?: boolean;
+  /** Email reminder offset in minutes before due date (undefined = no email reminder) */
+  emailReminderMinutes?: number;
 }
 
 /**
@@ -168,7 +172,13 @@ export interface TaskSummary {
     completed: number;
     total: number;
   };
+  /** Checklist items for tooltip display */
+  checklist?: TaskChecklist[];
   commentCount?: number;
+  /** Suppress notifications for this task */
+  doNotNotify?: boolean;
+  /** Email reminder offset in minutes before due date (undefined = no email reminder) */
+  emailReminderMinutes?: number;
 }
 
 // =============================================================================
@@ -192,6 +202,10 @@ export interface CreateTaskRequest {
   reminders?: CreateReminderRequest[];
   checklist?: Array<{ title: string }>;
   tags?: string[];
+  /** Suppress notifications for this task */
+  doNotNotify?: boolean;
+  /** Email reminder offset in minutes before due date (undefined = no email reminder) */
+  emailReminderMinutes?: number;
 }
 
 export interface UpdateTaskRequest {
@@ -210,6 +224,10 @@ export interface UpdateTaskRequest {
   }>;
   tags?: string[];
   version?: number;
+  /** Suppress notifications for this task */
+  doNotNotify?: boolean;
+  /** Email reminder offset in minutes before due date (undefined = no email reminder) */
+  emailReminderMinutes?: number;
 }
 
 export interface CreateReminderRequest {

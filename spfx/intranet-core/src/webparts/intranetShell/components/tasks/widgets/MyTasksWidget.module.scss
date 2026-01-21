@@ -63,7 +63,7 @@
     height: 28px;
     padding: 0;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     background-color: transparent;
     color: $ms-color-themePrimary;
     cursor: pointer;
@@ -129,7 +129,7 @@
     margin-top: 16px;
     padding: 8px 16px;
     border: 1px solid $ms-color-themePrimary;
-    border-radius: 4px;
+    border-radius: 6px;
     background-color: transparent;
     color: $ms-color-themePrimary;
     font-size: 13px;
@@ -221,7 +221,7 @@
     color: $ms-color-neutralSecondary;
     padding: 2px 6px;
     background-color: $ms-color-neutralLighter;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 
   .progress {
@@ -245,7 +245,7 @@
 }
 
 // Dark theme support
-:global(.ms-Fabric--theme-dark) {
+:global([data-theme="dark"]) {
   .myTasksWidget {
     background-color: $ms-color-neutralLighter;
 

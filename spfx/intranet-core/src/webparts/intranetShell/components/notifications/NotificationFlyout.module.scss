@@ -1,0 +1,246 @@
+@import '@fluentui/react/dist/sass/References.scss';
+
+.flyout {
+  max-height: 480px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  // Dynamic hub-themed background using CSS custom property
+  background: var(--notification-accent, #{$ms-color-gray190});
+  
+  // Fallback for when no accent is provided
+  &:not([style*="--notification-accent"]) {
+    background: $ms-color-gray190;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+  }
+}
+
+.markAllRead {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+  }
+  
+  &:disabled {
+    color: rgba(255, 255, 255, 0.4);
+    cursor: default;
+    background: none;
+  }
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  
+  .emptyIcon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  h4 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+  }
+  
+  p {
+    margin: 0;
+    font-size: 12px;
+  }
+}
+
+.group {
+  margin-bottom: 8px;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  .groupIcon {
+    font-size: 12px;
+  }
+  
+  .groupCount {
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.groupHeaderOverdue {
+  color: #ff6b6b;
+  
+  .groupIcon {
+    color: #ff6b6b;
+  }
+}
+
+.groupHeaderDueToday {
+  color: #ffa94d;
+  
+  .groupIcon {
+    color: #ffa94d;
+  }
+}
+
+.notificationItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  &.unread {
+    background: rgba(255, 255, 255, 0.08);
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+}
+
+.notificationIcon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  
+  i {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+.notificationIconOverdue {
+  background: rgba(255, 107, 107, 0.2);
+  
+  i {
+    color: #ff6b6b;
+  }
+}
+
+.notificationIconDueToday {
+  background: rgba(255, 169, 77, 0.2);
+  
+  i {
+    color: #ffa94d;
+  }
+}
+
+.notificationContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.notificationTitle {
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notificationMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.priorityIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  
+  &.urgent {
+    color: #ff6b6b;
+  }
+  
+  &.high {
+    color: #ffa94d;
+  }
+}
+
+.unreadDot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.footer {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  text-align: center;
+}
+
+.viewAllLink {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 6px;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    text-decoration: underline;
+    color: #ffffff;
+  }
+}

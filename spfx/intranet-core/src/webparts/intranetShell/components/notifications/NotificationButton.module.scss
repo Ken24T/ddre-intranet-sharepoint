@@ -1,0 +1,57 @@
+@import '@fluentui/react/dist/sass/References.scss';
+
+.buttonContainer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: $ms-color-white;
+  background-color: #d13438; // Red for notifications requiring attention
+  border-radius: 8px;
+  border: 1.5px solid $ms-color-white;
+  pointer-events: none;
+  transform: translate(25%, -25%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.badgeOverdue {
+  background-color: #a80000; // Darker red for overdue items
+}
+
+.loadingDot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background-color: $ms-color-themePrimary;
+  border-radius: 50%;
+  border: 1.5px solid $ms-color-white;
+  pointer-events: none;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

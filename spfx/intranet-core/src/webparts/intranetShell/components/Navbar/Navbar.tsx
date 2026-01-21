@@ -3,6 +3,7 @@ import { Icon, Toggle } from '@fluentui/react';
 import { UserProfileMenu, ThemeMode } from '../UserProfileMenu';
 import { SearchBox, ISearchResult } from '../SearchBox';
 import { TasksNavButton } from '../tasks/widgets/TasksNavButton';
+import { NotificationButton } from '../notifications';
 import styles from '../IntranetShell.module.scss';
 
 export interface INavbarProps {
@@ -46,6 +47,18 @@ export interface INavbarProps {
   isTasksPanelOpen?: boolean;
   /** Called when user clicks tasks button */
   onToggleTasks?: () => void;
+  /** Number of unread notifications */
+  notificationCount?: number;
+  /** Whether there are overdue notifications */
+  hasOverdueNotifications?: boolean;
+  /** Whether notifications are loading */
+  isNotificationsLoading?: boolean;
+  /** Whether notification flyout is open */
+  isNotificationFlyoutOpen?: boolean;
+  /** Ref for notification button (flyout target) */
+  notificationButtonRef?: React.RefObject<HTMLDivElement>;
+  /** Called when user clicks notification button */
+  onToggleNotifications?: () => void;
 }
 
 /**
@@ -77,6 +90,12 @@ export const Navbar: React.FC<INavbarProps> = ({
   isTasksLoading = false,
   isTasksPanelOpen = false,
   onToggleTasks,
+  notificationCount = 0,
+  hasOverdueNotifications = false,
+  isNotificationsLoading = false,
+  isNotificationFlyoutOpen = false,
+  notificationButtonRef,
+  onToggleNotifications,
 }) => {
   return (
     <nav
@@ -154,10 +173,15 @@ export const Navbar: React.FC<INavbarProps> = ({
           />
         )}
 
-        {/* Notifications placeholder - Phase 5 */}
-        <button className={styles.toggleButton} aria-label="Notifications" title="Notifications">
-          <Icon iconName="Ringer" />
-        </button>
+        {/* Notifications button */}
+        <NotificationButton
+          unreadCount={notificationCount}
+          hasOverdue={hasOverdueNotifications}
+          isLoading={isNotificationsLoading}
+          isActive={isNotificationFlyoutOpen}
+          buttonRef={notificationButtonRef}
+          onClick={onToggleNotifications ?? (() => {})}
+        />
 
         {onOpenHelp && (
           <button

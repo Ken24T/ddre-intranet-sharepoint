@@ -5,6 +5,11 @@
   padding: 24px;
   background: var(--color-background, #ffffff);
   overflow: hidden;
+
+  // Round Fluent UI buttons
+  :global(.ms-Button) {
+    border-radius: 6px;
+  }
 }
 
 .header {
@@ -65,6 +70,10 @@
 .filterDropdown {
   min-width: 140px;
   max-width: 180px;
+
+  :global(.ms-Dropdown-title) {
+    border-radius: 6px;
+  }
 }
 
 .filterDate {

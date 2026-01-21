@@ -21,6 +21,8 @@ export interface ISearchResult {
 export interface ISearchBoxProps {
   /** Placeholder text for the input */
   placeholder?: string;
+  /** Controlled value for the search input */
+  value?: string;
   /** Called when search is submitted (Enter key or click result) */
   onSearch?: (query: string) => void;
   /** Called when query changes */
@@ -115,6 +117,7 @@ function getTypeLabel(type: SearchResultType): string {
  */
 export const SearchBox: React.FC<ISearchBoxProps> = ({
   placeholder = 'Search pages, documents, people...',
+  value,
   onSearch,
   onQueryChange,
   onResultSelect,
@@ -126,7 +129,7 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
 }) => {
   const audit = useAudit();
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
-  const [query, setQuery] = React.useState('');
+  const [query, setQuery] = React.useState(value ?? '');
   const [results, setResults] = React.useState<ISearchResult[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(-1);
@@ -136,6 +139,13 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
   const inputRef = React.useRef<HTMLInputElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const debounceRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // Sync internal query state with external value prop
+  React.useEffect(() => {
+    if (value !== undefined && value !== query) {
+      setQuery(value);
+    }
+  }, [value]);
 
   // Flatten results for keyboard navigation
   const flatResults = React.useMemo(() => {
