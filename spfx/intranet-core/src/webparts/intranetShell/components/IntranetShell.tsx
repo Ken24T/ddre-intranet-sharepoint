@@ -24,6 +24,7 @@ import { AuditLogViewer } from './AuditLogViewer';
 import { SkipLinks } from './SkipLinks';
 import { TasksPanelContainer } from './tasks/widgets/TasksPanelContainer';
 import { MyTasksWidgetContainer } from './tasks/widgets/MyTasksWidgetContainer';
+import { NotificationsContainer, Notification } from './notifications';
 import { sampleCards, hubInfo } from './data';
 import type { CardOpenBehavior, IFunctionCard } from './FunctionCard';
 import type { IFavouriteCard } from './favouritesTypes';
@@ -61,6 +62,14 @@ export interface IIntranetShellState {
   favourites: IFavouriteCard[];
   /** Tasks panel open state */
   isTasksPanelOpen: boolean;
+  /** Notification flyout open state */
+  isNotificationFlyoutOpen: boolean;
+  /** Notification count for navbar badge */
+  notificationCount: number;
+  /** Whether there are overdue notifications */
+  hasOverdueNotifications: boolean;
+  /** Whether notifications are loading */
+  isNotificationsLoading: boolean;
 }
 
 /**
@@ -175,6 +184,7 @@ const getHubSurfaceColors = (
  */
 export class IntranetShell extends React.Component<IIntranetShellProps, IIntranetShellState> {
   private systemThemeMediaQuery: MediaQueryList | null = null;
+  private notificationButtonRef = React.createRef<HTMLDivElement>();
 
   constructor(props: IIntranetShellProps) {
     super(props);
@@ -203,6 +213,10 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       isHelpOpen: false,
       favourites: loadFromStorage(STORAGE_KEYS.FAVOURITES, []),
       isTasksPanelOpen: false,
+      isNotificationFlyoutOpen: false,
+      notificationCount: 0,
+      hasOverdueNotifications: false,
+      isNotificationsLoading: false,
     };
   }
 
@@ -524,6 +538,38 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     this.setState({ isTasksPanelOpen: false });
   };
 
+  private handleToggleNotificationFlyout = (): void => {
+    this.setState((prevState) => ({
+      isNotificationFlyoutOpen: !prevState.isNotificationFlyoutOpen,
+    }));
+  };
+
+  private handleCloseNotificationFlyout = (): void => {
+    this.setState({ isNotificationFlyoutOpen: false });
+  };
+
+  private handleNotificationStateChange = (state: {
+    unreadCount: number;
+    hasOverdue: boolean;
+    isLoading: boolean;
+  }): void => {
+    this.setState({
+      notificationCount: state.unreadCount,
+      hasOverdueNotifications: state.hasOverdue,
+      isNotificationsLoading: state.isLoading,
+    });
+  };
+
+  private handleNotificationClick = (notification: Notification): void => {
+    // Deep link to task - open the tasks panel
+    if (notification.deepLink?.type === 'task') {
+      this.setState({
+        isTasksPanelOpen: true,
+        isNotificationFlyoutOpen: false,
+      });
+    }
+  };
+
   private handleCardHelp = (card: IFunctionCard): void => {
     openMockHelpWindow({
       title: card.title,
@@ -711,6 +757,12 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           isTasksLoading={false}
           isTasksPanelOpen={isTasksPanelOpen}
           onToggleTasks={this.handleToggleTasksPanel}
+          notificationCount={this.state.notificationCount}
+          hasOverdueNotifications={this.state.hasOverdueNotifications}
+          isNotificationsLoading={this.state.isNotificationsLoading}
+          isNotificationFlyoutOpen={this.state.isNotificationFlyoutOpen}
+          notificationButtonRef={this.notificationButtonRef}
+          onToggleNotifications={this.handleToggleNotificationFlyout}
         />
         <Sidebar
           isCollapsed={isSidebarCollapsed}
@@ -894,6 +946,16 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
         <TasksPanelContainer
           isOpen={isTasksPanelOpen}
           onDismiss={this.handleCloseTasksPanel}
+        />
+
+        {/* Notifications Flyout */}
+        <NotificationsContainer
+          isOpen={this.state.isNotificationFlyoutOpen}
+          targetRef={this.notificationButtonRef}
+          onDismiss={this.handleCloseNotificationFlyout}
+          onNotificationClick={this.handleNotificationClick}
+          onViewAllTasks={this.handleToggleTasksPanel}
+          onStateChange={this.handleNotificationStateChange}
         />
 
         {/* AI Assistant */}
