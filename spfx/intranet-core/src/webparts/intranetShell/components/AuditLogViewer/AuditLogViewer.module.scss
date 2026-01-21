@@ -65,6 +65,10 @@
 .filterDropdown {
   min-width: 140px;
   max-width: 180px;
+
+  :global(.ms-Dropdown-title) {
+    border-radius: 6px;
+  }
 }
 
 .filterDate {

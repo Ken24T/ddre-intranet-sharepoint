@@ -1,5 +1,10 @@
 // Task editor panel styles
 
+// Dropdown styling
+:global(.ms-Dropdown-title) {
+  border-radius: 6px;
+}
+
 .panel {
   :global(.ms-Panel-content) {
     padding: 0 24px 24px;

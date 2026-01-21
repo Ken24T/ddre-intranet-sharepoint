@@ -1,5 +1,10 @@
 @import '~@fluentui/react/dist/sass/References.scss';
 
+// Dropdown styling
+:global(.ms-Dropdown-title) {
+  border-radius: 6px;
+}
+
 .taskReminderConfig {
   display: flex;
   flex-direction: column;

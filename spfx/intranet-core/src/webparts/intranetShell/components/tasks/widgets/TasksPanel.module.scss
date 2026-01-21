@@ -93,9 +93,26 @@
   height: 100%;
 }
 
-.searchBox {
-  margin-bottom: 0;
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
+}
+
+.searchBox {
+  flex: 1;
+  min-width: 0;
+}
+
+.filterDropdown {
+  min-width: 120px;
+  max-width: 140px;
+
+  :global(.ms-Dropdown-title) {
+    border-radius: 6px;
+    background: var(--panel-bg, #ffffff);
+  }
 }
 
 .pivot {
@@ -200,6 +217,7 @@
     font-size: 12px;
     height: 28px;
     line-height: 26px;
+    border-radius: 6px;
   }
 
   :global(.ms-Dropdown-caretDownWrapper) {

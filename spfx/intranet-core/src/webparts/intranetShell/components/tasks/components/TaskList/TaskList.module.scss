@@ -46,6 +46,10 @@
 
 .filterDropdown {
   min-width: 140px;
+
+  :global(.ms-Dropdown-title) {
+    border-radius: 6px;
+  }
 }
 
 .error {

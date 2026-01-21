@@ -93,6 +93,24 @@ const statusOptions: IDropdownOption[] = [
   { key: 'cancelled', text: 'Cancelled' },
 ];
 
+const priorityFilterOptions: IDropdownOption[] = [
+  { key: 'all', text: 'All priorities' },
+  { key: 'urgent', text: 'Urgent' },
+  { key: 'high', text: 'High' },
+  { key: 'medium', text: 'Medium' },
+  { key: 'low', text: 'Low' },
+];
+
+const hubFilterOptions: IDropdownOption[] = [
+  { key: 'all', text: 'All hubs' },
+  ...Object.keys(hubInfo)
+    .filter((key) => key !== 'help' && key !== 'favourites')
+    .map((key) => ({
+      key,
+      text: hubInfo[key as keyof typeof hubInfo].title,
+    })),
+];
+
 /**
  * Full task management panel with list, filters, and detail views
  */
@@ -119,6 +137,8 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
   const [viewMode, setViewMode] = React.useState<ViewMode>('list');
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedPivotKey, setSelectedPivotKey] = React.useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = React.useState<string>('all');
+  const [hubFilter, setHubFilter] = React.useState<string>('all');
   const [isSaving, setIsSaving] = React.useState(false);
   const [duplicateSourceId, setDuplicateSourceId] = React.useState<string | undefined>(
     undefined
@@ -163,8 +183,22 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
     if (isOpen) {
       setViewMode('list');
       setSearchQuery('');
+      setPriorityFilter('all');
+      setHubFilter('all');
+      setSelectedPivotKey('all');
     }
   }, [isOpen]);
+
+  // Handle refresh - reset all filters and reload tasks
+  const handleRefresh = React.useCallback(() => {
+    setSearchQuery('');
+    setPriorityFilter('all');
+    setHubFilter('all');
+    setSelectedPivotKey('all');
+    if (onRefresh) {
+      onRefresh();
+    }
+  }, [onRefresh]);
 
   // Switch to detail view when a task is selected
   React.useEffect(() => {
@@ -338,7 +372,7 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
       key: 'refresh',
       text: 'Refresh',
       iconProps: { iconName: 'Refresh' },
-      onClick: onRefresh,
+      onClick: handleRefresh,
       disabled: isLoading,
     },
   ];
@@ -369,6 +403,16 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
         break;
     }
 
+    // Apply priority filter
+    if (priorityFilter !== 'all') {
+      scopedTasks = scopedTasks.filter((t) => t.priority === priorityFilter);
+    }
+
+    // Apply hub filter
+    if (hubFilter !== 'all') {
+      scopedTasks = scopedTasks.filter((t) => t.hubId === hubFilter);
+    }
+
     if (!searchQuery) return scopedTasks;
     const query = searchQuery.toLowerCase();
     return scopedTasks.filter(
@@ -376,7 +420,7 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
         t.title.toLowerCase().includes(query) ||
         t.hubDisplayName?.toLowerCase().includes(query)
     );
-  }, [tasks, searchQuery, selectedPivotKey]);
+  }, [tasks, searchQuery, selectedPivotKey, priorityFilter, hubFilter]);
 
   // Count tasks by category
   const counts = React.useMemo(() => {
@@ -401,22 +445,41 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
     <Stack className={styles.listView}>
       <div className={styles.listHeader}>
         <CommandBar items={commandBarItems} styles={{ root: { padding: 0 } }} />
-        <div className={styles.searchBox}>
-          <IntranetSearchBox
-            placeholder="Search tasks..."
-            onQueryChange={handleSearch}
-            defaultExpanded={true}
-            collapseOnBlur={false}
-            showResults={false}
-            themeVars={{
-              width: '100%',
-              ['--search-input-bg' as string]: theme.palette.white,
-              ['--search-icon-color' as string]: theme.palette.neutralPrimary,
-              ['--search-input-text' as string]: theme.palette.neutralPrimary,
-              ['--search-input-placeholder' as string]: theme.palette.neutralSecondary,
-              ['--search-clear-color' as string]: theme.palette.neutralSecondary,
-              ['--search-clear-hover-color' as string]: theme.palette.neutralPrimary,
-            }}
+        <div className={styles.searchRow}>
+          <div className={styles.searchBox}>
+            <IntranetSearchBox
+              placeholder="Search tasks..."
+              value={searchQuery}
+              onQueryChange={handleSearch}
+              defaultExpanded={true}
+              collapseOnBlur={false}
+              showResults={false}
+              themeVars={{
+                width: '100%',
+                ['--search-input-bg' as string]: theme.palette.white,
+                ['--search-icon-color' as string]: theme.palette.neutralPrimary,
+                ['--search-input-text' as string]: theme.palette.neutralPrimary,
+                ['--search-input-placeholder' as string]: theme.palette.neutralSecondary,
+                ['--search-clear-color' as string]: theme.palette.neutralSecondary,
+                ['--search-clear-hover-color' as string]: theme.palette.neutralPrimary,
+              }}
+            />
+          </div>
+          <Dropdown
+            placeholder="Priority"
+            options={priorityFilterOptions}
+            selectedKey={priorityFilter}
+            onChange={(_, option) => option && setPriorityFilter(option.key as string)}
+            className={styles.filterDropdown}
+            styles={{ title: { borderRadius: 6 } }}
+          />
+          <Dropdown
+            placeholder="Hub"
+            options={hubFilterOptions}
+            selectedKey={hubFilter}
+            onChange={(_, option) => option && setHubFilter(option.key as string)}
+            className={styles.filterDropdown}
+            styles={{ title: { borderRadius: 6 } }}
           />
         </div>
       </div>
