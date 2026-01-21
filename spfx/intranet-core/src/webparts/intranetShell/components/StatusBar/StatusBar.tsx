@@ -188,11 +188,38 @@ interface ITaskBannerProps {
   onDismiss?: () => void;
 }
 
+/**
+ * Format date for display in tooltip.
+ */
+function formatDueDate(dateStr?: string): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // Reset time for comparison
+  today.setHours(0, 0, 0, 0);
+  tomorrow.setHours(0, 0, 0, 0);
+  const due = new Date(date);
+  due.setHours(0, 0, 0, 0);
+
+  if (due.getTime() === today.getTime()) {
+    return 'Due today';
+  } else if (due < today) {
+    const daysOverdue = Math.floor((today.getTime() - due.getTime()) / (1000 * 60 * 60 * 24));
+    return `${daysOverdue} day${daysOverdue > 1 ? 's' : ''} overdue`;
+  }
+  return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+}
+
 const TaskBanner: React.FC<ITaskBannerProps> = ({ items, onItemClick, onDismiss }) => {
   if (items.length === 0) return null;
 
-  const overdueCount = items.filter((i) => i.category === 'overdue').length;
-  const dueTodayCount = items.filter((i) => i.category === 'due-today').length;
+  const overdueItems = items.filter((i) => i.category === 'overdue');
+  const dueTodayItems = items.filter((i) => i.category === 'due-today');
+  const overdueCount = overdueItems.length;
+  const dueTodayCount = dueTodayItems.length;
 
   // Build message
   const parts: string[] = [];
@@ -203,6 +230,33 @@ const TaskBanner: React.FC<ITaskBannerProps> = ({ items, onItemClick, onDismiss 
     parts.push(`${dueTodayCount} due today`);
   }
   const message = `You have ${parts.join(' and ')} task${items.length > 1 ? 's' : ''}`;
+
+  // Build tooltip content showing task details
+  const tooltipLines: string[] = [];
+  if (overdueItems.length > 0) {
+    tooltipLines.push('⚠️ Overdue:');
+    overdueItems.slice(0, 5).forEach((item) => {
+      const dueInfo = formatDueDate(item.dueDate);
+      tooltipLines.push(`  • ${item.title}${dueInfo ? ` (${dueInfo})` : ''}`);
+    });
+    if (overdueItems.length > 5) {
+      tooltipLines.push(`  ... and ${overdueItems.length - 5} more`);
+    }
+  }
+  if (dueTodayItems.length > 0) {
+    if (tooltipLines.length > 0) tooltipLines.push('');
+    tooltipLines.push('🕐 Due today:');
+    dueTodayItems.slice(0, 5).forEach((item) => {
+      tooltipLines.push(`  • ${item.title}`);
+    });
+    if (dueTodayItems.length > 5) {
+      tooltipLines.push(`  ... and ${dueTodayItems.length - 5} more`);
+    }
+  }
+  tooltipLines.push('');
+  tooltipLines.push('Click to view all tasks');
+
+  const tooltipContent = tooltipLines.join('\n');
 
   const handleClick = (): void => {
     // Click the first item to open tasks panel
@@ -219,29 +273,35 @@ const TaskBanner: React.FC<ITaskBannerProps> = ({ items, onItemClick, onDismiss 
   };
 
   return (
-    <div
-      className={`${styles.taskBanner} ${overdueCount > 0 ? styles.taskBannerOverdue : styles.taskBannerDueToday}`}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      role="button"
-      tabIndex={0}
-      aria-label={message}
+    <TooltipHost
+      content={tooltipContent}
+      directionalHint={DirectionalHint.topCenter}
+      calloutProps={{ gapSpace: 8 }}
     >
-      <Icon iconName={overdueCount > 0 ? 'Warning' : 'Clock'} className={styles.taskBannerIcon} />
-      <span className={styles.taskBannerMessage}>{message}</span>
-      {onDismiss && (
-        <IconButton
-          iconProps={{ iconName: 'Cancel' }}
-          className={styles.taskBannerDismiss}
-          title="Dismiss for now"
-          ariaLabel="Dismiss task reminder"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDismiss();
-          }}
-        />
-      )}
-    </div>
+      <div
+        className={`${styles.taskBanner} ${overdueCount > 0 ? styles.taskBannerOverdue : styles.taskBannerDueToday}`}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-label={message}
+      >
+        <Icon iconName={overdueCount > 0 ? 'Warning' : 'Clock'} className={styles.taskBannerIcon} />
+        <span className={styles.taskBannerMessage}>{message}</span>
+        {onDismiss && (
+          <IconButton
+            iconProps={{ iconName: 'Cancel' }}
+            className={styles.taskBannerDismiss}
+            title="Dismiss for now"
+            ariaLabel="Dismiss task reminder"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDismiss();
+            }}
+          />
+        )}
+      </div>
+    </TooltipHost>
   );
 };
 
