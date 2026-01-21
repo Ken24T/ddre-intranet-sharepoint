@@ -4,6 +4,11 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
   border-radius: 8px;
   overflow: hidden;
+
+  // Round Fluent UI buttons
+  :global(.ms-Button) {
+    border-radius: 6px;
+  }
 }
 
 .container {
@@ -34,7 +39,7 @@
 .hubContext {
   padding: 8px 12px;
   background-color: $ms-color-neutralLighterAlt;
-  border-radius: 4px;
+  border-radius: 6px;
   border-left: 3px solid $ms-color-themePrimary;
 }
 

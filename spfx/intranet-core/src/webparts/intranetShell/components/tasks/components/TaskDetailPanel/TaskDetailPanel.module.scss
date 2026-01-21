@@ -1,5 +1,10 @@
 // Task detail panel styles
 
+// Button styling
+:global(.ms-Button) {
+  border-radius: 6px;
+}
+
 .panel {
   :global(.ms-Panel-content) {
     padding: 0 24px 24px;
@@ -146,7 +151,7 @@
   gap: 8px;
   padding: 8px 12px;
   background: #f3f2f1;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
   color: #323130;
 
@@ -195,7 +200,7 @@
   gap: 12px;
   padding: 12px;
   background: #faf9f8;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .commentAuthor {
