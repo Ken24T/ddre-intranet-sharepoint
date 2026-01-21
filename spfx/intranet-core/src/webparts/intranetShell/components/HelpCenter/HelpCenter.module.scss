@@ -421,6 +421,13 @@
   color: #7a4b00;
 }
 
+.ctaActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
 .ctaButton {
   border-radius: 999px;
   border: 1px solid #c28a00;

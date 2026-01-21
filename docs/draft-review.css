@@ -1,8 +1,12 @@
 body.markdown-preview-view {
   font-family: "Segoe UI", Arial, sans-serif;
   line-height: 1.6;
-  background: #111722;
-  color: #f7fbff;
+  background: #ffffff;
+  color: #0a1627;
+}
+.markdown-preview-view .markdown-rendered {
+  width: 75%;
+  margin: 0 auto;
 }
 /* Headings */
 .markdown-preview-view h1,

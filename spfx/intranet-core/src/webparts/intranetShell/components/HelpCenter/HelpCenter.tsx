@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { DefaultButton, Dropdown, Icon, SearchBox, useTheme } from '@fluentui/react';
+import { marked } from 'marked';
 import styles from './HelpCenter.module.scss';
 import type { IFunctionCard } from '../FunctionCard';
 import { hubInfo } from '../data';
@@ -133,6 +134,385 @@ const generalHelpCards: IGeneralHelpCard[] = [
     contentType: 'Policy',
   },
 ];
+
+const tasksGuideMarkdown = `# Tasks – User Guide
+
+This guide is for anyone using Tasks for the first time. It covers how to find Tasks, create and manage items, and understand notifications.
+
+## Overview
+
+Tasks help you track work you own or have been assigned. You can:
+- Create tasks with a title, priority, due date, and optional checklist.
+- Assign ownership and add additional assignees.
+- Track progress, mark tasks complete, and add comments.
+- Receive overdue and due‑today notifications in the notifications bell and Status Bar.
+
+## Where to find Tasks
+
+### 1) From the top navigation bar
+1. Select the **Tasks** icon (clipboard) in the navbar.
+2. The Tasks panel opens as a slide‑out panel.
+
+> [!suggestion] What you should see
+> - A panel titled **My Tasks**.
+> - Tabs for **All**, **Pending**, **Completed**, and **Overdue** (if any overdue tasks exist).
+> - A search bar plus **Priority** and **Hub** filters.
+> - A **New Task** button and a **Refresh** button.
+
+### 2) From the My Tasks widget (Home dashboard)
+1. Open the **My Tasks** widget on the Home dashboard.
+2. Select **View all** or the **Add** button.
+
+> [!suggestion] What you should see
+> - The same Tasks panel as above.
+
+## Creating a task (full editor)
+
+1. Open the Tasks panel.
+2. Select **New Task**.
+3. Fill in the form:
+   - **Title** (required)
+   - **Description** (optional)
+   - **Status** (Not started, In progress, Completed, Cancelled)
+   - **Priority** (Low, Medium, High, Urgent)
+   - **Due date** (optional)
+   - **Assign to** (owner type + owner ID)
+   - **Additional assignees** (optional)
+   - **Assign to hub** (optional)
+   - **Checklist** items (optional)
+   - **Notifications** (see Notifications section)
+4. Select **Create**.
+
+> [!suggestion] What you should see
+> - The new task in the list with a status badge and priority indicator.
+> - If a due date is set, a due date label appears.
+> - If the task is linked to a hub, the hub label appears.
+
+## Managing tasks
+
+### Open task details
+1. In the Tasks panel list, select any task.
+
+> [!suggestion] What you should see
+> - A task detail panel with the task title, status, due date, description (if provided), checklist, assignees, and comments.
+
+### Edit a task
+1. In the task detail panel, select **Edit task**.
+2. Update fields and select **Save**.
+
+> [!suggestion] What you should see
+> - Updated task details in the list and detail view.
+
+### Change status quickly
+You can change status in two places:
+- **Task detail panel**: use the **Change status** buttons.
+- **My Tasks widget**: use the quick checkbox to toggle completion.
+
+> [!suggestion] What you should see
+> - Status badges update immediately.
+> - Completed tasks move out of **Pending** and into **Completed**.
+
+### Use the checklist
+1. In the editor, add items in **Checklist**.
+2. In the detail panel, tick items to mark them complete.
+
+> [!suggestion] What you should see
+> - Checklist progress appears on task cards and the My Tasks widget.
+
+### Search and filter
+1. Use the **Search tasks…** field to find tasks by title or hub.
+2. Filter by **Priority** or **Hub**.
+3. Use tabs to switch between **All**, **Pending**, **Completed**, and **Overdue**.
+
+> [!suggestion] What you should see
+> - The task list updates immediately based on your filters.
+> - Tab counts reflect the number of tasks in each category.
+
+## Notifications and reminders
+
+Tasks integrate with the notification system in two ways: the notifications bell and the Status Bar.
+
+### Notifications bell (navbar)
+1. Select the **Notifications** bell icon.
+2. Review grouped items (Overdue, Due today).
+3. Select **Mark all as read** to clear unread badges.
+4. Select **View All Tasks** to open the Tasks panel.
+
+> [!suggestion] What you should see
+> - A flyout grouped by category with due date context (e.g., “Due today”, “2 days overdue”).
+> - Unread items display a dot until marked read.
+
+### Status Bar task banner
+When you have overdue or due‑today tasks, the Status Bar shows a banner.
+
+1. Hover to see a tooltip summary.
+2. Select the banner to open Tasks.
+3. Select **Dismiss** to hide the banner for now (and mark banner items as read).
+
+> [!suggestion] What you should see
+> - A banner message like **“You have 2 overdue and 1 due today task”**.
+> - A tooltip listing the top tasks with due‑date hints.
+
+### Notification settings on a task
+Each task includes notification controls in the editor:
+- **Do not notify me about this task** toggle.
+- **Email reminder** dropdown (disabled if notifications are turned off).
+
+> [!suggestion] What you should see
+> - Turning on **Do not notify** disables email reminder selection.
+> - Email reminder options include common offsets (e.g., 1 hour before, 1 day before).
+
+## Troubleshooting
+
+- **I can’t find a task:** Clear filters and switch to **All**.
+- **No notifications are showing:** Ensure the task has a due date and notifications are enabled.
+- **Email reminder is disabled:** Turn off **Do not notify me about this task**.
+
+## Tips
+
+- Use **Pending** to stay on top of active work.
+- Use **Overdue** to triage urgent items quickly.
+- Add a checklist for multi‑step work to visualise progress.
+`;
+
+const draftReviewCss = `body.markdown-preview-view {
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.6;
+  background: #ffffff;
+  color: #0a1627;
+}
+.markdown-preview-view .markdown-rendered {
+  width: 75%;
+  margin: 0 auto;
+}
+/* Headings */
+.markdown-preview-view h1,
+.markdown-preview-view h2,
+.markdown-preview-view h3 {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.markdown-preview-view h1 {
+  color: #ffffff;
+  background: #001CAD;
+  border-left: 5px solid #001CAD;
+  border-bottom: none;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 6px 20px rgba(10, 22, 39, 0.5);
+}
+.markdown-preview-view h2 {
+  color: #f4f8ff !important;
+  background: #001CAD;
+  border-left: 5px solid #001CAD;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  margin-top: 2.8rem;
+  box-shadow: 0 4px 14px rgba(22, 34, 46, 0.35);
+}
+.markdown-preview-view h3 {
+  color: #001CAD;
+  background: #EEF2F8;
+  border-left: 5px solid #EEF2F8;
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  margin-top: 2.4rem;
+}
+.markdown-preview-view h4 {
+  color: #3cbecb;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+/* Blockquotes */
+.markdown-preview-view blockquote {
+  margin: 0.3rem 0 1.2rem 0;
+  padding: 0.3rem 0.9rem;
+  border-left: 4px solid #3b7dd8 !important;
+  background: #203f66 !important;
+  color: #f2f6ff !important;
+  box-shadow: 0 6px 18px rgba(12, 26, 44, 0.35);
+  border-radius: 8px;
+}
+/* Blockquote as caption (following a table) */
+.markdown-preview-view table + blockquote,
+.markdown-preview-view table + p + blockquote {
+  margin-top: 0.3rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9em;
+}
+/* Tables */
+.markdown-preview-view table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.5rem 0 0.3rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.markdown-preview-view table thead tr th,
+.markdown-preview-view table tr:first-of-type th {
+  background: #3f5ba9 !important;
+  color: #ffffff !important;
+}
+.markdown-preview-view table thead tr th:first-child {
+  border-top-left-radius: 8px;
+}
+.markdown-preview-view table thead tr th:last-child {
+  border-top-right-radius: 8px;
+}
+.markdown-preview-view table th {
+  background: #3f5ba9;
+  color: #ffffff;
+  text-align: left;
+  padding: 0.6rem;
+}
+.markdown-preview-view table tbody td {
+  padding: 0.6rem;
+  border-top: 1px solid #c9d9f2;
+}
+.markdown-preview-view table tbody tr:nth-child(odd) {
+  background: #e8eef8;
+}
+.markdown-preview-view table tbody tr:nth-child(even) {
+  background: #d4dfef;
+}
+/* Code */
+.markdown-preview-view code {
+  background: #e3e7ef;
+  color: #25324a;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+.markdown-preview-view pre {
+  background: #dde2eb;
+  border: 1px solid #c3cbd9;
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+/* Callouts */
+/* Purpose */
+.markdown-preview-view .callout[data-callout="purpose"] {
+  background: #dff4ff;
+  color: #0a1627;
+  border-left: 5px solid #5ab0e6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.markdown-preview-view .callout[data-callout="purpose"] .callout-title {
+  color: #0a1627;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+/* Note & Info */
+.markdown-preview-view .callout[data-callout="note"],
+.markdown-preview-view .callout[data-callout="info"] {
+  background: #dbe7ff;
+  color: #0a1a2f;
+  border-left: 5px solid #4f7fce;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.markdown-preview-view .callout[data-callout="note"] .callout-title,
+.markdown-preview-view .callout[data-callout="info"] .callout-title {
+  color: #0a1a2f;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+/* Caution */
+.markdown-preview-view .callout[data-callout="caution"] {
+  background: #fbe9d2;
+  color: #1b1b1b;
+  border-left: 5px solid #f4a261;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.markdown-preview-view .callout[data-callout="caution"] .callout-title {
+  color: #1b1b1b;
+  font-weight: 700;
+}
+/* SUGGESTION (Corrected) */
+.markdown-preview-view .callout[data-callout="suggestion"] {
+  background: #F6F6F6;
+  color: #2f2608;
+  border-left: 5px solid #EEF2F8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-style: normal;
+}
+.markdown-preview-view .callout[data-callout="suggestion"] .callout-title {
+  color: #001CAD;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1rem;
+  letter-spacing: 0;
+  margin-bottom: 0.25rem;
+}
+.markdown-preview-view .callout[data-callout="suggestion"] p {
+  margin: 0.25rem 0 0 0;
+  padding: 0;
+  line-height: 1.5;
+}
+.markdown-preview-view .callout[data-callout="suggestion"] .callout-icon {
+  display: none;
+}
+/* Ultimate fix: force white h2 text across all rendering contexts */
+.markdown-preview-view h2,
+.markdown-preview-view .markdown-preview-section h2,
+.markdown-preview-view .markdown-rendered h2,
+.markdown-preview-view h2 span {
+  color: #ffffff !important;
+}
+`;
+
+const renderMarkdownWithCallouts = (markdown: string): string => {
+  const lines = markdown.split('\n');
+  const output: string[] = [];
+  let inCallout = false;
+  let calloutType = '';
+  let calloutTitle = '';
+  let calloutLines: string[] = [];
+
+  const flushCallout = (): void => {
+    if (!inCallout) return;
+    const contentMarkdown = calloutLines.join('\n');
+    const contentHtml = marked.parse(contentMarkdown) as string;
+    output.push(
+      `<div class="callout" data-callout="${calloutType}">` +
+        `<div class="callout-title">${calloutTitle || calloutType}</div>` +
+        `<div class="callout-content">${contentHtml}</div>` +
+      `</div>`
+    );
+    inCallout = false;
+    calloutType = '';
+    calloutTitle = '';
+    calloutLines = [];
+  };
+
+  lines.forEach((line) => {
+    const calloutMatch = line.match(/^> \[!(\w+)\]\s*(.*)$/);
+    if (calloutMatch) {
+      flushCallout();
+      inCallout = true;
+      calloutType = calloutMatch[1].toLowerCase();
+      calloutTitle = calloutMatch[2] || calloutMatch[1];
+      return;
+    }
+
+    if (inCallout) {
+      if (line.startsWith('>')) {
+        calloutLines.push(line.replace(/^>\s?/, ''));
+        return;
+      }
+      flushCallout();
+    }
+
+    output.push(line);
+  });
+
+  flushCallout();
+
+  return marked.parse(output.join('\n')) as string;
+};
 export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
   const theme = useTheme();
   const [searchText, setSearchText] = React.useState('');
@@ -298,6 +678,29 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
   const toggleGroup = (group: 'general' | 'hub'): void => {
     setExpandedGroup((prev) => (prev === group ? null : group));
   };
+
+  const handleOpenTasksGuidePreview = React.useCallback(() => {
+    const html = renderMarkdownWithCallouts(tasksGuideMarkdown);
+    const previewHtml = `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tasks guide preview</title>
+    <style>${draftReviewCss}</style>
+  </head>
+  <body class="markdown-preview-view">
+    <div class="markdown-preview-view markdown-rendered">
+      ${html}
+    </div>
+  </body>
+</html>`;
+
+    const blob = new Blob([previewHtml], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank', 'noopener,noreferrer');
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }, []);
 
   const helpCenterClassName = `${styles.helpCenter} ${theme.isInverted ? styles.dark : ''}`;
 
@@ -515,12 +918,20 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
             We can connect you with the right team or help you report a problem.
           </p>
         </div>
-        <DefaultButton
-          text="Request help"
-          iconProps={{ iconName: 'Lightbulb' }}
-          className={styles.ctaButton}
-          onClick={handleRequestHelp}
-        />
+        <div className={styles.ctaActions}>
+          <DefaultButton
+            text="Preview Tasks guide"
+            iconProps={{ iconName: 'OpenInNewWindow' }}
+            className={styles.ctaButton}
+            onClick={handleOpenTasksGuidePreview}
+          />
+          <DefaultButton
+            text="Request help"
+            iconProps={{ iconName: 'Lightbulb' }}
+            className={styles.ctaButton}
+            onClick={handleRequestHelp}
+          />
+        </div>
       </div>
     </div>
   );
