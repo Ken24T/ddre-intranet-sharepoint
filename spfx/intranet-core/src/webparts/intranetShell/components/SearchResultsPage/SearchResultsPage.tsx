@@ -249,7 +249,7 @@ export const SearchResultsPage: React.FC<ISearchResultsPageProps> = ({
             <div className={styles.filterHeader}>
               <div className={styles.filterTitleRow}>
                 <h3>Hub</h3>
-                <HelpTooltip tooltip={searchTooltips.hubFilter} iconSize={12} />
+                <HelpTooltip tooltip={searchTooltips.hubFilter} />
               </div>
               {filters.hubs.size > 0 && (
                 <button 
@@ -276,7 +276,7 @@ export const SearchResultsPage: React.FC<ISearchResultsPageProps> = ({
             <div className={styles.filterHeader}>
               <div className={styles.filterTitleRow}>
                 <h3>Content Type</h3>
-                <HelpTooltip tooltip={searchTooltips.contentTypeFilter} iconSize={12} />
+                <HelpTooltip tooltip={searchTooltips.contentTypeFilter} />
               </div>
               {filters.types.size > 0 && (
                 <button 

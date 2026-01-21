@@ -2,12 +2,12 @@
 // Contextual help icon with rich tooltip content
 
 .helpIcon {
-  width: 20px;
-  height: 20px;
-  min-width: 20px;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
   padding: 0;
-  margin: 0 4px;
-  color: var(--neutralSecondary, #605e5c);
+  margin: 0 2px;
+  color: var(--neutralTertiary, #a19f9d);
   border-radius: 50%;
   transition: color 0.15s ease, background-color 0.15s ease;
 

@@ -275,7 +275,7 @@ export const CardGrid: React.FC<ICardGridProps> = ({
             <span className={styles.hintText}>
               Drag cards to reorder • Click the menu for more options
             </span>
-            <HelpTooltip tooltip={cardGridTooltips.reorderCards} iconSize={12} />
+            <HelpTooltip tooltip={cardGridTooltips.reorderCards} />
           </div>
           <div className={styles.grid}>
           {items.map((id) => {

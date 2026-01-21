@@ -557,7 +557,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
               onRenderLabel={() => (
                 <div className={styles.labelWithHelp}>
                   <Label>Priority</Label>
-                  <HelpTooltip tooltip={taskTooltips.priority} iconSize={12} />
+                  <HelpTooltip tooltip={taskTooltips.priority} />
                 </div>
               )}
             />
@@ -567,7 +567,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
           <div className={styles.fieldWithHelp}>
             <div className={styles.labelWithHelp}>
               <Label>Due date</Label>
-              <HelpTooltip tooltip={taskTooltips.dueDate} iconSize={12} />
+              <HelpTooltip tooltip={taskTooltips.dueDate} />
             </div>
             <DatePicker
               value={form.dueDate}
@@ -635,7 +635,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
           <div className={styles.checklistSection}>
             <div className={styles.labelWithHelp}>
               <Label>Checklist</Label>
-              <HelpTooltip tooltip={taskTooltips.checklist} iconSize={12} />
+              <HelpTooltip tooltip={taskTooltips.checklist} />
             </div>
             
             {form.checklist.length > 0 && (
@@ -708,7 +708,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
               onRenderLabel={() => (
                 <div className={styles.labelWithHelp}>
                   <Label>Email reminder</Label>
-                  <HelpTooltip tooltip={taskTooltips.reminders} iconSize={12} />
+                  <HelpTooltip tooltip={taskTooltips.reminders} />
                 </div>
               )}
               styles={{

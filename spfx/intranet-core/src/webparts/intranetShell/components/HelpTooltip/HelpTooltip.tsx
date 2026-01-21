@@ -43,7 +43,7 @@ export interface IHelpTooltipProps {
  */
 export const HelpTooltip: React.FC<IHelpTooltipProps> = ({
   tooltip,
-  iconSize = 14,
+  iconSize = 10,
   directionalHint = DirectionalHint.topCenter,
   className,
 }) => {
@@ -111,7 +111,7 @@ export const HelpTooltip: React.FC<IHelpTooltipProps> = ({
       styles={tooltipHostStyles}
     >
       <IconButton
-        iconProps={{ iconName: 'Help', styles: { root: { fontSize: iconSize } } }}
+        iconProps={{ iconName: 'Info', styles: { root: { fontSize: iconSize } } }}
         className={`${styles.helpIcon} ${className ?? ''}`}
         ariaLabel={`Help: ${tooltip.title}`}
         title=""
