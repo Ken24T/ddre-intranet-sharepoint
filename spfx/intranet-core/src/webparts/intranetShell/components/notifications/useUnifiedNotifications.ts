@@ -25,16 +25,19 @@ import { TaskSummary, TaskPriority } from '../tasks/types';
  */
 function getDateCategory(dueDate: string): NotificationCategory | undefined {
   const now = new Date();
-  const due = new Date(dueDate);
+  const dueParsed = new Date(dueDate);
+  // Normalize to date-only (strip time) for consistent comparison
+  const due = new Date(dueParsed.getFullYear(), dueParsed.getMonth(), dueParsed.getDate());
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+  const dayAfterTomorrow = new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000);
   const endOfWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   if (due < today) {
     return 'overdue';
   } else if (due < tomorrow) {
     return 'due-today';
-  } else if (due < new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000)) {
+  } else if (due < dayAfterTomorrow) {
     return 'due-tomorrow';
   } else if (due < endOfWeek) {
     return 'due-this-week';

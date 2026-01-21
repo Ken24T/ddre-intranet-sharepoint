@@ -418,20 +418,22 @@ export const TasksPanel: React.FC<ITasksPanelProps> = ({
 
   // Count tasks by category
   const counts = React.useMemo(() => {
+    // Compare against start of today - a task is only overdue if due BEFORE today
     const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     return {
       all: tasks.length,
       pending: tasks.filter(
         (t) => t.status === 'not-started' || t.status === 'in-progress'
       ).length,
       completed: tasks.filter((t) => t.status === 'completed').length,
-      overdue: tasks.filter(
-        (t) =>
-          t.dueDate &&
-          new Date(t.dueDate) < now &&
-          t.status !== 'completed' &&
-          t.status !== 'cancelled'
-      ).length,
+      overdue: tasks.filter((t) => {
+        if (!t.dueDate) return false;
+        if (t.status === 'completed' || t.status === 'cancelled') return false;
+        const dueDate = new Date(t.dueDate);
+        const dueDateOnly = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+        return dueDateOnly < startOfToday;
+      }).length,
     };
   }, [tasks]);
 

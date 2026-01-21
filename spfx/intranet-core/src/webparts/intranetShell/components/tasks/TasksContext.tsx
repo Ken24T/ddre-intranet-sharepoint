@@ -297,13 +297,18 @@ function createMockClient(): MockTasksClient {
     },
 
     getOverdueTasks: async () => {
+      // Compare against start of today (midnight) - a task is only overdue if due BEFORE today
       const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       return {
         items: mockTasks
           .filter((t) => {
             if (!t.dueDate) return false;
             if (t.status === 'completed' || t.status === 'cancelled') return false;
-            return new Date(t.dueDate) < now;
+            // Parse due date and compare date-only (strip time)
+            const dueDate = new Date(t.dueDate);
+            const dueDateOnly = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate());
+            return dueDateOnly < startOfToday;
           })
           .map((t) => ({
             id: t.id,
