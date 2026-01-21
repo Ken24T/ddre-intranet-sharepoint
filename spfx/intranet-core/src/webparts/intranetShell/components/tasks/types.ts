@@ -147,6 +147,8 @@ export interface Task {
   updatedAt?: string;
   updatedBy?: string;
   version?: number;
+  /** Suppress notifications for this task (default: false) */
+  doNotNotify?: boolean;
 }
 
 /**
@@ -171,6 +173,8 @@ export interface TaskSummary {
   /** Checklist items for tooltip display */
   checklist?: TaskChecklist[];
   commentCount?: number;
+  /** Suppress notifications for this task */
+  doNotNotify?: boolean;
 }
 
 // =============================================================================
@@ -194,6 +198,8 @@ export interface CreateTaskRequest {
   reminders?: CreateReminderRequest[];
   checklist?: Array<{ title: string }>;
   tags?: string[];
+  /** Suppress notifications for this task */
+  doNotNotify?: boolean;
 }
 
 export interface UpdateTaskRequest {
@@ -212,6 +218,8 @@ export interface UpdateTaskRequest {
   }>;
   tags?: string[];
   version?: number;
+  /** Suppress notifications for this task */
+  doNotNotify?: boolean;
 }
 
 export interface CreateReminderRequest {

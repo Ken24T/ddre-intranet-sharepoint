@@ -162,6 +162,7 @@ function createMockClient(): MockTasksClient {
             : undefined,
           checklist: t.checklist,
           commentCount: t.comments?.length ?? 0,
+          doNotNotify: t.doNotNotify,
         })),
         totalCount: mockTasks.length,
       };
@@ -200,6 +201,7 @@ function createMockClient(): MockTasksClient {
         createdAt: now,
         createdBy: 'mock-user',
         version: 1,
+        doNotNotify: req.doNotNotify ?? false,
       };
       mockTasks.push(task);
       console.log('[MockTasksClient] Created task:', task.id, task.title);

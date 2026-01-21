@@ -17,6 +17,7 @@ import {
   IconButton,
   Spinner,
   SpinnerSize,
+  Toggle,
 } from '@fluentui/react';
 import type {
   Task,
@@ -68,6 +69,7 @@ interface FormState {
   ownerId: string;
   ownerDisplayName: string;
   assignments: TaskAssignment[];
+  doNotNotify: boolean;
 }
 
 interface FormErrors {
@@ -128,6 +130,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
     ownerId: defaultOwnership?.ownerId ?? '',
     ownerDisplayName: defaultOwnership?.ownerDisplayName ?? '',
     assignments: [],
+    doNotNotify: false,
   });
 
   const [errors, setErrors] = React.useState<FormErrors>({});
@@ -150,6 +153,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
           ownerId: task.ownership.ownerId,
           ownerDisplayName: task.ownership.ownerDisplayName ?? '',
           assignments: task.assignments ?? [],
+          doNotNotify: task.doNotNotify ?? false,
         });
       } else {
         setForm({
@@ -178,6 +182,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
               userId: assignment.userId,
               role: assignment.role,
             })) ?? [],
+          doNotNotify: initialDraft?.doNotNotify ?? false,
         });
       }
       setErrors({});
@@ -310,6 +315,13 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
     }));
   }, []);
 
+  const handleDoNotNotifyChange = React.useCallback(
+    (_: React.MouseEvent<HTMLElement>, checked?: boolean) => {
+      setForm((prev) => ({ ...prev, doNotNotify: checked ?? false }));
+    },
+    []
+  );
+
   // Validation
   const validate = React.useCallback((): boolean => {
     const newErrors: FormErrors = {};
@@ -367,6 +379,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
             completed: item.completed,
             sortOrder: item.sortOrder,
           })),
+          doNotNotify: form.doNotNotify,
         };
         await onSave(updateData);
       } else {
@@ -393,6 +406,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
           hubLink,
           dueDate: form.dueDate?.toISOString(),
           checklist: form.checklist.map((item) => ({ title: item.title })),
+          doNotNotify: form.doNotNotify,
         };
         await onSave(createData);
       }
@@ -620,6 +634,20 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
                 disabled={saving || !form.newChecklistItem.trim()}
               />
             </div>
+          </div>
+
+          {/* Notification Settings */}
+          <div className={styles.section}>
+            <Label>Notifications</Label>
+            <Toggle
+              label="Do not notify me about this task"
+              checked={form.doNotNotify}
+              onChange={handleDoNotNotifyChange}
+              disabled={saving}
+              onText="Notifications disabled"
+              offText="Notifications enabled"
+              inlineLabel
+            />
           </div>
         </div>
       )}
