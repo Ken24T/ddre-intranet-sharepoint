@@ -1,0 +1,183 @@
+body.markdown-preview-view {
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.6;
+  background: #111722;
+  color: #f7fbff;
+}
+/* Headings */
+.markdown-preview-view h1,
+.markdown-preview-view h2,
+.markdown-preview-view h3 {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.markdown-preview-view h1 {
+  color: #ffffff;
+  background: #001CAD;
+  border-left: 5px solid #001CAD;
+  border-bottom: none;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 6px 20px rgba(10, 22, 39, 0.5);
+}
+.markdown-preview-view h2 {
+  color: #f4f8ff !important;
+  background: #001CAD;
+  border-left: 5px solid #001CAD;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  margin-top: 2.8rem;
+  box-shadow: 0 4px 14px rgba(22, 34, 46, 0.35);
+}
+.markdown-preview-view h3 {
+  color: #001CAD;
+  background: #EEF2F8;
+  border-left: 5px solid #EEF2F8;
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  margin-top: 2.4rem;
+}
+.markdown-preview-view h4 {
+  color: #3cbecb;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+/* Blockquotes */
+.markdown-preview-view blockquote {
+  margin: 0.3rem 0 1.2rem 0;
+  padding: 0.3rem 0.9rem;
+  border-left: 4px solid #3b7dd8 !important;
+  background: #203f66 !important;
+  color: #f2f6ff !important;
+  box-shadow: 0 6px 18px rgba(12, 26, 44, 0.35);
+  border-radius: 8px;
+}
+/* Blockquote as caption (following a table) */
+.markdown-preview-view table + blockquote,
+.markdown-preview-view table + p + blockquote {
+  margin-top: 0.3rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9em;
+}
+/* Tables */
+.markdown-preview-view table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.5rem 0 0.3rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.markdown-preview-view table thead tr th,
+.markdown-preview-view table tr:first-of-type th {
+  background: #3f5ba9 !important;
+  color: #ffffff !important;
+}
+.markdown-preview-view table thead tr th:first-child {
+  border-top-left-radius: 8px;
+}
+.markdown-preview-view table thead tr th:last-child {
+  border-top-right-radius: 8px;
+}
+.markdown-preview-view table th {
+  background: #3f5ba9;
+  color: #ffffff;
+  text-align: left;
+  padding: 0.6rem;
+}
+.markdown-preview-view table tbody td {
+  padding: 0.6rem;
+  border-top: 1px solid #c9d9f2;
+}
+.markdown-preview-view table tbody tr:nth-child(odd) {
+  background: #e8eef8;
+}
+.markdown-preview-view table tbody tr:nth-child(even) {
+  background: #d4dfef;
+}
+/* Code */
+.markdown-preview-view code {
+  background: #e3e7ef;
+  color: #25324a;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+.markdown-preview-view pre {
+  background: #dde2eb;
+  border: 1px solid #c3cbd9;
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+/* Callouts */
+/* Purpose */
+.markdown-preview-view .callout[data-callout="purpose"] {
+  background: #dff4ff;
+  color: #0a1627;
+  border-left: 5px solid #5ab0e6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.markdown-preview-view .callout[data-callout="purpose"] .callout-title {
+  color: #0a1627;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+/* Note & Info */
+.markdown-preview-view .callout[data-callout="note"],
+.markdown-preview-view .callout[data-callout="info"] {
+  background: #dbe7ff;
+  color: #0a1a2f;
+  border-left: 5px solid #4f7fce;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.markdown-preview-view .callout[data-callout="note"] .callout-title,
+.markdown-preview-view .callout[data-callout="info"] .callout-title {
+  color: #0a1a2f;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+/* Caution */
+.markdown-preview-view .callout[data-callout="caution"] {
+  background: #fbe9d2;
+  color: #1b1b1b;
+  border-left: 5px solid #f4a261;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.markdown-preview-view .callout[data-callout="caution"] .callout-title {
+  color: #1b1b1b;
+  font-weight: 700;
+}
+/* SUGGESTION (Corrected) */
+.markdown-preview-view .callout[data-callout="suggestion"] {
+  background: #F6F6F6;
+  color: #2f2608;
+  border-left: 5px solid #EEF2F8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-style: normal;
+}
+.markdown-preview-view .callout[data-callout="suggestion"] .callout-title {
+  color: #001CAD;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1rem;
+  letter-spacing: 0;
+  margin-bottom: 0.25rem;
+}
+.markdown-preview-view .callout[data-callout="suggestion"] p {
+  margin: 0.25rem 0 0 0;
+  padding: 0;
+  line-height: 1.5;
+}
+.markdown-preview-view .callout[data-callout="suggestion"] .callout-icon {
+  display: none;
+}
+/* Ultimate fix: force white h2 text across all rendering contexts */
+.markdown-preview-view h2,
+.markdown-preview-view .markdown-preview-section h2,
+.markdown-preview-view .markdown-rendered h2,
+.markdown-preview-view h2 span {
+  color: #ffffff !important;
+}
