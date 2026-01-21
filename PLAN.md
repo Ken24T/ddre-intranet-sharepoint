@@ -170,6 +170,96 @@ The foundation SPFx solution providing the layout frame for all intranet content
       (search terms, card opens, feedback)
 - [x] 11.15 Add placeholders for wizards and video tutorials
 
+#### Phase 11a: Contextual Help Tooltips ✅
+
+> Add `?` help icons with explanatory tooltips to complex UI elements.
+
+- [x] 11a.1 Create `HelpTooltip` component
+      (icon button + TooltipHost with rich content)
+- [x] 11a.2 Define tooltip content data model
+      (id, title, content, learnMoreUrl in helpTooltips.ts)
+- [x] 11a.3 Add tooltips to Settings Panel sections
+      (theme, layout, card visibility)
+- [x] 11a.4 Add tooltips to Task Editor fields
+      (priority, due date, checklist, reminders)
+- [x] 11a.5 Add tooltips to Search filters
+      (hub filter, content type filter)
+- [x] 11a.6 Add tooltips to Card Grid actions
+      (hint text with reorder tooltip)
+- [x] 11a.7 Add tooltips to Admin features
+      (Audit Logs header)
+- [x] 11a.8 Add audit logging for tooltip views
+      (help_tooltip_viewed, help_tooltip_learn_more events)
+
+#### Phase 11b: What's New Panel
+
+> Release notes and changelog section in Help Centre.
+
+- [ ] 11b.1 Define release notes data model
+      (version, date, title, summary, details, category)
+- [ ] 11b.2 Create mock release notes data
+      (last 5-10 releases with realistic entries)
+- [ ] 11b.3 Add "What's New" tab/section to Help Centre
+      (tab in General section or separate panel)
+- [ ] 11b.4 Create release notes list view
+      (expandable cards with version, date, highlights)
+- [ ] 11b.5 Add category badges to release items
+      (New Feature, Improvement, Bug Fix, Security)
+- [ ] 11b.6 Add "New" indicator for recent releases
+      (badge on Help icon when new release unread)
+- [ ] 11b.7 Track release note views in audit log
+
+#### Phase 11c: Help Search Analytics
+
+> Integrate help search with existing audit system for content gap analysis.
+
+- [ ] 11c.1 Add `help_search` event type to AuditContext
+      (search_executed, search_no_results, article_opened)
+- [ ] 11c.2 Log Help Centre search queries
+      (query text, result count, selected result)
+- [ ] 11c.3 Log "no results" searches separately
+      (for content gap identification)
+- [ ] 11c.4 Log article opens with source context
+      (from search, from category, from card)
+- [ ] 11c.5 Log feedback submissions
+      (helpful yes/no, article id, user context)
+- [ ] 11c.6 Add Help Analytics section to Audit Log Viewer
+      (filter by help-related events)
+- [ ] 11c.7 Add "Top Missing Content" mock report
+      (queries with no results, grouped)
+
+#### Phase 11d: Print/Export Help Articles
+
+> Allow users to print or export help content for offline reference.
+
+- [ ] 11d.1 Add print button to help article preview
+      (opens print dialog with styled content)
+- [ ] 11d.2 Create print-optimised CSS for help content
+      (hide nav, adjust fonts, page breaks)
+- [ ] 11d.3 Add "Download as PDF" button (mock)
+      (shows toast with "feature coming soon" for now)
+- [ ] 11d.4 Add "Copy link" button for help articles
+      (copies shareable URL to clipboard)
+- [ ] 11d.5 Log print/export actions in audit
+      (article id, action type)
+
+#### Phase 11e: Related Articles
+
+> Show contextually related help articles for better discovery.
+
+- [ ] 11e.1 Define related articles data model
+      (article id, related ids, relationship type)
+- [ ] 11e.2 Add mock related articles to help cards
+      (2-3 related items per card/article)
+- [ ] 11e.3 Add "See Also" section to help preview
+      (list of related article links)
+- [ ] 11e.4 Add "Related Help" section to card help
+      (articles related to the function card)
+- [ ] 11e.5 Add relationship types
+      (prerequisite, next step, related topic, troubleshooting)
+- [ ] 11e.6 Log related article clicks in audit
+      (source article, clicked article, relationship)
+
 ### Phase 12: Feedback & Bug Report
 
 - [ ] 12.1 Decide submission mechanism (Cognito Forms vs SharePoint list)

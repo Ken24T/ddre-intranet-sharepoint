@@ -18,6 +18,8 @@ import { FunctionCard } from '../FunctionCard';
 import type { CardOpenBehavior, IFunctionCard } from '../FunctionCard';
 import { getHubColor } from '../theme/colors';
 import { useAudit } from '../AuditContext';
+import { HelpTooltip } from '../HelpTooltip';
+import { cardGridTooltips } from '../data/helpTooltips';
 import styles from './CardGrid.module.scss';
 
 export interface ICardGridProps {
@@ -268,7 +270,14 @@ export const CardGrid: React.FC<ICardGridProps> = ({
       onDragEnd={handleDragEnd}
     >
       <SortableContext items={items} strategy={rectSortingStrategy}>
-        <div className={styles.grid}>
+        <div className={styles.gridContainer}>
+          <div className={styles.gridHint}>
+            <span className={styles.hintText}>
+              Drag cards to reorder • Click the menu for more options
+            </span>
+            <HelpTooltip tooltip={cardGridTooltips.reorderCards} iconSize={12} />
+          </div>
+          <div className={styles.grid}>
           {items.map((id) => {
             const card = visibleCards.find((c) => c.id === id);
             if (!card) return null;
@@ -289,6 +298,7 @@ export const CardGrid: React.FC<ICardGridProps> = ({
               />
             );
           })}
+          </div>
         </div>
       </SortableContext>
     </DndContext>

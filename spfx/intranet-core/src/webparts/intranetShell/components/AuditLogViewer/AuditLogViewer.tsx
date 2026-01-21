@@ -22,6 +22,8 @@ import {
 } from '@fluentui/react';
 import { useAudit } from '../AuditContext';
 import type { EventType } from '../AuditContext';
+import { HelpTooltip } from '../HelpTooltip';
+import { adminTooltips } from '../data/helpTooltips';
 import styles from './AuditLogViewer.module.scss';
 
 // =============================================================================
@@ -754,10 +756,13 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
     <div className={styles.auditLogViewer}>
       <div className={styles.header}>
         <div className={styles.headerLeft}>
-          <h2 className={styles.title}>
-            <Icon iconName="ComplianceAudit" className={styles.titleIcon} />
-            Audit Logs
-          </h2>
+          <div className={styles.titleRow}>
+            <h2 className={styles.title}>
+              <Icon iconName="ComplianceAudit" className={styles.titleIcon} />
+              Audit Logs
+            </h2>
+            <HelpTooltip tooltip={adminTooltips.auditLogs} iconSize={14} />
+          </div>
           <span className={styles.subtitle}>
             {filteredLogs.length} {filteredLogs.length === 1 ? 'entry' : 'entries'}
             {hasFilters && ' (filtered)'}

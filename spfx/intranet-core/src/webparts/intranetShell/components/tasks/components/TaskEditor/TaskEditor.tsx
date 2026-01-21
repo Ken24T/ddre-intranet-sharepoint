@@ -31,6 +31,8 @@ import type {
   TaskAssignment,
 } from '../../types';
 import { TaskAssignmentPicker } from '../TaskAssignmentPicker';
+import { HelpTooltip } from '../../../HelpTooltip';
+import { taskTooltips } from '../../../data/helpTooltips';
 import styles from './TaskEditor.module.scss';
 
 export interface ITaskEditorProps {
@@ -552,19 +554,30 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
               onChange={handlePriorityChange}
               disabled={saving}
               className={styles.halfWidth}
+              onRenderLabel={() => (
+                <div className={styles.labelWithHelp}>
+                  <Label>Priority</Label>
+                  <HelpTooltip tooltip={taskTooltips.priority} iconSize={12} />
+                </div>
+              )}
             />
           </div>
 
           {/* Due Date */}
-          <DatePicker
-            label="Due date"
-            value={form.dueDate}
-            onSelectDate={handleDueDateChange}
-            placeholder="Select due date (optional)"
-            disabled={saving}
-            minDate={new Date()}
-            allowTextInput
-          />
+          <div className={styles.fieldWithHelp}>
+            <div className={styles.labelWithHelp}>
+              <Label>Due date</Label>
+              <HelpTooltip tooltip={taskTooltips.dueDate} iconSize={12} />
+            </div>
+            <DatePicker
+              value={form.dueDate}
+              onSelectDate={handleDueDateChange}
+              placeholder="Select due date (optional)"
+              disabled={saving}
+              minDate={new Date()}
+              allowTextInput
+            />
+          </div>
 
           {/* Ownership */}
           <div className={styles.section}>
@@ -620,7 +633,10 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
 
           {/* Checklist */}
           <div className={styles.checklistSection}>
-            <Label>Checklist</Label>
+            <div className={styles.labelWithHelp}>
+              <Label>Checklist</Label>
+              <HelpTooltip tooltip={taskTooltips.checklist} iconSize={12} />
+            </div>
             
             {form.checklist.length > 0 && (
               <div className={styles.checklistItems}>
@@ -689,6 +705,12 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
               selectedKey={form.emailReminderMinutes?.toString() ?? 'none'}
               onChange={handleEmailReminderChange}
               disabled={saving || form.doNotNotify}
+              onRenderLabel={() => (
+                <div className={styles.labelWithHelp}>
+                  <Label>Email reminder</Label>
+                  <HelpTooltip tooltip={taskTooltips.reminders} iconSize={12} />
+                </div>
+              )}
               styles={{
                 root: { marginTop: 12 },
                 dropdown: form.doNotNotify ? { opacity: 0.5 } : undefined,

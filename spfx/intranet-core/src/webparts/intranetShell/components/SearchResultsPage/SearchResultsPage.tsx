@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Icon, Checkbox, Spinner, SpinnerSize } from '@fluentui/react';
 import type { ISearchResult, SearchResultType } from '../SearchBox';
+import { HelpTooltip } from '../HelpTooltip';
+import { searchTooltips } from '../data/helpTooltips';
 import styles from './SearchResultsPage.module.scss';
 
 // =============================================================================
@@ -245,7 +247,10 @@ export const SearchResultsPage: React.FC<ISearchResultsPageProps> = ({
         <aside className={styles.filtersPanel}>
           <div className={styles.filterSection}>
             <div className={styles.filterHeader}>
-              <h3>Hub</h3>
+              <div className={styles.filterTitleRow}>
+                <h3>Hub</h3>
+                <HelpTooltip tooltip={searchTooltips.hubFilter} iconSize={12} />
+              </div>
               {filters.hubs.size > 0 && (
                 <button 
                   className={styles.filterClear}
@@ -269,7 +274,10 @@ export const SearchResultsPage: React.FC<ISearchResultsPageProps> = ({
 
           <div className={styles.filterSection}>
             <div className={styles.filterHeader}>
-              <h3>Content Type</h3>
+              <div className={styles.filterTitleRow}>
+                <h3>Content Type</h3>
+                <HelpTooltip tooltip={searchTooltips.contentTypeFilter} iconSize={12} />
+              </div>
               {filters.types.size > 0 && (
                 <button 
                   className={styles.filterClear}

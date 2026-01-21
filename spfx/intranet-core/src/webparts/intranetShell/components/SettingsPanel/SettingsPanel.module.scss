@@ -50,6 +50,17 @@
   letter-spacing: 0.5px;
 }
 
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  .sectionTitle {
+    margin-bottom: 0;
+  }
+}
+
 .sectionHeader {
   display: flex;
   align-items: center;

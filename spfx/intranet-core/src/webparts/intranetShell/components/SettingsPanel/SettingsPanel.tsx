@@ -16,6 +16,8 @@ import { HiddenCardsManager } from '../Modal/HiddenCardsManager';
 import type { CardOpenBehavior } from '../FunctionCard';
 import type { ThemeMode } from '../UserProfileMenu';
 import { useAudit } from '../AuditContext';
+import { HelpTooltip } from '../HelpTooltip';
+import { settingsTooltips } from '../data/helpTooltips';
 import styles from './SettingsPanel.module.scss';
 
 export interface ISettingsPanelProps {
@@ -261,7 +263,10 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
         <div className={styles.content}>
           {/* Appearance Section */}
           <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Appearance</h3>
+            <div className={styles.sectionTitleRow}>
+              <h3 className={styles.sectionTitle}>Appearance</h3>
+              <HelpTooltip tooltip={settingsTooltips.theme} />
+            </div>
             <div className={styles.setting}>
               <Dropdown
                 label="Theme"
@@ -278,7 +283,10 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
 
           {/* Layout Section */}
           <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Layout</h3>
+            <div className={styles.sectionTitleRow}>
+              <h3 className={styles.sectionTitle}>Layout</h3>
+              <HelpTooltip tooltip={settingsTooltips.sidebarBehaviour} />
+            </div>
             <div className={styles.setting}>
               <Dropdown
                 label="Sidebar default state"
@@ -358,7 +366,10 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
 
           {/* Hidden Cards Section */}
           <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Hidden Cards</h3>
+            <div className={styles.sectionTitleRow}>
+              <h3 className={styles.sectionTitle}>Hidden Cards</h3>
+              <HelpTooltip tooltip={settingsTooltips.cardVisibility} />
+            </div>
             {hiddenCards.length === 0 ? (
               <p className={styles.emptyMessage}>
                 <Icon iconName="CheckMark" className={styles.emptyIcon} />

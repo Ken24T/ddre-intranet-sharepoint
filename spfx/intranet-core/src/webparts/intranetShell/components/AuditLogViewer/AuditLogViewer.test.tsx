@@ -36,7 +36,7 @@ describe('AuditLogViewer', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Audit Logs')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: /Audit Logs/i })).toBeInTheDocument();
       });
     });
 
@@ -48,7 +48,7 @@ describe('AuditLogViewer', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Audit Logs')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: /Audit Logs/i })).toBeInTheDocument();
         // Should show entry count (10 mock entries)
         expect(screen.getByText(/10 entries/)).toBeInTheDocument();
       });
@@ -283,7 +283,7 @@ describe('AuditLogViewer', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Audit Logs')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: /Audit Logs/i })).toBeInTheDocument();
       });
 
       expect(screen.queryByText('Back')).not.toBeInTheDocument();

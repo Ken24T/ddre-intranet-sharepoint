@@ -50,6 +50,23 @@
   min-width: 0;
 }
 
+.labelWithHelp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+
+  :global(.ms-Label) {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.fieldWithHelp {
+  display: flex;
+  flex-direction: column;
+}
+
 .fullWidth {
   width: 100%;
 }
