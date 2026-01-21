@@ -30,6 +30,7 @@ export interface INotificationsContainerProps {
     hasOverdue: boolean;
     isLoading: boolean;
     bannerItems: ITaskBannerItem[];
+    markBannerAsRead: () => void;
   }) => void;
 }
 
@@ -47,6 +48,12 @@ export const NotificationsContainer: React.FC<INotificationsContainerProps> = ({
 }) => {
   const { state, markAsRead, markAllAsRead, getBannerNotifications } = useUnifiedNotifications();
 
+  // Function to mark all banner notifications as read
+  const markBannerAsRead = React.useCallback(() => {
+    const bannerNotifications = getBannerNotifications();
+    bannerNotifications.forEach((n) => markAsRead(n.id));
+  }, [getBannerNotifications, markAsRead]);
+
   // Report state changes to parent
   React.useEffect(() => {
     const hasOverdue = state.groups.some((g) => g.category === 'overdue');
@@ -63,8 +70,9 @@ export const NotificationsContainer: React.FC<INotificationsContainerProps> = ({
       hasOverdue,
       isLoading: state.isLoading,
       bannerItems,
+      markBannerAsRead,
     });
-  }, [state.unreadCount, state.groups, state.isLoading, onStateChange, getBannerNotifications]);
+  }, [state.unreadCount, state.groups, state.isLoading, onStateChange, getBannerNotifications, markBannerAsRead]);
 
   return (
     <NotificationFlyout

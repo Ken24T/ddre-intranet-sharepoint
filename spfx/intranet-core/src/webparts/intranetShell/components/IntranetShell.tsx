@@ -554,12 +554,19 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     this.setState({ isNotificationFlyoutOpen: false });
   };
 
+  // Store the markBannerAsRead function from NotificationsContainer
+  private markBannerAsReadFn: (() => void) | undefined;
+
   private handleNotificationStateChange = (state: {
     unreadCount: number;
     hasOverdue: boolean;
     isLoading: boolean;
     bannerItems: ITaskBannerItem[];
+    markBannerAsRead: () => void;
   }): void => {
+    // Store the function for use by handleTaskBannerDismiss
+    this.markBannerAsReadFn = state.markBannerAsRead;
+
     // Check if banner items have changed to potentially reset dismissal
     const currentIds = this.state.taskBannerItems.map((item) => item.id).join(',');
     const newIds = state.bannerItems.map((item) => item.id).join(',');
@@ -591,7 +598,10 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
   };
 
   private handleTaskBannerDismiss = (): void => {
-    // Dismiss the banner temporarily (until new items arrive)
+    // Mark banner notifications as read and dismiss the banner
+    if (this.markBannerAsReadFn) {
+      this.markBannerAsReadFn();
+    }
     this.setState({ isBannerDismissed: true });
   };
 
