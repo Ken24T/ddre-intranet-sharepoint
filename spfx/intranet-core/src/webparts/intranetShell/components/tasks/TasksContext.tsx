@@ -462,6 +462,7 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
                 status: request.status ?? t.status,
                 priority: request.priority ?? t.priority,
                 dueDate: request.dueDate ?? t.dueDate,
+                doNotNotify: request.doNotNotify !== undefined ? request.doNotNotify : t.doNotNotify,
                 checklistProgress: request.checklist
                   ? {
                       completed: request.checklist.filter((c) => c.completed).length,
