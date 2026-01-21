@@ -12,6 +12,8 @@ export interface ISearchResultsPageProps {
   query: string;
   /** Called when user wants to navigate back (clear search) */
   onClearSearch?: () => void;
+  /** Whether user has admin role (filters admin-only hubs/results) */
+  isAdmin?: boolean;
 }
 
 interface IFilterState {
@@ -23,8 +25,13 @@ interface IFilterState {
 // MOCK DATA & SEARCH
 // =============================================================================
 
-const ALL_HUBS = ['home', 'pm', 'sales', 'admin', 'dante'];
+const BASE_HUBS = ['home', 'pm', 'sales', 'admin', 'dante'];
 const ALL_TYPES: SearchResultType[] = ['page', 'document', 'policy', 'person', 'tool'];
+
+/** Get available hubs based on user role */
+function getAvailableHubs(isAdmin: boolean): string[] {
+  return isAdmin ? BASE_HUBS : BASE_HUBS.filter(h => h !== 'admin');
+}
 
 const hubLabels: Record<string, string> = {
   home: 'Home',
@@ -63,7 +70,8 @@ const mockFullResults: IFullSearchResult[] = [
 async function mockFullSearch(
   query: string,
   filters: IFilterState,
-  page: number
+  page: number,
+  isAdmin: boolean = false
 ): Promise<{ results: IFullSearchResult[]; hasMore: boolean; total: number }> {
   // Simulate network latency
   await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 400));
@@ -73,14 +81,22 @@ async function mockFullSearch(
   }
   
   const lowerQuery = query.toLowerCase();
-  let filtered = mockFullResults.filter(r => 
-    r.title.toLowerCase().includes(lowerQuery) ||
-    r.snippet?.toLowerCase().includes(lowerQuery) ||
-    r.metadata?.toLowerCase().includes(lowerQuery)
-  );
+  const availableHubs = getAvailableHubs(isAdmin);
+  
+  // Filter by query and exclude admin-only results for non-admin users
+  let filtered = mockFullResults.filter(r => {
+    // First check if user has access to this hub
+    if (availableHubs.indexOf(r.hubKey) === -1) {
+      return false;
+    }
+    // Then check query match
+    return r.title.toLowerCase().indexOf(lowerQuery) !== -1 ||
+      (r.snippet?.toLowerCase().indexOf(lowerQuery) ?? -1) !== -1 ||
+      (r.metadata?.toLowerCase().indexOf(lowerQuery) ?? -1) !== -1;
+  });
   
   // Apply hub filter
-  if (filters.hubs.size > 0 && filters.hubs.size < ALL_HUBS.length) {
+  if (filters.hubs.size > 0 && filters.hubs.size < availableHubs.length) {
     filtered = filtered.filter(r => filters.hubs.has(r.hubKey));
   }
   
@@ -137,6 +153,7 @@ function highlightText(text: string, query: string): React.ReactNode {
 export const SearchResultsPage: React.FC<ISearchResultsPageProps> = ({
   query,
   onClearSearch,
+  isAdmin = false,
 }) => {
   const [results, setResults] = React.useState<IFullSearchResult[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -156,7 +173,7 @@ export const SearchResultsPage: React.FC<ISearchResultsPageProps> = ({
       setPage(1);
       setResults([]);
       
-      const { results: newResults, hasMore: more, total: totalCount } = await mockFullSearch(query, filters, 1);
+      const { results: newResults, hasMore: more, total: totalCount } = await mockFullSearch(query, filters, 1, isAdmin);
       setResults(newResults);
       setHasMore(more);
       setTotal(totalCount);
@@ -166,12 +183,12 @@ export const SearchResultsPage: React.FC<ISearchResultsPageProps> = ({
     performSearch().catch(() => {
       setIsLoading(false);
     });
-  }, [query, filters]);
+  }, [query, filters, isAdmin]);
 
   const handleLoadMore = async (): Promise<void> => {
     setIsLoadingMore(true);
     const nextPage = page + 1;
-    const { results: moreResults, hasMore: more } = await mockFullSearch(query, filters, nextPage);
+    const { results: moreResults, hasMore: more } = await mockFullSearch(query, filters, nextPage, isAdmin);
     setResults(prev => [...prev, ...moreResults]);
     setHasMore(more);
     setPage(nextPage);
@@ -239,7 +256,7 @@ export const SearchResultsPage: React.FC<ISearchResultsPageProps> = ({
               )}
             </div>
             <div className={styles.filterOptions}>
-              {ALL_HUBS.map(hub => (
+              {getAvailableHubs(isAdmin).map(hub => (
                 <Checkbox
                   key={hub}
                   label={hubLabels[hub]}

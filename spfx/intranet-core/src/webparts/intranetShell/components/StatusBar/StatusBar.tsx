@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TooltipHost, Icon, DirectionalHint, IconButton } from '@fluentui/react';
+import { TooltipHost, Icon, DirectionalHint, IconButton, Callout } from '@fluentui/react';
 import { useApiHealth, type ApiStatus, type IApiHealthState } from './useApiHealth';
 import { useNotifications, type ISystemNotification, type NotificationSeverity } from './useNotifications';
 import styles from './StatusBar.module.scss';
@@ -10,6 +10,7 @@ import styles from './StatusBar.module.scss';
 export interface ITaskBannerItem {
   id: string;
   title: string;
+  description?: string;
   category: 'overdue' | 'due-today';
   dueDate?: string;
 }
@@ -214,6 +215,9 @@ function formatDueDate(dateStr?: string): string {
 }
 
 const TaskBanner: React.FC<ITaskBannerProps> = ({ items, onItemClick, onDismiss }) => {
+  const [isCalloutVisible, setIsCalloutVisible] = React.useState(false);
+  const bannerRef = React.useRef<HTMLDivElement>(null);
+
   if (items.length === 0) return null;
 
   const overdueItems = items.filter((i) => i.category === 'overdue');
@@ -231,33 +235,6 @@ const TaskBanner: React.FC<ITaskBannerProps> = ({ items, onItemClick, onDismiss 
   }
   const message = `You have ${parts.join(' and ')} task${items.length > 1 ? 's' : ''}`;
 
-  // Build tooltip content showing task details
-  const tooltipLines: string[] = [];
-  if (overdueItems.length > 0) {
-    tooltipLines.push('⚠️ Overdue:');
-    overdueItems.slice(0, 5).forEach((item) => {
-      const dueInfo = formatDueDate(item.dueDate);
-      tooltipLines.push(`  • ${item.title}${dueInfo ? ` (${dueInfo})` : ''}`);
-    });
-    if (overdueItems.length > 5) {
-      tooltipLines.push(`  ... and ${overdueItems.length - 5} more`);
-    }
-  }
-  if (dueTodayItems.length > 0) {
-    if (tooltipLines.length > 0) tooltipLines.push('');
-    tooltipLines.push('🕐 Due today:');
-    dueTodayItems.slice(0, 5).forEach((item) => {
-      tooltipLines.push(`  • ${item.title}`);
-    });
-    if (dueTodayItems.length > 5) {
-      tooltipLines.push(`  ... and ${dueTodayItems.length - 5} more`);
-    }
-  }
-  tooltipLines.push('');
-  tooltipLines.push('Click to view all tasks');
-
-  const tooltipContent = tooltipLines.join('\n');
-
   const handleClick = (): void => {
     // Click the first item to open tasks panel
     if (items.length > 0 && onItemClick) {
@@ -272,19 +249,52 @@ const TaskBanner: React.FC<ITaskBannerProps> = ({ items, onItemClick, onDismiss 
     }
   };
 
-  return (
-    <TooltipHost
-      content={tooltipContent}
-      directionalHint={DirectionalHint.topCenter}
-      calloutProps={{ gapSpace: 8 }}
-    >
+  const handleTaskItemClick = (taskId: string): void => {
+    setIsCalloutVisible(false);
+    if (onItemClick) {
+      onItemClick(taskId);
+    }
+  };
+
+  const renderTaskItem = (item: ITaskBannerItem): React.ReactNode => {
+    const dueInfo = formatDueDate(item.dueDate);
+    return (
       <div
+        key={item.id}
+        className={styles.taskCalloutItem}
+        onClick={() => handleTaskItemClick(item.id)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleTaskItemClick(item.id);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+      >
+        <span className={styles.taskCalloutDue}>{dueInfo || 'Due today'}</span>
+        <span className={styles.taskCalloutTitle}>{item.title}</span>
+        {item.description && (
+          <span className={styles.taskCalloutDescription}>{item.description}</span>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <>
+      <div
+        ref={bannerRef}
         className={`${styles.taskBanner} ${overdueCount > 0 ? styles.taskBannerOverdue : styles.taskBannerDueToday}`}
         onClick={handleClick}
+        onMouseEnter={() => setIsCalloutVisible(true)}
+        onMouseLeave={() => setIsCalloutVisible(false)}
         onKeyDown={handleKeyDown}
         role="button"
         tabIndex={0}
         aria-label={message}
+        aria-haspopup="true"
+        aria-expanded={isCalloutVisible}
       >
         <Icon iconName={overdueCount > 0 ? 'Warning' : 'Clock'} className={styles.taskBannerIcon} />
         <span className={styles.taskBannerMessage}>{message}</span>
@@ -301,7 +311,55 @@ const TaskBanner: React.FC<ITaskBannerProps> = ({ items, onItemClick, onDismiss 
           />
         )}
       </div>
-    </TooltipHost>
+      {isCalloutVisible && bannerRef.current && (
+        <Callout
+          target={bannerRef.current}
+          directionalHint={DirectionalHint.topCenter}
+          gapSpace={8}
+          isBeakVisible={true}
+          beakWidth={12}
+          onMouseEnter={() => setIsCalloutVisible(true)}
+          onMouseLeave={() => setIsCalloutVisible(false)}
+          onDismiss={() => setIsCalloutVisible(false)}
+          setInitialFocus={false}
+          className={styles.taskCallout}
+        >
+          <div className={styles.taskCalloutContent}>
+            {overdueItems.length > 0 && (
+              <div className={styles.taskCalloutSection}>
+                <div className={styles.taskCalloutHeader}>
+                  <Icon iconName="Warning" className={styles.taskCalloutHeaderIconOverdue} />
+                  <span>Overdue</span>
+                </div>
+                {overdueItems.slice(0, 5).map(renderTaskItem)}
+                {overdueItems.length > 5 && (
+                  <div className={styles.taskCalloutMore}>
+                    ... and {overdueItems.length - 5} more
+                  </div>
+                )}
+              </div>
+            )}
+            {dueTodayItems.length > 0 && (
+              <div className={styles.taskCalloutSection}>
+                <div className={styles.taskCalloutHeader}>
+                  <Icon iconName="Clock" className={styles.taskCalloutHeaderIconDueToday} />
+                  <span>Due Today</span>
+                </div>
+                {dueTodayItems.slice(0, 5).map(renderTaskItem)}
+                {dueTodayItems.length > 5 && (
+                  <div className={styles.taskCalloutMore}>
+                    ... and {dueTodayItems.length - 5} more
+                  </div>
+                )}
+              </div>
+            )}
+            <div className={styles.taskCalloutFooter}>
+              Click to view all tasks
+            </div>
+          </div>
+        </Callout>
+      )}
+    </>
   );
 };
 

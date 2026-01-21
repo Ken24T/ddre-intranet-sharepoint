@@ -826,6 +826,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
             <SearchResultsPage
               query={searchQuery}
               onClearSearch={this.handleClearSearch}
+              isAdmin={isAdminMode}
             />
           ) : activeCard ? (
             <div className={styles.cardDetail}>

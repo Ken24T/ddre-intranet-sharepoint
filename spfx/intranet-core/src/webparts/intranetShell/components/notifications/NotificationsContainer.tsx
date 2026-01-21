@@ -61,6 +61,7 @@ export const NotificationsContainer: React.FC<INotificationsContainerProps> = ({
     const bannerItems: ITaskBannerItem[] = bannerNotifications.map((n) => ({
       id: n.id,
       title: n.title,
+      description: n.message,
       category: n.category as 'overdue' | 'due-today',
       dueDate: n.dueDate,
     }));

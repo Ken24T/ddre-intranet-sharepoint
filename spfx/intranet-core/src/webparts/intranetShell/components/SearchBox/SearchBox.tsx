@@ -39,6 +39,8 @@ export interface ISearchBoxProps {
   collapseOnBlur?: boolean;
   /** Toggle quick results dropdown */
   showResults?: boolean;
+  /** Whether user has admin role (filters admin-only results) */
+  isAdmin?: boolean;
 }
 
 // =============================================================================
@@ -126,6 +128,7 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
   defaultExpanded = false,
   collapseOnBlur = true,
   showResults = true,
+  isAdmin = false,
 }) => {
   const audit = useAudit();
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
@@ -178,7 +181,13 @@ export const SearchBox: React.FC<ISearchBoxProps> = ({
     setIsLoading(true);
     debounceRef.current = setTimeout(async () => {
       try {
-        const searchResults = await searchFn(query);
+        let searchResults = await searchFn(query);
+        // Filter out admin-only results for non-admin users
+        if (!isAdmin) {
+          searchResults = searchResults.filter(r => 
+            !r.metadata?.toLowerCase().includes('admin hub')
+          );
+        }
         setResults(searchResults);
         setShowDropdown(true); // Show dropdown even for empty results
         setHasSearched(true);

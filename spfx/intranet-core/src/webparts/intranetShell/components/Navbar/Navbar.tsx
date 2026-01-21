@@ -133,6 +133,7 @@ export const Navbar: React.FC<INavbarProps> = ({
         onSearch={onSearch}
         onResultSelect={onSearchResultSelect}
         themeVars={searchThemeVars}
+        isAdmin={isAdmin}
       />
 
       {/* ⚠️ DEV ONLY - Admin/User toggle for testing permission-based UI.
