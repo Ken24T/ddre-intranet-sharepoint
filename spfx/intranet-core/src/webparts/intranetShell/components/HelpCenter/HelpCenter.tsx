@@ -6,6 +6,7 @@ import type { IFunctionCard } from '../FunctionCard';
 import { hubInfo } from '../data';
 import { openMockHelpWindow } from '../utils/helpMock';
 import { WhatsNew } from '../WhatsNew';
+import { useAudit } from '../AuditContext';
 
 export interface IHelpCenterProps {
   cards: IFunctionCard[];
@@ -518,6 +519,7 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
   const theme = useTheme();
   const [searchText, setSearchText] = React.useState('');
   const [appliedQuery, setAppliedQuery] = React.useState('');
+  const audit = useAudit();
   const generalButtons = [
     'Getting Started',
     'Settings',
@@ -610,6 +612,14 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
   }, [appliedQuery, selectedGeneralCategory, selectedContentTypes]);
 
   const handleFeedback = (label: string, isHelpful: boolean): void => {
+    // Log feedback submission
+    audit.logHelpSearch('feedback_submitted', {
+      metadata: {
+        articleTitle: label,
+        isHelpful,
+      },
+    });
+
     window.dispatchEvent(
       new CustomEvent('helpFeedback', {
         detail: { label, isHelpful },
@@ -617,7 +627,27 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
     );
   };
 
-  const handleOpenHelp = (title: string, summary: string, helpUrl?: string): void => {
+  /** Source context for article opens */
+  type ArticleSource = 'search' | 'category' | 'card' | 'request';
+
+  const handleOpenHelp = (
+    title: string,
+    summary: string,
+    helpUrl?: string,
+    source?: ArticleSource,
+    articleId?: string
+  ): void => {
+    // Log article opened with source context
+    if (source) {
+      audit.logHelpSearch('article_opened', {
+        metadata: {
+          articleId: articleId ?? helpUrl ?? title,
+          title,
+          source,
+          searchQuery: source === 'search' ? appliedQuery : undefined,
+        },
+      });
+    }
     openMockHelpWindow({ title, summary, helpUrl });
   };
 
@@ -645,13 +675,40 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
     handleOpenHelp(
       'Request help',
       summaryParts.join(' • '),
-      `/help/request-help${params.toString() ? `?${params.toString()}` : ''}`
+      `/help/request-help${params.toString() ? `?${params.toString()}` : ''}`,
+      'request'
     );
   };
 
   const handleSearch = (value?: string): void => {
     const rawQuery = (value || searchText || '').trim();
     setAppliedQuery(rawQuery);
+
+    // Compute filtered results (simulate, as actual filtering logic is elsewhere)
+    // For now, count all cards that match the query in title or description
+    const lowerQuery = rawQuery.toLowerCase();
+    const resultCount = rawQuery
+      ? cards.filter(card =>
+          card.title.toLowerCase().includes(lowerQuery) ||
+          (card.description?.toLowerCase().includes(lowerQuery))
+        ).length
+      : cards.length;
+
+    audit.logHelpSearch('search_executed', {
+      metadata: {
+        query: rawQuery,
+        resultCount,
+      },
+    });
+
+    // Log separately when no results found (for content gap analysis)
+    if (rawQuery && resultCount === 0) {
+      audit.logHelpSearch('search_no_results', {
+        metadata: {
+          query: rawQuery,
+        },
+      });
+    }
 
     const selectedLabels = selectedContentTypes.length > 0
       ? selectedContentTypes.join(', ')
@@ -672,7 +729,8 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
     handleOpenHelp(
       'Help search results',
       summaryParts.join(' • '),
-      `/help/search${params.toString() ? `?${params.toString()}` : ''}`
+      `/help/search${params.toString() ? `?${params.toString()}` : ''}`,
+      'search'
     );
   };
 
@@ -803,7 +861,7 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
                   <button
                     className={styles.articleAction}
                     type="button"
-                    onClick={() => handleOpenHelp(card.title, card.summary, card.helpUrl)}
+                    onClick={() => handleOpenHelp(card.title, card.summary, card.helpUrl, 'category', card.id)}
                   >
                     Open help
                     <Icon iconName="ChevronRight" className={styles.articleChevron} />
@@ -882,7 +940,7 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
                   <button
                     className={styles.articleAction}
                     type="button"
-                    onClick={() => handleOpenHelp(card.title, card.description, card.helpUrl)}
+                    onClick={() => handleOpenHelp(card.title, card.description, card.helpUrl, 'card', card.id)}
                     disabled={!card.helpUrl}
                   >
                     Open help

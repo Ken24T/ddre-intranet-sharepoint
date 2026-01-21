@@ -13,7 +13,13 @@ export type EventType =
   | 'user_interaction'
   | 'notification'
   | 'system'
-  | 'error';
+  | 'error'
+  | 'help_search';
+export type HelpSearchAction =
+  | 'search_executed'
+  | 'search_no_results'
+  | 'article_opened'
+  | 'feedback_submitted';
 
 export type NavigationAction =
   | 'hub_changed'
@@ -131,6 +137,8 @@ export interface IAuditLogger {
   logSystem(action: SystemAction, options?: LogOptions): void;
   /** Log an error event */
   logError(action: ErrorAction, options?: LogOptions): void;
+  /** Log a help search event */
+  logHelpSearch(action: HelpSearchAction, options?: LogOptions): void;
   /** Check if logging is enabled */
   isEnabled(): boolean;
   /** Enable/disable logging */
@@ -210,6 +218,10 @@ export class ConsoleAuditLogger implements IAuditLogger {
     this.log('error', action, options);
   }
 
+  logHelpSearch(action: HelpSearchAction, options?: LogOptions): void {
+    this.log('help_search', action, options);
+  }
+
   isEnabled(): boolean {
     return this.enabled;
   }
@@ -264,6 +276,7 @@ export function useAudit(): IAuditLogger {
       logNotification: () => {},
       logSystem: () => {},
       logError: () => {},
+      logHelpSearch: () => {},
       isEnabled: () => false,
       setEnabled: () => {},
       getSessionId: () => 'no-session',

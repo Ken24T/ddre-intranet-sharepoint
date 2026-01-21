@@ -2,7 +2,7 @@
 
 Central task tracking for all planned implementations.
 
-> **Last updated:** 2026-01-21
+> **Last updated:** 2026-01-22
 >
 > **Current focus:** Shared Packages & Business Apps
 
@@ -209,24 +209,24 @@ The foundation SPFx solution providing the layout frame for all intranet content
       (badge on Help icon when new release unread)
 - [x] 11b.7 Track release note views in audit log
 
-#### Phase 11c: Help Search Analytics
+#### Phase 11c: Help Search Analytics ✅
 
 > Integrate help search with existing audit system for content gap analysis.
 
-- [ ] 11c.1 Add `help_search` event type to AuditContext
-      (search_executed, search_no_results, article_opened)
-- [ ] 11c.2 Log Help Centre search queries
+- [x] 11c.1 Add `help_search` event type to AuditContext
+      (search_executed, search_no_results, article_opened, feedback_submitted)
+- [x] 11c.2 Log Help Centre search queries
       (query text, result count, selected result)
-- [ ] 11c.3 Log "no results" searches separately
+- [x] 11c.3 Log "no results" searches separately
       (for content gap identification)
-- [ ] 11c.4 Log article opens with source context
-      (from search, from category, from card)
-- [ ] 11c.5 Log feedback submissions
-      (helpful yes/no, article id, user context)
-- [ ] 11c.6 Add Help Analytics section to Audit Log Viewer
-      (filter by help-related events)
-- [ ] 11c.7 Add "Top Missing Content" mock report
-      (queries with no results, grouped)
+- [x] 11c.4 Log article opens with source context
+      (from search, from category, from card, from request)
+- [x] 11c.5 Log feedback submissions
+      (helpful yes/no, article title, user context)
+- [x] 11c.6 Add Help Analytics section to Audit Log Viewer
+      (filter by help-related events, icon and colour)
+- [x] 11c.7 Add "Top Missing Content" mock report
+      (queries with no results, grouped and ranked)
 
 #### Phase 11d: Print/Export Help Articles
 

@@ -18,7 +18,16 @@ export type EventType =
   | "user_interaction"
   | "notification"
   | "system"
-  | "error";
+  | "error"
+  | "help_search";
+/**
+ * Help search actions.
+ */
+export type HelpSearchAction =
+  | "search_executed"
+  | "search_no_results"
+  | "article_opened"
+  | "feedback_submitted";
 
 /**
  * Navigation actions.
@@ -141,6 +150,7 @@ export type ActionByEventType = {
   notification: NotificationAction;
   system: SystemAction;
   error: ErrorAction;
+  help_search: HelpSearchAction;
 };
 
 // =============================================================================

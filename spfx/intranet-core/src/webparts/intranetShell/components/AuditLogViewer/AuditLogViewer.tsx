@@ -185,6 +185,73 @@ const mockLogEntries: IAuditLogEntry[] = [
     hub: 'home',
     metadata: { query: 'How do I submit leave?', responseTime: 1250 },
   },
+  // Help search events
+  {
+    eventId: 'e011',
+    eventType: 'help_search',
+    action: 'search_executed',
+    timestamp: '2026-01-20T09:45:00.000Z',
+    userId: 'ken.boyle@dougdisher.com.au',
+    userDisplayName: 'Ken Boyle',
+    sessionId: 'sess-005',
+    appVersion: '0.4.1',
+    metadata: { query: 'how to use tasks', resultCount: 3 },
+  },
+  {
+    eventId: 'e012',
+    eventType: 'help_search',
+    action: 'search_no_results',
+    timestamp: '2026-01-20T09:46:00.000Z',
+    userId: 'amelia.jones@dougdisher.com.au',
+    userDisplayName: 'Amelia Jones',
+    sessionId: 'sess-004',
+    appVersion: '0.4.1',
+    metadata: { query: 'expense reimbursement process' },
+  },
+  {
+    eventId: 'e013',
+    eventType: 'help_search',
+    action: 'article_opened',
+    timestamp: '2026-01-20T09:47:00.000Z',
+    userId: 'ken.boyle@dougdisher.com.au',
+    userDisplayName: 'Ken Boyle',
+    sessionId: 'sess-005',
+    appVersion: '0.4.1',
+    metadata: { articleId: 'tasks-guide', title: 'Tasks – User Guide', source: 'search' },
+  },
+  {
+    eventId: 'e014',
+    eventType: 'help_search',
+    action: 'feedback_submitted',
+    timestamp: '2026-01-20T09:48:00.000Z',
+    userId: 'ken.boyle@dougdisher.com.au',
+    userDisplayName: 'Ken Boyle',
+    sessionId: 'sess-005',
+    appVersion: '0.4.1',
+    metadata: { articleTitle: 'Tasks – User Guide', isHelpful: true },
+  },
+  {
+    eventId: 'e015',
+    eventType: 'help_search',
+    action: 'search_no_results',
+    timestamp: '2026-01-20T10:15:00.000Z',
+    userId: 'john.smith@dougdisher.com.au',
+    userDisplayName: 'John Smith',
+    sessionId: 'sess-006',
+    appVersion: '0.4.1',
+    metadata: { query: 'printing labels' },
+  },
+  {
+    eventId: 'e016',
+    eventType: 'help_search',
+    action: 'search_no_results',
+    timestamp: '2026-01-20T11:22:00.000Z',
+    userId: 'sarah.lee@dougdisher.com.au',
+    userDisplayName: 'Sarah Lee',
+    sessionId: 'sess-007',
+    appVersion: '0.4.1',
+    metadata: { query: 'expense reimbursement process' },
+  },
 ];
 
 // =============================================================================
@@ -223,6 +290,8 @@ function getEventTypeIcon(eventType: EventType): string {
       return 'System';
     case 'error':
       return 'ErrorBadge';
+    case 'help_search':
+      return 'Help';
     default:
       return 'Info';
   }
@@ -248,6 +317,8 @@ function getEventTypeColor(eventType: EventType): string {
       return '#605e5c';
     case 'error':
       return '#d13438';
+    case 'help_search':
+      return '#0078d4';
     default:
       return '#605e5c';
   }
@@ -676,6 +747,7 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
     { key: 'notification', text: 'Notification' },
     { key: 'system', text: 'System' },
     { key: 'error', text: 'Error' },
+    { key: 'help_search', text: 'Help Search' },
   ];
 
   // Hub options
@@ -751,6 +823,35 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
     filters.startDate ||
     filters.endDate
   );
+
+  // Compute "Top Missing Content" - queries with no results, grouped by query
+  const missingContentReport = React.useMemo(() => {
+    const noResultsEvents = logs.filter(
+      (log) => log.eventType === 'help_search' && log.action === 'search_no_results'
+    );
+    
+    // Group by query and count occurrences
+    const queryCounts: Record<string, { query: string; count: number; lastSearched: string }> = {};
+    noResultsEvents.forEach((event) => {
+      const query = String(event.metadata?.query ?? '').toLowerCase().trim();
+      if (!query) return;
+      if (!queryCounts[query]) {
+        queryCounts[query] = { query, count: 0, lastSearched: event.timestamp };
+      }
+      queryCounts[query].count++;
+      if (event.timestamp > queryCounts[query].lastSearched) {
+        queryCounts[query].lastSearched = event.timestamp;
+      }
+    });
+
+    // Sort by count descending, take top 10
+    // Use Object.keys to get values (for ES5 compatibility)
+    type MissingContentItem = { query: string; count: number; lastSearched: string };
+    const values: MissingContentItem[] = Object.keys(queryCounts).map((key) => queryCounts[key]);
+    return values
+      .sort((a: MissingContentItem, b: MissingContentItem) => b.count - a.count)
+      .slice(0, 10);
+  }, [logs]);
 
   return (
     <div className={styles.auditLogViewer}>
@@ -859,6 +960,33 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
           />
         )}
       </div>
+
+      {/* Top Missing Content Report - shown when Help Search filter is active */}
+      {filters.eventType === 'help_search' && missingContentReport.length > 0 && (
+        <div className={styles.missingContentPanel}>
+          <div className={styles.missingContentHeader}>
+            <Icon iconName="Warning" className={styles.missingContentIcon} />
+            <h3 className={styles.missingContentTitle}>Top Missing Content</h3>
+            <span className={styles.missingContentSubtitle}>
+              Searches with no results - potential content gaps
+            </span>
+          </div>
+          <div className={styles.missingContentList}>
+            {missingContentReport.map((item, index) => (
+              <div key={item.query} className={styles.missingContentItem}>
+                <span className={styles.missingContentRank}>{index + 1}</span>
+                <span className={styles.missingContentQuery}>&ldquo;{item.query}&rdquo;</span>
+                <span className={styles.missingContentCount}>
+                  {item.count} {item.count === 1 ? 'search' : 'searches'}
+                </span>
+                <span className={styles.missingContentDate}>
+                  Last: {formatTimestamp(item.lastSearched)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {error && (
         <MessageBar messageBarType={MessageBarType.error} onDismiss={() => setError(undefined)}>

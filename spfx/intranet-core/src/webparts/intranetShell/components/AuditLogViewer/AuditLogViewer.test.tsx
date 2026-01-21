@@ -49,8 +49,8 @@ describe('AuditLogViewer', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: /Audit Logs/i })).toBeInTheDocument();
-        // Should show entry count (10 mock entries)
-        expect(screen.getByText(/10 entries/)).toBeInTheDocument();
+        // Should show entry count (16 mock entries including help_search events)
+        expect(screen.getByText(/16 entries/)).toBeInTheDocument();
       });
     });
 
@@ -197,7 +197,7 @@ describe('AuditLogViewer', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/10 entries/)).toBeInTheDocument();
+        expect(screen.getByText(/16 entries/)).toBeInTheDocument();
       });
 
       const userSearch = screen.getByPlaceholderText('Search by user...');
@@ -219,7 +219,7 @@ describe('AuditLogViewer', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/10 entries/)).toBeInTheDocument();
+        expect(screen.getByText(/16 entries/)).toBeInTheDocument();
       });
 
       const userSearch = screen.getByPlaceholderText('Search by user...');
