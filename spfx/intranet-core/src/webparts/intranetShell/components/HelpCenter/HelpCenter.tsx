@@ -5,6 +5,7 @@ import styles from './HelpCenter.module.scss';
 import type { IFunctionCard } from '../FunctionCard';
 import { hubInfo } from '../data';
 import { openMockHelpWindow } from '../utils/helpMock';
+import { WhatsNew } from '../WhatsNew';
 
 export interface IHelpCenterProps {
   cards: IFunctionCard[];
@@ -541,7 +542,7 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
     { key: 'Policy', text: 'Policies' },
     { key: 'Quick Reference', text: 'Quick reference' },
   ];
-  const [expandedGroup, setExpandedGroup] = React.useState<'general' | 'hub' | null>(null);
+  const [expandedGroup, setExpandedGroup] = React.useState<'general' | 'hub' | 'whatsNew' | null>(null);
   const hubKeys = React.useMemo(() => {
     const unique = Array.from(new Set(cards.map((card) => card.hubKey)));
     return unique;
@@ -675,7 +676,7 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
     );
   };
 
-  const toggleGroup = (group: 'general' | 'hub'): void => {
+  const toggleGroup = (group: 'general' | 'hub' | 'whatsNew'): void => {
     setExpandedGroup((prev) => (prev === group ? null : group));
   };
 
@@ -906,6 +907,28 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+
+        {/* What's New Section */}
+        <div className={styles.buttonGroup}>
+          <div className={styles.buttonGroupHeader}>
+            <div className={styles.buttonGroupLabel}>
+              <Icon iconName="Megaphone" className={styles.whatsNewIcon} />
+              What&apos;s New
+            </div>
+            <button
+              type="button"
+              className={styles.buttonGroupToggle}
+              onClick={() => toggleGroup('whatsNew')}
+            >
+              {expandedGroup === 'whatsNew' ? 'Hide' : 'Show'}
+            </button>
+          </div>
+          {expandedGroup === 'whatsNew' && (
+            <div className={styles.whatsNewContainer}>
+              <WhatsNew />
             </div>
           )}
         </div>

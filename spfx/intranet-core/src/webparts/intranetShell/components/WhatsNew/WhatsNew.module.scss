@@ -1,0 +1,310 @@
+/**
+ * WhatsNew styles
+ * Phase 11b: What's New Panel
+ */
+
+// =============================================================================
+// CONTAINER
+// =============================================================================
+
+.whatsNew {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// =============================================================================
+// HEADER
+// =============================================================================
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #e8f4fd 0%, #d1e8fa 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 120, 212, 0.15);
+}
+
+.dark .header {
+  background: linear-gradient(135deg, #1a3a5c 0%, #0d2644 100%);
+  border-color: rgba(100, 160, 220, 0.25);
+}
+
+.headerIcon {
+  font-size: 32px;
+  color: #0078d4;
+  flex-shrink: 0;
+}
+
+.dark .headerIcon {
+  color: #4da3e0;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.headerTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #0a1627;
+}
+
+.dark .headerTitle {
+  color: #f0f4f8;
+}
+
+.headerSubtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #4a5568;
+}
+
+.dark .headerSubtitle {
+  color: #a0aec0;
+}
+
+// =============================================================================
+// RELEASE LIST
+// =============================================================================
+
+.releaseList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// =============================================================================
+// RELEASE CARD
+// =============================================================================
+
+.releaseCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    border-color: #cbd5e0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  &.expanded {
+    border-color: #0078d4;
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.12);
+  }
+}
+
+.dark .releaseCard {
+  background: #1e293b;
+  border-color: #334155;
+
+  &:hover {
+    border-color: #475569;
+  }
+
+  &.expanded {
+    border-color: #4da3e0;
+    box-shadow: 0 4px 12px rgba(77, 163, 224, 0.15);
+  }
+}
+
+// =============================================================================
+// RELEASE HEADER
+// =============================================================================
+
+.releaseHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    background: #f7fafc;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #0078d4;
+    outline-offset: -2px;
+  }
+}
+
+.dark .releaseHeader:hover {
+  background: #263548;
+}
+
+.releaseHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.releaseVersion {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a5568;
+  background: #edf2f7;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.dark .releaseVersion {
+  color: #a0aec0;
+  background: #334155;
+}
+
+.newBadge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  background: #0078d4;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.releaseHeaderCenter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.releaseTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a202c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dark .releaseTitle {
+  color: #f0f4f8;
+}
+
+.releaseDate {
+  font-size: 12px;
+  color: #718096;
+}
+
+.dark .releaseDate {
+  color: #94a3b8;
+}
+
+.expandIcon {
+  font-size: 12px;
+  color: #718096;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.dark .expandIcon {
+  color: #94a3b8;
+}
+
+// =============================================================================
+// RELEASE CONTENT
+// =============================================================================
+
+.releaseContent {
+  padding: 0 16px 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.dark .releaseContent {
+  border-top-color: #334155;
+}
+
+.releaseSummary {
+  margin: 12px 0;
+  font-size: 13px;
+  color: #4a5568;
+  line-height: 1.5;
+}
+
+.dark .releaseSummary {
+  color: #a0aec0;
+}
+
+// =============================================================================
+// RELEASE ITEMS
+// =============================================================================
+
+.releaseItems {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.releaseItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.releaseItemContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.releaseItemTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: #2d3748;
+  line-height: 1.4;
+}
+
+.dark .releaseItemTitle {
+  color: #e2e8f0;
+}
+
+.releaseItemDescription {
+  font-size: 12px;
+  color: #718096;
+  line-height: 1.4;
+}
+
+.dark .releaseItemDescription {
+  color: #94a3b8;
+}
+
+// =============================================================================
+// CATEGORY BADGE
+// =============================================================================
+
+.categoryBadge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-top: 2px;
+}

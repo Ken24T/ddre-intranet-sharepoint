@@ -2,7 +2,7 @@
 
 Central task tracking for all planned implementations.
 
-> **Last updated:** 2026-01-20
+> **Last updated:** 2026-01-21
 >
 > **Current focus:** Shared Packages & Business Apps
 
@@ -191,23 +191,23 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [x] 11a.8 Add audit logging for tooltip views
       (help_tooltip_viewed, help_tooltip_learn_more events)
 
-#### Phase 11b: What's New Panel
+#### Phase 11b: What's New Panel ✅
 
 > Release notes and changelog section in Help Centre.
 
-- [ ] 11b.1 Define release notes data model
+- [x] 11b.1 Define release notes data model
       (version, date, title, summary, details, category)
-- [ ] 11b.2 Create mock release notes data
+- [x] 11b.2 Create mock release notes data
       (last 5-10 releases with realistic entries)
-- [ ] 11b.3 Add "What's New" tab/section to Help Centre
+- [x] 11b.3 Add "What's New" tab/section to Help Centre
       (tab in General section or separate panel)
-- [ ] 11b.4 Create release notes list view
+- [x] 11b.4 Create release notes list view
       (expandable cards with version, date, highlights)
-- [ ] 11b.5 Add category badges to release items
+- [x] 11b.5 Add category badges to release items
       (New Feature, Improvement, Bug Fix, Security)
-- [ ] 11b.6 Add "New" indicator for recent releases
+- [x] 11b.6 Add "New" indicator for recent releases
       (badge on Help icon when new release unread)
-- [ ] 11b.7 Track release note views in audit log
+- [x] 11b.7 Track release note views in audit log
 
 #### Phase 11c: Help Search Analytics
 

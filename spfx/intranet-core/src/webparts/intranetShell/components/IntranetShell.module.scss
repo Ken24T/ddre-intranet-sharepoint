@@ -139,6 +139,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .sidebarItemLabel {
@@ -149,6 +150,18 @@
 
 .sidebarHelpItem {
   margin-top: auto;
+}
+
+// New badge indicator for unread releases
+.newBadge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  background-color: #0078d4;
+  border-radius: 50%;
+  border: 2px solid var(--neutralLighter, #f3f2f1);
 }
 
 

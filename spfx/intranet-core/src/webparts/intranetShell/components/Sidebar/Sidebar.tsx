@@ -9,6 +9,8 @@ export interface ISidebarProps {
   hasFavourites?: boolean;
   /** Whether the current user has admin privileges */
   isAdmin?: boolean;
+  /** Whether there are unread release notes */
+  hasUnreadReleases?: boolean;
   onHubChange?: (hubKey: string) => void;
   onOpenHelp?: () => void;
 }
@@ -38,6 +40,7 @@ export const Sidebar: React.FC<ISidebarProps> = ({
   activeHubKey = 'home',
   hasFavourites = false,
   isAdmin = false,
+  hasUnreadReleases = false,
   onHubChange,
   onOpenHelp,
 }) => {
@@ -110,6 +113,7 @@ export const Sidebar: React.FC<ISidebarProps> = ({
             >
               <span className={styles.sidebarItemIcon}>
                 <Icon iconName="Lightbulb" />
+                {hasUnreadReleases && <span className={styles.newBadge} aria-label="New updates available" />}
               </span>
               {!isCollapsed && (
                 <span className={styles.sidebarItemLabel}>Help Centre</span>

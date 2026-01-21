@@ -26,6 +26,7 @@ import { TasksPanelContainer } from './tasks/widgets/TasksPanelContainer';
 import { MyTasksWidgetContainer } from './tasks/widgets/MyTasksWidgetContainer';
 import { NotificationsContainer, Notification } from './notifications';
 import { sampleCards, hubInfo } from './data';
+import { hasUnreadReleases as checkUnreadReleases, getLatestRelease } from './data/releaseNotes';
 import type { CardOpenBehavior, IFunctionCard } from './FunctionCard';
 import type { IFavouriteCard } from './favouritesTypes';
 import type { ISearchResult } from './SearchBox';
@@ -74,6 +75,10 @@ export interface IIntranetShellState {
   taskBannerItems: ITaskBannerItem[];
   /** Whether the task banner has been dismissed */
   isBannerDismissed: boolean;
+  /** Whether there are unread release notes */
+  hasUnreadReleases: boolean;
+  /** Date of last viewed release notes */
+  lastViewedReleaseDate: string | undefined;
 }
 
 /**
@@ -86,6 +91,7 @@ const STORAGE_KEYS = {
   FAVOURITES: 'ddre-intranet-favourites',
   SIDEBAR_COLLAPSED: 'ddre-intranet-sidebarCollapsed',
   THEME_MODE: 'ddre-intranet-themeMode',
+  LAST_VIEWED_RELEASE: 'ddre-intranet-lastViewedRelease',
 };
 
 /**
@@ -201,6 +207,9 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       // Ignore storage errors
     }
 
+    // Load last viewed release date (convert null to undefined)
+    const lastViewedRelease = loadFromStorage<string | undefined>(STORAGE_KEYS.LAST_VIEWED_RELEASE, undefined) ?? undefined;
+
     this.state = {
       isSidebarCollapsed: loadFromStorage(STORAGE_KEYS.SIDEBAR_COLLAPSED, false),
       activeHubKey: 'home',
@@ -223,6 +232,8 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       isNotificationsLoading: false,
       taskBannerItems: [],
       isBannerDismissed: false,
+      hasUnreadReleases: checkUnreadReleases(lastViewedRelease),
+      lastViewedReleaseDate: lastViewedRelease,
     };
   }
 
@@ -536,7 +547,18 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
   };
 
   private handleOpenHelp = (): void => {
-    this.setState({ isHelpOpen: true, searchQuery: undefined, activeCardId: undefined });
+    // Mark releases as viewed when opening Help Centre
+    const latestRelease = getLatestRelease();
+    if (latestRelease) {
+      saveToStorage(STORAGE_KEYS.LAST_VIEWED_RELEASE, latestRelease.date);
+    }
+    this.setState({
+      isHelpOpen: true,
+      searchQuery: undefined,
+      activeCardId: undefined,
+      hasUnreadReleases: false,
+      lastViewedReleaseDate: latestRelease?.date,
+    });
   };
 
   private handleCloseHelp = (): void => {
@@ -813,6 +835,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           activeHubKey={activeHubKey}
           hasFavourites={favourites.length > 0}
           isAdmin={isAdminMode}
+          hasUnreadReleases={this.state.hasUnreadReleases}
           onHubChange={this.handleHubChange}
           onOpenHelp={this.handleOpenHelp}
         />
