@@ -9,6 +9,7 @@ import * as React from 'react';
 import { useUnifiedNotifications } from './useUnifiedNotifications';
 import { NotificationFlyout } from './NotificationFlyout';
 import { Notification } from './types';
+import { ITaskBannerItem } from '../StatusBar/StatusBar';
 
 export interface INotificationsContainerProps {
   /** Whether the flyout is open */
@@ -24,7 +25,12 @@ export interface INotificationsContainerProps {
   /** Callback when "View All Tasks" is clicked */
   onViewAllTasks?: () => void;
   /** Render prop to provide notification state to parent */
-  onStateChange?: (state: { unreadCount: number; hasOverdue: boolean; isLoading: boolean }) => void;
+  onStateChange?: (state: {
+    unreadCount: number;
+    hasOverdue: boolean;
+    isLoading: boolean;
+    bannerItems: ITaskBannerItem[];
+  }) => void;
 }
 
 /**
@@ -39,17 +45,26 @@ export const NotificationsContainer: React.FC<INotificationsContainerProps> = ({
   onViewAllTasks,
   onStateChange,
 }) => {
-  const { state, markAsRead, markAllAsRead } = useUnifiedNotifications();
+  const { state, markAsRead, markAllAsRead, getBannerNotifications } = useUnifiedNotifications();
 
   // Report state changes to parent
   React.useEffect(() => {
     const hasOverdue = state.groups.some((g) => g.category === 'overdue');
+    const bannerNotifications = getBannerNotifications();
+    const bannerItems: ITaskBannerItem[] = bannerNotifications.map((n) => ({
+      id: n.id,
+      title: n.title,
+      category: n.category as 'overdue' | 'due-today',
+      dueDate: n.dueDate,
+    }));
+
     onStateChange?.({
       unreadCount: state.unreadCount,
       hasOverdue,
       isLoading: state.isLoading,
+      bannerItems,
     });
-  }, [state.unreadCount, state.groups, state.isLoading, onStateChange]);
+  }, [state.unreadCount, state.groups, state.isLoading, onStateChange, getBannerNotifications]);
 
   return (
     <NotificationFlyout

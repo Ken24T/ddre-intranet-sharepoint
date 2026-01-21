@@ -14,7 +14,7 @@ import heroLibraryImageLightBlue from '../assets/hero-library-shop-light-blue.pn
 import { Navbar } from './Navbar/Navbar';
 import { Sidebar } from './Sidebar/Sidebar';
 import { ContentArea } from './ContentArea/ContentArea';
-import { StatusBar } from './StatusBar/StatusBar';
+import { StatusBar, ITaskBannerItem } from './StatusBar/StatusBar';
 import { CardGrid } from './CardGrid';
 import { SettingsPanel } from './SettingsPanel';
 import { SearchResultsPage } from './SearchResultsPage';
@@ -70,6 +70,10 @@ export interface IIntranetShellState {
   hasOverdueNotifications: boolean;
   /** Whether notifications are loading */
   isNotificationsLoading: boolean;
+  /** Task banner items for StatusBar */
+  taskBannerItems: ITaskBannerItem[];
+  /** Whether the task banner has been dismissed */
+  isBannerDismissed: boolean;
 }
 
 /**
@@ -217,6 +221,8 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       notificationCount: 0,
       hasOverdueNotifications: false,
       isNotificationsLoading: false,
+      taskBannerItems: [],
+      isBannerDismissed: false,
     };
   }
 
@@ -552,11 +558,20 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     unreadCount: number;
     hasOverdue: boolean;
     isLoading: boolean;
+    bannerItems: ITaskBannerItem[];
   }): void => {
+    // Check if banner items have changed to potentially reset dismissal
+    const currentIds = this.state.taskBannerItems.map((item) => item.id).join(',');
+    const newIds = state.bannerItems.map((item) => item.id).join(',');
+    const shouldResetDismissed = currentIds !== newIds;
+
     this.setState({
       notificationCount: state.unreadCount,
       hasOverdueNotifications: state.hasOverdue,
       isNotificationsLoading: state.isLoading,
+      taskBannerItems: state.bannerItems,
+      // Reset banner dismissal when the items change
+      isBannerDismissed: shouldResetDismissed ? false : this.state.isBannerDismissed,
     });
   };
 
@@ -568,6 +583,16 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
         isNotificationFlyoutOpen: false,
       });
     }
+  };
+
+  private handleTaskBannerClick = (): void => {
+    // Open tasks panel when clicking on task banner
+    this.setState({ isTasksPanelOpen: true });
+  };
+
+  private handleTaskBannerDismiss = (): void => {
+    // Dismiss the banner temporarily (until new items arrive)
+    this.setState({ isBannerDismissed: true });
   };
 
   private handleCardHelp = (card: IFunctionCard): void => {
@@ -921,7 +946,13 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
             </>
           )}
         </ContentArea>
-        <StatusBar userDisplayName={userDisplayName} appVersion={this.props.appVersion} />
+        <StatusBar
+          userDisplayName={userDisplayName}
+          appVersion={this.props.appVersion}
+          taskBannerItems={this.state.isBannerDismissed ? [] : this.state.taskBannerItems}
+          onTaskBannerClick={this.handleTaskBannerClick}
+          onTaskBannerDismiss={this.handleTaskBannerDismiss}
+        />
 
         <SettingsPanel
           isOpen={isSettingsOpen}
