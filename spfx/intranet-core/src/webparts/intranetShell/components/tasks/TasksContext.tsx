@@ -468,6 +468,9 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({
                 priority: request.priority ?? t.priority,
                 dueDate: request.dueDate ?? t.dueDate,
                 doNotNotify: request.doNotNotify !== undefined ? request.doNotNotify : t.doNotNotify,
+                emailReminderMinutes: request.emailReminderMinutes !== undefined
+                  ? request.emailReminderMinutes
+                  : t.emailReminderMinutes,
                 checklistProgress: request.checklist
                   ? {
                       completed: request.checklist.filter((c) => c.completed).length,

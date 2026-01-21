@@ -70,6 +70,8 @@ interface FormState {
   ownerDisplayName: string;
   assignments: TaskAssignment[];
   doNotNotify: boolean;
+  /** Email reminder offset in minutes (undefined = disabled) */
+  emailReminderMinutes: number | undefined;
 }
 
 interface FormErrors {
@@ -95,6 +97,18 @@ const ownershipOptions: IDropdownOption[] = [
   { key: 'user', text: 'User' },
   { key: 'team', text: 'Team' },
   { key: 'group', text: 'Group' },
+];
+
+const emailReminderOptions: IDropdownOption[] = [
+  { key: 'none', text: 'No email reminder' },
+  { key: '60', text: '1 hour before' },
+  { key: '120', text: '2 hours before' },
+  { key: '240', text: '4 hours before' },
+  { key: '480', text: '8 hours before' },
+  { key: '1440', text: '1 day before' },
+  { key: '2880', text: '2 days before' },
+  { key: '4320', text: '3 days before' },
+  { key: '10080', text: '1 week before' },
 ];
 
 /** Generate a simple unique ID */
@@ -131,6 +145,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
     ownerDisplayName: defaultOwnership?.ownerDisplayName ?? '',
     assignments: [],
     doNotNotify: false,
+    emailReminderMinutes: undefined,
   });
 
   const [errors, setErrors] = React.useState<FormErrors>({});
@@ -154,6 +169,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
           ownerDisplayName: task.ownership.ownerDisplayName ?? '',
           assignments: task.assignments ?? [],
           doNotNotify: task.doNotNotify ?? false,
+          emailReminderMinutes: task.emailReminderMinutes,
         });
       } else {
         setForm({
@@ -183,6 +199,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
               role: assignment.role,
             })) ?? [],
           doNotNotify: initialDraft?.doNotNotify ?? false,
+          emailReminderMinutes: initialDraft?.emailReminderMinutes,
         });
       }
       setErrors({});
@@ -317,7 +334,22 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
 
   const handleDoNotNotifyChange = React.useCallback(
     (_: React.MouseEvent<HTMLElement>, checked?: boolean) => {
-      setForm((prev) => ({ ...prev, doNotNotify: checked ?? false }));
+      setForm((prev) => ({
+        ...prev,
+        doNotNotify: checked ?? false,
+        // Clear email reminder when disabling notifications
+        emailReminderMinutes: checked ? undefined : prev.emailReminderMinutes,
+      }));
+    },
+    []
+  );
+
+  const handleEmailReminderChange = React.useCallback(
+    (_: React.FormEvent, option?: IDropdownOption) => {
+      if (option) {
+        const value = option.key === 'none' ? undefined : Number(option.key);
+        setForm((prev) => ({ ...prev, emailReminderMinutes: value }));
+      }
     },
     []
   );
@@ -380,6 +412,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
             sortOrder: item.sortOrder,
           })),
           doNotNotify: form.doNotNotify,
+          emailReminderMinutes: form.emailReminderMinutes,
         };
         await onSave(updateData);
       } else {
@@ -407,6 +440,7 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
           dueDate: form.dueDate?.toISOString(),
           checklist: form.checklist.map((item) => ({ title: item.title })),
           doNotNotify: form.doNotNotify,
+          emailReminderMinutes: form.emailReminderMinutes,
         };
         await onSave(createData);
       }
@@ -648,6 +682,23 @@ export const TaskEditor: React.FC<ITaskEditorProps> = ({
               offText="Notifications enabled"
               inlineLabel
             />
+            <Dropdown
+              label="Email reminder"
+              placeholder="Select reminder timing"
+              options={emailReminderOptions}
+              selectedKey={form.emailReminderMinutes?.toString() ?? 'none'}
+              onChange={handleEmailReminderChange}
+              disabled={saving || form.doNotNotify}
+              styles={{
+                root: { marginTop: 12 },
+                dropdown: form.doNotNotify ? { opacity: 0.5 } : undefined,
+              }}
+            />
+            {form.doNotNotify && (
+              <span className={styles.helperText}>
+                Enable notifications to set email reminders
+              </span>
+            )}
           </div>
         </div>
       )}
