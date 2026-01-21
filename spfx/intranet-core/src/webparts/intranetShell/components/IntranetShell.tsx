@@ -254,9 +254,18 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
   };
 
   private handleToggleAdmin = (): void => {
-    this.setState((prevState) => ({
-      isAdminMode: !prevState.isAdminMode,
-    }));
+    this.setState((prevState) => {
+      const newIsAdmin = !prevState.isAdminMode;
+      // If switching to non-admin while on Administration hub, redirect to Home
+      const newActiveHub =
+        !newIsAdmin && prevState.activeHubKey === 'administration'
+          ? 'home'
+          : prevState.activeHubKey;
+      return {
+        isAdminMode: newIsAdmin,
+        activeHubKey: newActiveHub,
+      };
+    });
   };
 
   private handleThemeModeChange = (mode: ThemeMode): void => {
@@ -803,6 +812,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           isCollapsed={isSidebarCollapsed}
           activeHubKey={activeHubKey}
           hasFavourites={favourites.length > 0}
+          isAdmin={isAdminMode}
           onHubChange={this.handleHubChange}
           onOpenHelp={this.handleOpenHelp}
         />

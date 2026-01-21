@@ -3,7 +3,7 @@
   "solution": {
     "name": "intranet-core-client-side-solution",
     "id": "57ab61df-506d-4f2a-9e13-2131103e33c2",
-    "version": "0.5.20.0",
+    "version": "0.5.21.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,

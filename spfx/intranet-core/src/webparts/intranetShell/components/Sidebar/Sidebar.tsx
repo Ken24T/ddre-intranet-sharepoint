@@ -7,6 +7,8 @@ export interface ISidebarProps {
   isCollapsed: boolean;
   activeHubKey?: string;
   hasFavourites?: boolean;
+  /** Whether the current user has admin privileges */
+  isAdmin?: boolean;
   onHubChange?: (hubKey: string) => void;
   onOpenHelp?: () => void;
 }
@@ -35,6 +37,7 @@ export const Sidebar: React.FC<ISidebarProps> = ({
   isCollapsed,
   activeHubKey = 'home',
   hasFavourites = false,
+  isAdmin = false,
   onHubChange,
   onOpenHelp,
 }) => {
@@ -53,18 +56,22 @@ export const Sidebar: React.FC<ISidebarProps> = ({
   };
 
   const orderedItems = React.useMemo(() => {
-    if (!hasFavourites) {
-      return navItems;
+    // Filter out Administration hub for non-admin users
+    let items = isAdmin
+      ? navItems
+      : navItems.filter((item) => item.key !== 'administration');
+
+    if (hasFavourites) {
+      const favouriteItem: INavItem = { key: 'favourites', label: 'Favourites', icon: 'Heart' };
+      const homeIndex = items.findIndex((item) => item.key === 'home');
+      const libraryIndex = items.findIndex((item) => item.key === 'library');
+      const insertIndex = libraryIndex > homeIndex ? libraryIndex : homeIndex + 1;
+      items = [...items];
+      items.splice(insertIndex, 0, favouriteItem);
     }
 
-    const favouriteItem: INavItem = { key: 'favourites', label: 'Favourites', icon: 'Heart' };
-    const homeIndex = navItems.findIndex((item) => item.key === 'home');
-    const libraryIndex = navItems.findIndex((item) => item.key === 'library');
-    const insertIndex = libraryIndex > homeIndex ? libraryIndex : homeIndex + 1;
-    const items = [...navItems];
-    items.splice(insertIndex, 0, favouriteItem);
     return items;
-  }, [hasFavourites]);
+  }, [hasFavourites, isAdmin]);
 
   return (
     <aside

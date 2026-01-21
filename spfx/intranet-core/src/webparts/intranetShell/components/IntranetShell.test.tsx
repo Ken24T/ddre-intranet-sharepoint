@@ -46,7 +46,7 @@ describe("IntranetShell", () => {
   });
 
   it("displays nav items in sidebar", () => {
-    renderWithProviders(<IntranetShell {...defaultProps} />);
+    renderWithProviders(<IntranetShell {...defaultProps} isAdmin={true} />);
 
     const sidebar = screen.getByRole("complementary", { name: /sidebar/i });
     expect(within(sidebar).getByText("Document Library")).toBeInTheDocument();
