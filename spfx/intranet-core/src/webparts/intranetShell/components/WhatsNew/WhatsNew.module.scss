@@ -1,6 +1,8 @@
 /**
  * WhatsNew styles
  * Phase 11b: What's New Panel
+ *
+ * Structure: Minor releases contain nested patch releases
  */
 
 // =============================================================================
@@ -76,17 +78,17 @@
 .releaseList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 // =============================================================================
-// RELEASE CARD
+// MINOR RELEASE CARD (outer container, e.g., v0.5)
 // =============================================================================
 
-.releaseCard {
+.minorCard {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
   transition: box-shadow 0.15s ease, border-color 0.15s ease;
 
@@ -97,11 +99,11 @@
 
   &.expanded {
     border-color: #0078d4;
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.12);
+    box-shadow: 0 4px 16px rgba(0, 120, 212, 0.12);
   }
 }
 
-.dark .releaseCard {
+.dark .minorCard {
   background: #1e293b;
   border-color: #334155;
 
@@ -111,20 +113,20 @@
 
   &.expanded {
     border-color: #4da3e0;
-    box-shadow: 0 4px 12px rgba(77, 163, 224, 0.15);
+    box-shadow: 0 4px 16px rgba(77, 163, 224, 0.15);
   }
 }
 
 // =============================================================================
-// RELEASE HEADER
+// MINOR HEADER
 // =============================================================================
 
-.releaseHeader {
+.minorHeader {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
-  padding: 14px 16px;
+  padding: 18px 20px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -140,30 +142,31 @@
   }
 }
 
-.dark .releaseHeader:hover {
+.dark .minorHeader:hover {
   background: #263548;
 }
 
-.releaseHeaderLeft {
+.minorHeaderTop {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.releaseVersion {
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 12px;
-  font-weight: 600;
-  color: #4a5568;
-  background: #edf2f7;
-  padding: 4px 8px;
-  border-radius: 4px;
+.minorHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.dark .releaseVersion {
-  color: #a0aec0;
-  background: #334155;
+.minorVersion {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.dark .minorVersion {
+  color: #f0f4f8;
 }
 
 .newBadge {
@@ -173,43 +176,57 @@
   letter-spacing: 0.5px;
   color: #ffffff;
   background: #0078d4;
-  padding: 2px 6px;
+  padding: 3px 8px;
   border-radius: 4px;
 }
 
-.releaseHeaderCenter {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.releaseTitle {
+.minorSummary {
   margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: #1a202c;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 13px;
+  color: #4a5568;
+  line-height: 1.5;
 }
 
-.dark .releaseTitle {
-  color: #f0f4f8;
+.dark .minorSummary {
+  color: #a0aec0;
 }
 
-.releaseDate {
+.minorMeta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   font-size: 12px;
   color: #718096;
 }
 
-.dark .releaseDate {
+.dark .minorMeta {
   color: #94a3b8;
 }
 
+.minorDateRange {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &::before {
+    content: '📅';
+    font-size: 11px;
+  }
+}
+
+.minorPatchCount {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &::before {
+    content: '📦';
+    font-size: 11px;
+  }
+}
+
 .expandIcon {
-  font-size: 12px;
+  font-size: 14px;
   color: #718096;
   flex-shrink: 0;
   transition: transform 0.15s ease;
@@ -220,49 +237,196 @@
 }
 
 // =============================================================================
-// RELEASE CONTENT
+// SUMMARY BADGES (feature/improvement counts)
 // =============================================================================
 
-.releaseContent {
+.summaryBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.summaryBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+// =============================================================================
+// MINOR CONTENT (patch list container)
+// =============================================================================
+
+.minorContent {
   padding: 0 16px 16px;
   border-top: 1px solid #e2e8f0;
 }
 
-.dark .releaseContent {
+.dark .minorContent {
   border-top-color: #334155;
 }
 
-.releaseSummary {
-  margin: 12px 0;
-  font-size: 13px;
-  color: #4a5568;
-  line-height: 1.5;
-}
-
-.dark .releaseSummary {
-  color: #a0aec0;
-}
-
-// =============================================================================
-// RELEASE ITEMS
-// =============================================================================
-
-.releaseItems {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.patchList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  padding-top: 12px;
 }
 
-.releaseItem {
+// =============================================================================
+// PATCH RELEASE CARD (nested, e.g., v0.5.24)
+// =============================================================================
+
+.patchCard {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    border-color: #cbd5e0;
+  }
+
+  &.expanded {
+    background: #ffffff;
+    border-color: #a0aec0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+}
+
+.dark .patchCard {
+  background: #263548;
+  border-color: #3d4f63;
+
+  &:hover {
+    border-color: #4a5f76;
+  }
+
+  &.expanded {
+    background: #2d3f54;
+    border-color: #4da3e0;
+  }
+}
+
+// =============================================================================
+// PATCH HEADER
+// =============================================================================
+
+.patchHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #0078d4;
+    outline-offset: -2px;
+  }
+}
+
+.dark .patchHeader:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.patchHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.patchVersion {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: #4a5568;
+  background: #e2e8f0;
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+
+.dark .patchVersion {
+  color: #a0aec0;
+  background: #3d4f63;
+}
+
+.patchHeaderCenter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.patchTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2d3748;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dark .patchTitle {
+  color: #e2e8f0;
+}
+
+.patchDate {
+  font-size: 11px;
+  color: #718096;
+}
+
+.dark .patchDate {
+  color: #94a3b8;
+}
+
+// =============================================================================
+// PATCH CONTENT
+// =============================================================================
+
+.patchContent {
+  padding: 0 14px 14px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.dark .patchContent {
+  border-top-color: #3d4f63;
+}
+
+// =============================================================================
+// PATCH ITEMS
+// =============================================================================
+
+.patchItems {
+  list-style: none;
+  margin: 0;
+  padding: 10px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.patchItem {
   display: flex;
   align-items: flex-start;
   gap: 10px;
 }
 
-.releaseItemContent {
+.patchItemContent {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -270,24 +434,24 @@
   min-width: 0;
 }
 
-.releaseItemTitle {
+.patchItemTitle {
   font-size: 13px;
   font-weight: 500;
   color: #2d3748;
   line-height: 1.4;
 }
 
-.dark .releaseItemTitle {
+.dark .patchItemTitle {
   color: #e2e8f0;
 }
 
-.releaseItemDescription {
+.patchItemDescription {
   font-size: 12px;
   color: #718096;
   line-height: 1.4;
 }
 
-.dark .releaseItemDescription {
+.dark .patchItemDescription {
   color: #94a3b8;
 }
 
@@ -299,7 +463,7 @@
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
