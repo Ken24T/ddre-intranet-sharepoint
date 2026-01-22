@@ -58,32 +58,81 @@ const CategoryBadge: React.FC<ICategoryBadgeProps> = ({ category }) => {
 
 interface ISummaryBadgesProps {
   minor: IMinorRelease;
+  activeFilter: ReleaseCategory | undefined;
+  onFilterChange: (category: ReleaseCategory | undefined) => void;
 }
 
-const SummaryBadges: React.FC<ISummaryBadgesProps> = ({ minor }) => {
+const SummaryBadges: React.FC<ISummaryBadgesProps> = ({ minor, activeFilter, onFilterChange }) => {
   const counts = getMinorReleaseItemCounts(minor);
+
+  const handleBadgeClick = (category: ReleaseCategory, e: React.MouseEvent): void => {
+    e.stopPropagation(); // Don't toggle the minor release expand/collapse
+    // Toggle filter: if already active, clear it; otherwise set it
+    onFilterChange(activeFilter === category ? undefined : category);
+  };
+
+  const getBadgeClass = (category: ReleaseCategory): string => {
+    if (activeFilter === undefined) return styles.summaryBadge;
+    if (activeFilter === category) return `${styles.summaryBadge} ${styles.summaryBadgeActive}`;
+    return `${styles.summaryBadge} ${styles.summaryBadgeDimmed}`;
+  };
 
   return (
     <div className={styles.summaryBadges}>
       {counts.feature > 0 && (
-        <span className={styles.summaryBadge} style={{ backgroundColor: categoryColors.feature.bg, color: categoryColors.feature.text }}>
+        <button
+          type="button"
+          className={getBadgeClass('feature')}
+          style={{ backgroundColor: categoryColors.feature.bg, color: categoryColors.feature.text }}
+          onClick={(e) => handleBadgeClick('feature', e)}
+          title={activeFilter === 'feature' ? 'Click to show all' : 'Click to filter by Features'}
+        >
           {counts.feature} {counts.feature === 1 ? 'Feature' : 'Features'}
-        </span>
+        </button>
       )}
       {counts.improvement > 0 && (
-        <span className={styles.summaryBadge} style={{ backgroundColor: categoryColors.improvement.bg, color: categoryColors.improvement.text }}>
+        <button
+          type="button"
+          className={getBadgeClass('improvement')}
+          style={{ backgroundColor: categoryColors.improvement.bg, color: categoryColors.improvement.text }}
+          onClick={(e) => handleBadgeClick('improvement', e)}
+          title={activeFilter === 'improvement' ? 'Click to show all' : 'Click to filter by Improvements'}
+        >
           {counts.improvement} {counts.improvement === 1 ? 'Improvement' : 'Improvements'}
-        </span>
+        </button>
       )}
       {counts.bugfix > 0 && (
-        <span className={styles.summaryBadge} style={{ backgroundColor: categoryColors.bugfix.bg, color: categoryColors.bugfix.text }}>
+        <button
+          type="button"
+          className={getBadgeClass('bugfix')}
+          style={{ backgroundColor: categoryColors.bugfix.bg, color: categoryColors.bugfix.text }}
+          onClick={(e) => handleBadgeClick('bugfix', e)}
+          title={activeFilter === 'bugfix' ? 'Click to show all' : 'Click to filter by Bug Fixes'}
+        >
           {counts.bugfix} {counts.bugfix === 1 ? 'Bug Fix' : 'Bug Fixes'}
-        </span>
+        </button>
       )}
       {counts.security > 0 && (
-        <span className={styles.summaryBadge} style={{ backgroundColor: categoryColors.security.bg, color: categoryColors.security.text }}>
+        <button
+          type="button"
+          className={getBadgeClass('security')}
+          style={{ backgroundColor: categoryColors.security.bg, color: categoryColors.security.text }}
+          onClick={(e) => handleBadgeClick('security', e)}
+          title={activeFilter === 'security' ? 'Click to show all' : 'Click to filter by Security'}
+        >
           {counts.security} Security
-        </span>
+        </button>
+      )}
+      {activeFilter && (
+        <button
+          type="button"
+          className={styles.clearFilterButton}
+          onClick={(e) => { e.stopPropagation(); onFilterChange(undefined); }}
+          title="Clear filter"
+        >
+          <Icon iconName="Cancel" className={styles.clearFilterIcon} />
+          Clear
+        </button>
       )}
     </div>
   );
@@ -98,6 +147,7 @@ interface IPatchReleaseCardProps {
   isNew?: boolean;
   defaultExpanded?: boolean;
   onExpand?: () => void;
+  categoryFilter?: ReleaseCategory | undefined;
 }
 
 const PatchReleaseCard: React.FC<IPatchReleaseCardProps> = ({
@@ -105,8 +155,20 @@ const PatchReleaseCard: React.FC<IPatchReleaseCardProps> = ({
   isNew = false,
   defaultExpanded = false,
   onExpand,
+  categoryFilter = undefined,
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
+
+  // Filter items based on category filter
+  const filteredItems = React.useMemo(() => {
+    if (!categoryFilter) return patch.items;
+    return patch.items.filter((item) => item.category === categoryFilter);
+  }, [patch.items, categoryFilter]);
+
+  // Don't render if no items match the filter
+  if (filteredItems.length === 0) {
+    return null;
+  }
 
   const handleToggle = (): void => {
     const newExpanded = !isExpanded;
@@ -116,14 +178,16 @@ const PatchReleaseCard: React.FC<IPatchReleaseCardProps> = ({
     }
   };
 
-  const formattedDate = React.useMemo(() => {
-    const date = new Date(patch.date);
-    return date.toLocaleDateString('en-AU', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  }, [patch.date]);
+  const formattedDate = new Date(patch.date).toLocaleDateString('en-AU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+
+  // Show filtered count indicator
+  const itemCountLabel = categoryFilter
+    ? `${filteredItems.length} of ${patch.items.length} items`
+    : `${patch.items.length} items`;
 
   return (
     <div className={`${styles.patchCard} ${isExpanded ? styles.expanded : ''}`}>
@@ -136,6 +200,9 @@ const PatchReleaseCard: React.FC<IPatchReleaseCardProps> = ({
         <div className={styles.patchHeaderLeft}>
           <span className={styles.patchVersion}>v{patch.version}</span>
           {isNew && <span className={styles.newBadge}>New</span>}
+          {categoryFilter && (
+            <span className={styles.filteredCount}>{itemCountLabel}</span>
+          )}
         </div>
         <div className={styles.patchHeaderCenter}>
           <span className={styles.patchTitle}>{patch.title}</span>
@@ -150,7 +217,7 @@ const PatchReleaseCard: React.FC<IPatchReleaseCardProps> = ({
       {isExpanded && (
         <div className={styles.patchContent}>
           <ul className={styles.patchItems}>
-            {patch.items.map((item) => (
+            {filteredItems.map((item) => (
               <li key={item.id} className={styles.patchItem}>
                 <CategoryBadge category={item.category} />
                 <div className={styles.patchItemContent}>
@@ -190,9 +257,18 @@ const MinorReleaseCard: React.FC<IMinorReleaseCardProps> = ({
   onPatchExpand,
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
+  const [categoryFilter, setCategoryFilter] = React.useState<ReleaseCategory | undefined>(undefined);
 
   const handleToggle = (): void => {
     setIsExpanded(!isExpanded);
+  };
+
+  const handleFilterChange = (category: ReleaseCategory | undefined): void => {
+    setCategoryFilter(category);
+    // Auto-expand when filtering
+    if (category !== undefined && !isExpanded) {
+      setIsExpanded(true);
+    }
   };
 
   // Date range for this minor release
@@ -212,7 +288,7 @@ const MinorReleaseCard: React.FC<IMinorReleaseCardProps> = ({
   }, [minor.patches]);
 
   return (
-    <div className={`${styles.minorCard} ${isExpanded ? styles.expanded : ''}`}>
+    <div className={`${styles.minorCard} ${isExpanded ? styles.expanded : ''} ${categoryFilter ? styles.filtered : ''}`}>
       <button
         type="button"
         className={styles.minorHeader}
@@ -236,19 +312,26 @@ const MinorReleaseCard: React.FC<IMinorReleaseCardProps> = ({
             {minor.patches.length} {minor.patches.length === 1 ? 'update' : 'updates'}
           </span>
         </div>
-        <SummaryBadges minor={minor} />
+        <SummaryBadges minor={minor} activeFilter={categoryFilter} onFilterChange={handleFilterChange} />
       </button>
 
       {isExpanded && (
         <div className={styles.minorContent}>
+          {categoryFilter && (
+            <div className={styles.filterNotice}>
+              <Icon iconName="Filter" className={styles.filterNoticeIcon} />
+              <span>Showing {categoryLabels[categoryFilter].toLowerCase()}s only</span>
+            </div>
+          )}
           <div className={styles.patchList}>
             {minor.patches.map((patch, index) => (
               <PatchReleaseCard
                 key={patch.version}
                 patch={patch}
                 isNew={isPatchNew(patch.date)}
-                defaultExpanded={index === 0}
+                defaultExpanded={index === 0 || categoryFilter !== undefined}
                 onExpand={() => onPatchExpand?.(patch)}
+                categoryFilter={categoryFilter}
               />
             ))}
           </div>
