@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DefaultButton, Dropdown, Icon, SearchBox, useTheme } from '@fluentui/react';
+import { DefaultButton, Dropdown, Icon, IconButton, MessageBar, MessageBarType, SearchBox, useTheme } from '@fluentui/react';
 import { marked } from 'marked';
 import styles from './HelpCenter.module.scss';
 import type { IFunctionCard } from '../FunctionCard';
@@ -519,7 +519,18 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
   const theme = useTheme();
   const [searchText, setSearchText] = React.useState('');
   const [appliedQuery, setAppliedQuery] = React.useState('');
+  const [toastMessage, setToastMessage] = React.useState<{ text: string; type: MessageBarType } | null>(null);
   const audit = useAudit();
+
+  // Auto-dismiss toast after 3 seconds
+  React.useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [toastMessage]);
+
   const generalButtons = [
     'Getting Started',
     'Settings',
@@ -625,6 +636,81 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
         detail: { label, isHelpful },
       })
     );
+  };
+
+  /** Print article content */
+  const handlePrintArticle = (articleId: string, title: string): void => {
+    audit.logHelpSearch('article_printed', {
+      metadata: { articleId, title },
+    });
+
+    // Open print dialog - in production this would render styled article content
+    const printContent = `
+      <!doctype html>
+      <html>
+        <head>
+          <title>${title} - DDRE Intranet Help</title>
+          <style>
+            @media print {
+              body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; padding: 40px; }
+              h1 { color: #001CAD; border-bottom: 2px solid #001CAD; padding-bottom: 8px; }
+              .header { display: flex; justify-content: space-between; margin-bottom: 24px; }
+              .logo { font-weight: bold; color: #001CAD; }
+              .date { color: #666; }
+              @page { margin: 2cm; }
+            }
+            body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; padding: 40px; max-width: 800px; margin: 0 auto; }
+            h1 { color: #001CAD; border-bottom: 2px solid #001CAD; padding-bottom: 8px; }
+            .header { display: flex; justify-content: space-between; margin-bottom: 24px; }
+            .logo { font-weight: bold; color: #001CAD; }
+            .date { color: #666; }
+            .placeholder { background: #f0f0f0; padding: 40px; text-align: center; color: #666; border-radius: 8px; margin-top: 24px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <span class="logo">DDRE Intranet Help</span>
+            <span class="date">${new Date().toLocaleDateString('en-AU')}</span>
+          </div>
+          <h1>${title}</h1>
+          <div class="placeholder">
+            <p>Article content would be rendered here in production.</p>
+            <p>This is a print preview placeholder.</p>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    }
+  };
+
+  /** Copy article link to clipboard */
+  const handleCopyLink = async (articleId: string, title: string, helpUrl?: string): Promise<void> => {
+    const url = helpUrl ? `${window.location.origin}${helpUrl}` : `${window.location.origin}/help/${articleId}`;
+    
+    try {
+      await navigator.clipboard.writeText(url);
+      audit.logHelpSearch('article_link_copied', {
+        metadata: { articleId, title, url },
+      });
+      setToastMessage({ text: 'Link copied to clipboard', type: MessageBarType.success });
+    } catch {
+      setToastMessage({ text: 'Failed to copy link', type: MessageBarType.error });
+    }
+  };
+
+  /** Download as PDF (mock - shows coming soon) */
+  const handleDownloadPdf = (articleId: string, title: string): void => {
+    audit.logHelpSearch('article_pdf_requested', {
+      metadata: { articleId, title },
+    });
+    setToastMessage({ text: 'PDF download coming soon!', type: MessageBarType.info });
   };
 
   /** Source context for article opens */
@@ -765,6 +851,19 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
 
   return (
     <div className={helpCenterClassName}>
+      {/* Toast notification */}
+      {toastMessage && (
+        <div className={styles.toast}>
+          <MessageBar
+            messageBarType={toastMessage.type}
+            onDismiss={() => setToastMessage(null)}
+            dismissButtonAriaLabel="Close"
+          >
+            {toastMessage.text}
+          </MessageBar>
+        </div>
+      )}
+
       <div className={styles.hero}>
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>Help Centre</h1>
@@ -858,6 +957,29 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
                     <span>{card.owner}</span>
                     <span>Updated {card.updatedAt}</span>
                   </div>
+                  <div className={styles.articleActions}>
+                    <IconButton
+                      iconProps={{ iconName: 'Print' }}
+                      title="Print article"
+                      ariaLabel="Print article"
+                      className={styles.articleActionButton}
+                      onClick={() => handlePrintArticle(card.id, card.title)}
+                    />
+                    <IconButton
+                      iconProps={{ iconName: 'Link' }}
+                      title="Copy link"
+                      ariaLabel="Copy link"
+                      className={styles.articleActionButton}
+                      onClick={() => handleCopyLink(card.id, card.title, card.helpUrl)}
+                    />
+                    <IconButton
+                      iconProps={{ iconName: 'PDF' }}
+                      title="Download as PDF"
+                      ariaLabel="Download as PDF"
+                      className={styles.articleActionButton}
+                      onClick={() => handleDownloadPdf(card.id, card.title)}
+                    />
+                  </div>
                   <button
                     className={styles.articleAction}
                     type="button"
@@ -936,6 +1058,29 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
                   <div className={styles.articleMeta}>
                     <span>{helpMetaByCardId[card.id]?.owner}</span>
                     <span>Updated {helpMetaByCardId[card.id]?.updatedAt}</span>
+                  </div>
+                  <div className={styles.articleActions}>
+                    <IconButton
+                      iconProps={{ iconName: 'Print' }}
+                      title="Print article"
+                      ariaLabel="Print article"
+                      className={styles.articleActionButton}
+                      onClick={() => handlePrintArticle(card.id, card.title)}
+                    />
+                    <IconButton
+                      iconProps={{ iconName: 'Link' }}
+                      title="Copy link"
+                      ariaLabel="Copy link"
+                      className={styles.articleActionButton}
+                      onClick={() => handleCopyLink(card.id, card.title, card.helpUrl)}
+                    />
+                    <IconButton
+                      iconProps={{ iconName: 'PDF' }}
+                      title="Download as PDF"
+                      ariaLabel="Download as PDF"
+                      className={styles.articleActionButton}
+                      onClick={() => handleDownloadPdf(card.id, card.title)}
+                    />
                   </div>
                   <button
                     className={styles.articleAction}

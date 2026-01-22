@@ -356,6 +356,42 @@
   color: #8a5a00;
 }
 
+.articleActions {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.articleActionButton {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(138, 90, 0, 0.08);
+  border: 1px solid rgba(138, 90, 0, 0.15);
+  color: #8a5a00;
+}
+
+.articleActionButton:hover {
+  background: rgba(138, 90, 0, 0.15);
+  border-color: rgba(138, 90, 0, 0.25);
+}
+
+.articleActionButton :global(.ms-Icon) {
+  font-size: 12px;
+}
+
+.toast {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10000;
+  min-width: 280px;
+  max-width: 400px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
 .articleAction {
   margin-top: auto;
   background: transparent;
@@ -561,6 +597,21 @@
   .articleMeta,
   .articleFeedback {
     color: var(--neutralSecondary, #d0d0d0);
+  }
+
+  .articleActions {
+    border-color: var(--neutralLight, #343434);
+  }
+
+  .articleActionButton {
+    background: var(--neutralLighter, #252525);
+    border: 1px solid var(--neutralLight, #343434);
+    color: var(--neutralPrimary, #ffffff);
+  }
+
+  .articleActionButton:hover {
+    background: var(--neutralQuaternary, #454545);
+    border-color: var(--neutralTertiaryAlt, #656565);
   }
 
   .articleAction {

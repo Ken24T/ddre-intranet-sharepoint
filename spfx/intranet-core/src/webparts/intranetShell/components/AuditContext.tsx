@@ -19,7 +19,10 @@ export type HelpSearchAction =
   | 'search_executed'
   | 'search_no_results'
   | 'article_opened'
-  | 'feedback_submitted';
+  | 'feedback_submitted'
+  | 'article_printed'
+  | 'article_link_copied'
+  | 'article_pdf_requested';
 
 export type NavigationAction =
   | 'hub_changed'

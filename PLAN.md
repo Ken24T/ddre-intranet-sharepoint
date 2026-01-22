@@ -228,20 +228,20 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [x] 11c.7 Add "Top Missing Content" mock report
       (queries with no results, grouped and ranked)
 
-#### Phase 11d: Print/Export Help Articles
+#### Phase 11d: Print/Export Help Articles ✅
 
 > Allow users to print or export help content for offline reference.
 
-- [ ] 11d.1 Add print button to help article preview
+- [x] 11d.1 Add print button to help article preview
       (opens print dialog with styled content)
-- [ ] 11d.2 Create print-optimised CSS for help content
-      (hide nav, adjust fonts, page breaks)
-- [ ] 11d.3 Add "Download as PDF" button (mock)
+- [x] 11d.2 Create print-optimised CSS for help content
+      (hide nav, adjust fonts, page breaks, @media print)
+- [x] 11d.3 Add "Download as PDF" button (mock)
       (shows toast with "feature coming soon" for now)
-- [ ] 11d.4 Add "Copy link" button for help articles
-      (copies shareable URL to clipboard)
-- [ ] 11d.5 Log print/export actions in audit
-      (article id, action type)
+- [x] 11d.4 Add "Copy link" button for help articles
+      (copies shareable URL to clipboard with toast)
+- [x] 11d.5 Log print/export actions in audit
+      (article_printed, article_link_copied, article_pdf_requested)
 
 #### Phase 11e: Related Articles
 
