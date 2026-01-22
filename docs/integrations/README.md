@@ -10,6 +10,7 @@ For machine-readable contracts (OpenAPI specs), see `contracts/`.
 
 | Integration | Folder | Description |
 |-------------|--------|-------------|
+| AI RAG | `ai/` | OpenAI chatbot with RAG (query + feedback) |
 | Vault CRM | `vault/` | Sales CRM – contacts, deals (full CRUD) |
 | PropertyMe | `propertyme/` | Property management – properties, tenants (read-only) |
 

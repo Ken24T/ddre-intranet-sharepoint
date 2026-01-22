@@ -6,6 +6,7 @@ This folder contains **API-specific context files** that can be referenced when 
 
 | File | When to Use |
 |------|-------------|
+| `ai-api.md` | Working on AI Assistant / chatbot features |
 | `vault-api.md` | Working on Vault CRM / Sales hub features |
 | `propertyme-api.md` | Working on PropertyMe / PM Dashboard features |
 

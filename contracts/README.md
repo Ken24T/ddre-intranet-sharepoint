@@ -57,13 +57,15 @@ Contracts are organised by API/system:
 
 ```
 /contracts
-  /vault                        # Vault CRM (Sales)
+  /ai                           # AI RAG (OpenAI chatbot)
     openapi.yml                 # OpenAPI specification
     README.md                   # API overview
+  /vault                        # Vault CRM (Sales)
+    openapi.yml
+    README.md
   /propertyme                   # PropertyMe (PM Dashboard)
     openapi.yml
     README.md
-  ai-rag-proxy.openapi.yml      # AI Assistant
   audit-log-proxy.openapi.yml   # Audit logging
   tasks-api-proxy.openapi.yml   # User tasks
 ```
@@ -74,7 +76,7 @@ Contracts are organised by API/system:
 
 | Contract | Location | Capabilities | Consumer |
 |----------|----------|--------------|----------|
-| AI RAG (OpenAI) | `ai-rag-proxy.openapi.yml` | Query, Feedback | AI Assistant |
+| AI RAG (OpenAI) | `ai/openapi.yml` | Query, Feedback | AI Assistant |
 | Vault CRM | `vault/openapi.yml` | Full CRUD | Sales hub apps |
 | PropertyMe | `propertyme/openapi.yml` | Read-only | PM Dashboard |
 | Audit Log | `audit-log-proxy.openapi.yml` | Write, Query | Audit system |
