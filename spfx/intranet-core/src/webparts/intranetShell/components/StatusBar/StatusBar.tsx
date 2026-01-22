@@ -211,14 +211,16 @@ const NotificationItem: React.FC<INotificationItemProps> = ({ notification, onDi
                 {notification.severity === 'error' ? 'Alert' : notification.severity === 'warning' ? 'Warning' : 'Information'}
               </span>
             </div>
-            <p className={styles.notificationCalloutMessage}>{notification.message}</p>
-            <div className={styles.notificationCalloutMeta}>
-              <Icon iconName="Contact" className={styles.notificationCalloutMetaIcon} />
-              <span>Published by {notification.publishedBy}</span>
-            </div>
-            <div className={styles.notificationCalloutMeta}>
-              <Icon iconName="Calendar" className={styles.notificationCalloutMetaIcon} />
-              <span>{formattedDate} at {formattedTime}</span>
+            <div className={styles.notificationCalloutBody}>
+              <p className={styles.notificationCalloutMessage}>{notification.message}</p>
+              <div className={styles.notificationCalloutMeta}>
+                <Icon iconName="Contact" className={styles.notificationCalloutMetaIcon} />
+                <span>Published by {notification.publishedBy}</span>
+              </div>
+              <div className={styles.notificationCalloutMeta}>
+                <Icon iconName="Calendar" className={styles.notificationCalloutMetaIcon} />
+                <span>{formattedDate} at {formattedTime}</span>
+              </div>
             </div>
           </div>
         </Callout>
