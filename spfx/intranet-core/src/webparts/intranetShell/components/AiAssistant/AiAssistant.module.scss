@@ -57,6 +57,23 @@
   }
 }
 
+.floatingButton.unavailable {
+  background: var(--color-text-tertiary, #a19f9d) !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+
+  &:hover {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    filter: none;
+  }
+
+  i,
+  i[class*="ms-Icon"] {
+    color: white !important;
+  }
+}
+
 // =============================================================================
 // CHAT PANEL
 // =============================================================================

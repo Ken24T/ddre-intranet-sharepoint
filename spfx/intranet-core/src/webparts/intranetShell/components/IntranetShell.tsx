@@ -57,6 +57,8 @@ export interface IIntranetShellState {
   activeCardId?: string;
   /** AI Assistant hidden state (global) */
   isAiAssistantHidden: boolean;
+  /** Jasper API availability (from StatusBar health check) */
+  isJasperAvailable: boolean;
   /** Help Centre open state */
   isHelpOpen: boolean;
   /** User favourites (per-user storage) */
@@ -241,6 +243,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       searchQuery: undefined,
       activeCardId: undefined,
       isAiAssistantHidden: isAiHidden,
+      isJasperAvailable: true, // Assume available until StatusBar reports otherwise
       isHelpOpen: false,
       favourites: loadFromStorage(STORAGE_KEYS.FAVOURITES, []),
       isTasksPanelOpen: false,
@@ -692,6 +695,10 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     this.setState({ isAiAssistantHidden: false });
   };
 
+  private handleJasperStatusChange = (isAvailable: boolean): void => {
+    this.setState({ isJasperAvailable: isAvailable });
+  };
+
   public render(): React.ReactElement<IIntranetShellProps> {
     const { userDisplayName, userEmail, siteTitle } = this.props;
     const {
@@ -1029,6 +1036,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           taskBannerItems={this.state.isBannerDismissed ? [] : this.state.taskBannerItems}
           onTaskBannerClick={this.handleTaskBannerClick}
           onTaskBannerDismiss={this.handleTaskBannerDismiss}
+          onJasperStatusChange={this.handleJasperStatusChange}
         />
 
         <SettingsPanel
@@ -1067,9 +1075,10 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           onStateChange={this.handleNotificationStateChange}
         />
 
-        {/* AI Assistant */}
+        {/* AI Assistant (Jasper) */}
         <AiAssistant
           isHidden={isAiAssistantHidden}
+          isUnavailable={!this.state.isJasperAvailable}
           onHide={this.handleHideAiAssistant}
           accentColor={aiAccentColor}
         />

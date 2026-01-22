@@ -10,6 +10,8 @@ import styles from './AiAssistant.module.scss';
 export interface IAiAssistantProps {
   /** Whether the assistant is hidden by user */
   isHidden?: boolean;
+  /** Whether the Jasper API is unavailable (button will be disabled) */
+  isUnavailable?: boolean;
   /** Callback when user hides the assistant */
   onHide?: () => void;
   /** Accent color for the hub (used for button/header styling) */
@@ -200,6 +202,7 @@ function getPopupHtml(messages: IChatMessage[], accentColor?: string): string {
  */
 export const AiAssistant: React.FC<IAiAssistantProps> = ({
   isHidden: isHiddenProp,
+  isUnavailable = false,
   onHide,
   accentColor,
 }) => {
@@ -383,13 +386,22 @@ export const AiAssistant: React.FC<IAiAssistantProps> = ({
 
       {/* Floating Button */}
       <TooltipHost
-        content={isPoppedOut ? 'Return chat to panel' : (isPanelOpen ? 'Close AI Assistant' : 'Open AI Assistant')}
+        content={
+          isUnavailable
+            ? 'Jasper is currently unavailable'
+            : isPoppedOut
+              ? 'Return chat to panel'
+              : isPanelOpen
+                ? 'Close Jasper'
+                : 'Open Jasper'
+        }
       >
         <IconButton
-          className={`${styles.floatingButton} ${isPoppedOut ? styles.poppedOut : ''}`}
+          className={`${styles.floatingButton} ${isPoppedOut ? styles.poppedOut : ''} ${isUnavailable ? styles.unavailable : ''}`}
           iconProps={{ iconName: isPoppedOut ? 'ReturnKey' : 'Robot' }}
-          ariaLabel={isPoppedOut ? 'Return AI Assistant from popup' : 'Open AI Assistant'}
+          ariaLabel={isUnavailable ? 'Jasper is unavailable' : (isPoppedOut ? 'Return Jasper from popup' : 'Open Jasper')}
           onClick={handleButtonClick}
+          disabled={isUnavailable}
         />
       </TooltipHost>
     </div>
