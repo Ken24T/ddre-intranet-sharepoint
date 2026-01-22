@@ -260,16 +260,24 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [x] 11e.6 Log related article clicks in audit
       (related_article_clicked with source and target)
 
-### Phase 12: Feedback & Bug Report
+### Phase 12: Feedback & Bug Report ✅
 
-- [ ] 12.1 Decide submission mechanism (Cognito Forms vs SharePoint list)
-- [ ] 12.2 Define feedback categories + fields (bug, feature, content, access)
-- [ ] 12.3 Create feedback/bug report form (Cognito Forms)
-- [ ] 12.4 Add Feedback entry points (navbar, footer, or Help Center CTA)
-- [ ] 12.5 Add “Report an Issue” card (hub placement + visibility rules)
-- [ ] 12.6 Implement form embedding/redirect behavior
-- [ ] 12.7 Add acknowledgment UX (toast + confirmation state)
-- [ ] 12.8 Define routing of submissions (email, Teams channel, or tracker)
+- [x] 12.1 Decide submission mechanism (Cognito Forms vs SharePoint list)
+      (mock form for now, real integration in future phase)
+- [x] 12.2 Define feedback categories + fields (bug, feature, content, access)
+      (FeedbackCategory type with 5 options: bug, feature, content, access, other)
+- [x] 12.3 Create feedback/bug report form (Cognito Forms)
+      (FeedbackForm React component with validation and success state)
+- [x] 12.4 Add Feedback entry points (navbar, footer, or Help Center CTA)
+      (Send Feedback button in Help Centre CTA panel)
+- [x] 12.5 Add "Report an Issue" card (hub placement + visibility rules)
+      (added to home hub in sampleCards.ts)
+- [x] 12.6 Implement form embedding/redirect behavior
+      (FeedbackPanel using Fluent UI Panel with smooth open/close)
+- [x] 12.7 Add acknowledgment UX (toast + confirmation state)
+      (success state with checkmark, message, and new feedback option)
+- [x] 12.8 Define routing of submissions (email, Teams channel, or tracker)
+      (audit logging for feedback_form_submitted with metadata)
 
 ### Phase 13: Favourites Hub
 

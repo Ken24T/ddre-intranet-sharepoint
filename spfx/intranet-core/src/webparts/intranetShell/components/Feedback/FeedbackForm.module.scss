@@ -1,0 +1,226 @@
+// =============================================================================
+// FEEDBACK FORM STYLES
+// =============================================================================
+
+.feedbackForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 12px;
+  max-width: 560px;
+}
+
+// =============================================================================
+// HEADER
+// =============================================================================
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.headerIcon {
+  font-size: 28px;
+  color: #0078d4;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.headerTitle {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #323130;
+}
+
+.headerSubtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #605e5c;
+}
+
+// =============================================================================
+// FORM FIELDS
+// =============================================================================
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.categoryOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.categoryIcon {
+  font-size: 14px;
+  color: #0078d4;
+}
+
+.errorBar {
+  margin-bottom: 8px;
+}
+
+// =============================================================================
+// CATEGORY HINT
+// =============================================================================
+
+.categoryHint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #f0f6ff;
+  border-radius: 8px;
+  border-left: 3px solid #0078d4;
+  font-size: 12px;
+  color: #323130;
+}
+
+.hintIcon {
+  font-size: 14px;
+  color: #0078d4;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+// =============================================================================
+// FORM ACTIONS
+// =============================================================================
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #edebe9;
+}
+
+// =============================================================================
+// DISCLAIMER
+// =============================================================================
+
+.disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11px;
+  color: #605e5c;
+}
+
+.disclaimerIcon {
+  font-size: 12px;
+  color: #8a8886;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.link {
+  color: #0078d4;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+// =============================================================================
+// SUCCESS STATE
+// =============================================================================
+
+.successState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.successIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #107c10 0%, #0b8043 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  
+  :global(.ms-Icon) {
+    font-size: 32px;
+    color: #ffffff;
+  }
+}
+
+.successTitle {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #107c10;
+}
+
+.successMessage {
+  margin: 0 0 24px 0;
+  font-size: 14px;
+  color: #605e5c;
+  max-width: 320px;
+}
+
+.successActions {
+  display: flex;
+  gap: 12px;
+}
+
+// =============================================================================
+// DARK MODE
+// =============================================================================
+
+.dark {
+  background: var(--neutralLighterAlt, #1c1c1c);
+
+  .headerTitle {
+    color: var(--neutralPrimary, #ffffff);
+  }
+
+  .headerSubtitle,
+  .disclaimer {
+    color: var(--neutralSecondary, #d0d0d0);
+  }
+
+  .headerIcon,
+  .categoryIcon,
+  .hintIcon {
+    color: var(--themePrimary, #3aa0f3);
+  }
+
+  .categoryHint {
+    background: rgba(58, 160, 243, 0.1);
+    border-left-color: var(--themePrimary, #3aa0f3);
+  }
+
+  .formActions {
+    border-top-color: var(--neutralLight, #343434);
+  }
+
+  .successTitle {
+    color: #6cc36c;
+  }
+
+  .successMessage {
+    color: var(--neutralSecondary, #d0d0d0);
+  }
+
+  .link {
+    color: var(--themePrimary, #3aa0f3);
+  }
+
+  .disclaimerIcon {
+    color: var(--neutralTertiary, #c8c8c8);
+  }
+}

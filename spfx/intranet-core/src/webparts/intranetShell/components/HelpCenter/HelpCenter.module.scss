@@ -548,6 +548,16 @@
   outline-offset: 2px;
 }
 
+.ctaButtonPrimary {
+  border-radius: 999px;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0, 120, 212, 0.25);
+}
+
+.ctaButtonPrimary :global(.ms-Button-icon) {
+  color: #ffffff;
+}
+
 // Dark mode overrides
 .dark {
   color: var(--neutralPrimary, #ffffff);

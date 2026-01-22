@@ -41,6 +41,14 @@ export const sampleCards: IFunctionCard[] = [
     description: 'Generate QR codes for links, text, and more',
     icon: 'QRCode',
   },
+  {
+    id: 'report-issue',
+    hubKey: 'home',
+    title: 'Report an Issue',
+    description: 'Report bugs, request features, or submit feedback',
+    icon: 'Feedback',
+    helpUrl: '/help/feedback',
+  },
 
   // Administration Hub
   {

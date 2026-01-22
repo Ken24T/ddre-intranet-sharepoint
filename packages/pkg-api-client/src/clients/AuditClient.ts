@@ -106,7 +106,11 @@ export type UserInteractionAction =
   | "user_profile_viewed"
   | "ai_query_submitted"
   | "ai_response_received"
-  | "ai_feedback_given";
+  | "ai_feedback_given"
+  | "help_tooltip_viewed"
+  | "help_tooltip_learn_more"
+  | "feedback_form_submitted"
+  | "feedback_form_opened";
 
 /**
  * Notification actions.

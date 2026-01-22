@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DefaultButton, Dropdown, Icon, IconButton, MessageBar, MessageBarType, SearchBox, useTheme } from '@fluentui/react';
+import { DefaultButton, Dropdown, Icon, IconButton, MessageBar, MessageBarType, PrimaryButton, SearchBox, useTheme } from '@fluentui/react';
 import { marked } from 'marked';
 import styles from './HelpCenter.module.scss';
 import type { IFunctionCard } from '../FunctionCard';
@@ -8,6 +8,7 @@ import { openMockHelpWindow } from '../utils/helpMock';
 import type { IRelatedArticle } from '../utils/helpMock';
 import { WhatsNew } from '../WhatsNew';
 import { useAudit } from '../AuditContext';
+import { FeedbackPanel } from '../Feedback';
 
 export interface IHelpCenterProps {
   cards: IFunctionCard[];
@@ -584,6 +585,16 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
     }
     return undefined;
   }, [toastMessage]);
+
+  // Feedback panel state
+  const [isFeedbackPanelOpen, setIsFeedbackPanelOpen] = React.useState(false);
+
+  const handleOpenFeedback = (): void => {
+    audit.logUserInteraction('feedback_form_opened', {
+      metadata: { source: 'help_center_cta' },
+    });
+    setIsFeedbackPanelOpen(true);
+  };
 
   const generalButtons = [
     'Getting Started',
@@ -1286,8 +1297,21 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
             className={styles.ctaButton}
             onClick={handleRequestHelp}
           />
+          <PrimaryButton
+            text="Send Feedback"
+            iconProps={{ iconName: 'Feedback' }}
+            className={styles.ctaButtonPrimary}
+            onClick={handleOpenFeedback}
+          />
         </div>
       </div>
+
+      {/* Feedback Panel */}
+      <FeedbackPanel
+        isOpen={isFeedbackPanelOpen}
+        onDismiss={() => setIsFeedbackPanelOpen(false)}
+        sourceContext="help_center"
+      />
     </div>
   );
 };
