@@ -93,6 +93,17 @@ SPFx solutions consume these via local npm install (not published to registry ye
 - **Phase 1 (current):** Single `intranet-core` solution for foundation features
 - **Phase 2+:** Each business app gets its own SPFx solution and `.sppkg`
 
+## Jasper (AI Chatbot)
+
+**Jasper** is the name of the intranet's AI assistant chatbot. He appears as a floating button in the bottom-right corner of the shell and provides conversational help to users.
+
+- **Personality:** Friendly, supportive, and helpful with an Australian touch (e.g., "G'day!")
+- **Capabilities:** Finding documents, explaining policies, navigating the intranet, answering questions
+- **Backend:** Azure OpenAI via the AI RAG Proxy API (see `/contracts/ai-rag-proxy.openapi.yml`)
+- **Health monitoring:** StatusBar shows Jasper connection status; button is disabled when unavailable
+
+When writing Jasper's dialogue or messages, use a warm, encouraging tone that makes users feel supported.
+
 ## SHIP Workflow
 
 When the user says **SHIP**, execute the following steps as appropriate:

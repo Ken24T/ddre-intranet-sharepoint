@@ -63,18 +63,18 @@ function getSimulatedResponse(userMessage: string): string {
   const lower = userMessage.toLowerCase();
   
   if (lower.includes('hello') || lower.includes('hi')) {
-    return "Hello! I'm your AI assistant. I can help you find information across the DDRE intranet, answer questions about company policies, or assist with common tasks. What would you like help with?";
+    return "G'day! I'm Jasper, your friendly intranet assistant. I can help you find documents, answer questions about company policies, or help you navigate around. What can I do for you today?";
   }
   
   if (lower.includes('help')) {
-    return "I can help you with:\n• Finding documents and files\n• Answering questions about company policies\n• Navigating the intranet\n• Providing information about team members\n\nJust ask me anything!";
+    return "No worries, I'm here to help! Here's what I can do for you:\n• Find documents and files across the intranet\n• Answer questions about company policies\n• Help you navigate to the right place\n• Provide information about team members\n\nJust ask me anything—I've got your back!";
   }
   
   if (lower.includes('policy') || lower.includes('policies')) {
     return "I can help you find company policies. Could you be more specific about which policy you're looking for? For example:\n• Leave policy\n• IT security policy\n• Expense policy\n• Work from home policy";
   }
 
-  return "I understand you're asking about \"" + userMessage.substring(0, 50) + (userMessage.length > 50 ? '...' : '') + "\". Let me search for relevant information... \n\n*Note: This is a demo response. The actual AI assistant will be connected to the Azure RAG API to provide real answers based on your organization's documents.*";
+  return "I understand you're asking about \"" + userMessage.substring(0, 50) + (userMessage.length > 50 ? '...' : '') + "\". Let me have a look... \n\n*Note: This is a demo response. When I'm fully connected, I'll be able to search your organisation's documents and give you real answers!*";
 }
 
 // =============================================================================
@@ -117,7 +117,7 @@ function getPopupHtml(messages: IChatMessage[], accentColor?: string): string {
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI Assistant - DDRE Intranet</title>
+  <title>Jasper - DDRE Intranet</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', sans-serif; background: #faf9f8; height: 100vh; display: flex; flex-direction: column; }
@@ -141,7 +141,7 @@ function getPopupHtml(messages: IChatMessage[], accentColor?: string): string {
 </head>
 <body>
   <div class="header">
-    <h1>🤖 AI Assistant</h1>
+    <h1>🤖 Jasper</h1>
     <button onclick="window.opener.postMessage({type:'AI_RETURN'}, '*')">↩ Return to Panel</button>
   </div>
   <div class="messages" id="messages">

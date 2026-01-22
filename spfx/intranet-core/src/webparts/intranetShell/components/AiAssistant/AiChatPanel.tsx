@@ -97,7 +97,7 @@ export const AiChatPanel: React.FC<IAiChatPanelProps> = ({
     <div 
       className={styles.chatPanel} 
       role="dialog" 
-      aria-label="AI Assistant Chat"
+      aria-label="Jasper Chat"
       aria-modal="false"
       style={accentColor ? {
         '--ai-accent-color': accentColor,
@@ -108,7 +108,7 @@ export const AiChatPanel: React.FC<IAiChatPanelProps> = ({
       <div className={styles.panelHeader}>
         <div className={styles.headerTitle}>
           <Icon iconName="Robot" className={styles.headerIcon} />
-          <span>AI Assistant</span>
+          <span>Jasper</span>
         </div>
         <div className={styles.headerActions}>
           <IconButton
@@ -127,8 +127,8 @@ export const AiChatPanel: React.FC<IAiChatPanelProps> = ({
           />
           <IconButton
             iconProps={{ iconName: 'Cancel' }}
-            title="Hide AI Assistant"
-            ariaLabel="Hide AI Assistant for this session"
+            title="Hide Jasper"
+            ariaLabel="Hide Jasper for this session"
             onClick={onHide}
             className={styles.headerButton}
           />
@@ -140,8 +140,11 @@ export const AiChatPanel: React.FC<IAiChatPanelProps> = ({
         {messages.length === 0 && (
           <div className={styles.welcomeMessage}>
             <Icon iconName="Robot" className={styles.welcomeIcon} />
-            <h3>Hi! I&apos;m your AI Assistant</h3>
-            <p>Ask me anything about the DDRE intranet, company policies, or how to find information.</p>
+            <h3>G&apos;day! I&apos;m Jasper</h3>
+            <p>
+              I&apos;m here to help make your day easier. Whether you need to find a document, 
+              understand a policy, or navigate the intranet, just ask—I&apos;ve got you covered!
+            </p>
           </div>
         )}
         
@@ -165,7 +168,7 @@ export const AiChatPanel: React.FC<IAiChatPanelProps> = ({
           <div className={`${styles.message} ${styles.assistant}`}>
             <div className={styles.typingIndicator}>
               <Spinner size={SpinnerSize.xSmall} />
-              <span>AI is typing...</span>
+              <span>Jasper is typing...</span>
             </div>
           </div>
         )}
