@@ -51,13 +51,34 @@ Contracts must remain **clean, portable, and safe to share**.
 
 ---
 
+## Folder Structure
+
+Contracts are organised by API/system:
+
+```
+/contracts
+  /vault                        # Vault CRM (Sales)
+    openapi.yml                 # OpenAPI specification
+    README.md                   # API overview
+  /propertyme                   # PropertyMe (PM Dashboard)
+    openapi.yml
+    README.md
+  ai-rag-proxy.openapi.yml      # AI Assistant
+  audit-log-proxy.openapi.yml   # Audit logging
+  tasks-api-proxy.openapi.yml   # User tasks
+```
+
+---
+
 ## Available API Proxy Contracts
 
-| Contract | File | Capabilities | Consumer |
-|----------|------|--------------|----------|
-| AI RAG (OpenAI) | `ai-rag-proxy.openapi.yml` | Query, Feedback | intranet-core (Dante Library chatbot) |
-| Vault CRM | `vault-api-proxy.openapi.yml` | Full CRUD | Sales area apps |
-| PropertyMe | `propertyme-api-proxy.openapi.yml` | Read-only | PM Dashboard app |
+| Contract | Location | Capabilities | Consumer |
+|----------|----------|--------------|----------|
+| AI RAG (OpenAI) | `ai-rag-proxy.openapi.yml` | Query, Feedback | AI Assistant |
+| Vault CRM | `vault/openapi.yml` | Full CRUD | Sales hub apps |
+| PropertyMe | `propertyme/openapi.yml` | Read-only | PM Dashboard |
+| Audit Log | `audit-log-proxy.openapi.yml` | Write, Query | Audit system |
+| Tasks | `tasks-api-proxy.openapi.yml` | Full CRUD | Task system |
 
 All proxies:
 - Are hosted in Azure (Functions/App Service)
@@ -69,21 +90,12 @@ See `/docs/architecture/api-integration.md` for the full architecture.
 
 ---
 
-## Folder Structure
+## Related Documentation
 
-Contracts may be grouped by system or capability:
-
-```
-/contracts
-  /crm
-    openapi.yaml
-    examples/
-  /ai
-    request.schema.json
-    response.schema.json
-```
-
-Structure should favour clarity over cleverness.
+| API | Documentation |
+|-----|---------------|
+| Vault | `docs/integrations/vault/` |
+| PropertyMe | `docs/integrations/propertyme/` |
 
 ---
 
