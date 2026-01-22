@@ -429,6 +429,67 @@
   border-color: #c28a00;
 }
 
+// =============================================================================
+// RELATED ARTICLES SECTION
+// =============================================================================
+
+.relatedArticles {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(138, 90, 0, 0.15);
+}
+
+.relatedHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.relatedIcon {
+  font-size: 12px;
+  color: #8a5a00;
+}
+
+.relatedLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8a5a00;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.relatedList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.relatedLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(255, 243, 205, 0.6);
+  border: 1px solid rgba(226, 184, 96, 0.4);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #6b4a00;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.relatedLink:hover {
+  background: rgba(255, 227, 161, 0.8);
+  border-color: rgba(194, 138, 0, 0.5);
+}
+
+.relatedType {
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
 .articleChevron {
   font-size: 12px;
 }
@@ -625,6 +686,26 @@
   }
 
   .feedbackButton:hover {
+    background: var(--neutralQuaternary, #454545);
+    border-color: var(--neutralTertiaryAlt, #656565);
+  }
+
+  .relatedArticles {
+    border-top-color: var(--neutralLight, #343434);
+  }
+
+  .relatedIcon,
+  .relatedLabel {
+    color: var(--neutralSecondary, #d0d0d0);
+  }
+
+  .relatedLink {
+    background: var(--neutralLighter, #252525);
+    border: 1px solid var(--neutralLight, #343434);
+    color: var(--neutralPrimary, #ffffff);
+  }
+
+  .relatedLink:hover {
     background: var(--neutralQuaternary, #454545);
     border-color: var(--neutralTertiaryAlt, #656565);
   }

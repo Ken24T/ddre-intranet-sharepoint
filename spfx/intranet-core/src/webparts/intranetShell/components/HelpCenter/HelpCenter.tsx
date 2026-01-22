@@ -5,6 +5,7 @@ import styles from './HelpCenter.module.scss';
 import type { IFunctionCard } from '../FunctionCard';
 import { hubInfo } from '../data';
 import { openMockHelpWindow } from '../utils/helpMock';
+import type { IRelatedArticle } from '../utils/helpMock';
 import { WhatsNew } from '../WhatsNew';
 import { useAudit } from '../AuditContext';
 
@@ -12,6 +13,9 @@ export interface IHelpCenterProps {
   cards: IFunctionCard[];
   onClose?: () => void;
 }
+
+/** Relationship type between articles */
+export type RelationshipType = 'prerequisite' | 'next_step' | 'related_topic' | 'troubleshooting';
 
 interface IGeneralHelpCard {
   id: string;
@@ -23,6 +27,56 @@ interface IGeneralHelpCard {
   updatedAt: string;
   contentType: 'Guide' | 'Checklist' | 'Video' | 'Wizard' | 'Walk-through' | 'FAQ' | 'Policy' | 'Quick Reference';
 }
+
+/** Related articles mapping - articleId to related articles */
+const relatedArticlesMap: Record<string, IRelatedArticle[]> = {
+  // Getting Started relationships
+  'getting-started': [
+    { articleId: 'personalisation', title: 'Personalising Your View', relationshipType: 'next_step' },
+    { articleId: 'shortcuts', title: 'Keyboard Shortcuts', relationshipType: 'related_topic' },
+    { articleId: 'walkthroughs', title: 'Guided Walk-throughs', relationshipType: 'related_topic' },
+  ],
+  'settings': [
+    { articleId: 'personalisation', title: 'Personalising Your View', relationshipType: 'related_topic' },
+    { articleId: 'troubleshooting', title: 'Troubleshooting Common Issues', relationshipType: 'troubleshooting' },
+  ],
+  'personalisation': [
+    { articleId: 'getting-started', title: 'Getting Started with the Intranet', relationshipType: 'prerequisite' },
+    { articleId: 'settings', title: 'Settings & Preferences', relationshipType: 'related_topic' },
+  ],
+  'search': [
+    { articleId: 'shortcuts', title: 'Keyboard Shortcuts', relationshipType: 'related_topic' },
+    { articleId: 'troubleshooting', title: 'Troubleshooting Common Issues', relationshipType: 'troubleshooting' },
+  ],
+  'troubleshooting': [
+    { articleId: 'help-faqs', title: 'Help Centre FAQs', relationshipType: 'related_topic' },
+    { articleId: 'settings', title: 'Settings & Preferences', relationshipType: 'related_topic' },
+  ],
+  'shortcuts': [
+    { articleId: 'quick-reference', title: 'Quick Reference Sheets', relationshipType: 'related_topic' },
+    { articleId: 'search', title: 'Search Tips', relationshipType: 'related_topic' },
+  ],
+  'quick-reference': [
+    { articleId: 'shortcuts', title: 'Keyboard Shortcuts', relationshipType: 'related_topic' },
+    { articleId: 'walkthroughs', title: 'Guided Walk-throughs', relationshipType: 'next_step' },
+  ],
+  'walkthroughs': [
+    { articleId: 'getting-started', title: 'Getting Started with the Intranet', relationshipType: 'prerequisite' },
+    { articleId: 'video-tutorials', title: 'Video Tutorials', relationshipType: 'related_topic' },
+  ],
+  'video-tutorials': [
+    { articleId: 'walkthroughs', title: 'Guided Walk-throughs', relationshipType: 'related_topic' },
+    { articleId: 'getting-started', title: 'Getting Started with the Intranet', relationshipType: 'prerequisite' },
+  ],
+  'help-faqs': [
+    { articleId: 'troubleshooting', title: 'Troubleshooting Common Issues', relationshipType: 'troubleshooting' },
+    { articleId: 'getting-started', title: 'Getting Started with the Intranet', relationshipType: 'prerequisite' },
+  ],
+  'policy-basics': [
+    { articleId: 'help-faqs', title: 'Help Centre FAQs', relationshipType: 'related_topic' },
+    { articleId: 'getting-started', title: 'Getting Started with the Intranet', relationshipType: 'prerequisite' },
+  ],
+};
 
 const generalHelpCards: IGeneralHelpCard[] = [
   {
@@ -714,27 +768,40 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
   };
 
   /** Source context for article opens */
-  type ArticleSource = 'search' | 'category' | 'card' | 'request';
+  type ArticleSource = 'search' | 'category' | 'card' | 'request' | 'related';
+
+  /** Get related articles for a given article ID */
+  const getRelatedArticles = (articleId: string): IRelatedArticle[] => {
+    return relatedArticlesMap[articleId] || [];
+  };
 
   const handleOpenHelp = (
     title: string,
     summary: string,
     helpUrl?: string,
     source?: ArticleSource,
-    articleId?: string
+    articleId?: string,
+    sourceArticleId?: string // The article we clicked from (for related article tracking)
   ): void => {
+    const resolvedArticleId = articleId ?? helpUrl ?? title;
+    
     // Log article opened with source context
     if (source) {
-      audit.logHelpSearch('article_opened', {
+      audit.logHelpSearch(source === 'related' ? 'related_article_clicked' : 'article_opened', {
         metadata: {
-          articleId: articleId ?? helpUrl ?? title,
+          articleId: resolvedArticleId,
           title,
           source,
           searchQuery: source === 'search' ? appliedQuery : undefined,
+          sourceArticleId: source === 'related' ? sourceArticleId : undefined,
         },
       });
     }
-    openMockHelpWindow({ title, summary, helpUrl });
+    
+    // Get related articles for this article
+    const relatedArticles = getRelatedArticles(resolvedArticleId);
+    
+    openMockHelpWindow({ title, summary, helpUrl, relatedArticles });
   };
 
   const handleRequestHelp = (): void => {
@@ -1005,6 +1072,33 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
                       No
                     </button>
                   </div>
+                  {/* Related Articles Section */}
+                  {relatedArticlesMap[card.id] && relatedArticlesMap[card.id].length > 0 && (
+                    <div className={styles.relatedArticles}>
+                      <div className={styles.relatedHeader}>
+                        <Icon iconName="Link12" className={styles.relatedIcon} />
+                        <span className={styles.relatedLabel}>See Also</span>
+                      </div>
+                      <div className={styles.relatedList}>
+                        {relatedArticlesMap[card.id].map((related) => (
+                          <button
+                            key={related.articleId}
+                            type="button"
+                            className={styles.relatedLink}
+                            onClick={() => {
+                              const relatedCard = generalHelpCards.find(c => c.id === related.articleId);
+                              if (relatedCard) {
+                                handleOpenHelp(relatedCard.title, relatedCard.summary, relatedCard.helpUrl, 'related', related.articleId, card.id);
+                              }
+                            }}
+                          >
+                            <span className={styles.relatedType}>{related.relationshipType === 'prerequisite' ? '⬅️' : related.relationshipType === 'next_step' ? '➡️' : related.relationshipType === 'troubleshooting' ? '🔧' : '🔗'}</span>
+                            {related.title}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -1107,6 +1201,41 @@ export const HelpCenter: React.FC<IHelpCenterProps> = ({ cards, onClose }) => {
                     >
                       No
                     </button>
+                  </div>
+                  {/* Related Help for hub cards - link to general help */}
+                  <div className={styles.relatedArticles}>
+                    <div className={styles.relatedHeader}>
+                      <Icon iconName="Link12" className={styles.relatedIcon} />
+                      <span className={styles.relatedLabel}>Related Help</span>
+                    </div>
+                    <div className={styles.relatedList}>
+                      <button
+                        type="button"
+                        className={styles.relatedLink}
+                        onClick={() => {
+                          const gettingStarted = generalHelpCards.find(c => c.id === 'getting-started');
+                          if (gettingStarted) {
+                            handleOpenHelp(gettingStarted.title, gettingStarted.summary, gettingStarted.helpUrl, 'related', 'getting-started', card.id);
+                          }
+                        }}
+                      >
+                        <span className={styles.relatedType}>⬅️</span>
+                        Getting Started with the Intranet
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.relatedLink}
+                        onClick={() => {
+                          const troubleshooting = generalHelpCards.find(c => c.id === 'troubleshooting');
+                          if (troubleshooting) {
+                            handleOpenHelp(troubleshooting.title, troubleshooting.summary, troubleshooting.helpUrl, 'related', 'troubleshooting', card.id);
+                          }
+                        }}
+                      >
+                        <span className={styles.relatedType}>🔧</span>
+                        Troubleshooting Common Issues
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

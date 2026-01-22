@@ -30,7 +30,8 @@ export type HelpSearchAction =
   | "feedback_submitted"
   | "article_printed"
   | "article_link_copied"
-  | "article_pdf_requested";
+  | "article_pdf_requested"
+  | "related_article_clicked";
 
 /**
  * Navigation actions.

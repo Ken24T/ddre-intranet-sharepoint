@@ -243,22 +243,22 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [x] 11d.5 Log print/export actions in audit
       (article_printed, article_link_copied, article_pdf_requested)
 
-#### Phase 11e: Related Articles
+#### Phase 11e: Related Articles ✅
 
 > Show contextually related help articles for better discovery.
 
-- [ ] 11e.1 Define related articles data model
-      (article id, related ids, relationship type)
-- [ ] 11e.2 Add mock related articles to help cards
-      (2-3 related items per card/article)
-- [ ] 11e.3 Add "See Also" section to help preview
-      (list of related article links)
-- [ ] 11e.4 Add "Related Help" section to card help
+- [x] 11e.1 Define related articles data model
+      (IRelatedArticle, RelationshipType in helpMock.ts)
+- [x] 11e.2 Add mock related articles to help cards
+      (relatedArticlesMap with 2-3 items per article)
+- [x] 11e.3 Add "See Also" section to help preview
+      (styled list with icons in mock help window)
+- [x] 11e.4 Add "Related Help" section to card help
       (articles related to the function card)
-- [ ] 11e.5 Add relationship types
-      (prerequisite, next step, related topic, troubleshooting)
-- [ ] 11e.6 Log related article clicks in audit
-      (source article, clicked article, relationship)
+- [x] 11e.5 Add relationship types
+      (prerequisite, next_step, related_topic, troubleshooting)
+- [x] 11e.6 Log related article clicks in audit
+      (related_article_clicked with source and target)
 
 ### Phase 12: Feedback & Bug Report
 
