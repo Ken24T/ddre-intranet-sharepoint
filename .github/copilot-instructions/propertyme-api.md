@@ -1,6 +1,7 @@
 # PropertyMe API – Copilot Instructions
 
 > Include this file when working on PropertyMe integration features.
+> For detailed OAuth implementation, see [propertyme-api-detailed.md](./propertyme-api-detailed.md).
 
 ## Overview
 
@@ -8,6 +9,7 @@ PropertyMe is the Property Management CRM. Access is **read-only** via Azure pro
 
 **Consumer:** PM hub cards and PM Dashboard
 **Client:** `PropertyMeClient` from `@ddre/pkg-api-client`
+**Auth:** OAuth 2.0 Authorisation Code flow (server-side only)
 
 ## Key Files
 
@@ -16,6 +18,21 @@ PropertyMe is the Property Management CRM. Access is **read-only** via Azure pro
 | `contracts/propertyme/openapi.yml` | OpenAPI specification |
 | `packages/pkg-api-client/src/clients/PropertyMeClient.ts` | TypeScript client |
 | `docs/integrations/propertyme/` | Integration documentation |
+| `.github/copilot-instructions/propertyme-api-detailed.md` | **Detailed OAuth implementation guide** |
+
+## Architecture (Critical)
+
+**SPFx runs in browser** – secrets must NEVER be in client code.
+
+```
+SPFx (browser) → Azure Functions (server) → PropertyMe API
+                      ↓
+              - OAuth token exchange
+              - Token storage (encrypted)
+              - API key from Key Vault
+```
+
+See `propertyme-api-detailed.md` for full architecture and Azure Functions implementation.
 
 ## Entities
 

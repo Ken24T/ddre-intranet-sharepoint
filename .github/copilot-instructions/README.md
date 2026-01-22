@@ -9,6 +9,7 @@ This folder contains **API-specific context files** that can be referenced when 
 | `ai-api.md` | Working on AI Assistant / chatbot features |
 | `vault-api.md` | Working on Vault CRM / Sales hub features |
 | `propertyme-api.md` | Working on PropertyMe / PM Dashboard features |
+| `propertyme-api-detailed.md` | **Detailed** OAuth implementation for PropertyMe (Azure Functions, token storage, security) |
 
 ## How to Use
 
