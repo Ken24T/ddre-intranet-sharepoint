@@ -180,25 +180,31 @@
 .notificationItem {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 11px;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
   white-space: nowrap;
   flex-shrink: 0;
-  max-width: 300px;
+  max-width: 320px;
   background-color: var(--neutralLighter, #f3f2f1);
   border: 1px solid var(--neutralLight, #edebe9);
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: default;
 
   &:hover {
-    background-color: var(--neutralLight, #edebe9);
+    background-color: var(--white, #ffffff);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   }
 }
 
 .notificationInfo {
-  background-color: rgba(0, 120, 212, 0.08);
-  border-color: rgba(0, 120, 212, 0.2);
+  background-color: rgba(0, 120, 212, 0.1);
+  border-color: rgba(0, 120, 212, 0.25);
+
+  &:hover {
+    background-color: rgba(0, 120, 212, 0.15);
+  }
 
   .notificationIcon {
     color: var(--themePrimary, #0078d4);
@@ -206,17 +212,25 @@
 }
 
 .notificationWarning {
-  background-color: rgba(255, 185, 0, 0.1);
-  border-color: rgba(255, 185, 0, 0.3);
+  background-color: rgba(255, 185, 0, 0.12);
+  border-color: rgba(255, 185, 0, 0.35);
+
+  &:hover {
+    background-color: rgba(255, 185, 0, 0.18);
+  }
 
   .notificationIcon {
-    color: var(--yellow, #ffb900);
+    color: #996600;
   }
 }
 
 .notificationError {
-  background-color: rgba(209, 52, 56, 0.08);
-  border-color: rgba(209, 52, 56, 0.2);
+  background-color: rgba(209, 52, 56, 0.1);
+  border-color: rgba(209, 52, 56, 0.25);
+
+  &:hover {
+    background-color: rgba(209, 52, 56, 0.15);
+  }
 
   .notificationIcon {
     color: var(--red, #d13438);
@@ -224,7 +238,7 @@
 }
 
 .notificationIcon {
-  font-size: 12px;
+  font-size: 13px;
   flex-shrink: 0;
 }
 
@@ -232,24 +246,102 @@
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--neutralPrimary, #323130);
+  font-weight: 500;
 }
 
 .dismissButton {
-  width: 16px !important;
-  height: 16px !important;
-  min-width: 16px;
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px;
   padding: 0;
   flex-shrink: 0;
   color: var(--neutralSecondary, #605e5c);
+  border-radius: 4px;
+  margin-left: 2px;
 
   i {
     font-size: 10px;
   }
 
   &:hover {
-    background-color: transparent;
+    background-color: rgba(0, 0, 0, 0.08);
     color: var(--neutralPrimary, #323130);
   }
+}
+
+// Notification callout (hover popup)
+.notificationCallout {
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14), 0 1px 4px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--neutralLight, #edebe9);
+  overflow: hidden;
+}
+
+.notificationCalloutContent {
+  padding: 14px 16px;
+  min-width: 260px;
+  max-width: 340px;
+}
+
+.notificationCalloutHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--neutralLight, #edebe9);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.notificationInfo {
+    color: var(--themePrimary, #0078d4);
+  }
+
+  &.notificationWarning {
+    color: #996600;
+  }
+
+  &.notificationError {
+    color: var(--red, #d13438);
+  }
+}
+
+.notificationCalloutIcon {
+  font-size: 14px;
+}
+
+.notificationCalloutSeverity {
+  flex: 1;
+}
+
+.notificationCalloutMessage {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--neutralPrimary, #323130);
+  line-height: 1.5;
+}
+
+.notificationCalloutMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--neutralSecondary, #605e5c);
+  margin-bottom: 6px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.notificationCalloutMetaIcon {
+  font-size: 12px;
+  color: var(--neutralTertiary, #a19f9d);
+  width: 14px;
+  text-align: center;
 }
 
 // =============================================================================
@@ -418,23 +510,30 @@
 
 .taskCallout {
   :global(.ms-Callout-main) {
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--neutralLight, #edebe9);
+  }
+
+  :global(.ms-Callout-beak) {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
   }
 }
 
 .taskCalloutContent {
-  min-width: 280px;
-  max-width: 360px;
-  max-height: 400px;
+  min-width: 300px;
+  max-width: 380px;
+  max-height: 420px;
   overflow-y: auto;
+  padding: 8px 0;
 }
 
 .taskCalloutSection {
-  padding: 12px 16px;
+  padding: 12px 20px 16px;
 
   &:not(:last-child) {
-    border-bottom: 1px solid var(--neutralLight, #edebe9);
+    border-bottom: 1px solid var(--neutralLighter, #f3f2f1);
+    margin-bottom: 4px;
   }
 }
 
@@ -442,36 +541,42 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--neutralSecondary, #605e5c);
-  margin-bottom: 10px;
+  letter-spacing: 0.8px;
+  color: var(--neutralTertiary, #a19f9d);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--neutralLighter, #f3f2f1);
 }
 
 .taskCalloutHeaderIconOverdue {
   color: var(--red, #d13438);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .taskCalloutHeaderIconDueToday {
-  color: var(--yellow, #ffb900);
-  font-size: 12px;
+  color: #d83b01;
+  font-size: 14px;
 }
 
 .taskCalloutItem {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 8px 10px;
-  margin: 0 -4px;
-  border-radius: 6px;
+  gap: 4px;
+  padding: 12px 14px;
+  margin: 4px 0;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  background-color: var(--neutralLighterAlt, #faf9f8);
+  border: 1px solid transparent;
 
   &:hover {
     background-color: var(--neutralLighter, #f3f2f1);
+    border-color: var(--neutralLight, #edebe9);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   }
 
   &:focus-visible {
@@ -482,39 +587,50 @@
 
 .taskCalloutDue {
   font-size: 11px;
-  font-weight: 500;
-  color: var(--neutralSecondary, #605e5c);
+  font-weight: 600;
+  color: #d83b01;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .taskCalloutTitle {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--neutralPrimary, #323130);
-  line-height: 1.3;
+  line-height: 1.4;
 }
 
 .taskCalloutDescription {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--neutralSecondary, #605e5c);
-  line-height: 1.4;
+  line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  margin-top: 2px;
 }
 
 .taskCalloutMore {
   font-size: 12px;
   font-style: italic;
   color: var(--neutralTertiary, #a19f9d);
-  padding: 6px 10px 0;
+  padding: 8px 14px 4px;
+  text-align: center;
 }
 
 .taskCalloutFooter {
-  padding: 10px 16px;
-  font-size: 12px;
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--themePrimary, #0078d4);
   text-align: center;
   border-top: 1px solid var(--neutralLight, #edebe9);
   background: var(--neutralLighterAlt, #faf9f8);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--neutralLighter, #f3f2f1);
+  }
 }

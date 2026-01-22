@@ -152,17 +152,30 @@ interface INotificationItemProps {
 }
 
 const NotificationItem: React.FC<INotificationItemProps> = ({ notification, onDismiss }) => {
+  const [isCalloutVisible, setIsCalloutVisible] = React.useState(false);
+  const itemRef = React.useRef<HTMLDivElement>(null);
   const severityClass = getNotificationSeverityClass(notification.severity);
   const iconName = getNotificationIcon(notification.severity);
-  const tooltipContent = `${notification.message}\n\nPublished by: ${notification.publishedBy}\n${notification.publishedAt.toLocaleString()}`;
+
+  // Format the date nicely
+  const formattedDate = notification.publishedAt.toLocaleDateString('en-AU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+  const formattedTime = notification.publishedAt.toLocaleTimeString('en-AU', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
   
   return (
-    <TooltipHost
-      content={tooltipContent}
-      directionalHint={DirectionalHint.topCenter}
-      calloutProps={{ gapSpace: 4 }}
-    >
-      <div className={`${styles.notificationItem} ${severityClass}`}>
+    <>
+      <div
+        ref={itemRef}
+        className={`${styles.notificationItem} ${severityClass}`}
+        onMouseEnter={() => setIsCalloutVisible(true)}
+        onMouseLeave={() => setIsCalloutVisible(false)}
+      >
         <Icon iconName={iconName} className={styles.notificationIcon} />
         <span className={styles.notificationMessage}>{notification.message}</span>
         <IconButton
@@ -176,7 +189,39 @@ const NotificationItem: React.FC<INotificationItemProps> = ({ notification, onDi
           }}
         />
       </div>
-    </TooltipHost>
+      {isCalloutVisible && itemRef.current && (
+        <Callout
+          target={itemRef.current}
+          directionalHint={DirectionalHint.topCenter}
+          gapSpace={8}
+          isBeakVisible={true}
+          beakWidth={12}
+          onMouseEnter={() => setIsCalloutVisible(true)}
+          onMouseLeave={() => setIsCalloutVisible(false)}
+          onDismiss={() => setIsCalloutVisible(false)}
+          setInitialFocus={false}
+          className={styles.notificationCallout}
+        >
+          <div className={styles.notificationCalloutContent}>
+            <div className={`${styles.notificationCalloutHeader} ${severityClass}`}>
+              <Icon iconName={iconName} className={styles.notificationCalloutIcon} />
+              <span className={styles.notificationCalloutSeverity}>
+                {notification.severity === 'error' ? 'Alert' : notification.severity === 'warning' ? 'Warning' : 'Information'}
+              </span>
+            </div>
+            <p className={styles.notificationCalloutMessage}>{notification.message}</p>
+            <div className={styles.notificationCalloutMeta}>
+              <Icon iconName="Contact" className={styles.notificationCalloutMetaIcon} />
+              <span>Published by {notification.publishedBy}</span>
+            </div>
+            <div className={styles.notificationCalloutMeta}>
+              <Icon iconName="Calendar" className={styles.notificationCalloutMetaIcon} />
+              <span>{formattedDate} at {formattedTime}</span>
+            </div>
+          </div>
+        </Callout>
+      )}
+    </>
   );
 };
 

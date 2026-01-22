@@ -13,6 +13,7 @@
   padding: 16px;
   min-height: 140px;
   position: relative;
+  // Cursor controlled via inline style based on drag state
   cursor: grab;
   transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
   // Themed shadow - slightly more prominent
@@ -37,10 +38,6 @@
   &:focus-within {
     outline: 2px solid var(--card-theme-color, #0078d4);
     outline-offset: 2px;
-  }
-
-  &:active {
-    cursor: grabbing;
   }
 }
 
@@ -95,6 +92,7 @@
   width: 28px;
   height: 28px;
   color: var(--neutralSecondary, #605e5c);
+  cursor: pointer;
 
   &:hover {
     background-color: var(--neutralLighter, #f3f2f1);
@@ -103,7 +101,6 @@
 
 .cardContent {
   flex: 1;
-  cursor: pointer;
 
   &:focus {
     outline: none;
@@ -128,33 +125,4 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.dragHandle {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  color: var(--neutralSecondary, #605e5c);
-  font-size: 18px;
-  cursor: grab;
-  padding: 8px;
-  border-radius: 4px;
-  opacity: 0.5;
-  background-color: rgba(var(--card-theme-rgb, 0, 120, 212), 0.06);
-  transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-  touch-action: none; // Important for dnd-kit
-
-  .card:hover & {
-    opacity: 1;
-    background-color: rgba(var(--card-theme-rgb, 0, 120, 212), 0.1);
-  }
-
-  &:hover {
-    background-color: rgba(var(--card-theme-rgb, 0, 120, 212), 0.15);
-    color: var(--card-theme-color, #0078d4);
-  }
-
-  &:active {
-    cursor: grabbing;
-  }
 }

@@ -125,6 +125,24 @@ const saveToStorage = <T,>(key: string, value: T): void => {
   }
 };
 
+/**
+ * Hub keys that require admin access
+ */
+const ADMIN_ONLY_HUBS = ['administration'];
+
+/**
+ * Filter favourites to only include cards from hubs the user can access
+ */
+const filterFavouritesByAccess = (
+  favourites: IFavouriteCard[],
+  isAdmin: boolean
+): IFavouriteCard[] => {
+  if (isAdmin) {
+    return favourites;
+  }
+  return favourites.filter((fav) => ADMIN_ONLY_HUBS.indexOf(fav.sourceHubKey) === -1);
+};
+
 // =============================================================================
 // HUB SURFACE COLOR HELPERS
 // =============================================================================
@@ -267,11 +285,23 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
   private handleToggleAdmin = (): void => {
     this.setState((prevState) => {
       const newIsAdmin = !prevState.isAdminMode;
+      
+      // Determine if we need to redirect
+      let newActiveHub = prevState.activeHubKey;
+      
       // If switching to non-admin while on Administration hub, redirect to Home
-      const newActiveHub =
-        !newIsAdmin && prevState.activeHubKey === 'administration'
-          ? 'home'
-          : prevState.activeHubKey;
+      if (!newIsAdmin && prevState.activeHubKey === 'administration') {
+        newActiveHub = 'home';
+      }
+      
+      // If switching to non-admin while on Favourites hub, check if any favourites remain accessible
+      if (!newIsAdmin && prevState.activeHubKey === 'favourites') {
+        const accessibleFavs = filterFavouritesByAccess(prevState.favourites, newIsAdmin);
+        if (accessibleFavs.length === 0) {
+          newActiveHub = 'home';
+        }
+      }
+      
       return {
         isAdminMode: newIsAdmin,
         activeHubKey: newActiveHub,
@@ -682,9 +712,12 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       isTasksPanelOpen,
     } = this.state;
 
+    // Filter favourites by role-based hub access (e.g., hide admin cards for non-admins)
+    const accessibleFavourites = filterFavouritesByAccess(favourites, isAdminMode);
+
     // Get cards for current hub
     const hubCards = activeHubKey === 'favourites'
-      ? favourites
+      ? accessibleFavourites
           .map((fav) => sampleCards.find((card) => card.id === fav.cardId))
           .filter((card): card is IFunctionCard => Boolean(card))
       : sampleCards.filter((card) => card.hubKey === activeHubKey);
@@ -833,7 +866,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
         <Sidebar
           isCollapsed={isSidebarCollapsed}
           activeHubKey={activeHubKey}
-          hasFavourites={favourites.length > 0}
+          hasFavourites={accessibleFavourites.length > 0}
           isAdmin={isAdminMode}
           hasUnreadReleases={this.state.hasUnreadReleases}
           onHubChange={this.handleHubChange}

@@ -135,9 +135,10 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{ ...style, cursor: isDragging ? 'grabbing' : 'grab' }}
       className={`${styles.card} ${isPinned ? styles.cardPinned : ''} ${isDragging ? styles.cardDragging : ''}`}
       {...attributes}
+      {...listeners}
     >
       <div className={styles.cardHeader}>
         <div className={styles.cardIcon}>
@@ -166,10 +167,6 @@ export const FunctionCard: React.FC<IFunctionCardProps> = ({
       >
         <h3 className={styles.cardTitle}>{title}</h3>
         <p className={styles.cardDescription}>{description}</p>
-      </div>
-
-      <div className={styles.dragHandle} {...listeners}>
-        <Icon iconName="GripperDotsVertical" />
       </div>
 
       {isMenuVisible && menuTarget && (
