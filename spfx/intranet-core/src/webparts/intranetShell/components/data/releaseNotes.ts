@@ -90,6 +90,43 @@ export const minorReleases: IMinorRelease[] = [
     summary: 'Major feature release including Help Centre, Tasks, AI Assistant, Audit Logging, and comprehensive theming support.',
     patches: [
       {
+        version: '0.5.40',
+        date: '2026-01-22',
+        title: 'Jasper AI Assistant & API Infrastructure',
+        items: [
+          {
+            id: 'item-0.5.40-1',
+            title: 'Jasper is now the official name for the AI Assistant',
+            category: 'feature',
+            description: 'The floating chatbot button now launches Jasper, your friendly AI assistant with an Australian touch.',
+          },
+          {
+            id: 'item-0.5.40-2',
+            title: 'Jasper status indicator shows connection health',
+            category: 'feature',
+            description: 'StatusBar displays Jasper\'s availability status. The chat button is disabled when the service is unavailable.',
+          },
+          {
+            id: 'item-0.5.40-3',
+            title: 'Improved chat panel layout with better spacing',
+            category: 'improvement',
+            description: 'Jasper\'s chat panel now has consistent left padding on header, messages, and input areas.',
+          },
+          {
+            id: 'item-0.5.40-4',
+            title: 'Notification callouts have centred headers',
+            category: 'improvement',
+            description: 'Alert and warning callouts now display icons and titles in a properly centred coloured header band.',
+          },
+          {
+            id: 'item-0.5.40-5',
+            title: 'API documentation and typed clients prepared',
+            category: 'improvement',
+            description: 'OpenAPI contracts and TypeScript clients ready for Vault CRM, PropertyMe, AI, Audit, and Tasks APIs.',
+          },
+        ],
+      },
+      {
         version: '0.5.32',
         date: '2026-01-22',
         title: 'What\'s New Category Filters',
