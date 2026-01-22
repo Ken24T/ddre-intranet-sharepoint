@@ -90,8 +90,97 @@ export const minorReleases: IMinorRelease[] = [
     summary: 'Major feature release including Help Centre, Tasks, AI Assistant, Audit Logging, and comprehensive theming support.',
     patches: [
       {
-        version: '0.5.24',
+        version: '0.5.32',
         date: '2026-01-22',
+        title: 'What\'s New Category Filters',
+        items: [
+          {
+            id: 'item-0.5.32-1',
+            title: 'Category badges now act as filters in What\'s New',
+            category: 'feature',
+            description: 'Click Features, Improvements, Bug Fixes, or Security badges to filter the release notes.',
+          },
+          {
+            id: 'item-0.5.32-2',
+            title: 'Toggle filter by clicking badge again or use Clear button',
+            category: 'improvement',
+          },
+          {
+            id: 'item-0.5.32-3',
+            title: 'Auto-expand release when filter is applied',
+            category: 'improvement',
+          },
+        ],
+      },
+      {
+        version: '0.5.31',
+        date: '2026-01-22',
+        title: 'Grouped Release Notes',
+        items: [
+          {
+            id: 'item-0.5.31-1',
+            title: 'What\'s New now groups patches by minor version',
+            category: 'improvement',
+            description: 'Patch releases (0.5.x) are now grouped under their parent minor version (v0.5) for easier browsing.',
+          },
+          {
+            id: 'item-0.5.31-2',
+            title: 'Summary badges show total counts per category',
+            category: 'feature',
+            description: 'Each minor release shows counts for Features, Improvements, Bug Fixes, and Security items.',
+          },
+          {
+            id: 'item-0.5.31-3',
+            title: 'Date range and update count shown for each release',
+            category: 'improvement',
+          },
+        ],
+      },
+      {
+        version: '0.5.30',
+        date: '2026-01-22',
+        title: 'Styled Notification Tooltips',
+        items: [
+          {
+            id: 'item-0.5.30-1',
+            title: 'Notification tooltips now use styled callouts',
+            category: 'improvement',
+            description: 'Hover over status bar notifications to see a nicely formatted popup with severity, message, publisher, and date.',
+          },
+          {
+            id: 'item-0.5.30-2',
+            title: 'Improved status bar task flyout styling',
+            category: 'improvement',
+          },
+        ],
+      },
+      {
+        version: '0.5.29',
+        date: '2026-01-22',
+        title: 'Bug Fixes & Polish',
+        items: [
+          {
+            id: 'item-0.5.29-1',
+            title: 'Fixed admin cards showing in Favourites for non-admin users',
+            category: 'bugfix',
+            description: 'Favourites hub now correctly filters out admin-only cards when user switches from admin role.',
+          },
+          {
+            id: 'item-0.5.29-2',
+            title: 'Cards now draggable from anywhere, not just drag handle',
+            category: 'improvement',
+            description: 'Entire card is now draggable with grab cursor for easier reordering.',
+          },
+          {
+            id: 'item-0.5.29-3',
+            title: 'Removed redundant 6-dot drag handle icon',
+            category: 'improvement',
+          },
+        ],
+      },
+      {
+        version: '0.5.24',
+        date: '2026-01-21',
         title: 'Contextual Help Tooltips',
         items: [
           {
