@@ -1,25 +1,33 @@
 # Vault API – Copilot Instructions
 
 > Include this file when working on Vault CRM integration features.
+> For detailed API reference, see [vault-api-detailed.md](vault-api-detailed.md).
 
 ## Overview
 
-Vault is the Sales CRM. Access is **full CRUD** via Azure proxy.
+Vault is the Sales CRM (VaultRE). Access is **full CRUD** via Azure proxy.
 
-**Consumer:** Sales hub cards and applications
-**Client:** `VaultClient` from `@ddre/pkg-api-client`
+| Item | Value |
+|------|-------|
+| **Consumer** | Sales hub cards and applications |
+| **Client** | `VaultClient` from `@ddre/pkg-api-client` |
+| **Upstream** | VaultRE API v1.3 |
+| **Swagger** | https://docs.api.vaultre.com.au/swagger/index.html |
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `contracts/vault/openapi.yml` | OpenAPI specification |
+| `contracts/vault/openapi.yml` | DDRE proxy OpenAPI specification |
+| `contracts/vault/vaultre-upstream.yaml` | Official VaultRE spec (26k lines, reference) |
+| `contracts/vault/schemas/contact.json` | Full Contact entity schema |
 | `packages/pkg-api-client/src/clients/VaultClient.ts` | TypeScript client |
 | `docs/integrations/vault/` | Integration documentation |
 
 ## Entities
 
-- **Contact** – Person or organisation (`firstName`, `lastName`, `email`, `phone`, `company`)
+- **Contact** – Person or organisation (see `contracts/vault/schemas/contact.json`)
+- **Property** – Sales/lease listing with lifecycle
 - **Deal** – Sales opportunity (`title`, `value`, `stage`, `contactId`)
 
 ## Usage Pattern
