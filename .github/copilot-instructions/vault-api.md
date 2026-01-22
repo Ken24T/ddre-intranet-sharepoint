@@ -7,22 +7,20 @@
 
 Vault is the Sales CRM (VaultRE). Access is **full CRUD** via Azure proxy.
 
-| Item | Value |
-|------|-------|
-| **Consumer** | Sales hub cards and applications |
-| **Client** | `VaultClient` from `@ddre/pkg-api-client` |
-| **Upstream** | VaultRE API v1.3 |
-| **Swagger** | https://docs.api.vaultre.com.au/swagger/index.html |
+- **Consumer:** Sales hub cards and applications
+- **Client:** `VaultClient` from `@ddre/pkg-api-client`
+- **Upstream:** VaultRE API v1.3
+- **Swagger:** <https://docs.api.vaultre.com.au/swagger/index.html>
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `contracts/vault/openapi.yml` | DDRE proxy OpenAPI specification |
-| `contracts/vault/vaultre-upstream.yaml` | Official VaultRE spec (26k lines, reference) |
-| `contracts/vault/schemas/contact.json` | Full Contact entity schema |
-| `packages/pkg-api-client/src/clients/VaultClient.ts` | TypeScript client |
-| `docs/integrations/vault/` | Integration documentation |
+| File                               | Purpose                    |
+|------------------------------------|----------------------------|
+| `contracts/vault/openapi.yml`      | DDRE proxy OpenAPI spec    |
+| `contracts/vault/vaultre-upstream.yaml` | VaultRE upstream spec |
+| `contracts/vault/schemas/contact.json` | Contact entity schema  |
+| `packages/pkg-api-client/.../VaultClient.ts` | TypeScript client |
+| `docs/integrations/vault/`         | Integration docs           |
 
 ## Entities
 
@@ -62,11 +60,11 @@ await vaultClient.deleteContact('contact-123');
 
 Always handle these errors gracefully:
 
-| Error | User Message |
-|-------|--------------|
-| 403 Forbidden | "You don't have access to sales data." |
-| 404 Not Found | "Contact not found." |
-| 429 Rate Limited | "Too many requests. Please wait." |
+| Error           | User Message                         |
+|-----------------|--------------------------------------|
+| 403 Forbidden   | "You don't have access to sales data." |
+| 404 Not Found   | "Contact not found."                 |
+| 429 Rate Limited | "Too many requests. Please wait."   |
 
 ```typescript
 try {

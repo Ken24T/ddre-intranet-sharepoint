@@ -4,7 +4,8 @@ This folder contains contracts for the **AI RAG (OpenAI) API** integration.
 
 ## Overview
 
-The AI RAG API powers the Dante Library chatbot, providing AI-assisted answers with source citations from the knowledge base.
+The AI RAG API powers the Dante Library chatbot, providing AI-assisted
+answers with source citations from the knowledge base.
 
 **Access Level:** Query + Feedback (no write to knowledge base)
 **Consumer:** AI Assistant (floating chatbot)
@@ -12,17 +13,17 @@ The AI RAG API powers the Dante Library chatbot, providing AI-assisted answers w
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `openapi.yml` | OpenAPI 3.0 specification for the proxy API |
+| File          | Description                        |
+|---------------|------------------------------------|
+| `openapi.yml` | OpenAPI 3.0 spec for the proxy API |
 
 ## Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/ai/health` | GET | Health check |
-| `/api/v1/ai/query` | POST | Ask a question, get answer with citations |
-| `/api/v1/ai/feedback` | POST | Submit feedback on an answer |
+| Endpoint              | Method | Description              |
+|-----------------------|--------|--------------------------|
+| `/api/v1/ai/health`   | GET    | Health check             |
+| `/api/v1/ai/query`    | POST   | Ask question, get answer |
+| `/api/v1/ai/feedback` | POST   | Submit answer feedback   |
 
 ## Key Entities
 

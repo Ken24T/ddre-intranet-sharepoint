@@ -4,7 +4,8 @@ This folder contains contracts for the **PropertyMe** property management API in
 
 ## Overview
 
-PropertyMe is the property management CRM used by DDRE for managing properties, tenants, owners, and maintenance.
+PropertyMe is the property management CRM used by DDRE for managing
+properties, tenants, owners, and maintenance.
 
 **Access Level:** Read-only
 **Consumer:** PM Dashboard application
@@ -12,24 +13,24 @@ PropertyMe is the property management CRM used by DDRE for managing properties, 
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `openapi.yml` | OpenAPI 3.0 specification for the proxy API |
-| `data-models.schema.json` | JSON Schema for data entities (future) |
+| File                      | Description                                 |
+| ------------------------- | ------------------------------------------- |
+| `openapi.yml`             | OpenAPI 3.0 specification for the proxy API |
+| `data-models.schema.json` | JSON Schema for data entities (future)      |
 
 ## Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/propertyme/health` | GET | Health check |
-| `/api/v1/propertyme/properties` | GET | List properties |
-| `/api/v1/propertyme/properties/{id}` | GET | Get property details |
-| `/api/v1/propertyme/tenants` | GET | List tenants |
-| `/api/v1/propertyme/tenants/{id}` | GET | Get tenant details |
-| `/api/v1/propertyme/owners` | GET | List property owners |
-| `/api/v1/propertyme/owners/{id}` | GET | Get owner details |
-| `/api/v1/propertyme/maintenance` | GET | List maintenance requests |
-| `/api/v1/propertyme/dashboard/summary` | GET | Dashboard aggregate metrics |
+| Endpoint                       | Method | Description        |
+|--------------------------------|--------|--------------------|
+| `/api/v1/propertyme/health`    | GET    | Health check       |
+| `/api/v1/propertyme/properties` | GET   | List properties    |
+| `/api/v1/propertyme/properties/{id}` | GET | Property details |
+| `/api/v1/propertyme/tenants`   | GET    | List tenants       |
+| `/api/v1/propertyme/tenants/{id}` | GET | Tenant details     |
+| `/api/v1/propertyme/owners`    | GET    | List owners        |
+| `/api/v1/propertyme/owners/{id}` | GET  | Owner details      |
+| `/api/v1/propertyme/maintenance` | GET  | Maintenance list   |
+| `/api/v1/propertyme/dashboard/summary` | GET | Dashboard     |
 
 ## Key Entities
 

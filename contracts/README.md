@@ -1,8 +1,10 @@
 # Contracts (Interfaces & Schemas)
 
-This folder contains **formal contracts** that define how the DDRE Intranet integrates with external or backend systems.
+This folder contains **formal contracts** that define how the DDRE Intranet
+integrates with external or backend systems.
 
-Contracts act as **stable boundaries** between front-end SPFx solutions and backend services (e.g. Azure Functions, APIs managed by Grey Fox).
+Contracts act as **stable boundaries** between front-end SPFx solutions and
+backend services (e.g. Azure Functions, APIs managed by Grey Fox).
 
 They exist to reduce ambiguity, support parallel work, and make integrations auditable.
 
@@ -55,7 +57,7 @@ Contracts must remain **clean, portable, and safe to share**.
 
 Contracts are organised by API/system:
 
-```
+```text
 /contracts
   /ai                           # AI RAG (OpenAI chatbot)
     openapi.yml                 # OpenAPI specification
@@ -74,15 +76,16 @@ Contracts are organised by API/system:
 
 ## Available API Proxy Contracts
 
-| Contract | Location | Capabilities | Consumer |
-|----------|----------|--------------|----------|
-| AI RAG (OpenAI) | `ai/openapi.yml` | Query, Feedback | AI Assistant |
-| Vault CRM | `vault/openapi.yml` | Full CRUD | Sales hub apps |
-| PropertyMe | `propertyme/openapi.yml` | Read-only | PM Dashboard |
-| Audit Log | `audit-log-proxy.openapi.yml` | Write, Query | Audit system |
-| Tasks | `tasks-api-proxy.openapi.yml` | Full CRUD | Task system |
+| Contract   | Location                      | Capabilities |
+|------------|-------------------------------|---------------|
+| AI RAG     | `ai/openapi.yml`              | Query         |
+| Vault CRM  | `vault/openapi.yml`           | Full CRUD     |
+| PropertyMe | `propertyme/openapi.yml`      | Read-only     |
+| Audit Log  | `audit-log-proxy.openapi.yml` | Write, Query  |
+| Tasks      | `tasks-api-proxy.openapi.yml` | Full CRUD     |
 
 All proxies:
+
 - Are hosted in Azure (Functions/App Service)
 - Store API keys in Azure Key Vault
 - Authenticate users via SharePoint/Entra ID tokens
@@ -94,9 +97,9 @@ See `/docs/architecture/api-integration.md` for the full architecture.
 
 ## Related Documentation
 
-| API | Documentation |
-|-----|---------------|
-| Vault | `docs/integrations/vault/` |
+| API        | Documentation                   |
+| ---------- | ------------------------------- |
+| Vault      | `docs/integrations/vault/`      |
 | PropertyMe | `docs/integrations/propertyme/` |
 
 ---
@@ -105,7 +108,8 @@ See `/docs/architecture/api-integration.md` for the full architecture.
 
 - Contracts should be versioned explicitly (folder name or file header)
 - Breaking changes must be intentional and documented
-- Front-end and backend changes should be coordinated against the same contract version
+- Front-end and backend changes should be coordinated against the same
+  contract version
 
 A contract change is a **coordination event**, not a casual refactor.
 

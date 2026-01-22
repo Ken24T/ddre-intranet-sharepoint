@@ -73,17 +73,13 @@ $packageJson = Get-Content $PackageJsonPath -Raw | ConvertFrom-Json
 $currentVersion = $packageJson.version
 Write-Host "Current version: $currentVersion" -ForegroundColor Cyan
 
-# Parse version
-if ($currentVersion -notmatch '^(\d+)\.(\d+)\.(\d+)$') {
+# Parse version to extract minor version (e.g., "0.5" from "0.5.34")
+if ($currentVersion -notmatch '^(\d+)\.(\d+)\.\d+$') {
   Write-Error "Invalid version format: $currentVersion"
   exit 1
 }
 
-$major = [int]$Matches[1]
-$minor = [int]$Matches[2]
-$patch = [int]$Matches[3]
-
-$minorVersion = "$major.$minor"
+$minorVersion = "$($Matches[1]).$($Matches[2])"
 $today = Get-Date -Format "yyyy-MM-dd"
 
 # Use ItemTitle or fall back to Title

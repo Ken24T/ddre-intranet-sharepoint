@@ -1,23 +1,27 @@
 # Modular Copilot Instructions
 
-This folder contains **API-specific context files** that can be referenced when working on particular integrations.
+This folder contains **API-specific context files** that can be referenced
+when working on particular integrations.
 
 ## Available Context Files
 
-| File | When to Use |
-|------|-------------|
-| `ai-api.md` | Working on AI Assistant / chatbot features |
-| `vault-api.md` | Working on Vault CRM / Sales hub features |
-| `propertyme-api.md` | Working on PropertyMe / PM Dashboard features |
-| `propertyme-api-detailed.md` | **Detailed** OAuth implementation for PropertyMe (Azure Functions, token storage, security) |
+| File                         | When to Use                                  |
+| ---------------------------- | -------------------------------------------- |
+| `ai-api.md`                  | Working on AI Assistant / chatbot features   |
+| `vault-api.md`               | Working on Vault CRM / Sales hub features    |
+| `vault-api-detailed.md`      | Detailed VaultRE API reference and schemas   |
+| `propertyme-api.md`          | Working on PropertyMe / PM Dashboard         |
+| `propertyme-api-detailed.md` | Detailed OAuth implementation for PropertyMe |
 
 ## How to Use
 
 Reference these files in your prompts when you need specific API context:
 
-> "I'm working on the Vault contact lookup. See `.github/copilot-instructions/vault-api.md` for patterns."
+> "I'm working on the Vault contact lookup.
+> See `.github/copilot-instructions/vault-api.md` for patterns."
 
-Or include them as workspace context when starting a session focused on a particular integration.
+Or include them as workspace context when starting a session focused on
+a particular integration.
 
 ## Structure
 

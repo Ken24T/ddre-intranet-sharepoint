@@ -4,26 +4,25 @@ This folder contains API specifications for the **Vault CRM** (VaultRE) integrat
 
 ## Overview
 
-Vault is the Sales CRM used by DDRE for managing contacts, properties, and sales pipeline.
+Vault is the Sales CRM used by DDRE for managing contacts, properties,
+and sales pipeline.
 
-| Item | Value |
-|------|-------|
-| **Upstream API** | VaultRE API v1.3 |
-| **Base URL** | `https://ap-southeast-2.api.vaultre.com.au/api/v1.3` |
-| **Swagger Docs** | https://docs.api.vaultre.com.au/swagger/index.html |
-| **Auth** | API Key + Bearer Token (server-side only) |
+- **Upstream API:** VaultRE API v1.3
+- **Base URL:** `https://ap-southeast-2.api.vaultre.com.au/api/v1.3`
+- **Swagger:** <https://docs.api.vaultre.com.au/swagger/index.html>
+- **Auth:** API Key + Bearer Token (server-side only)
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `openapi.yml` | **DDRE Proxy Spec** – Simplified API our Azure proxy exposes to SPFx |
-| `vaultre-upstream.yaml` | **VaultRE Official Spec** – Complete upstream API (26k lines, reference only) |
-| `schemas/contact.json` | Full Contact entity schema from VaultRE |
+| File                    | Purpose                                           |
+| ----------------------- | ------------------------------------------------- |
+| `openapi.yml`           | DDRE Proxy Spec – Simplified API for SPFx         |
+| `vaultre-upstream.yaml` | VaultRE Official Spec – Full upstream (reference) |
+| `schemas/contact.json`  | Full Contact entity schema from VaultRE           |
 
 ## Architecture
 
-```
+```text
 ┌─────────────┐     ┌──────────────────┐     ┌─────────────────┐
 │   SPFx      │────▶│  Azure Proxy     │────▶│   VaultRE API   │
 │  (browser)  │     │  (our spec)      │     │  (upstream)     │
@@ -42,15 +41,15 @@ Vault is the Sales CRM used by DDRE for managing contacts, properties, and sales
 
 ## Priority Endpoints (Phase 1)
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/vault/health` | GET | Health check |
-| `/api/v1/vault/contacts` | GET, POST | List/create contacts |
+| Endpoint                    | Method    | Description    |
+|-----------------------------|-----------|----------------|
+| `/api/v1/vault/health`      | GET       | Health check   |
+| `/api/v1/vault/contacts`    | GET, POST | Contacts list  |
 | `/api/v1/vault/contacts/{id}` | GET, PUT, DELETE | Contact CRUD |
-| `/api/v1/vault/contacts/{id}/notes` | GET, POST | Contact notes |
-| `/api/v1/vault/properties/sale` | GET | Active sales listings |
-| `/api/v1/vault/properties/{id}` | GET | Property details |
-| `/api/v1/vault/search` | GET | Cross-entity search |
+| `/api/v1/vault/contacts/{id}/notes` | GET, POST | Notes    |
+| `/api/v1/vault/properties/sale` | GET   | Sales listings |
+| `/api/v1/vault/properties/{id}` | GET   | Property       |
+| `/api/v1/vault/search`      | GET       | Search         |
 
 ## Key Entities
 
