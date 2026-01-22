@@ -62,6 +62,7 @@ describe("IntranetShell", () => {
     const statusBar = screen.getByRole("contentinfo");
     expect(within(statusBar).getByText("Vault")).toBeInTheDocument();
     expect(within(statusBar).getByText("PropertyMe")).toBeInTheDocument();
+    expect(within(statusBar).getByText("Jasper")).toBeInTheDocument();
   });
 
   it("restores favourites from storage", () => {

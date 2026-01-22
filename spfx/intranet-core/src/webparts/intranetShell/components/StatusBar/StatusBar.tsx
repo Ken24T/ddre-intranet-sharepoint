@@ -28,6 +28,8 @@ export interface IStatusBarProps {
   onTaskBannerClick?: (taskId: string) => void;
   /** Called when user dismisses the task banner */
   onTaskBannerDismiss?: () => void;
+  /** Called when Jasper API status changes (for disabling chatbot button) */
+  onJasperStatusChange?: (isAvailable: boolean) => void;
 }
 
 /**
@@ -209,14 +211,16 @@ const NotificationItem: React.FC<INotificationItemProps> = ({ notification, onDi
                 {notification.severity === 'error' ? 'Alert' : notification.severity === 'warning' ? 'Warning' : 'Information'}
               </span>
             </div>
-            <p className={styles.notificationCalloutMessage}>{notification.message}</p>
-            <div className={styles.notificationCalloutMeta}>
-              <Icon iconName="Contact" className={styles.notificationCalloutMetaIcon} />
-              <span>Published by {notification.publishedBy}</span>
-            </div>
-            <div className={styles.notificationCalloutMeta}>
-              <Icon iconName="Calendar" className={styles.notificationCalloutMetaIcon} />
-              <span>{formattedDate} at {formattedTime}</span>
+            <div className={styles.notificationCalloutBody}>
+              <p className={styles.notificationCalloutMessage}>{notification.message}</p>
+              <div className={styles.notificationCalloutMeta}>
+                <Icon iconName="Contact" className={styles.notificationCalloutMetaIcon} />
+                <span>Published by {notification.publishedBy}</span>
+              </div>
+              <div className={styles.notificationCalloutMeta}>
+                <Icon iconName="Calendar" className={styles.notificationCalloutMetaIcon} />
+                <span>{formattedDate} at {formattedTime}</span>
+              </div>
             </div>
           </div>
         </Callout>
@@ -419,9 +423,18 @@ export const StatusBar: React.FC<IStatusBarProps> = ({
   taskBannerItems = [],
   onTaskBannerClick,
   onTaskBannerDismiss,
+  onJasperStatusChange,
 }) => {
-  const { vault, propertyMe, checkHealth, isChecking } = useApiHealth(context);
+  const { vault, propertyMe, jasper, checkHealth, isChecking } = useApiHealth(context);
   const { notifications, dismissedIds, dismissNotification, isLoading: notificationsLoading } = useNotifications(context);
+
+  // Report Jasper status changes to parent
+  React.useEffect(() => {
+    if (onJasperStatusChange && jasper.status !== 'checking' && jasper.status !== 'unknown') {
+      onJasperStatusChange(jasper.status === 'healthy' || jasper.status === 'degraded');
+    }
+  }, [jasper.status, onJasperStatusChange]);
+
   const otherActiveUsers = [
     { name: 'Sophie Nguyen', status: 'Viewing Sales hub', activeFor: '4m' },
     { name: 'Liam Harris', status: 'Editing Help Centre', activeFor: '9m' },
@@ -468,6 +481,7 @@ export const StatusBar: React.FC<IStatusBarProps> = ({
         <div className={styles.healthSection}>
           <HealthIndicator apiName="Vault" state={vault} />
           <HealthIndicator apiName="PropertyMe" state={propertyMe} />
+          <HealthIndicator apiName="Jasper" state={jasper} />
           <button
             className={styles.refreshButton}
             onClick={handleRefresh}

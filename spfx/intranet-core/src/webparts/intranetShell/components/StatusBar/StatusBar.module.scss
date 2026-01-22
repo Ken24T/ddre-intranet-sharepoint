@@ -278,7 +278,7 @@
 }
 
 .notificationCalloutContent {
-  padding: 14px 16px;
+  padding: 0;
   min-width: 260px;
   max-width: 340px;
 }
@@ -286,34 +286,49 @@
 .notificationCalloutHeader {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 8px;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid var(--neutralLight, #edebe9);
+  padding: 12px 16px;
+  margin: 0;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  line-height: 1;
 
   &.notificationInfo {
     color: var(--themePrimary, #0078d4);
+    background-color: rgba(0, 120, 212, 0.1);
   }
 
   &.notificationWarning {
     color: #996600;
+    background-color: rgba(255, 185, 0, 0.15);
   }
 
   &.notificationError {
     color: var(--red, #d13438);
+    background-color: rgba(209, 52, 56, 0.1);
   }
+}
+
+.notificationCalloutBody {
+  padding: 14px 16px;
 }
 
 .notificationCalloutIcon {
   font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px; // Nudge icon down to align with text
 }
 
 .notificationCalloutSeverity {
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
 }
 
 .notificationCalloutMessage {
@@ -372,20 +387,32 @@
 .userTooltip {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 2px 4px;
+  min-width: 260px;
+  max-width: 340px;
+  margin: -8px; // Counteract Fluent tooltip padding
 }
 
 .userTooltipTitle {
-  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 12px 16px !important;
+  margin: 0 !important;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--neutralPrimary, #323130);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  color: var(--themePrimary, #0078d4);
+  background-color: rgba(0, 120, 212, 0.1);
 }
 
 .userTooltipList {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
+  padding: 14px 16px;
 }
 
 .userTooltipItem {

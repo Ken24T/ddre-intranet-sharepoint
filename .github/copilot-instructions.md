@@ -93,6 +93,17 @@ SPFx solutions consume these via local npm install (not published to registry ye
 - **Phase 1 (current):** Single `intranet-core` solution for foundation features
 - **Phase 2+:** Each business app gets its own SPFx solution and `.sppkg`
 
+## Jasper (AI Chatbot)
+
+**Jasper** is the name of the intranet's AI assistant chatbot. He appears as a floating button in the bottom-right corner of the shell and provides conversational help to users.
+
+- **Personality:** Friendly, supportive, and helpful with an Australian touch (e.g., "G'day!")
+- **Capabilities:** Finding documents, explaining policies, navigating the intranet, answering questions
+- **Backend:** Azure OpenAI via the AI RAG Proxy API (see `/contracts/ai-rag-proxy.openapi.yml`)
+- **Health monitoring:** StatusBar shows Jasper connection status; button is disabled when unavailable
+
+When writing Jasper's dialogue or messages, use a warm, encouraging tone that makes users feel supported.
+
 ## SHIP Workflow
 
 When the user says **SHIP**, execute the following steps as appropriate:
@@ -146,3 +157,25 @@ Git tags (`vX.Y.Z`) are created only for minor/major releases and must match SPF
 - `fix/<name>` – Bug fixes
 - `docs/<name>` – Documentation updates
 - `infrastructure/<name>` – Build/CI/tooling changes
+
+## Release Notes (What's New)
+
+When starting a new feature branch, add a placeholder release note entry:
+
+```powershell
+./scripts/add-release-note.ps1 -Title "Feature Name" -Category feature
+```
+
+**Categories:** `feature`, `improvement`, `bugfix`, `security`
+
+The script adds a placeholder entry to `releaseNotes.ts` that should be updated with specific changes before shipping. Release notes are grouped by minor version (v0.5, v0.6, etc.) and shown in the Help Centre "What's New" panel.
+
+**When to add release notes:**
+- User-facing features and improvements
+- Bug fixes that users would notice
+- Security updates
+
+**When to skip:**
+- Internal refactoring
+- Test-only changes
+- Documentation updates (unless user-facing help content)

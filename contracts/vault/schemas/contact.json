@@ -1,0 +1,196 @@
+{
+  "id": 0,
+  "title": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "greeting": "string",
+  "displayName": "string",
+  "partnerTitle": "string",
+  "partnerFirstName": "string",
+  "partnerLastName": "string",
+  "company": "string",
+  "position": "string",
+  "address": {
+    "level": "string",
+    "unitNumber": "string",
+    "streetNumber": "string",
+    "street": "string",
+    "suburb": {
+      "id": 0,
+      "name": "string",
+      "postcode": "string",
+      "state": {
+        "id": 0,
+        "name": "string",
+        "abbreviation": "string"
+      },
+      "nzDistrict": {
+        "id": 0,
+        "name": "string",
+        "region": {
+          "id": 0,
+          "name": "string"
+        }
+      },
+      "isPoBox": true
+    },
+    "state": {
+      "id": 0,
+      "name": "string",
+      "abbreviation": "string"
+    },
+    "country": {
+      "id": 0,
+      "name": "string",
+      "isocode": "string",
+      "gstRate": 0
+    },
+    "royalMail": {
+      "buildingName": "string",
+      "buildingNumber": "string",
+      "department": "string",
+      "locality": "string",
+      "locality2": "string",
+      "organisation": "string",
+      "postTown": "string",
+      "postcode": "string",
+      "subbuildingName": "string",
+      "subbuildingNumber": "string",
+      "thoroughfare": "string",
+      "thoroughfare2": "string",
+      "udprn": 0
+    },
+    "customAddress": {
+      "address1": "string",
+      "address2": "string",
+      "postTown": "string",
+      "postcode": "string"
+    }
+  },
+  "postalAddress": {
+    "level": "string",
+    "unitNumber": "string",
+    "streetNumber": "string",
+    "street": "string",
+    "suburb": {
+      "id": 0,
+      "name": "string",
+      "postcode": "string",
+      "state": {
+        "id": 0,
+        "name": "string",
+        "abbreviation": "string"
+      },
+      "nzDistrict": {
+        "id": 0,
+        "name": "string",
+        "region": {
+          "id": 0,
+          "name": "string"
+        }
+      },
+      "isPoBox": true
+    },
+    "state": {
+      "id": 0,
+      "name": "string",
+      "abbreviation": "string"
+    },
+    "country": {
+      "id": 0,
+      "name": "string",
+      "isocode": "string",
+      "gstRate": 0
+    },
+    "royalMail": {
+      "buildingName": "string",
+      "buildingNumber": "string",
+      "department": "string",
+      "locality": "string",
+      "locality2": "string",
+      "organisation": "string",
+      "postTown": "string",
+      "postcode": "string",
+      "subbuildingName": "string",
+      "subbuildingNumber": "string",
+      "thoroughfare": "string",
+      "thoroughfare2": "string",
+      "udprn": 0
+    },
+    "customAddress": {
+      "address1": "string",
+      "address2": "string",
+      "postTown": "string",
+      "postcode": "string"
+    }
+  },
+  "onDoNotCallList": true,
+  "archived": true,
+  "inserted": "2025-12-01T21:44:48.615Z",
+  "modified": "2025-12-01T21:44:48.615Z",
+  "touched": "2025-12-01T21:44:48.615Z",
+  "remoteId": "string",
+  "unsubscribe": {
+    "email": true,
+    "sms": true,
+    "letters": true
+  },
+  "entityType": {
+    "id": 0,
+    "name": "string"
+  },
+  "emails": [
+    "user@example.com"
+  ],
+  "phoneNumbers": [
+    {
+      "number": "string",
+      "typeCode": "H",
+      "type": "Home",
+      "comment": "string"
+    }
+  ],
+  "legalDescription": "string",
+  "marketingUsers": [
+    {
+      "id": 0,
+      "user": {
+        "id": 0,
+        "name": "string",
+        "photo": {
+          "original": "string",
+          "thumb_360": "string"
+        },
+        "account": {
+          "id": 0,
+          "name": "string"
+        }
+      }
+    }
+  ],
+  "smsUnsubscribeUrl": "string",
+  "customUnsubscribe": [
+    {
+      "id": 0,
+      "name": "string"
+    }
+  ],
+  "accessBy": [
+    {
+      "id": 0,
+      "name": "string",
+      "photo": {
+        "original": "string",
+        "thumb_360": "string"
+      },
+      "account": {
+        "id": 0,
+        "name": "string"
+      }
+    }
+  ],
+  "sourceOfEnquiry": {
+    "id": 0,
+    "name": "string"
+  }
+}

@@ -16,6 +16,7 @@ export interface IApiHealthState {
 export interface IApiHealthResult {
   vault: IApiHealthState;
   propertyMe: IApiHealthState;
+  jasper: IApiHealthState;
   checkHealth: () => Promise<void>;
   isChecking: boolean;
 }
@@ -75,12 +76,14 @@ async function mockHealthCheck(apiName: string): Promise<IApiHealthState> {
 export function useApiHealth(context?: unknown): IApiHealthResult {
   const [vault, setVault] = React.useState<IApiHealthState>(initialApiState);
   const [propertyMe, setPropertyMe] = React.useState<IApiHealthState>(initialApiState);
+  const [jasper, setJasper] = React.useState<IApiHealthState>(initialApiState);
   const [isChecking, setIsChecking] = React.useState(false);
 
   const checkHealth = React.useCallback(async () => {
     setIsChecking(true);
     setVault(prev => ({ ...prev, status: 'checking' }));
     setPropertyMe(prev => ({ ...prev, status: 'checking' }));
+    setJasper(prev => ({ ...prev, status: 'checking' }));
 
     try {
       if (context) {
@@ -88,31 +91,38 @@ export function useApiHealth(context?: unknown): IApiHealthResult {
         // TODO: Implement when pkg-api-client is integrated into SPFx solution
         // const vaultClient = new VaultClient({ context });
         // const propertyMeClient = new PropertyMeClient({ context });
-        // const [vaultResult, propertyMeResult] = await Promise.all([
+        // const aiClient = new AiClient({ context });
+        // const [vaultResult, propertyMeResult, jasperResult] = await Promise.all([
         //   vaultClient.health(),
         //   propertyMeClient.health(),
+        //   aiClient.health(),
         // ]);
         
         // For now, use mock in all cases
-        const [vaultResult, propertyMeResult] = await Promise.all([
+        const [vaultResult, propertyMeResult, jasperResult] = await Promise.all([
           mockHealthCheck('Vault'),
           mockHealthCheck('PropertyMe'),
+          mockHealthCheck('Jasper'),
         ]);
         setVault(vaultResult);
         setPropertyMe(propertyMeResult);
+        setJasper(jasperResult);
       } else {
         // Dev harness - use mock data
-        const [vaultResult, propertyMeResult] = await Promise.all([
+        const [vaultResult, propertyMeResult, jasperResult] = await Promise.all([
           mockHealthCheck('Vault'),
           mockHealthCheck('PropertyMe'),
+          mockHealthCheck('Jasper'),
         ]);
         setVault(vaultResult);
         setPropertyMe(propertyMeResult);
+        setJasper(jasperResult);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setVault({ status: 'unhealthy', lastChecked: new Date(), responseTimeMs: undefined, error: errorMessage });
       setPropertyMe({ status: 'unhealthy', lastChecked: new Date(), responseTimeMs: undefined, error: errorMessage });
+      setJasper({ status: 'unhealthy', lastChecked: new Date(), responseTimeMs: undefined, error: errorMessage });
     } finally {
       setIsChecking(false);
     }
@@ -123,5 +133,5 @@ export function useApiHealth(context?: unknown): IApiHealthResult {
     checkHealth().catch(console.error);
   }, [checkHealth]);
 
-  return { vault, propertyMe, checkHealth, isChecking };
+  return { vault, propertyMe, jasper, checkHealth, isChecking };
 }

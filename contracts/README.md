@@ -1,8 +1,10 @@
 # Contracts (Interfaces & Schemas)
 
-This folder contains **formal contracts** that define how the DDRE Intranet integrates with external or backend systems.
+This folder contains **formal contracts** that define how the DDRE Intranet
+integrates with external or backend systems.
 
-Contracts act as **stable boundaries** between front-end SPFx solutions and backend services (e.g. Azure Functions, APIs managed by Grey Fox).
+Contracts act as **stable boundaries** between front-end SPFx solutions and
+backend services (e.g. Azure Functions, APIs managed by Grey Fox).
 
 They exist to reduce ambiguity, support parallel work, and make integrations auditable.
 
@@ -51,15 +53,39 @@ Contracts must remain **clean, portable, and safe to share**.
 
 ---
 
+## Folder Structure
+
+Contracts are organised by API/system:
+
+```text
+/contracts
+  /ai                           # AI RAG (OpenAI chatbot)
+    openapi.yml                 # OpenAPI specification
+    README.md                   # API overview
+  /vault                        # Vault CRM (Sales)
+    openapi.yml
+    README.md
+  /propertyme                   # PropertyMe (PM Dashboard)
+    openapi.yml
+    README.md
+  audit-log-proxy.openapi.yml   # Audit logging
+  tasks-api-proxy.openapi.yml   # User tasks
+```
+
+---
+
 ## Available API Proxy Contracts
 
-| Contract | File | Capabilities | Consumer |
-|----------|------|--------------|----------|
-| AI RAG (OpenAI) | `ai-rag-proxy.openapi.yml` | Query, Feedback | intranet-core (Dante Library chatbot) |
-| Vault CRM | `vault-api-proxy.openapi.yml` | Full CRUD | Sales area apps |
-| PropertyMe | `propertyme-api-proxy.openapi.yml` | Read-only | PM Dashboard app |
+| Contract   | Location                      | Capabilities |
+|------------|-------------------------------|---------------|
+| AI RAG     | `ai/openapi.yml`              | Query         |
+| Vault CRM  | `vault/openapi.yml`           | Full CRUD     |
+| PropertyMe | `propertyme/openapi.yml`      | Read-only     |
+| Audit Log  | `audit-log-proxy.openapi.yml` | Write, Query  |
+| Tasks      | `tasks-api-proxy.openapi.yml` | Full CRUD     |
 
 All proxies:
+
 - Are hosted in Azure (Functions/App Service)
 - Store API keys in Azure Key Vault
 - Authenticate users via SharePoint/Entra ID tokens
@@ -69,21 +95,12 @@ See `/docs/architecture/api-integration.md` for the full architecture.
 
 ---
 
-## Folder Structure
+## Related Documentation
 
-Contracts may be grouped by system or capability:
-
-```
-/contracts
-  /crm
-    openapi.yaml
-    examples/
-  /ai
-    request.schema.json
-    response.schema.json
-```
-
-Structure should favour clarity over cleverness.
+| API        | Documentation                   |
+| ---------- | ------------------------------- |
+| Vault      | `docs/integrations/vault/`      |
+| PropertyMe | `docs/integrations/propertyme/` |
 
 ---
 
@@ -91,7 +108,8 @@ Structure should favour clarity over cleverness.
 
 - Contracts should be versioned explicitly (folder name or file header)
 - Breaking changes must be intentional and documented
-- Front-end and backend changes should be coordinated against the same contract version
+- Front-end and backend changes should be coordinated against the same
+  contract version
 
 A contract change is a **coordination event**, not a casual refactor.
 
