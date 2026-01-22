@@ -398,6 +398,336 @@ export const minorReleases: IMinorRelease[] = [
       },
     ],
   },
+  {
+    id: 'release-0.3',
+    version: '0.3',
+    title: 'v0.3 — November 2025',
+    summary: 'Search functionality, error handling, modals, and AI Assistant foundations.',
+    patches: [
+      {
+        version: '0.3.5',
+        date: '2025-11-25',
+        title: 'AI Assistant',
+        items: [
+          {
+            id: 'item-0.3.5-1',
+            title: 'Added floating AI Assistant button',
+            category: 'feature',
+            description: 'Access AI help from any page via the bottom-right button.',
+          },
+          {
+            id: 'item-0.3.5-2',
+            title: 'Chat panel slides up from button',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.3.5-3',
+            title: 'Pop-out chat to new window',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.3.5-4',
+            title: 'Show/hide AI Assistant from profile menu',
+            category: 'improvement',
+          },
+        ],
+      },
+      {
+        version: '0.3.4',
+        date: '2025-11-20',
+        title: 'Modals & Dialogs',
+        items: [
+          {
+            id: 'item-0.3.4-1',
+            title: 'Modal component with backdrop and focus trap',
+            category: 'feature',
+            description: 'Accessible modals with keyboard navigation and ESC to close.',
+          },
+          {
+            id: 'item-0.3.4-2',
+            title: 'Confirmation dialog for destructive actions',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.3.4-3',
+            title: 'Hidden cards manager modal',
+            category: 'feature',
+            description: 'View and restore hidden cards from the Settings panel.',
+          },
+          {
+            id: 'item-0.3.4-4',
+            title: 'System announcements modal',
+            category: 'feature',
+          },
+        ],
+      },
+      {
+        version: '0.3.2',
+        date: '2025-11-15',
+        title: 'Error Handling',
+        items: [
+          {
+            id: 'item-0.3.2-1',
+            title: 'Toast notification system',
+            category: 'feature',
+            description: 'Info, success, warning, and error toasts with auto-dismiss.',
+          },
+          {
+            id: 'item-0.3.2-2',
+            title: 'Auto-retry logic for API calls',
+            category: 'improvement',
+          },
+          {
+            id: 'item-0.3.2-3',
+            title: 'Access Denied (403) error page',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.3.2-4',
+            title: 'Not Found (404) error page',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.3.2-5',
+            title: 'Offline detection with reconnection banner',
+            category: 'feature',
+            description: 'Automatic detection when network is lost, with reconnection handling.',
+          },
+        ],
+      },
+      {
+        version: '0.3.0',
+        date: '2025-11-10',
+        title: 'Search',
+        items: [
+          {
+            id: 'item-0.3.0-1',
+            title: 'Expandable search input in navbar',
+            category: 'feature',
+            description: 'Click or press Ctrl+K to open the search box.',
+          },
+          {
+            id: 'item-0.3.0-2',
+            title: 'Quick results dropdown grouped by type',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.3.0-3',
+            title: 'Search results page with filters panel',
+            category: 'feature',
+            description: 'Filter results by hub, content type, and date.',
+          },
+          {
+            id: 'item-0.3.0-4',
+            title: 'Keyboard navigation in search results',
+            category: 'improvement',
+          },
+          {
+            id: 'item-0.3.0-5',
+            title: 'Empty state for no search results',
+            category: 'improvement',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'release-0.2',
+    version: '0.2',
+    title: 'v0.2 — October 2025',
+    summary: 'Core UI components and user preferences system.',
+    patches: [
+      {
+        version: '0.2.5',
+        date: '2025-10-25',
+        title: 'User Profile & Settings',
+        items: [
+          {
+            id: 'item-0.2.5-1',
+            title: 'User profile menu dropdown',
+            category: 'feature',
+            description: 'Access settings, theme toggle, and sign out from your avatar.',
+          },
+          {
+            id: 'item-0.2.5-2',
+            title: 'Settings panel modal',
+            category: 'feature',
+            description: 'Manage layout, theme, and card visibility preferences.',
+          },
+          {
+            id: 'item-0.2.5-3',
+            title: 'Reset to defaults with confirmation',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.2.5-4',
+            title: 'Preferences stored in browser localStorage',
+            category: 'improvement',
+          },
+        ],
+      },
+      {
+        version: '0.2.2',
+        date: '2025-10-15',
+        title: 'Card Grid',
+        items: [
+          {
+            id: 'item-0.2.2-1',
+            title: 'Responsive card grid with auto-fit layout',
+            category: 'feature',
+            description: 'Cards automatically arrange based on screen width.',
+          },
+          {
+            id: 'item-0.2.2-2',
+            title: 'Function card with icon, title, and description',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.2.2-3',
+            title: 'Card context menu (pin, hide, open modes)',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.2.2-4',
+            title: 'Drag-and-drop card reordering',
+            category: 'feature',
+            description: 'Rearrange cards by dragging them to new positions.',
+          },
+        ],
+      },
+      {
+        version: '0.2.0',
+        date: '2025-10-10',
+        title: 'Sidebar & Navigation',
+        items: [
+          {
+            id: 'item-0.2.0-1',
+            title: 'Collapsible sidebar with toggle',
+            category: 'feature',
+            description: 'Collapse to 64px or expand to 240px with the toggle button.',
+          },
+          {
+            id: 'item-0.2.0-2',
+            title: 'Resize sidebar by dragging edge',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.2.0-3',
+            title: 'Hub navigation with icons',
+            category: 'feature',
+            description: 'Navigate between Home, PM, Office, Sales, and Admin hubs.',
+          },
+          {
+            id: 'item-0.2.0-4',
+            title: 'Sidebar width persists across sessions',
+            category: 'improvement',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'release-0.1',
+    version: '0.1',
+    title: 'v0.1 — September 2025',
+    summary: 'Initial shell foundation with layout, theming, and status bar.',
+    patches: [
+      {
+        version: '0.1.5',
+        date: '2025-09-25',
+        title: 'Status Bar & Health',
+        items: [
+          {
+            id: 'item-0.1.5-1',
+            title: 'Status bar with API health indicators',
+            category: 'feature',
+            description: 'See real-time health status for Vault and PropertyMe APIs.',
+          },
+          {
+            id: 'item-0.1.5-2',
+            title: 'Current user display from SharePoint',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.1.5-3',
+            title: 'System notifications in status bar',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.1.5-4',
+            title: 'Dismiss notifications for current session',
+            category: 'improvement',
+          },
+        ],
+      },
+      {
+        version: '0.1.2',
+        date: '2025-09-15',
+        title: 'Theme Support',
+        items: [
+          {
+            id: 'item-0.1.2-1',
+            title: 'Light and dark theme options',
+            category: 'feature',
+            description: 'Choose Light, Dark, or System theme in Settings.',
+          },
+          {
+            id: 'item-0.1.2-2',
+            title: 'Theme applied before React render (no flash)',
+            category: 'improvement',
+          },
+          {
+            id: 'item-0.1.2-3',
+            title: 'System theme follows OS preference',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.1.2-4',
+            title: 'Theme toggle in profile menu',
+            category: 'improvement',
+          },
+        ],
+      },
+      {
+        version: '0.1.0',
+        date: '2025-09-01',
+        title: 'Initial Release',
+        items: [
+          {
+            id: 'item-0.1.0-1',
+            title: 'Shell layout with CSS Grid',
+            category: 'feature',
+            description: 'Responsive layout with navbar, sidebar, content area, and status bar.',
+          },
+          {
+            id: 'item-0.1.0-2',
+            title: 'Fixed 48px navbar at top',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.1.0-3',
+            title: 'Resizable 240px sidebar',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.1.0-4',
+            title: 'Fluid content area',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.1.0-5',
+            title: 'Fixed 24px status bar at bottom',
+            category: 'feature',
+          },
+          {
+            id: 'item-0.1.0-6',
+            title: 'Responsive breakpoints for all screen sizes',
+            category: 'improvement',
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 // =============================================================================

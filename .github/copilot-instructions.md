@@ -146,3 +146,25 @@ Git tags (`vX.Y.Z`) are created only for minor/major releases and must match SPF
 - `fix/<name>` – Bug fixes
 - `docs/<name>` – Documentation updates
 - `infrastructure/<name>` – Build/CI/tooling changes
+
+## Release Notes (What's New)
+
+When starting a new feature branch, add a placeholder release note entry:
+
+```powershell
+./scripts/add-release-note.ps1 -Title "Feature Name" -Category feature
+```
+
+**Categories:** `feature`, `improvement`, `bugfix`, `security`
+
+The script adds a placeholder entry to `releaseNotes.ts` that should be updated with specific changes before shipping. Release notes are grouped by minor version (v0.5, v0.6, etc.) and shown in the Help Centre "What's New" panel.
+
+**When to add release notes:**
+- User-facing features and improvements
+- Bug fixes that users would notice
+- Security updates
+
+**When to skip:**
+- Internal refactoring
+- Test-only changes
+- Documentation updates (unless user-facing help content)
