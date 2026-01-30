@@ -104,35 +104,9 @@ SPFx solutions consume these via local npm install (not published to registry ye
 
 When writing Jasper's dialogue or messages, use a warm, encouraging tone that makes users feel supported.
 
-## SHIP Workflow
+## Shipping Workflow
 
-When the user says **SHIP**, execute the following steps as appropriate:
-
-**SHIP** = **T**est → **P**roblems → **C**ommit → **T**ag → **B**ump → **P**ush
-
-| Step | Action | When to Skip |
-|------|--------|--------------|
-| **Test** | Run `npm run lint` and `npm run test` | Docs-only changes, config tweaks |
-| **Problems** | Check VS Code Problems panel (`get_errors`) – must be 0 | Never skip |
-| **Commit** | Stage and commit with conventional message | Never skip |
-| **Bump** | Increment patch version (`0.4.x`) in `package.json` + `package-solution.json` | Docs-only changes |
-| **Push** | Push commits to remote | Never skip |
-
-**Conventional commit prefixes:** `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`
-
-**Versioning strategy:**
-- **Patch (`0.4.x`)** – Increment with each commit during feature work
-- **Minor (`0.x.0`)** – Bump when branch is merged/released (use release script)
-- **Major (`x.0.0`)** – Breaking changes or major milestones
-
-For minor/major releases, use the release script:
-
-```powershell
-./scripts/release.ps1 -Bump minor -Message "feat: feature description"
-./scripts/release.ps1 -Bump major -Message "feat!: breaking change"
-```
-
-Git tags (`vX.Y.Z`) are created only for minor/major releases and must match SPFx solution version.
+For SHIP/TCTBP activation, steps, approvals, and versioning rules, see the TCTBP agent guidance in [TCTBP Agent.md](TCTBP Agent.md).
 
 ## File Organization
 

@@ -15,9 +15,11 @@ const renderWithProvider = (ui: React.ReactElement): ReturnType<typeof render> =
 describe('AuditLogViewer', () => {
   beforeEach(() => {
     jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-01-21T00:00:00.000Z'));
   });
 
   afterEach(() => {
+    jest.setSystemTime(undefined);
     jest.useRealTimers();
   });
 
