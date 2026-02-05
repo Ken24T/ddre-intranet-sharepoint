@@ -117,6 +117,7 @@ Behaviour (safe, deterministic):
 
 5. **Ship if needed**
   - If the release policy says a ship is required (or versions are out of sync), run the full SHIP/TCTBP workflow.
+  - If changes are **docs-only or infrastructure-only** (plans, runbooks, internal guidance), **skip bump/tag** and continue.
   - Otherwise skip bump/tag and continue.
 
 6. **Merge to local main**
@@ -165,7 +166,7 @@ Ensure lint, build, and test diagnostics are clean (zero warnings if enforced).
 
 **Versioning rules:**
 
-- **Z (patch)** increments on **every SHIP**
+- **Z (patch)** increments on **every SHIP**, **except** when the change set is **docs-only or infrastructure-only** (plans, runbooks, internal guidance).
 - **Y (minor)** increments on the **first SHIP of a new work branch**, resetting Z to 0
 - **X (major)** only by explicit instruction
 

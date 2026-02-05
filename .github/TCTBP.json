@@ -15,11 +15,13 @@
   "versioning": {
     "scheme": "semver",
     "patchEveryShip": true,
+    "skipForChangeTypes": ["docs-only", "infrastructure-only"],
     "minorOnFirstShipOfBranch": true,
     "majorExplicitOnly": true
   },
   "tagging": {
     "policy": "everyCommit",
+    "skipWhenNoBump": true,
     "format": "{version}"
   }
 }
