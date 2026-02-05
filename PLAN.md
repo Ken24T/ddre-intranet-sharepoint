@@ -832,6 +832,16 @@ Batch operations for Vault CRM data.
 - [ ] Configure API Management / Function Apps
 - [ ] Set up monitoring and alerts
 
+### Database Strategy
+
+> **Default datastore:** SharePoint Lists
+
+- [ ] Define standard list schemas for app data (per app requirements)
+- [ ] Use SharePoint Lists for structured intranet data and transactions
+- [ ] Keep browser storage limited to preferences and UI state (localStorage/sessionStorage)
+- [ ] Avoid JSON file persistence in production workflows
+- [ ] Route any external or advanced data storage through Azure proxies only
+
 ### SharePoint Tenant Setup
 
 - [ ] Provision Dev tenant
