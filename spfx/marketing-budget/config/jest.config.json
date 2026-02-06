@@ -1,0 +1,34 @@
+{
+  "extends": "@rushstack/heft-jest-plugin/includes/jest-shared.config.json",
+  "testEnvironment": "jsdom",
+  "roots": ["<rootDir>/lib-commonjs"],
+  "testMatch": ["<rootDir>/lib-commonjs/**/*.test.{cjs,js}"],
+  "setupFilesAfterEnv": ["<rootDir>/lib-commonjs/tests/setupTests.js"],
+  "moduleNameMapper": {
+    "\\.(css|less|sass|scss)$": "identity-obj-proxy",
+    "\\.(aac|eot|gif|jpeg|jpg|m4a|mp3|mp4|oga|otf|png|svg|ttf|wav|webm|webp|woff|woff2)$": "<rootDir>/config/jest/fileMock.js"
+  },
+  "collectCoverage": true,
+  "coverageDirectory": "<rootDir>/coverage",
+  "coverageReporters": ["text-summary"],
+  "collectCoverageFrom": [
+    "<rootDir>/lib-commonjs/models/**/*.js",
+    "<rootDir>/lib-commonjs/webparts/**/*.js",
+    "!<rootDir>/lib-commonjs/**/*.test.js",
+    "!<rootDir>/lib-commonjs/tests/**",
+    "!<rootDir>/lib-commonjs/**/index.js",
+    "!<rootDir>/lib-commonjs/**/types.js",
+    "!<rootDir>/lib-commonjs/**/*.d.js",
+    "!<rootDir>/lib-commonjs/**/loc/**",
+    "!<rootDir>/lib-commonjs/**/*Props.js",
+    "!<rootDir>/lib-commonjs/**/*WebPart.js"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "branches": 50,
+      "functions": 60,
+      "lines": 60,
+      "statements": 60
+    }
+  }
+}

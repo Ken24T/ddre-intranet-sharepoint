@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Icon } from '@fluentui/react';
 import styles from '../IntranetShell.module.scss';
 import { useAudit } from '../AuditContext';
+import type { IAppNavItem } from '../appBridge';
 
 export interface ISidebarProps {
   isCollapsed: boolean;
@@ -11,7 +12,13 @@ export interface ISidebarProps {
   isAdmin?: boolean;
   /** Whether there are unread release notes */
   hasUnreadReleases?: boolean;
+  /** App-provided nav items that replace the hub nav (except Home). */
+  appNavItems?: IAppNavItem[];
+  /** Active key within the app navigation. */
+  appActiveKey?: string;
   onHubChange?: (hubKey: string) => void;
+  /** Called when the user clicks an app sidebar item. */
+  onAppNavigate?: (key: string) => void;
   onOpenHelp?: () => void;
 }
 
@@ -41,12 +48,16 @@ export const Sidebar: React.FC<ISidebarProps> = ({
   hasFavourites = false,
   isAdmin = false,
   hasUnreadReleases = false,
+  appNavItems,
+  appActiveKey,
   onHubChange,
+  onAppNavigate,
   onOpenHelp,
 }) => {
   const audit = useAudit();
+  const isAppMode = appNavItems !== undefined && appNavItems.length > 0;
 
-  const handleClick = (e: React.MouseEvent, hubKey: string): void => {
+  const handleHubClick = (e: React.MouseEvent, hubKey: string): void => {
     e.preventDefault();
     
     // Log hub navigation
@@ -56,6 +67,11 @@ export const Sidebar: React.FC<ISidebarProps> = ({
     });
     
     onHubChange?.(hubKey);
+  };
+
+  const handleAppClick = (e: React.MouseEvent, key: string): void => {
+    e.preventDefault();
+    onAppNavigate?.(key);
   };
 
   const orderedItems = React.useMemo(() => {
@@ -84,24 +100,69 @@ export const Sidebar: React.FC<ISidebarProps> = ({
     >
       <div className={styles.sidebarNavContainer}>
         <nav id="sidebar-nav" className={styles.sidebarNav} tabIndex={-1}>
-          {orderedItems.map((item) => (
-            <a
-              key={item.key}
-              href={`#${item.key}`}
-              className={`${styles.sidebarItem} ${item.key === activeHubKey ? styles.sidebarItemActive : ''}`}
-              title={item.label}
-              onClick={(e) => handleClick(e, item.key)}
-              aria-current={item.key === activeHubKey ? 'page' : undefined}
-            >
-              <span className={styles.sidebarItemIcon}>
-                <Icon iconName={item.icon} />
-              </span>
-              {!isCollapsed && (
-                <span className={styles.sidebarItemLabel}>{item.label}</span>
-              )}
-            </a>
-          ))}
-          {onOpenHelp && (
+          {/* Home is always shown — returns user to the intranet */}
+          <a
+            key="home"
+            href="#home"
+            className={`${styles.sidebarItem} ${!isAppMode && activeHubKey === 'home' ? styles.sidebarItemActive : ''}`}
+            title="Home"
+            onClick={(e) => handleHubClick(e, 'home')}
+            aria-current={!isAppMode && activeHubKey === 'home' ? 'page' : undefined}
+          >
+            <span className={styles.sidebarItemIcon}>
+              <Icon iconName="Home" />
+            </span>
+            {!isCollapsed && (
+              <span className={styles.sidebarItemLabel}>Home</span>
+            )}
+          </a>
+
+          {isAppMode ? (
+            /* ── App-provided navigation ─────────────── */
+            appNavItems.map((item) => (
+              <a
+                key={`app-${item.key}`}
+                href={`#${item.key}`}
+                className={`${styles.sidebarItem} ${item.key === appActiveKey ? styles.sidebarItemActive : ''}`}
+                title={item.label}
+                onClick={(e) => handleAppClick(e, item.key)}
+                aria-current={item.key === appActiveKey ? 'page' : undefined}
+              >
+                <span className={styles.sidebarItemIcon}>
+                  <Icon iconName={item.icon} />
+                </span>
+                {!isCollapsed && (
+                  <span className={styles.sidebarItemLabel}>{item.label}</span>
+                )}
+              </a>
+            ))
+          ) : (
+            /* ── Standard hub navigation ─────────────── */
+            <>
+              {orderedItems
+                .filter((item) => item.key !== 'home')
+                .map((item) => (
+                  <a
+                    key={item.key}
+                    href={`#${item.key}`}
+                    className={`${styles.sidebarItem} ${item.key === activeHubKey ? styles.sidebarItemActive : ''}`}
+                    title={item.label}
+                    onClick={(e) => handleHubClick(e, item.key)}
+                    aria-current={item.key === activeHubKey ? 'page' : undefined}
+                  >
+                    <span className={styles.sidebarItemIcon}>
+                      <Icon iconName={item.icon} />
+                    </span>
+                    {!isCollapsed && (
+                      <span className={styles.sidebarItemLabel}>{item.label}</span>
+                    )}
+                  </a>
+                ))}
+            </>
+          )}
+
+          {/* Help Centre — always shown in standard mode, hidden in app mode */}
+          {!isAppMode && onOpenHelp && (
             <a
               className={`${styles.sidebarItem} ${styles.sidebarHelpItem}`}
               href="#help"

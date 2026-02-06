@@ -61,4 +61,6 @@ export interface IFunctionCard {
   openBehavior?: CardOpenBehavior;
   /** Whether to open in new tab */
   openInNewTab?: boolean;
+  /** When true, the app provides its own sidebar nav via postMessage bridge. */
+  providesSidebar?: boolean;
 }

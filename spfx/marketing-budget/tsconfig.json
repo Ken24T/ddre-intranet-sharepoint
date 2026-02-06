@@ -1,0 +1,29 @@
+{
+  "extends": "./node_modules/@microsoft/spfx-web-build-rig/profiles/default/tsconfig-base.json",
+
+  // Duplicate key settings so VS Code's TS language server works even when
+  // it cannot follow the rig's extends chain.  Heft ignores these because
+  // its own rig resolution wins; VS Code uses them as a fallback.
+  "compilerOptions": {
+    "target": "es5",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "jsx": "react",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "lib": [
+      "dom",
+      "es5",
+      "es2015.core",
+      "es2015.collection",
+      "es2015.iterable",
+      "es2015.promise",
+      "es2015.proxy"
+    ],
+    "types": ["heft-jest", "webpack-env"],
+    "outDir": "lib",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}
