@@ -339,3 +339,95 @@
   font-weight: 600;
   color: "[theme:neutralPrimary, default: #323130]";
 }
+
+/* ─────────────────────────────────────────────────────── */
+/* Reference Data – Detail Panels                          */
+/* ─────────────────────────────────────────────────────── */
+
+.refDetailPanel {
+  padding: 16px;
+  margin-top: 8px;
+  background-color: "[theme:neutralLighterAlt, default: #faf9f8]";
+  border: 1px solid "[theme:neutralLight, default: #edebe9]";
+  border-radius: 4px;
+}
+
+.refDetailTitle {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: "[theme:themePrimary, default: #001CAD]";
+  margin-bottom: 8px;
+}
+
+.refDetailMeta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: "[theme:neutralSecondary, default: #605e5c]";
+  font-size: 13px;
+  margin-bottom: 8px;
+
+  strong {
+    color: "[theme:neutralPrimary, default: #323130]";
+  }
+}
+
+.refItemList {
+  border: 1px solid "[theme:neutralLight, default: #edebe9]";
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.refItemRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-bottom: 1px solid "[theme:neutralLight, default: #edebe9]";
+  font-size: 13px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.refItemName {
+  flex: 2;
+  font-weight: 500;
+  color: "[theme:neutralPrimary, default: #323130]";
+}
+
+.refItemVariant {
+  flex: 2;
+  color: "[theme:neutralSecondary, default: #605e5c]";
+}
+
+.refItemPrice {
+  flex: 1;
+  text-align: right;
+  font-weight: 500;
+  color: "[theme:neutralPrimary, default: #323130]";
+}
+
+/* ─────────────────────────────────────────────────────── */
+/* Suburbs – Tier Summary Badges                           */
+/* ─────────────────────────────────────────────────────── */
+
+.tierSummary {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.tierBadge {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 12px;
+  border: 2px solid;
+  border-radius: 6px;
+  background-color: #fff;
+}

@@ -250,7 +250,9 @@ describe('MarketingBudget component', () => {
       const schedulesBtn = screen.getByRole('button', { name: /Schedules/i });
       fireEvent.click(schedulesBtn);
 
-      expect(screen.getByText('Schedule management coming soon')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/Budget templates that define default services/)).toBeInTheDocument();
+      });
     });
 
     it('switches to Services view when nav item clicked', async () => {
@@ -264,7 +266,9 @@ describe('MarketingBudget component', () => {
       const servicesBtn = screen.getByRole('button', { name: /Services/i });
       fireEvent.click(servicesBtn);
 
-      expect(screen.getByText('Service management coming soon')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/Marketing services and their variant pricing/)).toBeInTheDocument();
+      });
     });
 
     it('switches to Vendors view when nav item clicked', async () => {
@@ -278,7 +282,9 @@ describe('MarketingBudget component', () => {
       const vendorsBtn = screen.getByRole('button', { name: /Vendors/i });
       fireEvent.click(vendorsBtn);
 
-      expect(screen.getByText('Vendor management coming soon')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/External vendors who provide marketing services/)).toBeInTheDocument();
+      });
     });
 
     it('switches to Suburbs view when nav item clicked', async () => {
@@ -292,7 +298,9 @@ describe('MarketingBudget component', () => {
       const suburbsBtn = screen.getByRole('button', { name: /Suburbs/i });
       fireEvent.click(suburbsBtn);
 
-      expect(screen.getByText('Suburb management coming soon')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/Suburbs and their pricing tiers/)).toBeInTheDocument();
+      });
     });
   });
 
@@ -388,7 +396,7 @@ describe('MarketingBudget component', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Vendor management coming soon')).toBeInTheDocument();
+        expect(screen.getByText(/External vendors who provide marketing services/)).toBeInTheDocument();
       });
     });
   });
