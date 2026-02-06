@@ -13,6 +13,10 @@ export default defineConfig({
   },
   server: {
     port: 3028,
-    open: true,
+    open: false,
+    headers: {
+      // Allow iframe embedding from SPFx workbench
+      'X-Frame-Options': 'ALLOWALL',
+    },
   },
 });
