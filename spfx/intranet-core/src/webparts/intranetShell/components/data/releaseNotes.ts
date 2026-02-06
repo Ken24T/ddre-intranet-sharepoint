@@ -90,6 +90,37 @@ export const minorReleases: IMinorRelease[] = [
     summary: 'Major feature release including Help Centre, Tasks, AI Assistant, Audit Logging, and comprehensive theming support.',
     patches: [
       {
+        version: '0.5.42',
+        date: '2026-01-27',
+        title: 'Marketing Budget Tool',
+        items: [
+          {
+            id: 'item-0.5.42-1',
+            title: 'New Sales & Marketing budget planning tool',
+            category: 'feature',
+            description: 'Create and manage marketing budgets with service line items, vendor tracking, suburb tiers, and schedule templates.',
+          },
+          {
+            id: 'item-0.5.42-2',
+            title: 'Reference data views for services, vendors, suburbs, and schedules',
+            category: 'feature',
+            description: 'Browse and search the full catalogue of marketing services, vendors, delivery suburbs, and reusable schedule templates.',
+          },
+          {
+            id: 'item-0.5.42-3',
+            title: 'GST-inclusive pricing with automatic calculations',
+            category: 'feature',
+            description: 'All budget totals include 10% Australian GST with real-time subtotal, GST, and grand total display.',
+          },
+          {
+            id: 'item-0.5.42-4',
+            title: 'Offline-first storage with IndexedDB',
+            category: 'improvement',
+            description: 'Budget data persists locally in the browser via IndexedDB — no external API calls required.',
+          },
+        ],
+      },
+      {
         version: '0.5.40',
         date: '2026-01-22',
         title: 'Jasper AI Assistant & API Infrastructure',
