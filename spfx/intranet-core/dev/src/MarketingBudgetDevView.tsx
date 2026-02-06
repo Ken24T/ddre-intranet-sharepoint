@@ -27,6 +27,7 @@ export const MarketingBudgetDevView: React.FC = () => {
       isSharePointContext={false}
       repository={repository}
       shellBridgeOptions={{ forceActive: true }}
+      userRole="admin" // Change to 'editor' or 'viewer' to test role-gating
     />
   );
 };

@@ -426,8 +426,9 @@ describe("MarketingBudget component", () => {
       const repo = createMockRepository({ preSeeded: true });
       render(<MarketingBudget {...defaultProps} repository={repo} />);
 
+      // Header is hidden in embedded mode; wait for data status bar instead
       await waitFor(() => {
-        expect(screen.getByText("Marketing Budgets")).toBeInTheDocument();
+        expect(screen.getByText("2 vendors")).toBeInTheDocument();
       });
 
       // In embedded mode, there should be no sidebar nav buttons
@@ -440,8 +441,9 @@ describe("MarketingBudget component", () => {
       const repo = createMockRepository({ preSeeded: true });
       render(<MarketingBudget {...defaultProps} repository={repo} />);
 
+      // Header is hidden in embedded mode; wait for data status bar instead
       await waitFor(() => {
-        expect(screen.getByText("Marketing Budgets")).toBeInTheDocument();
+        expect(screen.getByText("2 vendors")).toBeInTheDocument();
       });
 
       // Simulate shell sending SIDEBAR_NAVIGATE message

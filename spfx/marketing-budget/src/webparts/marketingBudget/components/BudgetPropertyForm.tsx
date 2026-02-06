@@ -38,6 +38,8 @@ export interface IBudgetPropertyFormProps {
   onVendorIdChange: (value: number | null) => void;
   onClientNameChange: (value: string) => void;
   onAgentNameChange: (value: string) => void;
+  /** When true, all fields are disabled (read-only view). */
+  readOnly?: boolean;
 }
 
 export const BudgetPropertyForm: React.FC<IBudgetPropertyFormProps> = ({
@@ -59,6 +61,7 @@ export const BudgetPropertyForm: React.FC<IBudgetPropertyFormProps> = ({
   onVendorIdChange,
   onClientNameChange,
   onAgentNameChange,
+  readOnly,
 }) => (
   <>
     <TextField
@@ -67,6 +70,7 @@ export const BudgetPropertyForm: React.FC<IBudgetPropertyFormProps> = ({
       onChange={(_, val): void => onAddressChange(val ?? "")}
       required
       placeholder="e.g. 42 Jubilee Terrace, Bardon QLD 4065"
+      readOnly={readOnly}
     />
 
     <div className={styles.formRow}>
@@ -78,6 +82,7 @@ export const BudgetPropertyForm: React.FC<IBudgetPropertyFormProps> = ({
           onChange={(_, opt): void =>
             onPropertyTypeChange((opt?.key ?? "house") as PropertyType)
           }
+          disabled={readOnly}
         />
       </div>
       <div className={styles.formField}>
@@ -88,6 +93,7 @@ export const BudgetPropertyForm: React.FC<IBudgetPropertyFormProps> = ({
           onChange={(_, opt): void =>
             onPropertySizeChange((opt?.key ?? "medium") as PropertySize)
           }
+          disabled={readOnly}
         />
       </div>
       <div className={styles.formField}>
@@ -98,6 +104,7 @@ export const BudgetPropertyForm: React.FC<IBudgetPropertyFormProps> = ({
           onChange={(_, opt): void =>
             onTierChange((opt?.key ?? "standard") as BudgetTier)
           }
+          disabled={readOnly}
         />
       </div>
     </div>
@@ -113,6 +120,7 @@ export const BudgetPropertyForm: React.FC<IBudgetPropertyFormProps> = ({
             onSuburbIdChange(id || null);
           }}
           placeholder="Select suburb…"
+          disabled={readOnly}
         />
       </div>
       <div className={styles.formField}>
@@ -125,6 +133,7 @@ export const BudgetPropertyForm: React.FC<IBudgetPropertyFormProps> = ({
             onVendorIdChange(id || null);
           }}
           placeholder="Select vendor…"
+          disabled={readOnly}
         />
       </div>
     </div>
@@ -136,6 +145,7 @@ export const BudgetPropertyForm: React.FC<IBudgetPropertyFormProps> = ({
           value={clientName}
           onChange={(_, val): void => onClientNameChange(val ?? "")}
           placeholder="Property owner name"
+          readOnly={readOnly}
         />
       </div>
       <div className={styles.formField}>
@@ -144,6 +154,7 @@ export const BudgetPropertyForm: React.FC<IBudgetPropertyFormProps> = ({
           value={agentName}
           onChange={(_, val): void => onAgentNameChange(val ?? "")}
           placeholder="Listing agent"
+          readOnly={readOnly}
         />
       </div>
     </div>

@@ -28,12 +28,15 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
   }
 
   public render(): void {
+    // Phase B: resolve userRole from Entra ID / SharePoint group membership.
+    // For now, default to 'editor' so the web part is usable in production.
     const element: React.ReactElement<IMarketingBudgetProps> =
       React.createElement(MarketingBudget, {
         userDisplayName: this.context.pageContext.user.displayName,
         isDarkTheme: this._isDarkTheme,
         isSharePointContext: true,
         repository: this._repository,
+        userRole: 'editor',
       });
 
     ReactDom.render(element, this.domElement);

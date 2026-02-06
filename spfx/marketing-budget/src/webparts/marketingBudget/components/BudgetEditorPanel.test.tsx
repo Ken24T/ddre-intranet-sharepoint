@@ -2,7 +2,7 @@
  * Unit tests for BudgetEditorPanel component.
  *
  * Verifies: panel open/close, form fields, schedule application,
- * save flow, and status transitions.
+ * save flow, status transitions, and role-based access control.
  */
 
 import * as React from "react";
@@ -18,6 +18,7 @@ import type {
   Schedule,
   DataExport,
 } from "../../../models/types";
+// UserRole type used implicitly via string literal props ("viewer" | "editor" | "admin")
 
 // ─── Mock data ──────────────────────────────────────────────
 
@@ -121,6 +122,7 @@ describe("BudgetEditorPanel", () => {
         isOpen={true}
         onDismiss={jest.fn()}
         onSaved={jest.fn()}
+        userRole="admin"
       />,
     );
 
@@ -137,6 +139,7 @@ describe("BudgetEditorPanel", () => {
         isOpen={true}
         onDismiss={jest.fn()}
         onSaved={jest.fn()}
+        userRole="admin"
       />,
     );
 
@@ -156,6 +159,7 @@ describe("BudgetEditorPanel", () => {
         isOpen={true}
         onDismiss={jest.fn()}
         onSaved={jest.fn()}
+        userRole="admin"
       />,
     );
 
@@ -177,6 +181,7 @@ describe("BudgetEditorPanel", () => {
         isOpen={true}
         onDismiss={jest.fn()}
         onSaved={jest.fn()}
+        userRole="admin"
       />,
     );
 
@@ -193,6 +198,7 @@ describe("BudgetEditorPanel", () => {
         isOpen={true}
         onDismiss={jest.fn()}
         onSaved={jest.fn()}
+        userRole="admin"
       />,
     );
 
@@ -209,6 +215,7 @@ describe("BudgetEditorPanel", () => {
         isOpen={true}
         onDismiss={jest.fn()}
         onSaved={jest.fn()}
+        userRole="admin"
       />,
     );
 
@@ -241,6 +248,7 @@ describe("BudgetEditorPanel", () => {
         isOpen={true}
         onDismiss={jest.fn()}
         onSaved={jest.fn()}
+        userRole="admin"
       />,
     );
 
@@ -273,6 +281,7 @@ describe("BudgetEditorPanel", () => {
         isOpen={true}
         onDismiss={jest.fn()}
         onSaved={jest.fn()}
+        userRole="admin"
       />,
     );
 
@@ -297,6 +306,7 @@ describe("BudgetEditorPanel", () => {
         isOpen={true}
         onDismiss={jest.fn()}
         onSaved={onSaved}
+        userRole="admin"
       />,
     );
 
@@ -332,10 +342,290 @@ describe("BudgetEditorPanel", () => {
         isOpen={false}
         onDismiss={jest.fn()}
         onSaved={jest.fn()}
+        userRole="admin"
       />,
     );
 
     // Panel should not render content when closed
     expect(container.querySelector('[class*="ms-Panel"]')).toBeNull();
+  });
+
+  // ─── Role-based access control ──────────────────────────
+
+  describe("viewer role", () => {
+    it("does not show Create Budget button", async () => {
+      const repo = createMockRepository();
+      render(
+        <BudgetEditorPanel
+          repository={repo}
+          isOpen={true}
+          onDismiss={jest.fn()}
+          onSaved={jest.fn()}
+          userRole="viewer"
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Property Details")).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText("Create Budget")).not.toBeInTheDocument();
+    });
+
+    it("shows Close button instead of Cancel", async () => {
+      const repo = createMockRepository();
+      render(
+        <BudgetEditorPanel
+          repository={repo}
+          isOpen={true}
+          onDismiss={jest.fn()}
+          onSaved={jest.fn()}
+          userRole="viewer"
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Close")).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText("Cancel")).not.toBeInTheDocument();
+    });
+
+    it("does not show transition buttons for existing budget", async () => {
+      const repo = createMockRepository();
+      const existingBudget: Budget = {
+        id: 42,
+        propertyAddress: "123 Test St",
+        propertyType: "house",
+        propertySize: "medium",
+        tier: "standard",
+        suburbId: 1,
+        vendorId: 1,
+        scheduleId: 1,
+        lineItems: [],
+        status: "draft",
+        createdAt: "2024-01-01T00:00:00Z",
+        updatedAt: "2024-01-01T00:00:00Z",
+      };
+
+      render(
+        <BudgetEditorPanel
+          budget={existingBudget}
+          repository={repo}
+          isOpen={true}
+          onDismiss={jest.fn()}
+          onSaved={jest.fn()}
+          userRole="viewer"
+        />,
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByText((_content, element) => {
+            return element?.textContent === "Status: Draft";
+          }),
+        ).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText("Mark as Approved")).not.toBeInTheDocument();
+      expect(screen.queryByText("Save Changes")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("editor role", () => {
+    it("shows Create Budget button for new budget", async () => {
+      const repo = createMockRepository();
+      render(
+        <BudgetEditorPanel
+          repository={repo}
+          isOpen={true}
+          onDismiss={jest.fn()}
+          onSaved={jest.fn()}
+          userRole="editor"
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Create Budget")).toBeInTheDocument();
+      });
+    });
+
+    it("shows Save Changes for draft budget", async () => {
+      const repo = createMockRepository();
+      const draftBudget: Budget = {
+        id: 42,
+        propertyAddress: "123 Test St",
+        propertyType: "house",
+        propertySize: "medium",
+        tier: "standard",
+        suburbId: 1,
+        vendorId: 1,
+        scheduleId: 1,
+        lineItems: [],
+        status: "draft",
+        createdAt: "2024-01-01T00:00:00Z",
+        updatedAt: "2024-01-01T00:00:00Z",
+      };
+
+      render(
+        <BudgetEditorPanel
+          budget={draftBudget}
+          repository={repo}
+          isOpen={true}
+          onDismiss={jest.fn()}
+          onSaved={jest.fn()}
+          userRole="editor"
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Save Changes")).toBeInTheDocument();
+      });
+    });
+
+    it("does not show Save Changes for approved budget", async () => {
+      const repo = createMockRepository();
+      const approvedBudget: Budget = {
+        id: 42,
+        propertyAddress: "123 Test St",
+        propertyType: "house",
+        propertySize: "medium",
+        tier: "standard",
+        suburbId: 1,
+        vendorId: 1,
+        scheduleId: 1,
+        lineItems: [],
+        status: "approved",
+        createdAt: "2024-01-01T00:00:00Z",
+        updatedAt: "2024-01-01T00:00:00Z",
+      };
+
+      render(
+        <BudgetEditorPanel
+          budget={approvedBudget}
+          repository={repo}
+          isOpen={true}
+          onDismiss={jest.fn()}
+          onSaved={jest.fn()}
+          userRole="editor"
+        />,
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByText((_content, element) => {
+            return element?.textContent === "Status: Approved";
+          }),
+        ).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText("Save Changes")).not.toBeInTheDocument();
+      expect(screen.getByText("Close")).toBeInTheDocument();
+    });
+
+    it("does not show transition buttons", async () => {
+      const repo = createMockRepository();
+      const draftBudget: Budget = {
+        id: 42,
+        propertyAddress: "123 Test St",
+        propertyType: "house",
+        propertySize: "medium",
+        tier: "standard",
+        suburbId: 1,
+        vendorId: 1,
+        scheduleId: 1,
+        lineItems: [],
+        status: "draft",
+        createdAt: "2024-01-01T00:00:00Z",
+        updatedAt: "2024-01-01T00:00:00Z",
+      };
+
+      render(
+        <BudgetEditorPanel
+          budget={draftBudget}
+          repository={repo}
+          isOpen={true}
+          onDismiss={jest.fn()}
+          onSaved={jest.fn()}
+          userRole="editor"
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Save Changes")).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText("Mark as Approved")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("admin role", () => {
+    it("shows Save Changes for approved budget", async () => {
+      const repo = createMockRepository();
+      const approvedBudget: Budget = {
+        id: 42,
+        propertyAddress: "123 Test St",
+        propertyType: "house",
+        propertySize: "medium",
+        tier: "standard",
+        suburbId: 1,
+        vendorId: 1,
+        scheduleId: 1,
+        lineItems: [],
+        status: "approved",
+        createdAt: "2024-01-01T00:00:00Z",
+        updatedAt: "2024-01-01T00:00:00Z",
+      };
+
+      render(
+        <BudgetEditorPanel
+          budget={approvedBudget}
+          repository={repo}
+          isOpen={true}
+          onDismiss={jest.fn()}
+          onSaved={jest.fn()}
+          userRole="admin"
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Save Changes")).toBeInTheDocument();
+      });
+
+      expect(screen.getByText("Mark as Sent")).toBeInTheDocument();
+    });
+
+    it("shows transition buttons for existing draft", async () => {
+      const repo = createMockRepository();
+      const draftBudget: Budget = {
+        id: 42,
+        propertyAddress: "123 Test St",
+        propertyType: "house",
+        propertySize: "medium",
+        tier: "standard",
+        suburbId: 1,
+        vendorId: 1,
+        scheduleId: 1,
+        lineItems: [],
+        status: "draft",
+        createdAt: "2024-01-01T00:00:00Z",
+        updatedAt: "2024-01-01T00:00:00Z",
+      };
+
+      render(
+        <BudgetEditorPanel
+          budget={draftBudget}
+          repository={repo}
+          isOpen={true}
+          onDismiss={jest.fn()}
+          onSaved={jest.fn()}
+          userRole="admin"
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Mark as Approved")).toBeInTheDocument();
+      });
+    });
   });
 });

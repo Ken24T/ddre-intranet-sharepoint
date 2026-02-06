@@ -42,6 +42,7 @@ export const App: React.FC = () => {
         isDarkTheme={false}
         isSharePointContext={false}
         repository={repository}
+        userRole="admin" // Change to 'editor' or 'viewer' to test role-gating
       />
     </ThemeProvider>
   );

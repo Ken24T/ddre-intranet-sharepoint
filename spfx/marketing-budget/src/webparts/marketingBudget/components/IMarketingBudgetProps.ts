@@ -3,6 +3,7 @@
  */
 
 import type { IBudgetRepository } from "../../../services/IBudgetRepository";
+import type { UserRole } from "../../../models/permissions";
 
 export interface IMarketingBudgetProps {
   /** User's display name from SharePoint context. */
@@ -13,6 +14,8 @@ export interface IMarketingBudgetProps {
   isSharePointContext: boolean;
   /** Repository instance for data operations. */
   repository: IBudgetRepository;
+  /** User's role — determines what actions are available. Defaults to 'viewer'. */
+  userRole?: UserRole;
   /**
    * Options forwarded to useShellBridge.
    * Pass `{ forceActive: true }` when rendering inline in the shell's

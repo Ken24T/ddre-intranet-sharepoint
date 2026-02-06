@@ -56,7 +56,7 @@ interface DataCounts {
  * mode (Vite dev harness or new tab), it renders its own sidebar.
  */
 const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
-  const { userDisplayName, repository, shellBridgeOptions } = props;
+  const { userDisplayName, repository, shellBridgeOptions, userRole = 'viewer' } = props;
   const [counts, setCounts] = React.useState<DataCounts | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSeeding, setIsSeeding] = React.useState(false);
@@ -154,7 +154,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const renderActiveView = (): React.ReactNode => {
     switch (activeView) {
       case "budgets":
-        return <BudgetListView repository={repository} />;
+        return <BudgetListView repository={repository} userRole={userRole} />;
       case "schedules":
         return <SchedulesView repository={repository} />;
       case "services":
@@ -164,7 +164,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
       case "suburbs":
         return <SuburbsView repository={repository} />;
       default:
-        return <BudgetListView repository={repository} />;
+        return <BudgetListView repository={repository} userRole={userRole} />;
     }
   };
 
@@ -190,14 +190,17 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
 
   const renderMainContent = (): React.ReactNode => (
     <>
-      <div className={styles.header}>
-        <div>
-          <Text className={styles.title}>Marketing Budgets</Text>
-          <Text className={styles.subtitle}>
-            G&apos;day {userDisplayName} — manage property marketing budgets
-          </Text>
+      {/* Header is only shown in standalone mode; the shell provides its own. */}
+      {!isEmbedded && (
+        <div className={styles.header}>
+          <div>
+            <Text className={styles.title}>Marketing Budgets</Text>
+            <Text className={styles.subtitle}>
+              G&apos;day {userDisplayName} — manage property marketing budgets
+            </Text>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Error bar */}
       {error && (

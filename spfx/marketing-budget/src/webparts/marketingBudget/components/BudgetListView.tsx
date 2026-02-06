@@ -8,27 +8,45 @@
 
 import * as React from "react";
 import {
+  Callout,
+  DefaultButton,
   DetailsList,
   DetailsListLayoutMode,
-  SelectionMode,
+  Dialog,
+  DialogFooter,
+  DialogType,
+  DirectionalHint,
   Dropdown,
-  PrimaryButton,
-  SearchBox,
-  Text,
-  Icon,
+  IconButton,
   MessageBar,
   MessageBarType,
+  PrimaryButton,
+  SearchBox,
+  SelectionMode,
   Spinner,
   SpinnerSize,
+  Text,
+  Icon,
 } from "@fluentui/react";
-import type { IColumn, IDropdownOption } from "@fluentui/react";
+import type { IColumn, IDropdownOption, IContextualMenuProps, IContextualMenuItem } from "@fluentui/react";
 import type { Budget, BudgetStatus } from "../../../models/types";
+import type { UserRole } from "../../../models/permissions";
+import {
+  canCreateBudget,
+  canDeleteBudget,
+  canDuplicateBudget,
+  canEditBudget,
+  canTransitionBudget,
+} from "../../../models/permissions";
+import { calculateBudgetSummary } from "../../../models/budgetCalculations";
+import { statusTransitions } from "./budgetEditorConstants";
 import type { IBudgetRepository } from "../../../services/IBudgetRepository";
 import { BudgetEditorPanel } from "./BudgetEditorPanel";
 import styles from "./MarketingBudget.module.scss";
 
 export interface IBudgetListViewProps {
   repository: IBudgetRepository;
+  userRole: UserRole;
 }
 
 /** Column-friendly row shape. */
@@ -52,8 +70,160 @@ const statusOptions: IDropdownOption[] = [
   { key: "archived", text: "Archived" },
 ];
 
+/** Maps budget status to a human-readable label. */
+const statusLabels: Record<BudgetStatus, string> = {
+  draft: "Draft",
+  approved: "Approved",
+  sent: "Sent",
+  archived: "Archived",
+};
+
+/** Maps budget status to the matching SCSS class suffix. */
+const statusStyleMap: Record<BudgetStatus, string> = {
+  draft: styles.statusDraft,
+  approved: styles.statusApproved,
+  sent: styles.statusSent,
+  archived: styles.statusArchived,
+};
+
+/** Maps budget status to an icon name. */
+const statusIconMap: Record<BudgetStatus, string> = {
+  draft: "Edit",
+  approved: "CheckMark",
+  sent: "Mail",
+  archived: "Archive",
+};
+
+/** Format a currency value in AUD. */
+const formatCurrency = (value: number): string =>
+  new Intl.NumberFormat("en-AU", {
+    style: "currency",
+    currency: "AUD",
+    minimumFractionDigits: 2,
+  }).format(value);
+
+// ─── Budget Address Cell with hover Callout ──────────────
+
+interface IBudgetAddressCellProps {
+  budget: Budget;
+}
+
+const BudgetAddressCell: React.FC<IBudgetAddressCellProps> = ({ budget }) => {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const cellRef = React.useRef<HTMLDivElement>(null);
+  const timerRef = React.useRef<number | undefined>(undefined);
+
+  const handleMouseEnter = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(true), 350);
+  }, []);
+
+  const handleMouseLeave = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(false), 200);
+  }, []);
+
+  // Clean up timer on unmount
+  React.useEffect(() => (): void => window.clearTimeout(timerRef.current), []);
+
+  const summary = React.useMemo(
+    () => calculateBudgetSummary(budget.lineItems),
+    [budget.lineItems],
+  );
+
+  const statusClass = statusStyleMap[budget.status] ?? "";
+  const statusIcon = statusIconMap[budget.status] ?? "Info";
+  const statusLabel = statusLabels[budget.status] ?? budget.status;
+
+  const createdDate = new Date(budget.createdAt);
+  const formattedDate = createdDate.toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  return (
+    <>
+      <div
+        ref={cellRef}
+        className={styles.budgetRowAddress}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {budget.propertyAddress}
+      </div>
+      {isVisible && cellRef.current && (
+        <Callout
+          target={cellRef.current}
+          directionalHint={DirectionalHint.bottomLeftEdge}
+          gapSpace={8}
+          isBeakVisible={true}
+          beakWidth={12}
+          onMouseEnter={(): void => {
+            window.clearTimeout(timerRef.current);
+          }}
+          onMouseLeave={handleMouseLeave}
+          onDismiss={(): void => setIsVisible(false)}
+          setInitialFocus={false}
+          className={styles.budgetCallout}
+        >
+          <div className={styles.budgetCalloutContent}>
+            <div className={`${styles.budgetCalloutHeader} ${statusClass}`}>
+              <Icon iconName={statusIcon} />
+              <span>{statusLabel}</span>
+            </div>
+            <div className={styles.budgetCalloutBody}>
+              <p className={styles.budgetCalloutAddress}>
+                {budget.propertyAddress}
+              </p>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="Home" className={styles.budgetCalloutMetaIcon} />
+                <span>
+                  {budget.propertyType.charAt(0).toUpperCase() +
+                    budget.propertyType.slice(1)}{" "}
+                  &middot; {budget.propertySize} &middot; {budget.tier}
+                </span>
+              </div>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="NumberedList" className={styles.budgetCalloutMetaIcon} />
+                <span>
+                  {summary.selectedCount} of {summary.totalCount} line items
+                  selected
+                </span>
+              </div>
+              {budget.agentName && (
+                <div className={styles.budgetCalloutMeta}>
+                  <Icon iconName="Contact" className={styles.budgetCalloutMetaIcon} />
+                  <span>{budget.agentName}</span>
+                </div>
+              )}
+              {budget.clientName && (
+                <div className={styles.budgetCalloutMeta}>
+                  <Icon iconName="People" className={styles.budgetCalloutMetaIcon} />
+                  <span>{budget.clientName}</span>
+                </div>
+              )}
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="Calendar" className={styles.budgetCalloutMetaIcon} />
+                <span>Created {formattedDate}</span>
+              </div>
+            </div>
+            <div className={styles.budgetCalloutTotals}>
+              <span className={styles.budgetCalloutTotalLabel}>Total (incl. GST)</span>
+              <span className={styles.budgetCalloutTotalValue}>
+                {formatCurrency(summary.total)}
+              </span>
+            </div>
+          </div>
+        </Callout>
+      )}
+    </>
+  );
+};
+
 export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   repository,
+  userRole,
 }) => {
   const [budgets, setBudgets] = React.useState<Budget[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -66,6 +236,10 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   const [editBudget, setEditBudget] = React.useState<Budget | undefined>(
     undefined,
   );
+
+  // Delete confirmation state
+  const [pendingDeleteBudget, setPendingDeleteBudget] = React.useState<Budget | undefined>(undefined);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const loadBudgets = React.useCallback(
     async (signal: { cancelled: boolean }): Promise<void> => {
@@ -101,61 +275,257 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
     };
   }, [loadBudgets]);
 
+  // ─── Delete handlers ───────────────────────────────────
+
+  const handleDeleteClick = React.useCallback((budget: Budget): void => {
+    setPendingDeleteBudget(budget);
+  }, []);
+
+  const handleDeleteCancel = React.useCallback((): void => {
+    setPendingDeleteBudget(undefined);
+  }, []);
+
+  const handleDeleteConfirm = React.useCallback(async (): Promise<void> => {
+    if (!pendingDeleteBudget?.id) return;
+    setIsDeleting(true);
+    try {
+      await repository.deleteBudget(pendingDeleteBudget.id);
+      setPendingDeleteBudget(undefined);
+      loadBudgets({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete budget");
+      setPendingDeleteBudget(undefined);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [pendingDeleteBudget, repository, loadBudgets]);
+
+  // ─── Duplicate handler ─────────────────────────────────
+
+  const handleDuplicate = React.useCallback(
+    async (budget: Budget): Promise<void> => {
+      try {
+        const duplicate: Budget = {
+          ...budget,
+          id: undefined as unknown as number,
+          propertyAddress: `${budget.propertyAddress} (copy)`,
+          status: "draft" as const,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        const saved = await repository.saveBudget(duplicate);
+        // Open the duplicate in the editor
+        setEditBudget(saved);
+        setIsEditorOpen(true);
+        loadBudgets({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to duplicate budget",
+        );
+      }
+    },
+    [repository, loadBudgets],
+  );
+
+  // ─── Quick status transition handler ───────────────────
+
+  const handleQuickTransition = React.useCallback(
+    async (budget: Budget, newStatus: BudgetStatus): Promise<void> => {
+      try {
+        await repository.saveBudget({
+          ...budget,
+          status: newStatus,
+          updatedAt: new Date().toISOString(),
+        });
+        loadBudgets({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to update status",
+        );
+      }
+    },
+    [repository, loadBudgets],
+  );
+
+  // ─── Permission flags ──────────────────────────────────
+
+  const showCreate = canCreateBudget(userRole);
+
+  // ─── Row context menu builder ──────────────────────────
+
+  /** Build role- and status-aware menu items for a budget row. */
+  const getRowMenuItems = React.useCallback(
+    (budget: Budget): IContextualMenuItem[] => {
+      const items: IContextualMenuItem[] = [];
+
+      // Edit — only when the user can edit this budget's status
+      if (canEditBudget(userRole, budget.status)) {
+        items.push({
+          key: "edit",
+          text: "Edit",
+          iconProps: { iconName: "Edit" },
+          onClick: (): void => {
+            setEditBudget(budget);
+            setIsEditorOpen(true);
+          },
+        });
+      }
+
+      // Duplicate — editor + admin
+      if (canDuplicateBudget(userRole)) {
+        items.push({
+          key: "duplicate",
+          text: "Duplicate",
+          iconProps: { iconName: "Copy" },
+          onClick: (): void => {
+            handleDuplicate(budget); // eslint-disable-line @typescript-eslint/no-floating-promises
+          },
+        });
+      }
+
+      // Status transitions — admin only
+      if (canTransitionBudget(userRole)) {
+        const transitions = statusTransitions[budget.status] ?? [];
+        if (transitions.length > 0 && items.length > 0) {
+          items.push({ key: "divider-status", text: "-", itemType: 1 }); // ContextualMenuItemType.Divider = 1
+        }
+        for (const nextStatus of transitions) {
+          const label =
+            nextStatus === "draft"
+              ? "Revert to Draft"
+              : nextStatus === "archived"
+                ? "Archive"
+                : `Mark as ${nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1)}`;
+          items.push({
+            key: `transition-${nextStatus}`,
+            text: label,
+            iconProps: {
+              iconName:
+                nextStatus === "approved"
+                  ? "CheckMark"
+                  : nextStatus === "sent"
+                    ? "Mail"
+                    : nextStatus === "archived"
+                      ? "Archive"
+                      : "Undo",
+            },
+            onClick: (): void => {
+              handleQuickTransition(budget, nextStatus); // eslint-disable-line @typescript-eslint/no-floating-promises
+            },
+          });
+        }
+      }
+
+      // Delete — editor + admin
+      if (canDeleteBudget(userRole)) {
+        if (items.length > 0) {
+          items.push({ key: "divider-delete", text: "-", itemType: 1 });
+        }
+        items.push({
+          key: "delete",
+          text: "Delete",
+          iconProps: { iconName: "Delete", style: { color: "#a4262c" } },
+          style: { color: "#a4262c" },
+          onClick: (): void => {
+            handleDeleteClick(budget);
+          },
+        });
+      }
+
+      return items;
+    },
+    [userRole, handleDeleteClick, handleDuplicate, handleQuickTransition],
+  );
+
+  // ─── Column definitions ────────────────────────────────
+
+  /** Whether the current role has any row-level actions at all. */
+  const hasRowActions = userRole !== "viewer";
+
   const columns: IColumn[] = React.useMemo(
-    (): IColumn[] => [
-      {
-        key: "address",
-        name: "Property Address",
-        fieldName: "propertyAddress",
-        minWidth: 180,
-        maxWidth: 300,
-        isResizable: true,
-      },
-      {
-        key: "type",
-        name: "Type",
-        fieldName: "propertyType",
-        minWidth: 80,
-        maxWidth: 120,
-        isResizable: true,
-      },
-      {
-        key: "status",
-        name: "Status",
-        fieldName: "status",
-        minWidth: 80,
-        maxWidth: 100,
-        isResizable: true,
-        onRender: (item: IBudgetRow): JSX.Element => (
-          <Text
-            variant="small"
-            style={{
-              textTransform: "capitalize",
-              fontWeight: item.status === "draft" ? 400 : 600,
-            }}
-          >
-            {item.status}
-          </Text>
-        ),
-      },
-      {
-        key: "lineItems",
-        name: "Items",
-        fieldName: "lineItemCount",
-        minWidth: 50,
-        maxWidth: 70,
-        isResizable: true,
-      },
-      {
-        key: "created",
-        name: "Created",
-        fieldName: "createdAt",
-        minWidth: 100,
-        maxWidth: 140,
-        isResizable: true,
-      },
-    ],
-    [],
+    (): IColumn[] => {
+      const cols: IColumn[] = [
+        {
+          key: "address",
+          name: "Property Address",
+          fieldName: "propertyAddress",
+          minWidth: 180,
+          maxWidth: 300,
+          isResizable: true,
+          onRender: (item: IBudgetRow): JSX.Element => (
+            <BudgetAddressCell budget={item._budget} />
+          ),
+        },
+        {
+          key: "type",
+          name: "Type",
+          fieldName: "propertyType",
+          minWidth: 80,
+          maxWidth: 120,
+          isResizable: true,
+        },
+        {
+          key: "status",
+          name: "Status",
+          fieldName: "status",
+          minWidth: 80,
+          maxWidth: 100,
+          isResizable: true,
+          onRender: (item: IBudgetRow): JSX.Element => (
+            <Text
+              variant="small"
+              style={{
+                textTransform: "capitalize",
+                fontWeight: item.status === "draft" ? 400 : 600,
+              }}
+            >
+              {item.status}
+            </Text>
+          ),
+        },
+        {
+          key: "lineItems",
+          name: "Items",
+          fieldName: "lineItemCount",
+          minWidth: 50,
+          maxWidth: 70,
+          isResizable: true,
+        },
+        {
+          key: "created",
+          name: "Created",
+          fieldName: "createdAt",
+          minWidth: 100,
+          maxWidth: 140,
+          isResizable: true,
+        },
+      ];
+
+      if (hasRowActions) {
+        cols.push({
+          key: "actions",
+          name: "",
+          minWidth: 40,
+          maxWidth: 40,
+          onRender: (item: IBudgetRow): JSX.Element => {
+            const menuItems = getRowMenuItems(item._budget);
+            if (menuItems.length === 0) return <></>;
+            const menuProps: IContextualMenuProps = { items: menuItems };
+            return (
+              <IconButton
+                menuIconProps={{ iconName: "More" }}
+                menuProps={menuProps}
+                title="Actions"
+                ariaLabel={`Actions for ${item.propertyAddress}`}
+              />
+            );
+          },
+        });
+      }
+
+      return cols;
+    },
+    [hasRowActions, getRowMenuItems],
   );
 
   const rows: IBudgetRow[] = React.useMemo(
@@ -176,12 +546,6 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   /** Open editor for a new budget. */
   const handleNewBudget = React.useCallback((): void => {
     setEditBudget(undefined);
-    setIsEditorOpen(true);
-  }, []);
-
-  /** Open editor for an existing budget. */
-  const handleRowClick = React.useCallback((item: IBudgetRow): void => {
-    setEditBudget(item._budget);
     setIsEditorOpen(true);
   }, []);
 
@@ -235,11 +599,13 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
           }
           className={styles.filterDropdown}
         />
-        <PrimaryButton
-          text="New Budget"
-          iconProps={{ iconName: "Add" }}
-          onClick={handleNewBudget}
-        />
+        {showCreate && (
+          <PrimaryButton
+            text="New Budget"
+            iconProps={{ iconName: "Add" }}
+            onClick={handleNewBudget}
+          />
+        )}
       </div>
 
       {isLoading ? (
@@ -265,9 +631,6 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
           layoutMode={DetailsListLayoutMode.justified}
           selectionMode={SelectionMode.none}
           isHeaderVisible={true}
-          onActiveItemChanged={(item): void =>
-            handleRowClick(item as IBudgetRow)
-          }
         />
       )}
 
@@ -278,7 +641,36 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
         isOpen={isEditorOpen}
         onDismiss={handleEditorDismiss}
         onSaved={handleEditorSaved}
+        userRole={userRole}
       />
+
+      {/* Delete confirmation dialog */}
+      <Dialog
+        hidden={!pendingDeleteBudget}
+        onDismiss={handleDeleteCancel}
+        dialogContentProps={{
+          type: DialogType.normal,
+          title: "Delete budget",
+          subText: pendingDeleteBudget
+            ? `Are you sure you want to delete the budget for "${pendingDeleteBudget.propertyAddress}"? This action cannot be undone.`
+            : "",
+        }}
+        modalProps={{ isBlocking: true }}
+      >
+        <DialogFooter>
+          <PrimaryButton
+            text={isDeleting ? "Deleting…" : "Delete"}
+            onClick={handleDeleteConfirm} // eslint-disable-line @typescript-eslint/no-floating-promises
+            disabled={isDeleting}
+            style={{ backgroundColor: "#a4262c", borderColor: "#a4262c" }}
+          />
+          <DefaultButton
+            text="Cancel"
+            onClick={handleDeleteCancel}
+            disabled={isDeleting}
+          />
+        </DialogFooter>
+      </Dialog>
     </div>
   );
 };
