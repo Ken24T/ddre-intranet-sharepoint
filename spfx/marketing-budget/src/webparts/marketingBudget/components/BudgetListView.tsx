@@ -1,8 +1,9 @@
 /**
  * BudgetListView — Displays all budgets in a filterable list.
  *
- * Shows a summary card for each budget with address, status, and totals.
- * Supports filtering by status and a text search.
+ * Shows a summary row for each budget with address, status, and line item count.
+ * Supports filtering by status and text search.
+ * Includes "New Budget" button and click-to-edit via BudgetEditorPanel.
  */
 
 import * as React from 'react';
@@ -11,6 +12,7 @@ import {
   DetailsListLayoutMode,
   SelectionMode,
   Dropdown,
+  PrimaryButton,
   SearchBox,
   Text,
   Icon,
@@ -22,6 +24,7 @@ import {
 import type { IColumn, IDropdownOption } from '@fluentui/react';
 import type { Budget, BudgetStatus } from '../../../models/types';
 import type { IBudgetRepository } from '../../../services/IBudgetRepository';
+import { BudgetEditorPanel } from './BudgetEditorPanel';
 import styles from './MarketingBudget.module.scss';
 
 export interface IBudgetListViewProps {
@@ -37,6 +40,8 @@ interface IBudgetRow {
   status: BudgetStatus;
   lineItemCount: number;
   createdAt: string;
+  /** The original budget for editing. */
+  _budget: Budget;
 }
 
 const statusOptions: IDropdownOption[] = [
@@ -47,55 +52,16 @@ const statusOptions: IDropdownOption[] = [
   { key: 'archived', text: 'Archived' },
 ];
 
-const columns: IColumn[] = [
-  {
-    key: 'address',
-    name: 'Property Address',
-    fieldName: 'propertyAddress',
-    minWidth: 180,
-    maxWidth: 300,
-    isResizable: true,
-  },
-  {
-    key: 'type',
-    name: 'Type',
-    fieldName: 'propertyType',
-    minWidth: 80,
-    maxWidth: 120,
-    isResizable: true,
-  },
-  {
-    key: 'status',
-    name: 'Status',
-    fieldName: 'status',
-    minWidth: 80,
-    maxWidth: 100,
-    isResizable: true,
-  },
-  {
-    key: 'lineItems',
-    name: 'Items',
-    fieldName: 'lineItemCount',
-    minWidth: 50,
-    maxWidth: 70,
-    isResizable: true,
-  },
-  {
-    key: 'created',
-    name: 'Created',
-    fieldName: 'createdAt',
-    minWidth: 100,
-    maxWidth: 140,
-    isResizable: true,
-  },
-];
-
 export const BudgetListView: React.FC<IBudgetListViewProps> = ({ repository }) => {
   const [budgets, setBudgets] = React.useState<Budget[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [statusFilter, setStatusFilter] = React.useState<string>('all');
   const [searchText, setSearchText] = React.useState('');
+
+  // Editor panel state
+  const [isEditorOpen, setIsEditorOpen] = React.useState(false);
+  const [editBudget, setEditBudget] = React.useState<Budget | undefined>(undefined);
 
   const loadBudgets = React.useCallback(async (): Promise<void> => {
     setIsLoading(true);
@@ -121,6 +87,63 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({ repository }) =
     loadBudgets(); // eslint-disable-line @typescript-eslint/no-floating-promises
   }, [loadBudgets]);
 
+  const columns: IColumn[] = React.useMemo(
+    (): IColumn[] => [
+      {
+        key: 'address',
+        name: 'Property Address',
+        fieldName: 'propertyAddress',
+        minWidth: 180,
+        maxWidth: 300,
+        isResizable: true,
+      },
+      {
+        key: 'type',
+        name: 'Type',
+        fieldName: 'propertyType',
+        minWidth: 80,
+        maxWidth: 120,
+        isResizable: true,
+      },
+      {
+        key: 'status',
+        name: 'Status',
+        fieldName: 'status',
+        minWidth: 80,
+        maxWidth: 100,
+        isResizable: true,
+        onRender: (item: IBudgetRow): JSX.Element => (
+          <Text
+            variant="small"
+            style={{
+              textTransform: 'capitalize',
+              fontWeight: item.status === 'draft' ? 400 : 600,
+            }}
+          >
+            {item.status}
+          </Text>
+        ),
+      },
+      {
+        key: 'lineItems',
+        name: 'Items',
+        fieldName: 'lineItemCount',
+        minWidth: 50,
+        maxWidth: 70,
+        isResizable: true,
+      },
+      {
+        key: 'created',
+        name: 'Created',
+        fieldName: 'createdAt',
+        minWidth: 100,
+        maxWidth: 140,
+        isResizable: true,
+      },
+    ],
+    []
+  );
+
   const rows: IBudgetRow[] = React.useMemo(
     () =>
       budgets.map((b) => ({
@@ -131,9 +154,40 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({ repository }) =
         status: b.status,
         lineItemCount: b.lineItems.length,
         createdAt: new Date(b.createdAt).toLocaleDateString('en-AU'),
+        _budget: b,
       })),
     [budgets]
   );
+
+  /** Open editor for a new budget. */
+  const handleNewBudget = React.useCallback((): void => {
+    setEditBudget(undefined);
+    setIsEditorOpen(true);
+  }, []);
+
+  /** Open editor for an existing budget. */
+  const handleRowClick = React.useCallback(
+    (item: IBudgetRow): void => {
+      setEditBudget(item._budget);
+      setIsEditorOpen(true);
+    },
+    []
+  );
+
+  /** Close editor and refresh list if a budget was saved. */
+  const handleEditorSaved = React.useCallback(
+    (_saved: Budget): void => {
+      setIsEditorOpen(false);
+      setEditBudget(undefined);
+      loadBudgets(); // eslint-disable-line @typescript-eslint/no-floating-promises
+    },
+    [loadBudgets]
+  );
+
+  const handleEditorDismiss = React.useCallback((): void => {
+    setIsEditorOpen(false);
+    setEditBudget(undefined);
+  }, []);
 
   return (
     <div className={styles.viewContainer}>
@@ -168,6 +222,11 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({ repository }) =
           onChange={(_, option): void => setStatusFilter(String(option?.key ?? 'all'))}
           className={styles.filterDropdown}
         />
+        <PrimaryButton
+          text="New Budget"
+          iconProps={{ iconName: 'Add' }}
+          onClick={handleNewBudget}
+        />
       </div>
 
       {isLoading ? (
@@ -179,7 +238,7 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({ repository }) =
           <Icon iconName="Financial" style={{ fontSize: 48, marginBottom: 16, color: '#001CAD' }} />
           <Text variant="large">No budgets yet</Text>
           <Text variant="medium" style={{ marginTop: 8, color: '#605e5c' }}>
-            Budgets will appear here once created. Editor coming in Stage 4.
+            Click &quot;New Budget&quot; above to create your first property marketing budget.
           </Text>
         </div>
       ) : (
@@ -189,8 +248,18 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({ repository }) =
           layoutMode={DetailsListLayoutMode.justified}
           selectionMode={SelectionMode.none}
           isHeaderVisible={true}
+          onActiveItemChanged={(item): void => handleRowClick(item as IBudgetRow)}
         />
       )}
+
+      {/* Budget editor panel */}
+      <BudgetEditorPanel
+        budget={editBudget}
+        repository={repository}
+        isOpen={isEditorOpen}
+        onDismiss={handleEditorDismiss}
+        onSaved={handleEditorSaved}
+      />
     </div>
   );
 };
