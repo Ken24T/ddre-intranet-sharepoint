@@ -14,7 +14,7 @@ Administration / Sales
 
 ## Source
 
-Originally built as a standalone vanilla JavaScript PWA. See the [integration plan](../../docs/functional/marketing-budget/PLAN.md) for the SPFx migration approach.
+Originally built as a standalone vanilla JavaScript PWA. See the [integration plan](PLAN.md) for the SPFx migration approach.
 
 ## Key Capabilities
 
