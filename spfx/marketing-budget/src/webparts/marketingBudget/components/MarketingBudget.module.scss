@@ -20,6 +20,29 @@
     color: "[theme:bodySubtext, default: #605e5c]";
   }
 
+  .statusBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 10px 16px;
+    background-color: "[theme:neutralLighterAlt, default: #faf9f8]";
+    border: 1px solid "[theme:neutralLight, default: #edebe9]";
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+
+  .statusItem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: "[theme:neutralSecondary, default: #605e5c]";
+
+    i {
+      font-size: 14px;
+      color: "[theme:themePrimary, default: #001CAD]";
+    }
+  }
+
   .content {
     margin-top: 1rem;
   }
