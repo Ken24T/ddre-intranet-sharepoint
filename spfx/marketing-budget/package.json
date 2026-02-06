@@ -1,0 +1,61 @@
+{
+  "name": "marketing-budget",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.14.0 < 23.0.0"
+  },
+  "scripts": {
+    "dev": "cd dev && npm run dev",
+    "start": "heft start --clean",
+    "clean": "heft clean",
+    "lint": "eslint --max-warnings=0 \"src/**/*.{ts,tsx}\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "heft test --clean",
+    "test:coverage": "heft test --clean --config config/jest.config.coverage.json",
+    "build": "heft test --clean --production && heft package-solution --production",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx}\" \"config/**/*.json\" \"*.json\" \"*.md\" \".eslintrc.js\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx}\" \"config/**/*.json\" \"*.json\" \"*.md\" \".eslintrc.js\""
+  },
+  "dependencies": {
+    "@fluentui/react": "8.125.3",
+    "@microsoft/sp-component-base": "1.22.1",
+    "@microsoft/sp-core-library": "1.22.1",
+    "@microsoft/sp-lodash-subset": "1.22.1",
+    "@microsoft/sp-office-ui-fabric-core": "1.22.1",
+    "@microsoft/sp-property-pane": "1.22.1",
+    "@microsoft/sp-webpart-base": "1.22.1",
+    "dexie": "^4.0.0",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "tslib": "2.3.1"
+  },
+  "devDependencies": {
+    "@microsoft/eslint-config-spfx": "1.22.1",
+    "@microsoft/eslint-plugin-spfx": "1.22.1",
+    "@microsoft/sp-module-interfaces": "1.22.1",
+    "@microsoft/spfx-heft-plugins": "1.22.1",
+    "@microsoft/spfx-web-build-rig": "1.22.1",
+    "@rushstack/eslint-config": "4.5.2",
+    "@rushstack/heft": "1.1.2",
+    "@testing-library/jest-dom": "5.17.0",
+    "@testing-library/react": "12.1.5",
+    "@types/heft-jest": "1.0.2",
+    "@types/react": "17.0.45",
+    "@types/react-dom": "17.0.17",
+    "@types/webpack-env": "~1.15.2",
+    "@typescript-eslint/parser": "8.46.2",
+    "css-loader": "~7.1.2",
+    "eslint": "8.57.1",
+    "eslint-plugin-react-hooks": "4.3.0",
+    "identity-obj-proxy": "3.0.0",
+    "prettier": "^3.6.2",
+    "typescript": "~5.8.0"
+  },
+  "overrides": {
+    "@rushstack/heft": "1.1.2"
+  },
+  "resolutions": {
+    "@types/react": "17.0.45"
+  }
+}
