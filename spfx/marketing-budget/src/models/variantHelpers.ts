@@ -9,11 +9,11 @@
 
 /* eslint-disable @rushstack/no-new-null */
 
-import type { Service, ServiceVariant, VariantContext } from './types';
+import type { Service, ServiceVariant, VariantContext } from "./types";
 
 const DEFAULT_VARIANT: ServiceVariant = {
-  id: 'default',
-  name: 'Standard',
+  id: "default",
+  name: "Standard",
   basePrice: 0,
 };
 
@@ -29,7 +29,7 @@ const DEFAULT_VARIANT: ServiceVariant = {
 export function getServiceVariant(
   service: Service,
   context: VariantContext = {},
-  selectedVariantId?: string | null
+  selectedVariantId?: string | null,
 ): ServiceVariant {
   const variants = service.variants ?? [];
   if (variants.length === 0) {
@@ -45,12 +45,12 @@ export function getServiceVariant(
   // Auto-select based on selector type
   const selector = service.variantSelector;
 
-  if (selector === 'propertySize' && context.propertySize) {
+  if (selector === "propertySize" && context.propertySize) {
     const match = variants.find((v) => v.sizeMatch === context.propertySize);
     if (match) return match;
   }
 
-  if (selector === 'suburbTier' && context.suburbTier) {
+  if (selector === "suburbTier" && context.suburbTier) {
     const match = variants.find((v) => v.tierMatch === context.suburbTier);
     if (match) return match;
   }
@@ -65,7 +65,7 @@ export function getServiceVariant(
 export function getVariantPrice(
   service: Service,
   context: VariantContext = {},
-  variantId?: string | null
+  variantId?: string | null,
 ): number {
   const variant = getServiceVariant(service, context, variantId);
   return variant.basePrice ?? 0;
@@ -78,7 +78,7 @@ export function hasSelectableVariants(service: Service): boolean {
   return (
     !!service.variants &&
     service.variants.length > 1 &&
-    service.variantSelector === 'manual'
+    service.variantSelector === "manual"
   );
 }
 
@@ -88,7 +88,7 @@ export function hasSelectableVariants(service: Service): boolean {
 export function hasAutoVariants(service: Service): boolean {
   return (
     !!service.variantSelector &&
-    service.variantSelector !== 'manual' &&
+    service.variantSelector !== "manual" &&
     !!service.variants &&
     service.variants.length > 1
   );

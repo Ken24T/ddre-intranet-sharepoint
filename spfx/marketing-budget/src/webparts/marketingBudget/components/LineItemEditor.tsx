@@ -8,7 +8,7 @@
  * - null / single variant: shown as fixed text
  */
 
-import * as React from 'react';
+import * as React from "react";
 import {
   Checkbox,
   Dropdown,
@@ -16,12 +16,19 @@ import {
   Text,
   TextField,
   TooltipHost,
-} from '@fluentui/react';
-import type { IDropdownOption } from '@fluentui/react';
-import type { BudgetLineItem, Service, VariantContext } from '../../../models/types';
-import { getServiceVariant, hasSelectableVariants } from '../../../models/variantHelpers';
-import { getLineItemPrice } from '../../../models/budgetCalculations';
-import styles from './MarketingBudget.module.scss';
+} from "@fluentui/react";
+import type { IDropdownOption } from "@fluentui/react";
+import type {
+  BudgetLineItem,
+  Service,
+  VariantContext,
+} from "../../../models/types";
+import {
+  getServiceVariant,
+  hasSelectableVariants,
+} from "../../../models/variantHelpers";
+import { getLineItemPrice } from "../../../models/budgetCalculations";
+import styles from "./MarketingBudget.module.scss";
 
 export interface ILineItemEditorProps {
   lineItems: BudgetLineItem[];
@@ -33,9 +40,9 @@ export interface ILineItemEditorProps {
 
 /** Format a number as AUD currency. */
 function formatCurrency(value: number): string {
-  return value.toLocaleString('en-AU', {
-    style: 'currency',
-    currency: 'AUD',
+  return value.toLocaleString("en-AU", {
+    style: "currency",
+    currency: "AUD",
     minimumFractionDigits: 2,
   });
 }
@@ -50,10 +57,12 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
   /** Update a single line item by index. */
   const updateItem = React.useCallback(
     (index: number, updates: Partial<BudgetLineItem>): void => {
-      const updated = lineItems.map((li, i) => (i === index ? { ...li, ...updates } : li));
+      const updated = lineItems.map((li, i) =>
+        i === index ? { ...li, ...updates } : li,
+      );
       onChange(updated);
     },
-    [lineItems, onChange]
+    [lineItems, onChange],
   );
 
   /** Toggle selection of a line item. */
@@ -61,7 +70,7 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
     (index: number, checked: boolean): void => {
       updateItem(index, { isSelected: checked });
     },
-    [updateItem]
+    [updateItem],
   );
 
   /** Change the selected variant for a manual-select service. */
@@ -79,7 +88,7 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
         overridePrice: null,
       });
     },
-    [updateItem]
+    [updateItem],
   );
 
   /** Toggle price override mode. */
@@ -96,7 +105,7 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
         });
       }
     },
-    [updateItem]
+    [updateItem],
   );
 
   /** Update override price value. */
@@ -107,14 +116,17 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
         updateItem(index, { overridePrice: parsed });
       }
     },
-    [updateItem]
+    [updateItem],
   );
 
   if (lineItems.length === 0) {
     return (
       <div className={styles.centeredState} style={{ minHeight: 100 }}>
-        <Icon iconName="AllApps" style={{ fontSize: 32, marginBottom: 8, color: '#605e5c' }} />
-        <Text variant="medium" style={{ color: '#605e5c' }}>
+        <Icon
+          iconName="AllApps"
+          style={{ fontSize: 32, marginBottom: 8, color: "#605e5c" }}
+        />
+        <Text variant="medium" style={{ color: "#605e5c" }}>
           No line items. Select a schedule template to populate items.
         </Text>
       </div>
@@ -124,7 +136,7 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
   return (
     <div className={styles.lineItemEditor}>
       {/* Header row */}
-      <div className={styles.lineItemRow + ' ' + styles.lineItemHeaderRow}>
+      <div className={styles.lineItemRow + " " + styles.lineItemHeaderRow}>
         <div className={styles.lineItemCheck} />
         <div className={styles.lineItemService}>
           <Text variant="smallPlus" style={{ fontWeight: 600 }}>
@@ -163,7 +175,7 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
         return (
           <div
             key={`${li.serviceId}-${index}`}
-            className={`${styles.lineItemRow} ${!li.isSelected ? styles.lineItemDeselected : ''}`}
+            className={`${styles.lineItemRow} ${!li.isSelected ? styles.lineItemDeselected : ""}`}
           >
             {/* Toggle */}
             <div className={styles.lineItemCheck}>
@@ -176,9 +188,14 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
 
             {/* Service name */}
             <div className={styles.lineItemService}>
-              <Text variant="medium">{li.serviceName ?? `Service #${li.serviceId}`}</Text>
+              <Text variant="medium">
+                {li.serviceName ?? `Service #${li.serviceId}`}
+              </Text>
               {service?.category && (
-                <Text variant="tiny" style={{ color: '#605e5c', textTransform: 'capitalize' }}>
+                <Text
+                  variant="tiny"
+                  style={{ color: "#605e5c", textTransform: "capitalize" }}
+                >
                   {service.category}
                 </Text>
               )}
@@ -191,14 +208,14 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
                   options={variantOptions}
                   selectedKey={li.variantId ?? undefined}
                   onChange={(_, opt): void =>
-                    handleVariantChange(index, String(opt?.key ?? ''), service!)
+                    handleVariantChange(index, String(opt?.key ?? ""), service!)
                   }
                   disabled={!li.isSelected}
                   styles={{ root: { minWidth: 160 } }}
                 />
               ) : (
-                <Text variant="small" style={{ color: '#605e5c' }}>
-                  {variant?.name ?? li.variantName ?? '—'}
+                <Text variant="small" style={{ color: "#605e5c" }}>
+                  {variant?.name ?? li.variantName ?? "—"}
                 </Text>
               )}
             </div>
@@ -209,7 +226,9 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
                 <TextField
                   type="number"
                   value={String(li.overridePrice ?? effectivePrice)}
-                  onChange={(_, val): void => handlePriceChange(index, val ?? '0')}
+                  onChange={(_, val): void =>
+                    handlePriceChange(index, val ?? "0")
+                  }
                   prefix="$"
                   disabled={!li.isSelected}
                   styles={{ root: { width: 110 } }}
@@ -219,7 +238,7 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
                   variant="medium"
                   style={{
                     fontWeight: li.isOverridden ? 600 : 400,
-                    color: li.isOverridden ? '#001CAD' : undefined,
+                    color: li.isOverridden ? "#001CAD" : undefined,
                   }}
                 >
                   {formatCurrency(effectivePrice)}
@@ -231,16 +250,22 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
             <div className={styles.lineItemActions}>
               {!readOnly && li.isSelected && (
                 <TooltipHost
-                  content={li.isOverridden ? 'Revert to schedule price' : 'Override price'}
+                  content={
+                    li.isOverridden
+                      ? "Revert to schedule price"
+                      : "Override price"
+                  }
                 >
                   <button
                     type="button"
                     className={styles.overrideBtn}
                     onClick={(): void => handleOverrideToggle(index, li)}
-                    aria-label={li.isOverridden ? 'Revert price' : 'Override price'}
+                    aria-label={
+                      li.isOverridden ? "Revert price" : "Override price"
+                    }
                   >
                     <Icon
-                      iconName={li.isOverridden ? 'Undo' : 'Edit'}
+                      iconName={li.isOverridden ? "Undo" : "Edit"}
                       style={{ fontSize: 14 }}
                     />
                   </button>

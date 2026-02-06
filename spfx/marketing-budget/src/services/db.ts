@@ -9,8 +9,14 @@
  * happen to run on the same origin during development.
  */
 
-import Dexie, { type Table } from 'dexie';
-import type { Vendor, Service, Suburb, Schedule, Budget } from '../models/types';
+import Dexie, { type Table } from "dexie";
+import type {
+  Vendor,
+  Service,
+  Suburb,
+  Schedule,
+  Budget,
+} from "../models/types";
 
 export class MarketingBudgetDb extends Dexie {
   vendors!: Table<Vendor, number>;
@@ -20,16 +26,17 @@ export class MarketingBudgetDb extends Dexie {
   budgets!: Table<Budget, number>;
 
   constructor() {
-    super('salesmarketing-spfx');
+    super("salesmarketing-spfx");
 
     // Version 1 — matches the standalone PWA's v2 schema
     // (we skip v1 since the SPFx app starts fresh).
     this.version(1).stores({
-      vendors: '++id, name, shortCode, isActive',
-      services: '++id, name, category, vendorId, variantSelector, isActive',
-      suburbs: '++id, name, pricingTier',
-      schedules: '++id, name, propertyType, propertySize, tier, isActive',
-      budgets: '++id, createdAt, updatedAt, propertyAddress, scheduleId, status',
+      vendors: "++id, name, shortCode, isActive",
+      services: "++id, name, category, vendorId, variantSelector, isActive",
+      suburbs: "++id, name, pricingTier",
+      schedules: "++id, name, propertyType, propertySize, tier, isActive",
+      budgets:
+        "++id, createdAt, updatedAt, propertyAddress, scheduleId, status",
     });
   }
 }

@@ -25,17 +25,17 @@ export interface IAppNavItem {
 // ─────────────────────────────────────────────────────────────
 
 export interface ISidebarSetItemsMessage {
-  type: 'SIDEBAR_SET_ITEMS';
+  type: "SIDEBAR_SET_ITEMS";
   items: IAppNavItem[];
   activeKey?: string;
 }
 
 export interface ISidebarRestoreMessage {
-  type: 'SIDEBAR_RESTORE';
+  type: "SIDEBAR_RESTORE";
 }
 
 export interface ISidebarActiveMessage {
-  type: 'SIDEBAR_ACTIVE';
+  type: "SIDEBAR_ACTIVE";
   key: string;
 }
 
@@ -49,7 +49,7 @@ export type AppToShellMessage =
 // ─────────────────────────────────────────────────────────────
 
 export interface ISidebarNavigateMessage {
-  type: 'SIDEBAR_NAVIGATE';
+  type: "SIDEBAR_NAVIGATE";
   key: string;
 }
 
@@ -60,7 +60,7 @@ export type ShellToAppMessage = ISidebarNavigateMessage;
 // ─────────────────────────────────────────────────────────────
 
 export function isShellToAppMessage(data: unknown): data is ShellToAppMessage {
-  if (typeof data !== 'object' || data === null) return false;
+  if (typeof data !== "object" || data === null) return false;
   const msg = data as { type?: string };
-  return msg.type === 'SIDEBAR_NAVIGATE';
+  return msg.type === "SIDEBAR_NAVIGATE";
 }

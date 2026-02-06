@@ -1,28 +1,41 @@
-import * as React from 'react';
-import styles from './MarketingBudget.module.scss';
-import type { IMarketingBudgetProps } from './IMarketingBudgetProps';
-import { Icon, MessageBar, MessageBarType, PrimaryButton, Spinner, SpinnerSize, Text } from '@fluentui/react';
-import { getSeedData, SEED_COUNTS } from '../../../models/seedData';
-import type { IAppNavItem, AppToShellMessage } from '../../../appBridge';
-import { isShellToAppMessage } from '../../../appBridge';
-import { BudgetListView } from './BudgetListView';
-import { SchedulesView } from './SchedulesView';
-import { ServicesView } from './ServicesView';
-import { VendorsView } from './VendorsView';
-import { SuburbsView } from './SuburbsView';
+import * as React from "react";
+import styles from "./MarketingBudget.module.scss";
+import type { IMarketingBudgetProps } from "./IMarketingBudgetProps";
+import {
+  Icon,
+  MessageBar,
+  MessageBarType,
+  PrimaryButton,
+  Spinner,
+  SpinnerSize,
+  Text,
+} from "@fluentui/react";
+import { getSeedData, SEED_COUNTS } from "../../../models/seedData";
+import type { IAppNavItem, AppToShellMessage } from "../../../appBridge";
+import { isShellToAppMessage } from "../../../appBridge";
+import { BudgetListView } from "./BudgetListView";
+import { SchedulesView } from "./SchedulesView";
+import { ServicesView } from "./ServicesView";
+import { VendorsView } from "./VendorsView";
+import { SuburbsView } from "./SuburbsView";
 
 // ─────────────────────────────────────────────────────────────
 // App-level navigation definition
 // ─────────────────────────────────────────────────────────────
 
-export type AppViewKey = 'budgets' | 'schedules' | 'services' | 'vendors' | 'suburbs';
+export type AppViewKey =
+  | "budgets"
+  | "schedules"
+  | "services"
+  | "vendors"
+  | "suburbs";
 
 export const APP_NAV_ITEMS: IAppNavItem[] = [
-  { key: 'budgets', label: 'Budgets', icon: 'Financial' },
-  { key: 'schedules', label: 'Schedules', icon: 'CalendarWeek' },
-  { key: 'services', label: 'Services', icon: 'Settings' },
-  { key: 'vendors', label: 'Vendors', icon: 'People' },
-  { key: 'suburbs', label: 'Suburbs', icon: 'MapPin' },
+  { key: "budgets", label: "Budgets", icon: "Financial" },
+  { key: "schedules", label: "Schedules", icon: "CalendarWeek" },
+  { key: "services", label: "Services", icon: "Settings" },
+  { key: "vendors", label: "Vendors", icon: "People" },
+  { key: "suburbs", label: "Suburbs", icon: "MapPin" },
 ];
 
 /** Counts returned after loading reference data. */
@@ -49,7 +62,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const [isSeeding, setIsSeeding] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [seedComplete, setSeedComplete] = React.useState(false);
-  const [activeView, setActiveView] = React.useState<AppViewKey>('budgets');
+  const [activeView, setActiveView] = React.useState<AppViewKey>("budgets");
 
   /** Detect whether we are running inside an iframe (embedded in shell). */
   const isEmbedded = React.useMemo(() => {
@@ -66,10 +79,10 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const postToShell = React.useCallback(
     (msg: AppToShellMessage): void => {
       if (isEmbedded && window.parent) {
-        window.parent.postMessage(msg, '*');
+        window.parent.postMessage(msg, "*");
       }
     },
-    [isEmbedded]
+    [isEmbedded],
   );
 
   /** On mount: send nav items to shell; listen for SIDEBAR_NAVIGATE. */
@@ -78,31 +91,31 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
 
     // Tell the shell what sidebar items we provide
     postToShell({
-      type: 'SIDEBAR_SET_ITEMS',
+      type: "SIDEBAR_SET_ITEMS",
       items: APP_NAV_ITEMS,
-      activeKey: 'budgets',
+      activeKey: "budgets",
     });
 
     const handleMessage = (event: MessageEvent): void => {
       if (!isShellToAppMessage(event.data)) return;
-      if (event.data.type === 'SIDEBAR_NAVIGATE') {
+      if (event.data.type === "SIDEBAR_NAVIGATE") {
         setActiveView(event.data.key as AppViewKey);
       }
     };
 
-    window.addEventListener('message', handleMessage);
+    window.addEventListener("message", handleMessage);
 
     return (): void => {
-      window.removeEventListener('message', handleMessage);
+      window.removeEventListener("message", handleMessage);
       // Restore the shell sidebar when unmounting
-      postToShell({ type: 'SIDEBAR_RESTORE' });
+      postToShell({ type: "SIDEBAR_RESTORE" });
     };
   }, [isEmbedded, postToShell]);
 
   /** When activeView changes, notify shell to update active indicator. */
   React.useEffect(() => {
     if (isEmbedded) {
-      postToShell({ type: 'SIDEBAR_ACTIVE', key: activeView });
+      postToShell({ type: "SIDEBAR_ACTIVE", key: activeView });
     }
   }, [activeView, isEmbedded, postToShell]);
 
@@ -110,13 +123,14 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
 
   /** Load counts from the repository. */
   const loadCounts = React.useCallback(async (): Promise<DataCounts> => {
-    const [vendorList, serviceList, suburbList, scheduleList, budgetList] = await Promise.all([
-      repository.getVendors(),
-      repository.getServices(),
-      repository.getSuburbs(),
-      repository.getSchedules(),
-      repository.getBudgets(),
-    ]);
+    const [vendorList, serviceList, suburbList, scheduleList, budgetList] =
+      await Promise.all([
+        repository.getVendors(),
+        repository.getServices(),
+        repository.getSuburbs(),
+        repository.getSchedules(),
+        repository.getBudgets(),
+      ]);
     return {
       vendors: vendorList.length,
       services: serviceList.length,
@@ -136,7 +150,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
       setCounts(refreshed);
       setSeedComplete(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to seed data');
+      setError(err instanceof Error ? err.message : "Failed to seed data");
     } finally {
       setIsSeeding(false);
     }
@@ -152,7 +166,11 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
         if (cancelled) return;
 
         // Auto-seed when the database has no reference data at all
-        if (loaded.vendors === 0 && loaded.services === 0 && loaded.suburbs === 0) {
+        if (
+          loaded.vendors === 0 &&
+          loaded.services === 0 &&
+          loaded.suburbs === 0
+        ) {
           setIsSeeding(true);
           await repository.seedData(getSeedData());
           if (cancelled) return;
@@ -167,7 +185,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to load data');
+          setError(err instanceof Error ? err.message : "Failed to load data");
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -187,15 +205,15 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
 
   const renderActiveView = (): React.ReactNode => {
     switch (activeView) {
-      case 'budgets':
+      case "budgets":
         return <BudgetListView repository={repository} />;
-      case 'schedules':
+      case "schedules":
         return <SchedulesView repository={repository} />;
-      case 'services':
+      case "services":
         return <ServicesView repository={repository} />;
-      case 'vendors':
+      case "vendors":
         return <VendorsView repository={repository} />;
-      case 'suburbs':
+      case "suburbs":
         return <SuburbsView repository={repository} />;
       default:
         return <BudgetListView repository={repository} />;
@@ -209,7 +227,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
       {APP_NAV_ITEMS.map((item) => (
         <button
           key={item.key}
-          className={`${styles.navItem} ${activeView === item.key ? styles.navItemActive : ''}`}
+          className={`${styles.navItem} ${activeView === item.key ? styles.navItemActive : ""}`}
           onClick={(): void => setActiveView(item.key as AppViewKey)}
           type="button"
         >
@@ -251,8 +269,9 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
           onDismiss={(): void => setSeedComplete(false)}
           dismissButtonAriaLabel="Close"
         >
-          Reference data seeded — {SEED_COUNTS.vendors} vendors, {SEED_COUNTS.services} services,{' '}
-          {SEED_COUNTS.suburbs} suburbs, {SEED_COUNTS.schedules} schedules loaded.
+          Reference data seeded — {SEED_COUNTS.vendors} vendors,{" "}
+          {SEED_COUNTS.services} services, {SEED_COUNTS.suburbs} suburbs,{" "}
+          {SEED_COUNTS.schedules} schedules loaded.
         </MessageBar>
       )}
 
@@ -286,21 +305,28 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
         {/* Loading state */}
         {(isLoading || isSeeding) && (
           <div className={styles.placeholder}>
-            <Spinner size={SpinnerSize.large} label={isSeeding ? 'Seeding reference data…' : 'Loading…'} />
+            <Spinner
+              size={SpinnerSize.large}
+              label={isSeeding ? "Seeding reference data…" : "Loading…"}
+            />
           </div>
         )}
 
         {/* Empty state — offer manual seed */}
         {!isLoading && !isSeeding && !hasData && (
           <div className={styles.placeholder}>
-            <Icon iconName="Database" style={{ fontSize: 48, marginBottom: 16, color: '#001CAD' }} />
+            <Icon
+              iconName="Database"
+              style={{ fontSize: 48, marginBottom: 16, color: "#001CAD" }}
+            />
             <Text variant="large">No reference data found</Text>
-            <Text variant="medium" style={{ marginTop: 8, color: '#605e5c' }}>
-              Load the standard vendors, services, suburbs, and schedule templates to get started.
+            <Text variant="medium" style={{ marginTop: 8, color: "#605e5c" }}>
+              Load the standard vendors, services, suburbs, and schedule
+              templates to get started.
             </Text>
             <PrimaryButton
               text="Seed Reference Data"
-              iconProps={{ iconName: 'Add' }}
+              iconProps={{ iconName: "Add" }}
               onClick={handleSeed}
               style={{ marginTop: 16 }}
             />

@@ -6,7 +6,7 @@
  * (SPListBudgetRepository) can replace this one behind the same interface.
  */
 
-import type { IBudgetRepository, BudgetFilters } from './IBudgetRepository';
+import type { IBudgetRepository, BudgetFilters } from "./IBudgetRepository";
 import type {
   Vendor,
   Service,
@@ -14,8 +14,8 @@ import type {
   Schedule,
   Budget,
   DataExport,
-} from '../models/types';
-import { db } from './db';
+} from "../models/types";
+import { db } from "./db";
 
 export class DexieBudgetRepository implements IBudgetRepository {
   // ─── Vendors ──────────────────────────────────────────────
@@ -54,7 +54,7 @@ export class DexieBudgetRepository implements IBudgetRepository {
 
   async getServicesByVendor(vendorId: number): Promise<Service[]> {
     return db.services
-      .where('vendorId')
+      .where("vendorId")
       .equals(vendorId)
       .and((s) => s.isActive === 1)
       .toArray();
@@ -62,7 +62,7 @@ export class DexieBudgetRepository implements IBudgetRepository {
 
   async getServicesByCategory(category: string): Promise<Service[]> {
     return db.services
-      .where('category')
+      .where("category")
       .equals(category)
       .and((s) => s.isActive === 1)
       .toArray();
@@ -71,9 +71,7 @@ export class DexieBudgetRepository implements IBudgetRepository {
   async saveService(service: Service): Promise<Service> {
     // Ensure variants array exists
     if (!service.variants || !Array.isArray(service.variants)) {
-      service.variants = [
-        { id: 'default', name: 'Standard', basePrice: 0 },
-      ];
+      service.variants = [{ id: "default", name: "Standard", basePrice: 0 }];
     }
     if (service.id) {
       await db.services.put(service);
@@ -91,11 +89,11 @@ export class DexieBudgetRepository implements IBudgetRepository {
   // ─── Suburbs ──────────────────────────────────────────────
 
   async getSuburbs(): Promise<Suburb[]> {
-    return db.suburbs.orderBy('name').toArray();
+    return db.suburbs.orderBy("name").toArray();
   }
 
   async getSuburbsByTier(tier: string): Promise<Suburb[]> {
-    return db.suburbs.where('pricingTier').equals(tier).toArray();
+    return db.suburbs.where("pricingTier").equals(tier).toArray();
   }
 
   async saveSuburb(suburb: Suburb): Promise<Suburb> {
@@ -114,9 +112,7 @@ export class DexieBudgetRepository implements IBudgetRepository {
   // ─── Schedules ────────────────────────────────────────────
 
   async getSchedules(): Promise<Schedule[]> {
-    return db.schedules
-      .filter((s) => s.isActive !== 0)
-      .toArray();
+    return db.schedules.filter((s) => s.isActive !== 0).toArray();
   }
 
   async getSchedule(id: number): Promise<Schedule | undefined> {
@@ -145,15 +141,17 @@ export class DexieBudgetRepository implements IBudgetRepository {
   // ─── Budgets ──────────────────────────────────────────────
 
   async getBudgets(filters: BudgetFilters = {}): Promise<Budget[]> {
-    let collection = db.budgets.orderBy('createdAt').reverse();
+    let collection = db.budgets.orderBy("createdAt").reverse();
 
     if (filters.status) {
-      collection = collection.filter((b) => b.status === filters.status) as typeof collection;
+      collection = collection.filter(
+        (b) => b.status === filters.status,
+      ) as typeof collection;
     }
     if (filters.search) {
       const search = filters.search.toLowerCase();
       collection = collection.filter((b) =>
-        b.propertyAddress.toLowerCase().includes(search)
+        b.propertyAddress.toLowerCase().includes(search),
       ) as typeof collection;
     }
 
@@ -173,7 +171,7 @@ export class DexieBudgetRepository implements IBudgetRepository {
     }
     budget.createdAt = now;
     budget.updatedAt = now;
-    budget.status = budget.status || 'draft';
+    budget.status = budget.status || "draft";
     const id = await db.budgets.add(budget);
     return { ...budget, id };
   }
@@ -186,7 +184,7 @@ export class DexieBudgetRepository implements IBudgetRepository {
 
   async clearAllData(): Promise<void> {
     await db.transaction(
-      'rw',
+      "rw",
       [db.vendors, db.services, db.suburbs, db.schedules, db.budgets],
       async () => {
         await db.vendors.clear();
@@ -194,28 +192,28 @@ export class DexieBudgetRepository implements IBudgetRepository {
         await db.suburbs.clear();
         await db.schedules.clear();
         await db.budgets.clear();
-      }
+      },
     );
   }
 
   async seedData(data: Partial<DataExport>): Promise<void> {
     await db.transaction(
-      'rw',
+      "rw",
       [db.vendors, db.services, db.suburbs, db.schedules],
       async () => {
         if (data.vendors?.length) await db.vendors.bulkPut(data.vendors);
         if (data.services?.length) await db.services.bulkPut(data.services);
         if (data.suburbs?.length) await db.suburbs.bulkPut(data.suburbs);
         if (data.schedules?.length) await db.schedules.bulkPut(data.schedules);
-      }
+      },
     );
   }
 
   async exportAll(): Promise<DataExport> {
     return {
-      exportVersion: '1.0',
+      exportVersion: "1.0",
       exportDate: new Date().toISOString(),
-      appVersion: '0.1.0',
+      appVersion: "0.1.0",
       vendors: await db.vendors.toArray(),
       services: await db.services.toArray(),
       suburbs: await db.suburbs.toArray(),

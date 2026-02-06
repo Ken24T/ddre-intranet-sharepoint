@@ -1,18 +1,18 @@
-import * as React from 'react';
-import * as ReactDom from 'react-dom';
-import { Version } from '@microsoft/sp-core-library';
+import * as React from "react";
+import * as ReactDom from "react-dom";
+import { Version } from "@microsoft/sp-core-library";
 import {
   type IPropertyPaneConfiguration,
   PropertyPaneTextField,
-} from '@microsoft/sp-property-pane';
-import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
-import { IReadonlyTheme } from '@microsoft/sp-component-base';
+} from "@microsoft/sp-property-pane";
+import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
+import { IReadonlyTheme } from "@microsoft/sp-component-base";
 
-import * as strings from 'MarketingBudgetWebPartStrings';
-import MarketingBudget from './components/MarketingBudget';
-import type { IMarketingBudgetProps } from './components/IMarketingBudgetProps';
-import { DexieBudgetRepository } from '../../services/DexieBudgetRepository';
-import type { IBudgetRepository } from '../../services/IBudgetRepository';
+import * as strings from "MarketingBudgetWebPartStrings";
+import MarketingBudget from "./components/MarketingBudget";
+import type { IMarketingBudgetProps } from "./components/IMarketingBudgetProps";
+import { DexieBudgetRepository } from "../../services/DexieBudgetRepository";
+import type { IBudgetRepository } from "../../services/IBudgetRepository";
 
 export interface IMarketingBudgetWebPartProps {
   description: string;
@@ -49,12 +49,12 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
 
     if (semanticColors) {
       this.domElement.style.setProperty(
-        '--bodyText',
+        "--bodyText",
         semanticColors.bodyText || null,
       );
-      this.domElement.style.setProperty('--link', semanticColors.link || null);
+      this.domElement.style.setProperty("--link", semanticColors.link || null);
       this.domElement.style.setProperty(
-        '--linkHovered',
+        "--linkHovered",
         semanticColors.linkHovered || null,
       );
     }
@@ -65,7 +65,7 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
   }
 
   protected get dataVersion(): Version {
-    return Version.parse('1.0');
+    return Version.parse("1.0");
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
@@ -79,7 +79,7 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('description', {
+                PropertyPaneTextField("description", {
                   label: strings.DescriptionFieldLabel,
                 }),
               ],

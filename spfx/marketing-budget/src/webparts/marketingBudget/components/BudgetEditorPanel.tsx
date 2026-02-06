@@ -10,7 +10,7 @@
  * Uses the pure calculation + variant functions from the models layer.
  */
 
-import * as React from 'react';
+import * as React from "react";
 import {
   Panel,
   PanelType,
@@ -26,8 +26,8 @@ import {
   TextField,
   Text,
   Icon,
-} from '@fluentui/react';
-import type { IDropdownOption } from '@fluentui/react';
+} from "@fluentui/react";
+import type { IDropdownOption } from "@fluentui/react";
 import type {
   Budget,
   BudgetLineItem,
@@ -40,13 +40,16 @@ import type {
   Suburb,
   Vendor,
   VariantContext,
-} from '../../../models/types';
-import type { IBudgetRepository } from '../../../services/IBudgetRepository';
-import { createDefaultBudget, resolveLineItems } from '../../../models/budgetCalculations';
-import { getServiceVariant } from '../../../models/variantHelpers';
-import { LineItemEditor } from './LineItemEditor';
-import { BudgetTotals } from './BudgetTotals';
-import styles from './MarketingBudget.module.scss';
+} from "../../../models/types";
+import type { IBudgetRepository } from "../../../services/IBudgetRepository";
+import {
+  createDefaultBudget,
+  resolveLineItems,
+} from "../../../models/budgetCalculations";
+import { getServiceVariant } from "../../../models/variantHelpers";
+import { LineItemEditor } from "./LineItemEditor";
+import { BudgetTotals } from "./BudgetTotals";
+import styles from "./MarketingBudget.module.scss";
 
 // ─── Props ──────────────────────────────────────────────────
 
@@ -62,30 +65,30 @@ export interface IBudgetEditorPanelProps {
 // ─── Dropdown option builders ──────────────────────────────
 
 const propertyTypeOptions: IDropdownOption[] = [
-  { key: 'house', text: 'House' },
-  { key: 'unit', text: 'Unit' },
-  { key: 'townhouse', text: 'Townhouse' },
-  { key: 'land', text: 'Land' },
-  { key: 'rural', text: 'Rural' },
-  { key: 'commercial', text: 'Commercial' },
+  { key: "house", text: "House" },
+  { key: "unit", text: "Unit" },
+  { key: "townhouse", text: "Townhouse" },
+  { key: "land", text: "Land" },
+  { key: "rural", text: "Rural" },
+  { key: "commercial", text: "Commercial" },
 ];
 
 const propertySizeOptions: IDropdownOption[] = [
-  { key: 'small', text: 'Small' },
-  { key: 'medium', text: 'Medium' },
-  { key: 'large', text: 'Large' },
+  { key: "small", text: "Small" },
+  { key: "medium", text: "Medium" },
+  { key: "large", text: "Large" },
 ];
 
 const budgetTierOptions: IDropdownOption[] = [
-  { key: 'basic', text: 'Basic' },
-  { key: 'standard', text: 'Standard' },
-  { key: 'premium', text: 'Premium' },
+  { key: "basic", text: "Basic" },
+  { key: "standard", text: "Standard" },
+  { key: "premium", text: "Premium" },
 ];
 
 const statusTransitions: Record<BudgetStatus, BudgetStatus[]> = {
-  draft: ['approved'],
-  approved: ['sent', 'draft'],
-  sent: ['archived'],
+  draft: ["approved"],
+  approved: ["sent", "draft"],
+  sent: ["archived"],
   archived: [],
 };
 
@@ -108,18 +111,19 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
   const [isLoadingRef, setIsLoadingRef] = React.useState(true);
 
   // ─── Form state ────────────────────────────────────────
-  const [address, setAddress] = React.useState('');
-  const [propertyType, setPropertyType] = React.useState<PropertyType>('house');
-  const [propertySize, setPropertySize] = React.useState<PropertySize>('medium');
-  const [tier, setTier] = React.useState<BudgetTier>('standard');
+  const [address, setAddress] = React.useState("");
+  const [propertyType, setPropertyType] = React.useState<PropertyType>("house");
+  const [propertySize, setPropertySize] =
+    React.useState<PropertySize>("medium");
+  const [tier, setTier] = React.useState<BudgetTier>("standard");
   const [suburbId, setSuburbId] = React.useState<number | null>(null);
   const [vendorId, setVendorId] = React.useState<number | null>(null);
   const [scheduleId, setScheduleId] = React.useState<number | null>(null);
   const [lineItems, setLineItems] = React.useState<BudgetLineItem[]>([]);
-  const [notes, setNotes] = React.useState('');
-  const [clientName, setClientName] = React.useState('');
-  const [agentName, setAgentName] = React.useState('');
-  const [status, setStatus] = React.useState<BudgetStatus>('draft');
+  const [notes, setNotes] = React.useState("");
+  const [clientName, setClientName] = React.useState("");
+  const [agentName, setAgentName] = React.useState("");
+  const [status, setStatus] = React.useState<BudgetStatus>("draft");
 
   // ─── UI state ──────────────────────────────────────────
   const [isSaving, setIsSaving] = React.useState(false);
@@ -155,7 +159,11 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
         setSchedules(sch);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to load reference data');
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Failed to load reference data",
+          );
         }
       } finally {
         if (!cancelled) setIsLoadingRef(false);
@@ -181,9 +189,9 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
       setVendorId(editBudget.vendorId ?? null);
       setScheduleId(editBudget.scheduleId ?? null);
       setLineItems(editBudget.lineItems);
-      setNotes(editBudget.notes ?? '');
-      setClientName(editBudget.clientName ?? '');
-      setAgentName(editBudget.agentName ?? '');
+      setNotes(editBudget.notes ?? "");
+      setClientName(editBudget.clientName ?? "");
+      setAgentName(editBudget.agentName ?? "");
       setStatus(editBudget.status);
     } else {
       const defaults = createDefaultBudget();
@@ -195,9 +203,9 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
       setVendorId(defaults.vendorId);
       setScheduleId(defaults.scheduleId ?? null);
       setLineItems(defaults.lineItems);
-      setNotes('');
-      setClientName('');
-      setAgentName('');
+      setNotes("");
+      setClientName("");
+      setAgentName("");
       setStatus(defaults.status);
     }
     setError(null);
@@ -212,7 +220,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
         (r, i) =>
           r.serviceName !== lineItems[i].serviceName ||
           r.variantName !== lineItems[i].variantName ||
-          r.schedulePrice !== lineItems[i].schedulePrice
+          r.schedulePrice !== lineItems[i].schedulePrice,
       );
       if (changed) {
         setLineItems(resolved);
@@ -224,28 +232,33 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
 
   const vendorOptions: IDropdownOption[] = React.useMemo(
     () => [
-      { key: '', text: '(None)' },
-      ...vendors.filter((v) => v.isActive).map((v) => ({ key: String(v.id), text: v.name })),
+      { key: "", text: "(None)" },
+      ...vendors
+        .filter((v) => v.isActive)
+        .map((v) => ({ key: String(v.id), text: v.name })),
     ],
-    [vendors]
+    [vendors],
   );
 
   const suburbOptions: IDropdownOption[] = React.useMemo(
     () => [
-      { key: '', text: '(None)' },
-      ...suburbs.map((s) => ({ key: String(s.id), text: `${s.name} (Tier ${s.pricingTier})` })),
+      { key: "", text: "(None)" },
+      ...suburbs.map((s) => ({
+        key: String(s.id),
+        text: `${s.name} (Tier ${s.pricingTier})`,
+      })),
     ],
-    [suburbs]
+    [suburbs],
   );
 
   const scheduleOptions: IDropdownOption[] = React.useMemo(
     () => [
-      { key: '', text: '(None — start from scratch)' },
+      { key: "", text: "(None — start from scratch)" },
       ...schedules
         .filter((s) => s.isActive)
         .map((s) => ({ key: String(s.id), text: s.name })),
     ],
-    [schedules]
+    [schedules],
   );
 
   // ─── Schedule template application ─────────────────────
@@ -274,10 +287,14 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
       const newItems: BudgetLineItem[] = schedule.lineItems.map((sli) => {
         const service = services.find((s) => s.id === sli.serviceId);
         const variant = service
-          ? getServiceVariant(service, {
-              propertySize: schedule.propertySize,
-              suburbTier: suburbs.find((s) => s.id === suburbId)?.pricingTier,
-            }, sli.variantId)
+          ? getServiceVariant(
+              service,
+              {
+                propertySize: schedule.propertySize,
+                suburbTier: suburbs.find((s) => s.id === suburbId)?.pricingTier,
+              },
+              sli.variantId,
+            )
           : undefined;
 
         return {
@@ -294,7 +311,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
 
       setLineItems(newItems);
     },
-    [schedules, services, suburbs, suburbId]
+    [schedules, services, suburbs, suburbId],
   );
 
   // ─── Save ──────────────────────────────────────────────
@@ -302,7 +319,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
   const handleSave = React.useCallback(async (): Promise<void> => {
     // Validation
     if (!address.trim()) {
-      setError('Property address is required.');
+      setError("Property address is required.");
       return;
     }
 
@@ -335,14 +352,27 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
       const saved = await repository.saveBudget(budgetData);
       onSaved(saved);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save budget');
+      setError(err instanceof Error ? err.message : "Failed to save budget");
     } finally {
       setIsSaving(false);
     }
   }, [
-    address, propertyType, propertySize, tier, suburbId, vendorId,
-    scheduleId, lineItems, notes, clientName, agentName, status,
-    editBudget, repository, onSaved, schedules,
+    address,
+    propertyType,
+    propertySize,
+    tier,
+    suburbId,
+    vendorId,
+    scheduleId,
+    lineItems,
+    notes,
+    clientName,
+    agentName,
+    status,
+    editBudget,
+    repository,
+    onSaved,
+    schedules,
   ]);
 
   // ─── Status transition buttons ─────────────────────────
@@ -375,7 +405,9 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
           });
           onSaved(saved);
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to update status');
+          setError(
+            err instanceof Error ? err.message : "Failed to update status",
+          );
           setStatus(status); // Revert
         } finally {
           setIsSaving(false);
@@ -383,10 +415,22 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
       }
     },
     [
-      editBudget, address, propertyType, propertySize, tier,
-      suburbId, vendorId, scheduleId, lineItems, notes,
-      clientName, agentName, status, repository, onSaved,
-    ]
+      editBudget,
+      address,
+      propertyType,
+      propertySize,
+      tier,
+      suburbId,
+      vendorId,
+      scheduleId,
+      lineItems,
+      notes,
+      clientName,
+      agentName,
+      status,
+      repository,
+      onSaved,
+    ],
   );
 
   // ─── Render ────────────────────────────────────────────
@@ -399,7 +443,11 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
             allowedTransitions.map((nextStatus) => (
               <DefaultButton
                 key={nextStatus}
-                text={nextStatus === 'draft' ? 'Revert to Draft' : `Mark as ${nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1)}`}
+                text={
+                  nextStatus === "draft"
+                    ? "Revert to Draft"
+                    : `Mark as ${nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1)}`
+                }
                 onClick={(): void => {
                   handleStatusChange(nextStatus); // eslint-disable-line @typescript-eslint/no-floating-promises
                 }}
@@ -408,16 +456,30 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
             ))}
         </div>
         <div className={styles.editorFooterRight}>
-          <DefaultButton text="Cancel" onClick={onDismiss} disabled={isSaving} />
+          <DefaultButton
+            text="Cancel"
+            onClick={onDismiss}
+            disabled={isSaving}
+          />
           <PrimaryButton
-            text={isSaving ? 'Saving…' : isNew ? 'Create Budget' : 'Save Changes'}
+            text={
+              isSaving ? "Saving…" : isNew ? "Create Budget" : "Save Changes"
+            }
             onClick={handleSave} // eslint-disable-line @typescript-eslint/no-floating-promises
             disabled={isSaving || !address.trim()}
           />
         </div>
       </div>
     ),
-    [isNew, allowedTransitions, isSaving, address, onDismiss, handleSave, handleStatusChange]
+    [
+      isNew,
+      allowedTransitions,
+      isSaving,
+      address,
+      onDismiss,
+      handleSave,
+      handleStatusChange,
+    ],
   );
 
   return (
@@ -425,7 +487,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
       isOpen={isOpen}
       onDismiss={onDismiss}
       type={PanelType.large}
-      headerText={isNew ? 'New Budget' : `Edit — ${address || 'Budget'}`}
+      headerText={isNew ? "New Budget" : `Edit — ${address || "Budget"}`}
       onRenderFooterContent={onRenderFooterContent}
       isFooterAtBottom={true}
       closeButtonAriaLabel="Close"
@@ -451,7 +513,10 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
             <div className={styles.statusIndicator}>
               <Icon iconName="Info" />
               <Text variant="medium">
-                Status: <strong>{status.charAt(0).toUpperCase() + status.slice(1)}</strong>
+                Status:{" "}
+                <strong>
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </strong>
               </Text>
             </div>
           )}
@@ -464,7 +529,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
           <TextField
             label="Property Address"
             value={address}
-            onChange={(_, val): void => setAddress(val ?? '')}
+            onChange={(_, val): void => setAddress(val ?? "")}
             required
             placeholder="e.g. 42 Jubilee Terrace, Bardon QLD 4065"
           />
@@ -475,7 +540,9 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
                 label="Property Type"
                 options={propertyTypeOptions}
                 selectedKey={propertyType}
-                onChange={(_, opt): void => setPropertyType((opt?.key ?? 'house') as PropertyType)}
+                onChange={(_, opt): void =>
+                  setPropertyType((opt?.key ?? "house") as PropertyType)
+                }
               />
             </div>
             <div className={styles.formField}>
@@ -483,7 +550,9 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
                 label="Property Size"
                 options={propertySizeOptions}
                 selectedKey={propertySize}
-                onChange={(_, opt): void => setPropertySize((opt?.key ?? 'medium') as PropertySize)}
+                onChange={(_, opt): void =>
+                  setPropertySize((opt?.key ?? "medium") as PropertySize)
+                }
               />
             </div>
             <div className={styles.formField}>
@@ -491,7 +560,9 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
                 label="Budget Tier"
                 options={budgetTierOptions}
                 selectedKey={tier}
-                onChange={(_, opt): void => setTier((opt?.key ?? 'standard') as BudgetTier)}
+                onChange={(_, opt): void =>
+                  setTier((opt?.key ?? "standard") as BudgetTier)
+                }
               />
             </div>
           </div>
@@ -501,7 +572,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
               <Dropdown
                 label="Suburb"
                 options={suburbOptions}
-                selectedKey={suburbId ? String(suburbId) : ''}
+                selectedKey={suburbId ? String(suburbId) : ""}
                 onChange={(_, opt): void => {
                   const id = opt?.key ? Number(opt.key) : null;
                   setSuburbId(id || null);
@@ -513,7 +584,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
               <Dropdown
                 label="Preferred Vendor"
                 options={vendorOptions}
-                selectedKey={vendorId ? String(vendorId) : ''}
+                selectedKey={vendorId ? String(vendorId) : ""}
                 onChange={(_, opt): void => {
                   const id = opt?.key ? Number(opt.key) : null;
                   setVendorId(id || null);
@@ -528,7 +599,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
               <TextField
                 label="Client Name"
                 value={clientName}
-                onChange={(_, val): void => setClientName(val ?? '')}
+                onChange={(_, val): void => setClientName(val ?? "")}
                 placeholder="Property owner name"
               />
             </div>
@@ -536,7 +607,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
               <TextField
                 label="Agent Name"
                 value={agentName}
-                onChange={(_, val): void => setAgentName(val ?? '')}
+                onChange={(_, val): void => setAgentName(val ?? "")}
                 placeholder="Listing agent"
               />
             </div>
@@ -552,7 +623,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
           <Dropdown
             label="Apply a schedule template"
             options={scheduleOptions}
-            selectedKey={scheduleId ? String(scheduleId) : ''}
+            selectedKey={scheduleId ? String(scheduleId) : ""}
             onChange={(_, opt): void => {
               const id = opt?.key ? Number(opt.key) : null;
               applySchedule(id || null);
@@ -561,8 +632,12 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
           />
 
           {scheduleId && (
-            <MessageBar messageBarType={MessageBarType.info} styles={{ root: { marginTop: 8 } }}>
-              Template applied — line items populated. Adjust selections and prices below.
+            <MessageBar
+              messageBarType={MessageBarType.info}
+              styles={{ root: { marginTop: 8 } }}
+            >
+              Template applied — line items populated. Adjust selections and
+              prices below.
             </MessageBar>
           )}
 
@@ -578,7 +653,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
             services={services}
             context={variantContext}
             onChange={setLineItems}
-            readOnly={status === 'sent' || status === 'archived'}
+            readOnly={status === "sent" || status === "archived"}
           />
 
           {lineItems.length > 0 && (
@@ -596,7 +671,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
             multiline
             rows={3}
             value={notes}
-            onChange={(_, val): void => setNotes(val ?? '')}
+            onChange={(_, val): void => setNotes(val ?? "")}
             placeholder="Any additional notes for this budget…"
           />
         </div>

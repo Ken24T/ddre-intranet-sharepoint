@@ -21,14 +21,14 @@ export type {
   VariantSelector,
   VariantContext,
   DataExport,
-} from './types';
+} from "./types";
 
 export {
   getServiceVariant,
   getVariantPrice,
   hasSelectableVariants,
   hasAutoVariants,
-} from './variantHelpers';
+} from "./variantHelpers";
 
 export {
   getLineItemPrice,
@@ -38,6 +38,6 @@ export {
   calculateBudgetSummary,
   resolveLineItems,
   createDefaultBudget,
-} from './budgetCalculations';
+} from "./budgetCalculations";
 
-export { getSeedData, SEED_COUNTS } from './seedData';
+export { getSeedData, SEED_COUNTS } from "./seedData";

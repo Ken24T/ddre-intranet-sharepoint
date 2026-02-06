@@ -144,7 +144,15 @@ module.exports = {
         "**/test/*.ts",
         "**/test/*.tsx",
       ],
-      rules: {},
+      rules: {
+        // Relax strict typing in test files where mocks dominate
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        // Tests commonly shadow variables in nested describes
+        "no-shadow": "off",
+        // Large test files with mock data are expected
+        "max-lines": "off",
+      },
     },
   ],
 };

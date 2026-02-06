@@ -16,7 +16,7 @@ import type {
   Budget,
   BudgetStatus,
   DataExport,
-} from '../models/types';
+} from "../models/types";
 
 // ─────────────────────────────────────────────────────────────
 // Filter types

@@ -7,8 +7,8 @@
 
 /* eslint-disable @rushstack/no-new-null */
 
-import type { Budget, BudgetLineItem, Service, VariantContext } from './types';
-import { getServiceVariant } from './variantHelpers';
+import type { Budget, BudgetLineItem, Service, VariantContext } from "./types";
+import { getServiceVariant } from "./variantHelpers";
 
 // Australian GST rate (10%)
 const GST_RATE = 0.1;
@@ -73,7 +73,7 @@ export function calculateBudgetSummary(lineItems: BudgetLineItem[]): {
 export function resolveLineItems(
   lineItems: BudgetLineItem[],
   services: Service[],
-  context: VariantContext
+  context: VariantContext,
 ): BudgetLineItem[] {
   return lineItems.map((li) => {
     const service = services.find((s) => s.id === li.serviceId);
@@ -98,29 +98,35 @@ export function resolveLineItems(
 export function getEffectivePrice(
   lineItem: BudgetLineItem,
   service: Service,
-  context: VariantContext
+  context: VariantContext,
 ): number {
   if (lineItem.isOverridden && lineItem.overridePrice !== null) {
     return lineItem.overridePrice;
   }
-  const variant = getServiceVariant(service, context, lineItem.variantId ?? undefined);
+  const variant = getServiceVariant(
+    service,
+    context,
+    lineItem.variantId ?? undefined,
+  );
   return variant.basePrice;
 }
 
 /**
  * Create default budget values.
  */
-export function createDefaultBudget(vendorId?: number | null): Omit<Budget, 'createdAt' | 'updatedAt'> {
+export function createDefaultBudget(
+  vendorId?: number | null,
+): Omit<Budget, "createdAt" | "updatedAt"> {
   return {
-    propertyAddress: '',
-    propertyType: 'house',
-    propertySize: 'medium',
-    tier: 'standard',
+    propertyAddress: "",
+    propertyType: "house",
+    propertySize: "medium",
+    tier: "standard",
     suburbId: null,
     vendorId: vendorId ?? null,
     scheduleId: null,
     scheduleName: null,
     lineItems: [],
-    status: 'draft',
+    status: "draft",
   };
 }

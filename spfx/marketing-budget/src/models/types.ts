@@ -18,34 +18,40 @@
 
 /** Service categories available in the system. */
 export type ServiceCategory =
-  | 'photography'
-  | 'floorPlans'
-  | 'aerial'
-  | 'video'
-  | 'virtualStaging'
-  | 'internet'
-  | 'legal'
-  | 'print'
-  | 'signage'
-  | 'other';
+  | "photography"
+  | "floorPlans"
+  | "aerial"
+  | "video"
+  | "virtualStaging"
+  | "internet"
+  | "legal"
+  | "print"
+  | "signage"
+  | "other";
 
 /** How the correct variant is determined for a service. */
-export type VariantSelector = 'manual' | 'propertySize' | 'suburbTier';
+export type VariantSelector = "manual" | "propertySize" | "suburbTier";
 
 /** Property type classification. */
-export type PropertyType = 'house' | 'unit' | 'townhouse' | 'land' | 'rural' | 'commercial';
+export type PropertyType =
+  | "house"
+  | "unit"
+  | "townhouse"
+  | "land"
+  | "rural"
+  | "commercial";
 
 /** Property size classification. */
-export type PropertySize = 'small' | 'medium' | 'large';
+export type PropertySize = "small" | "medium" | "large";
 
 /** Suburb pricing tier (maps to REA internet listing tiers). */
-export type PricingTier = 'A' | 'B' | 'C' | 'D';
+export type PricingTier = "A" | "B" | "C" | "D";
 
 /** Schedule / budget tier level. */
-export type BudgetTier = 'basic' | 'standard' | 'premium';
+export type BudgetTier = "basic" | "standard" | "premium";
 
 /** Lifecycle status of a budget. */
-export type BudgetStatus = 'draft' | 'approved' | 'sent' | 'archived';
+export type BudgetStatus = "draft" | "approved" | "sent" | "archived";
 
 // ─────────────────────────────────────────────────────────────
 // Vendor

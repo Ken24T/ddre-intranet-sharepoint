@@ -6,7 +6,7 @@
  * Services are read-only reference data (managed via seed import).
  */
 
-import * as React from 'react';
+import * as React from "react";
 import {
   DetailsList,
   DetailsListLayoutMode,
@@ -19,11 +19,11 @@ import {
   MessageBarType,
   SearchBox,
   Dropdown,
-} from '@fluentui/react';
-import type { IColumn, IDropdownOption } from '@fluentui/react';
-import type { Service, Vendor } from '../../../models/types';
-import type { IBudgetRepository } from '../../../services/IBudgetRepository';
-import styles from './MarketingBudget.module.scss';
+} from "@fluentui/react";
+import type { IColumn, IDropdownOption } from "@fluentui/react";
+import type { Service, Vendor } from "../../../models/types";
+import type { IBudgetRepository } from "../../../services/IBudgetRepository";
+import styles from "./MarketingBudget.module.scss";
 
 export interface IServicesViewProps {
   repository: IBudgetRepository;
@@ -43,7 +43,7 @@ interface IServiceRow {
 
 /** Format a price range string from a set of variants. */
 const formatPriceRange = (service: Service): string => {
-  if (service.variants.length === 0) return '—';
+  if (service.variants.length === 0) return "—";
   const prices = service.variants.map((v) => v.basePrice);
   const min = Math.min(...prices);
   const max = Math.max(...prices);
@@ -56,9 +56,11 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
   const [vendors, setVendors] = React.useState<Vendor[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | undefined>(undefined);
-  const [searchText, setSearchText] = React.useState('');
-  const [categoryFilter, setCategoryFilter] = React.useState('all');
-  const [expandedId, setExpandedId] = React.useState<number | undefined>(undefined);
+  const [searchText, setSearchText] = React.useState("");
+  const [categoryFilter, setCategoryFilter] = React.useState("all");
+  const [expandedId, setExpandedId] = React.useState<number | undefined>(
+    undefined,
+  );
 
   React.useEffect(() => {
     let cancelled = false;
@@ -74,13 +76,18 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
           setVendors(vendorList);
         }
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load services');
+        if (!cancelled)
+          setError(
+            err instanceof Error ? err.message : "Failed to load services",
+          );
       } finally {
         if (!cancelled) setIsLoading(false);
       }
     };
     load(); // eslint-disable-line @typescript-eslint/no-floating-promises
-    return (): void => { cancelled = true; };
+    return (): void => {
+      cancelled = true;
+    };
   }, [repository]);
 
   /** Vendor ID → name lookup. */
@@ -95,10 +102,12 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
   /** Distinct categories for the filter dropdown. */
   const categoryOptions: IDropdownOption[] = React.useMemo(() => {
     const cats = new Set(services.map((s) => s.category));
-    const opts: IDropdownOption[] = [{ key: 'all', text: 'All categories' }];
+    const opts: IDropdownOption[] = [{ key: "all", text: "All categories" }];
     Array.from(cats)
       .sort()
-      .forEach((c) => opts.push({ key: c, text: c.charAt(0).toUpperCase() + c.slice(1) }));
+      .forEach((c) =>
+        opts.push({ key: c, text: c.charAt(0).toUpperCase() + c.slice(1) }),
+      );
     return opts;
   }, [services]);
 
@@ -107,8 +116,10 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
     const lowerSearch = searchText.toLowerCase();
     return services
       .filter((s) => {
-        if (categoryFilter !== 'all' && s.category !== categoryFilter) return false;
-        if (searchText && !s.name.toLowerCase().includes(lowerSearch)) return false;
+        if (categoryFilter !== "all" && s.category !== categoryFilter)
+          return false;
+        if (searchText && !s.name.toLowerCase().includes(lowerSearch))
+          return false;
         return true;
       })
       .map((s) => ({
@@ -116,9 +127,10 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
         id: s.id ?? 0,
         name: s.name,
         category: s.category,
-        vendorName: s.vendorId !== null ? (vendorMap.get(s.vendorId) ?? 'Unknown') : '—',
+        vendorName:
+          s.vendorId !== null ? (vendorMap.get(s.vendorId) ?? "Unknown") : "—",
         variantCount: s.variants.length,
-        variantSelector: s.variantSelector ?? 'none',
+        variantSelector: s.variantSelector ?? "none",
         priceRange: formatPriceRange(s),
         _service: s,
       }));
@@ -126,24 +138,66 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
 
   const columns: IColumn[] = React.useMemo(
     (): IColumn[] => [
-      { key: 'name', name: 'Service', fieldName: 'name', minWidth: 150, maxWidth: 250, isResizable: true },
       {
-        key: 'category', name: 'Category', fieldName: 'category', minWidth: 90, maxWidth: 130, isResizable: true,
+        key: "name",
+        name: "Service",
+        fieldName: "name",
+        minWidth: 150,
+        maxWidth: 250,
+        isResizable: true,
+      },
+      {
+        key: "category",
+        name: "Category",
+        fieldName: "category",
+        minWidth: 90,
+        maxWidth: 130,
+        isResizable: true,
         onRender: (item: IServiceRow): JSX.Element => (
-          <Text variant="small" style={{ textTransform: 'capitalize' }}>{item.category}</Text>
+          <Text variant="small" style={{ textTransform: "capitalize" }}>
+            {item.category}
+          </Text>
         ),
       },
-      { key: 'vendor', name: 'Vendor', fieldName: 'vendorName', minWidth: 120, maxWidth: 180, isResizable: true },
-      { key: 'variants', name: 'Variants', fieldName: 'variantCount', minWidth: 60, maxWidth: 80, isResizable: true },
       {
-        key: 'selector', name: 'Selection', fieldName: 'variantSelector', minWidth: 80, maxWidth: 110, isResizable: true,
+        key: "vendor",
+        name: "Vendor",
+        fieldName: "vendorName",
+        minWidth: 120,
+        maxWidth: 180,
+        isResizable: true,
+      },
+      {
+        key: "variants",
+        name: "Variants",
+        fieldName: "variantCount",
+        minWidth: 60,
+        maxWidth: 80,
+        isResizable: true,
+      },
+      {
+        key: "selector",
+        name: "Selection",
+        fieldName: "variantSelector",
+        minWidth: 80,
+        maxWidth: 110,
+        isResizable: true,
         onRender: (item: IServiceRow): JSX.Element => (
-          <Text variant="small" style={{ textTransform: 'capitalize' }}>{item.variantSelector}</Text>
+          <Text variant="small" style={{ textTransform: "capitalize" }}>
+            {item.variantSelector}
+          </Text>
         ),
       },
-      { key: 'price', name: 'Price Range', fieldName: 'priceRange', minWidth: 100, maxWidth: 160, isResizable: true },
+      {
+        key: "price",
+        name: "Price Range",
+        fieldName: "priceRange",
+        minWidth: 100,
+        maxWidth: 160,
+        isResizable: true,
+      },
     ],
-    []
+    [],
   );
 
   const handleRowClick = React.useCallback((item: IServiceRow): void => {
@@ -155,44 +209,102 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
     <div className={styles.refDetailPanel}>
       <Text className={styles.refDetailTitle}>{service.name}</Text>
       <div className={styles.refDetailMeta}>
-        <span>Category: <strong style={{ textTransform: 'capitalize' }}>{service.category}</strong></span>
-        <span>Vendor: <strong>{service.vendorId !== null ? (vendorMap.get(service.vendorId) ?? '—') : 'System'}</strong></span>
-        <span>Selection: <strong style={{ textTransform: 'capitalize' }}>{service.variantSelector ?? 'None'}</strong></span>
-        <span>GST inclusive: <strong>{service.includesGst ? 'Yes' : 'No'}</strong></span>
+        <span>
+          Category:{" "}
+          <strong style={{ textTransform: "capitalize" }}>
+            {service.category}
+          </strong>
+        </span>
+        <span>
+          Vendor:{" "}
+          <strong>
+            {service.vendorId !== null
+              ? (vendorMap.get(service.vendorId) ?? "—")
+              : "System"}
+          </strong>
+        </span>
+        <span>
+          Selection:{" "}
+          <strong style={{ textTransform: "capitalize" }}>
+            {service.variantSelector ?? "None"}
+          </strong>
+        </span>
+        <span>
+          GST inclusive: <strong>{service.includesGst ? "Yes" : "No"}</strong>
+        </span>
       </div>
 
-      <Text className={styles.sectionTitle} style={{ marginTop: 12, fontSize: 13 }}>Variants</Text>
+      <Text
+        className={styles.sectionTitle}
+        style={{ marginTop: 12, fontSize: 13 }}
+      >
+        Variants
+      </Text>
       <div className={styles.refItemList}>
         {service.variants.length === 0 ? (
-          <Text variant="small" style={{ color: '#605e5c', padding: '8px 0' }}>No variants defined.</Text>
+          <Text variant="small" style={{ color: "#605e5c", padding: "8px 0" }}>
+            No variants defined.
+          </Text>
         ) : (
           service.variants.map((v) => (
             <div key={v.id} className={styles.refItemRow}>
               <span className={styles.refItemName}>{v.name}</span>
               <span className={styles.refItemVariant}>
-                {v.sizeMatch ? `Size: ${v.sizeMatch}` : v.tierMatch ? `Tier: ${v.tierMatch}` : ''}
+                {v.sizeMatch
+                  ? `Size: ${v.sizeMatch}`
+                  : v.tierMatch
+                    ? `Tier: ${v.tierMatch}`
+                    : ""}
               </span>
-              <span className={styles.refItemPrice}>${v.basePrice.toFixed(2)}</span>
+              <span className={styles.refItemPrice}>
+                ${v.basePrice.toFixed(2)}
+              </span>
             </div>
           ))
         )}
       </div>
 
       {/* Show included services for package variants */}
-      {service.variants.some((v) => v.includedServices && v.includedServices.length > 0) && (
+      {service.variants.some(
+        (v) => v.includedServices && v.includedServices.length > 0,
+      ) && (
         <>
-          <Text className={styles.sectionTitle} style={{ marginTop: 12, fontSize: 13 }}>Included Services</Text>
+          <Text
+            className={styles.sectionTitle}
+            style={{ marginTop: 12, fontSize: 13 }}
+          >
+            Included Services
+          </Text>
           <div className={styles.refItemList}>
             {service.variants
-              .filter((v) => v.includedServices && v.includedServices.length > 0)
+              .filter(
+                (v) => v.includedServices && v.includedServices.length > 0,
+              )
               .map((v) => (
                 <div key={v.id} style={{ marginBottom: 8 }}>
-                  <Text variant="small" style={{ fontWeight: 600 }}>{v.name}:</Text>
+                  <Text variant="small" style={{ fontWeight: 600 }}>
+                    {v.name}:
+                  </Text>
                   {v.includedServices!.map((inc, idx) => (
-                    <div key={idx} className={styles.refItemRow} style={{ paddingLeft: 16 }}>
-                      <Icon iconName="StatusCircleCheckmark" style={{ color: '#001CAD', fontSize: 12, flexShrink: 0 }} />
-                      <span className={styles.refItemName}>{inc.serviceName}</span>
-                      <span className={styles.refItemVariant}>{inc.variantName ?? ''}</span>
+                    <div
+                      key={idx}
+                      className={styles.refItemRow}
+                      style={{ paddingLeft: 16 }}
+                    >
+                      <Icon
+                        iconName="StatusCircleCheckmark"
+                        style={{
+                          color: "#001CAD",
+                          fontSize: 12,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span className={styles.refItemName}>
+                        {inc.serviceName}
+                      </span>
+                      <span className={styles.refItemVariant}>
+                        {inc.variantName ?? ""}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -208,12 +320,17 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
       <div className={styles.viewHeader}>
         <Text className={styles.viewTitle}>Services</Text>
         <Text className={styles.viewSubtitle}>
-          Marketing services and their variant pricing used in budget line items.
+          Marketing services and their variant pricing used in budget line
+          items.
         </Text>
       </div>
 
       {error && (
-        <MessageBar messageBarType={MessageBarType.error} onDismiss={(): void => setError(undefined)} dismissButtonAriaLabel="Close">
+        <MessageBar
+          messageBarType={MessageBarType.error}
+          onDismiss={(): void => setError(undefined)}
+          dismissButtonAriaLabel="Close"
+        >
           {error}
         </MessageBar>
       )}
@@ -222,14 +339,16 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
         <SearchBox
           placeholder="Search services…"
           value={searchText}
-          onChange={(_, val): void => setSearchText(val ?? '')}
+          onChange={(_, val): void => setSearchText(val ?? "")}
           className={styles.filterSearch}
         />
         <Dropdown
           placeholder="Category"
           options={categoryOptions}
           selectedKey={categoryFilter}
-          onChange={(_, option): void => setCategoryFilter(String(option?.key ?? 'all'))}
+          onChange={(_, option): void =>
+            setCategoryFilter(String(option?.key ?? "all"))
+          }
           className={styles.filterDropdown}
         />
       </div>
@@ -240,9 +359,12 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
         </div>
       ) : rows.length === 0 ? (
         <div className={styles.centeredState}>
-          <Icon iconName="Settings" style={{ fontSize: 48, marginBottom: 16, color: '#001CAD' }} />
+          <Icon
+            iconName="Settings"
+            style={{ fontSize: 48, marginBottom: 16, color: "#001CAD" }}
+          />
           <Text variant="large">No services found</Text>
-          <Text variant="medium" style={{ marginTop: 8, color: '#605e5c' }}>
+          <Text variant="medium" style={{ marginTop: 8, color: "#605e5c" }}>
             Services are loaded with reference data.
           </Text>
         </div>
@@ -254,14 +376,15 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
             layoutMode={DetailsListLayoutMode.justified}
             selectionMode={SelectionMode.none}
             isHeaderVisible={true}
-            onActiveItemChanged={(item): void => handleRowClick(item as IServiceRow)}
+            onActiveItemChanged={(item): void =>
+              handleRowClick(item as IServiceRow)
+            }
           />
-          {expandedId !== undefined && (
+          {expandedId !== undefined &&
             (() => {
               const service = services.find((s) => s.id === expandedId);
               return service ? renderExpandedDetail(service) : undefined;
-            })()
-          )}
+            })()}
         </>
       )}
     </div>

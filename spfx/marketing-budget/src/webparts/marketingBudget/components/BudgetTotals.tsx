@@ -4,11 +4,11 @@
  * Uses the pure calculation functions from budgetCalculations.ts.
  */
 
-import * as React from 'react';
-import { Text } from '@fluentui/react';
-import type { BudgetLineItem } from '../../../models/types';
-import { calculateBudgetSummary } from '../../../models/budgetCalculations';
-import styles from './MarketingBudget.module.scss';
+import * as React from "react";
+import { Text } from "@fluentui/react";
+import type { BudgetLineItem } from "../../../models/types";
+import { calculateBudgetSummary } from "../../../models/budgetCalculations";
+import styles from "./MarketingBudget.module.scss";
 
 export interface IBudgetTotalsProps {
   lineItems: BudgetLineItem[];
@@ -16,15 +16,18 @@ export interface IBudgetTotalsProps {
 
 /** Format a number as AUD currency. */
 function formatCurrency(value: number): string {
-  return value.toLocaleString('en-AU', {
-    style: 'currency',
-    currency: 'AUD',
+  return value.toLocaleString("en-AU", {
+    style: "currency",
+    currency: "AUD",
     minimumFractionDigits: 2,
   });
 }
 
 export const BudgetTotals: React.FC<IBudgetTotalsProps> = ({ lineItems }) => {
-  const summary = React.useMemo(() => calculateBudgetSummary(lineItems), [lineItems]);
+  const summary = React.useMemo(
+    () => calculateBudgetSummary(lineItems),
+    [lineItems],
+  );
 
   return (
     <div className={styles.totalsBar}>

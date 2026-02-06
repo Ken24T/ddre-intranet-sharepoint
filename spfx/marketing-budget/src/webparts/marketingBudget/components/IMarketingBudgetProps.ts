@@ -2,7 +2,7 @@
  * IMarketingBudgetProps – Props for the root MarketingBudget React component.
  */
 
-import type { IBudgetRepository } from '../../../services/IBudgetRepository';
+import type { IBudgetRepository } from "../../../services/IBudgetRepository";
 
 export interface IMarketingBudgetProps {
   /** User's display name from SharePoint context. */

@@ -4,7 +4,7 @@ declare interface IMarketingBudgetWebPartStrings {
   DescriptionFieldLabel: string;
 }
 
-declare module 'MarketingBudgetWebPartStrings' {
+declare module "MarketingBudgetWebPartStrings" {
   const strings: IMarketingBudgetWebPartStrings;
   export = strings;
 }
