@@ -61,7 +61,7 @@ const createMockRepo = (): IBudgetRepository => ({
 describe("SuburbsView", () => {
   it("renders the suburbs header", async () => {
     const repo = createMockRepo();
-    render(<SuburbsView repository={repo} />);
+    render(<SuburbsView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("Suburbs")).toBeInTheDocument();
     });
@@ -69,7 +69,7 @@ describe("SuburbsView", () => {
 
   it("displays suburb names", async () => {
     const repo = createMockRepo();
-    render(<SuburbsView repository={repo} />);
+    render(<SuburbsView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("Bardon")).toBeInTheDocument();
       expect(screen.getByText("Toowong")).toBeInTheDocument();
@@ -80,7 +80,7 @@ describe("SuburbsView", () => {
 
   it("shows pricing tier labels", async () => {
     const repo = createMockRepo();
-    render(<SuburbsView repository={repo} />);
+    render(<SuburbsView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getAllByText("Tier A").length).toBeGreaterThanOrEqual(1);
       expect(screen.getAllByText("Tier C").length).toBeGreaterThanOrEqual(1);
@@ -90,7 +90,7 @@ describe("SuburbsView", () => {
 
   it("shows tier summary badges", async () => {
     const repo = createMockRepo();
-    render(<SuburbsView repository={repo} />);
+    render(<SuburbsView repository={repo} userRole="admin" />);
     await waitFor(() => {
       // "2 suburbs" for Tier A
       expect(screen.getByText("2 suburbs")).toBeInTheDocument();
@@ -101,7 +101,7 @@ describe("SuburbsView", () => {
 
   it("shows postcodes", async () => {
     const repo = createMockRepo();
-    render(<SuburbsView repository={repo} />);
+    render(<SuburbsView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("4065")).toBeInTheDocument();
       expect(screen.getByText("4305")).toBeInTheDocument();
@@ -111,7 +111,7 @@ describe("SuburbsView", () => {
   it("shows empty state when no suburbs", async () => {
     const repo = createMockRepo();
     (repo.getSuburbs as jest.Mock).mockResolvedValue([]);
-    render(<SuburbsView repository={repo} />);
+    render(<SuburbsView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("No suburbs found")).toBeInTheDocument();
     });
@@ -119,7 +119,7 @@ describe("SuburbsView", () => {
 
   it("filters suburbs by search text", async () => {
     const repo = createMockRepo();
-    render(<SuburbsView repository={repo} />);
+    render(<SuburbsView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("Bardon")).toBeInTheDocument();
     });
@@ -131,5 +131,52 @@ describe("SuburbsView", () => {
       expect(screen.getByText("Ipswich")).toBeInTheDocument();
       expect(screen.queryByText("Bardon")).not.toBeInTheDocument();
     });
+  });
+
+  // ─── Role-based access control ──────────────────────────
+
+  it("shows New Suburb button for admin", async () => {
+    const repo = createMockRepo();
+    render(<SuburbsView repository={repo} userRole="admin" />);
+    await waitFor(() => {
+      expect(screen.getByText("New Suburb")).toBeInTheDocument();
+    });
+  });
+
+  it("hides New Suburb button for viewer", async () => {
+    const repo = createMockRepo();
+    render(<SuburbsView repository={repo} userRole="viewer" />);
+    await waitFor(() => {
+      expect(screen.getByText("Bardon")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("New Suburb")).not.toBeInTheDocument();
+  });
+
+  it("hides New Suburb button for editor", async () => {
+    const repo = createMockRepo();
+    render(<SuburbsView repository={repo} userRole="editor" />);
+    await waitFor(() => {
+      expect(screen.getByText("Bardon")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("New Suburb")).not.toBeInTheDocument();
+  });
+
+  it("shows actions column for admin", async () => {
+    const repo = createMockRepo();
+    render(<SuburbsView repository={repo} userRole="admin" />);
+    await waitFor(() => {
+      expect(screen.getByText("Bardon")).toBeInTheDocument();
+    });
+    const actionButtons = screen.getAllByTitle("Actions");
+    expect(actionButtons.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("hides actions column for viewer", async () => {
+    const repo = createMockRepo();
+    render(<SuburbsView repository={repo} userRole="viewer" />);
+    await waitFor(() => {
+      expect(screen.getByText("Bardon")).toBeInTheDocument();
+    });
+    expect(screen.queryByTitle("Actions")).not.toBeInTheDocument();
   });
 });

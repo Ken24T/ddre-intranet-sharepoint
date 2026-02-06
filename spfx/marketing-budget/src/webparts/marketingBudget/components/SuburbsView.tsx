@@ -2,30 +2,43 @@
  * SuburbsView — Browse suburbs and their pricing tiers.
  *
  * Displays suburbs in a DetailsList grouped/filterable by pricing tier.
- * Suburbs are read-only reference data (managed via seed import).
+ * Admin users can add, edit and delete suburbs via the "..." context menu.
  */
 
 import * as React from "react";
 import {
+  DefaultButton,
   DetailsList,
   DetailsListLayoutMode,
+  Dialog,
+  DialogFooter,
+  DialogType,
+  Dropdown,
+  IconButton,
+  Panel,
+  PanelType,
+  PrimaryButton,
   SelectionMode,
+  Separator,
   Text,
+  TextField,
   Icon,
   Spinner,
   SpinnerSize,
   MessageBar,
   MessageBarType,
   SearchBox,
-  Dropdown,
 } from "@fluentui/react";
-import type { IColumn, IDropdownOption } from "@fluentui/react";
+import type { IColumn, IContextualMenuProps, IContextualMenuItem, IDropdownOption } from "@fluentui/react";
 import type { Suburb, PricingTier } from "../../../models/types";
+import type { UserRole } from "../../../models/permissions";
+import { canManageReferenceData } from "../../../models/permissions";
 import type { IBudgetRepository } from "../../../services/IBudgetRepository";
 import styles from "./MarketingBudget.module.scss";
 
 export interface ISuburbsViewProps {
   repository: IBudgetRepository;
+  userRole: UserRole;
 }
 
 interface ISuburbRow {
@@ -35,6 +48,7 @@ interface ISuburbRow {
   pricingTier: string;
   postcode: string;
   state: string;
+  _suburb: Suburb;
 }
 
 const tierColours: Record<PricingTier, string> = {
@@ -44,7 +58,7 @@ const tierColours: Record<PricingTier, string> = {
   D: "#d13438",
 };
 
-const tierOptions: IDropdownOption[] = [
+const tierFilterOptions: IDropdownOption[] = [
   { key: "all", text: "All tiers" },
   { key: "A", text: "Tier A" },
   { key: "B", text: "Tier B" },
@@ -52,34 +66,60 @@ const tierOptions: IDropdownOption[] = [
   { key: "D", text: "Tier D" },
 ];
 
-export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository }) => {
+const tierEditOptions: IDropdownOption[] = [
+  { key: "A", text: "Tier A" },
+  { key: "B", text: "Tier B" },
+  { key: "C", text: "Tier C" },
+  { key: "D", text: "Tier D" },
+];
+
+export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole }) => {
   const [suburbs, setSuburbs] = React.useState<Suburb[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | undefined>(undefined);
   const [searchText, setSearchText] = React.useState("");
   const [tierFilter, setTierFilter] = React.useState("all");
 
-  React.useEffect(() => {
-    let cancelled = false;
-    const load = async (): Promise<void> => {
+  // Editor panel state
+  const [isEditorOpen, setIsEditorOpen] = React.useState(false);
+  const [editSuburb, setEditSuburb] = React.useState<Suburb | undefined>(undefined);
+  const [editorName, setEditorName] = React.useState("");
+  const [editorTier, setEditorTier] = React.useState<PricingTier>("A");
+  const [editorPostcode, setEditorPostcode] = React.useState("");
+  const [editorState, setEditorState] = React.useState("QLD");
+  const [isSaving, setIsSaving] = React.useState(false);
+
+  // Delete confirmation state
+  const [pendingDelete, setPendingDelete] = React.useState<Suburb | undefined>(undefined);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
+  const isAdmin = canManageReferenceData(userRole);
+
+  const loadData = React.useCallback(
+    async (signal: { cancelled: boolean }): Promise<void> => {
       setIsLoading(true);
       try {
         const result = await repository.getSuburbs();
-        if (!cancelled) setSuburbs(result);
+        if (!signal.cancelled) setSuburbs(result);
       } catch (err) {
-        if (!cancelled)
+        if (!signal.cancelled)
           setError(
             err instanceof Error ? err.message : "Failed to load suburbs",
           );
       } finally {
-        if (!cancelled) setIsLoading(false);
+        if (!signal.cancelled) setIsLoading(false);
       }
-    };
-    load(); // eslint-disable-line @typescript-eslint/no-floating-promises
+    },
+    [repository],
+  );
+
+  React.useEffect(() => {
+    const signal = { cancelled: false };
+    loadData(signal); // eslint-disable-line @typescript-eslint/no-floating-promises
     return (): void => {
-      cancelled = true;
+      signal.cancelled = true;
     };
-  }, [repository]);
+  }, [loadData]);
 
   const rows: ISuburbRow[] = React.useMemo(() => {
     const lowerSearch = searchText.toLowerCase();
@@ -97,6 +137,7 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository }) => {
         pricingTier: s.pricingTier,
         postcode: s.postcode ?? "—",
         state: s.state ?? "QLD",
+        _suburb: s,
       }));
   }, [suburbs, searchText, tierFilter]);
 
@@ -109,8 +150,93 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository }) => {
     return counts;
   }, [suburbs]);
 
-  const columns: IColumn[] = React.useMemo(
-    (): IColumn[] => [
+  // ─── Editor helpers ────────────────────────────────────
+
+  const openEditor = React.useCallback((suburb?: Suburb): void => {
+    setEditSuburb(suburb);
+    setEditorName(suburb?.name ?? "");
+    setEditorTier(suburb?.pricingTier ?? "A");
+    setEditorPostcode(suburb?.postcode ?? "");
+    setEditorState(suburb?.state ?? "QLD");
+    setIsEditorOpen(true);
+  }, []);
+
+  const closeEditor = React.useCallback((): void => {
+    setIsEditorOpen(false);
+    setEditSuburb(undefined);
+  }, []);
+
+  const handleSave = React.useCallback(async (): Promise<void> => {
+    setIsSaving(true);
+    try {
+      const suburb: Suburb = {
+        ...(editSuburb ?? {}),
+        name: editorName.trim(),
+        pricingTier: editorTier,
+        postcode: editorPostcode.trim() || undefined,
+        state: editorState.trim() || undefined,
+      };
+      await repository.saveSuburb(suburb);
+      closeEditor();
+      loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save suburb");
+    } finally {
+      setIsSaving(false);
+    }
+  }, [editSuburb, editorName, editorTier, editorPostcode, editorState, repository, closeEditor, loadData]);
+
+  // ─── Delete helpers ────────────────────────────────────
+
+  const handleDeleteConfirm = React.useCallback(async (): Promise<void> => {
+    if (!pendingDelete?.id) return;
+    setIsDeleting(true);
+    try {
+      await repository.deleteSuburb(pendingDelete.id);
+      setPendingDelete(undefined);
+      loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete suburb");
+      setPendingDelete(undefined);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [pendingDelete, repository, loadData]);
+
+  // ─── Row menu builder ─────────────────────────────────
+
+  const getRowMenuItems = React.useCallback(
+    (suburb: Suburb): IContextualMenuItem[] => {
+      const items: IContextualMenuItem[] = [];
+      if (!isAdmin) return items;
+
+      items.push({
+        key: "edit",
+        text: "Edit",
+        iconProps: { iconName: "Edit" },
+        onClick: (): void => openEditor(suburb),
+      });
+      items.push({
+        key: "divider",
+        text: "-",
+        itemType: 1,
+      });
+      items.push({
+        key: "delete",
+        text: "Delete",
+        iconProps: { iconName: "Delete", style: { color: "#a4262c" } },
+        style: { color: "#a4262c" },
+        onClick: (): void => setPendingDelete(suburb),
+      });
+      return items;
+    },
+    [isAdmin, openEditor],
+  );
+
+  // ─── Column definitions ───────────────────────────────
+
+  const columns: IColumn[] = React.useMemo((): IColumn[] => {
+    const cols: IColumn[] = [
       {
         key: "name",
         name: "Suburb",
@@ -154,9 +280,32 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository }) => {
         maxWidth: 80,
         isResizable: true,
       },
-    ],
-    [],
-  );
+    ];
+
+    if (isAdmin) {
+      cols.push({
+        key: "actions",
+        name: "",
+        minWidth: 40,
+        maxWidth: 40,
+        onRender: (item: ISuburbRow): JSX.Element => {
+          const menuItems = getRowMenuItems(item._suburb);
+          if (menuItems.length === 0) return <></>;
+          const menuProps: IContextualMenuProps = { items: menuItems };
+          return (
+            <IconButton
+              menuIconProps={{ iconName: "More" }}
+              menuProps={menuProps}
+              title="Actions"
+              ariaLabel={`Actions for ${item.name}`}
+            />
+          );
+        },
+      });
+    }
+
+    return cols;
+  }, [isAdmin, getRowMenuItems]);
 
   return (
     <div className={styles.viewContainer}>
@@ -210,13 +359,20 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository }) => {
         />
         <Dropdown
           placeholder="Pricing tier"
-          options={tierOptions}
+          options={tierFilterOptions}
           selectedKey={tierFilter}
           onChange={(_, option): void =>
             setTierFilter(String(option?.key ?? "all"))
           }
           className={styles.filterDropdown}
         />
+        {isAdmin && (
+          <PrimaryButton
+            text="New Suburb"
+            iconProps={{ iconName: "Add" }}
+            onClick={(): void => openEditor()}
+          />
+        )}
       </div>
 
       {isLoading ? (
@@ -243,6 +399,84 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository }) => {
           isHeaderVisible={true}
         />
       )}
+
+      {/* Editor panel */}
+      <Panel
+        isOpen={isEditorOpen}
+        onDismiss={closeEditor}
+        type={PanelType.custom}
+        customWidth="400px"
+        headerText={editSuburb ? `Edit — ${editSuburb.name}` : "New Suburb"}
+        isFooterAtBottom={true}
+        onRenderFooterContent={(): JSX.Element => (
+          <div className={styles.editorFooterRight}>
+            <DefaultButton text="Cancel" onClick={closeEditor} disabled={isSaving} />
+            <PrimaryButton
+              text={isSaving ? "Saving…" : editSuburb ? "Save Changes" : "Create Suburb"}
+              onClick={handleSave} // eslint-disable-line @typescript-eslint/no-floating-promises
+              disabled={isSaving || !editorName.trim()}
+            />
+          </div>
+        )}
+      >
+        <div className={styles.editorContent}>
+          <TextField
+            label="Suburb Name"
+            value={editorName}
+            onChange={(_, val): void => setEditorName(val ?? "")}
+            required
+            placeholder="e.g. Bardon"
+          />
+          <Dropdown
+            label="Pricing Tier"
+            options={tierEditOptions}
+            selectedKey={editorTier}
+            onChange={(_, opt): void => setEditorTier((opt?.key ?? "A") as PricingTier)}
+          />
+          <Separator />
+          <TextField
+            label="Postcode"
+            value={editorPostcode}
+            onChange={(_, val): void => setEditorPostcode(val ?? "")}
+            placeholder="e.g. 4065"
+            maxLength={4}
+          />
+          <TextField
+            label="State"
+            value={editorState}
+            onChange={(_, val): void => setEditorState(val ?? "")}
+            placeholder="QLD"
+          />
+        </div>
+      </Panel>
+
+      {/* Delete confirmation dialog */}
+      <Dialog
+        hidden={!pendingDelete}
+        onDismiss={(): void => setPendingDelete(undefined)}
+        dialogContentProps={{
+          type: DialogType.normal,
+          title: "Delete suburb",
+          subText: pendingDelete
+            ? `Are you sure you want to delete "${pendingDelete.name}"? This action cannot be undone.`
+            : "",
+        }}
+        modalProps={{ isBlocking: true }}
+      >
+        <DialogFooter>
+          <PrimaryButton
+            text={isDeleting ? "Deleting…" : "Delete"}
+            onClick={handleDeleteConfirm} // eslint-disable-line @typescript-eslint/no-floating-promises
+            disabled={isDeleting}
+            style={{ backgroundColor: "#a4262c", borderColor: "#a4262c" }}
+          />
+          <DefaultButton
+            text="Cancel"
+            onClick={(): void => setPendingDelete(undefined)}
+            disabled={isDeleting}
+          />
+        </DialogFooter>
+      </Dialog>
     </div>
   );
 };
