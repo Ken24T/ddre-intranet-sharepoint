@@ -94,7 +94,7 @@ const createMockRepo = (): IBudgetRepository => ({
 describe("ServicesView", () => {
   it("renders the services header and subtitle", async () => {
     const repo = createMockRepo();
-    render(<ServicesView repository={repo} />);
+    render(<ServicesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("Services")).toBeInTheDocument();
       expect(
@@ -105,7 +105,7 @@ describe("ServicesView", () => {
 
   it("loads and displays service names", async () => {
     const repo = createMockRepo();
-    render(<ServicesView repository={repo} />);
+    render(<ServicesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("Photography")).toBeInTheDocument();
       expect(screen.getByText("Floor Plan")).toBeInTheDocument();
@@ -115,7 +115,7 @@ describe("ServicesView", () => {
 
   it("shows vendor name for vendor services", async () => {
     const repo = createMockRepo();
-    render(<ServicesView repository={repo} />);
+    render(<ServicesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(
         screen.getAllByText("Mountford Media").length,
@@ -125,7 +125,7 @@ describe("ServicesView", () => {
 
   it("shows price range for services with multiple variants", async () => {
     const repo = createMockRepo();
-    render(<ServicesView repository={repo} />);
+    render(<ServicesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       // Photography: $220.00 – $330.00
       expect(screen.getByText("$220.00 – $330.00")).toBeInTheDocument();
@@ -134,7 +134,7 @@ describe("ServicesView", () => {
 
   it("shows variant count", async () => {
     const repo = createMockRepo();
-    render(<ServicesView repository={repo} />);
+    render(<ServicesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       // Photography has 2 variants, Floor Plan has 2, REA has 2
       const twos = screen.getAllByText("2");
@@ -145,7 +145,7 @@ describe("ServicesView", () => {
   it("shows empty state when no services", async () => {
     const repo = createMockRepo();
     (repo.getAllServices as jest.Mock).mockResolvedValue([]);
-    render(<ServicesView repository={repo} />);
+    render(<ServicesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("No services found")).toBeInTheDocument();
     });
@@ -153,7 +153,7 @@ describe("ServicesView", () => {
 
   it("filters services by search text", async () => {
     const repo = createMockRepo();
-    render(<ServicesView repository={repo} />);
+    render(<ServicesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("Photography")).toBeInTheDocument();
     });
@@ -165,5 +165,52 @@ describe("ServicesView", () => {
       expect(screen.getByText("REA Premium")).toBeInTheDocument();
       expect(screen.queryByText("Photography")).not.toBeInTheDocument();
     });
+  });
+
+  // ─── Role-gating tests ────────────────────────────────
+
+  it("shows 'New Service' button for admin users", async () => {
+    const repo = createMockRepo();
+    render(<ServicesView repository={repo} userRole="admin" />);
+    await waitFor(() => {
+      expect(screen.getByText("New Service")).toBeInTheDocument();
+    });
+  });
+
+  it("hides 'New Service' button for viewer users", async () => {
+    const repo = createMockRepo();
+    render(<ServicesView repository={repo} userRole="viewer" />);
+    await waitFor(() => {
+      expect(screen.getByText("Photography")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("New Service")).not.toBeInTheDocument();
+  });
+
+  it("hides 'New Service' button for editor users", async () => {
+    const repo = createMockRepo();
+    render(<ServicesView repository={repo} userRole="editor" />);
+    await waitFor(() => {
+      expect(screen.getByText("Photography")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("New Service")).not.toBeInTheDocument();
+  });
+
+  it("shows actions column for admin users", async () => {
+    const repo = createMockRepo();
+    render(<ServicesView repository={repo} userRole="admin" />);
+    await waitFor(() => {
+      expect(screen.getByText("Photography")).toBeInTheDocument();
+    });
+    const actionBtns = screen.getAllByTitle("Actions");
+    expect(actionBtns.length).toBeGreaterThan(0);
+  });
+
+  it("hides actions column for viewer users", async () => {
+    const repo = createMockRepo();
+    render(<ServicesView repository={repo} userRole="viewer" />);
+    await waitFor(() => {
+      expect(screen.getByText("Photography")).toBeInTheDocument();
+    });
+    expect(screen.queryByTitle("Actions")).not.toBeInTheDocument();
   });
 });

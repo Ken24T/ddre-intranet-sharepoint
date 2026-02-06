@@ -536,3 +536,22 @@
 .budgetRowAddress {
   cursor: default;
 }
+
+/* ─────────────────────────────────────────────────────── */
+/* Variant Editor (Services editor panel)                  */
+/* ─────────────────────────────────────────────────────── */
+
+.variantEditorRow {
+  padding: 4px 0;
+  border-bottom: 1px solid "[theme:neutralLight, default: #edebe9]";
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.variantEditorFields {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
