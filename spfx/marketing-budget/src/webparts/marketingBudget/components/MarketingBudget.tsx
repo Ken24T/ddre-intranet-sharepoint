@@ -3,6 +3,27 @@ import styles from './MarketingBudget.module.scss';
 import type { IMarketingBudgetProps } from './IMarketingBudgetProps';
 import { Icon, MessageBar, MessageBarType, PrimaryButton, Spinner, SpinnerSize, Text } from '@fluentui/react';
 import { getSeedData, SEED_COUNTS } from '../../../models/seedData';
+import type { IAppNavItem, AppToShellMessage } from '../../../appBridge';
+import { isShellToAppMessage } from '../../../appBridge';
+import { BudgetListView } from './BudgetListView';
+import { SchedulesView } from './SchedulesView';
+import { ServicesView } from './ServicesView';
+import { VendorsView } from './VendorsView';
+import { SuburbsView } from './SuburbsView';
+
+// ─────────────────────────────────────────────────────────────
+// App-level navigation definition
+// ─────────────────────────────────────────────────────────────
+
+export type AppViewKey = 'budgets' | 'schedules' | 'services' | 'vendors' | 'suburbs';
+
+export const APP_NAV_ITEMS: IAppNavItem[] = [
+  { key: 'budgets', label: 'Budgets', icon: 'Financial' },
+  { key: 'schedules', label: 'Schedules', icon: 'CalendarWeek' },
+  { key: 'services', label: 'Services', icon: 'Settings' },
+  { key: 'vendors', label: 'Vendors', icon: 'People' },
+  { key: 'suburbs', label: 'Suburbs', icon: 'MapPin' },
+];
 
 /** Counts returned after loading reference data. */
 interface DataCounts {
@@ -16,8 +37,10 @@ interface DataCounts {
 /**
  * Root component for the Marketing Budget web part.
  *
- * Stage 2: Auto-seeds reference data on first load and displays
- * a data status bar showing entity counts.
+ * Stage 3: View routing + postMessage bridge for shell sidebar integration.
+ * When embedded in the intranet shell iframe, this component sends its nav
+ * items to the shell and listens for SIDEBAR_NAVIGATE messages. In standalone
+ * mode (Vite dev harness or new tab), it renders its own sidebar.
  */
 const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const { userDisplayName, repository } = props;
@@ -26,6 +49,64 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const [isSeeding, setIsSeeding] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [seedComplete, setSeedComplete] = React.useState(false);
+  const [activeView, setActiveView] = React.useState<AppViewKey>('budgets');
+
+  /** Detect whether we are running inside an iframe (embedded in shell). */
+  const isEmbedded = React.useMemo(() => {
+    try {
+      return window.self !== window.top;
+    } catch {
+      return true; // Cross-origin = embedded
+    }
+  }, []);
+
+  // ─── postMessage bridge ──────────────────────────────────
+
+  /** Send a message to the parent shell. */
+  const postToShell = React.useCallback(
+    (msg: AppToShellMessage): void => {
+      if (isEmbedded && window.parent) {
+        window.parent.postMessage(msg, '*');
+      }
+    },
+    [isEmbedded]
+  );
+
+  /** On mount: send nav items to shell; listen for SIDEBAR_NAVIGATE. */
+  React.useEffect(() => {
+    if (!isEmbedded) return;
+
+    // Tell the shell what sidebar items we provide
+    postToShell({
+      type: 'SIDEBAR_SET_ITEMS',
+      items: APP_NAV_ITEMS,
+      activeKey: 'budgets',
+    });
+
+    const handleMessage = (event: MessageEvent): void => {
+      if (!isShellToAppMessage(event.data)) return;
+      if (event.data.type === 'SIDEBAR_NAVIGATE') {
+        setActiveView(event.data.key as AppViewKey);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return (): void => {
+      window.removeEventListener('message', handleMessage);
+      // Restore the shell sidebar when unmounting
+      postToShell({ type: 'SIDEBAR_RESTORE' });
+    };
+  }, [isEmbedded, postToShell]);
+
+  /** When activeView changes, notify shell to update active indicator. */
+  React.useEffect(() => {
+    if (isEmbedded) {
+      postToShell({ type: 'SIDEBAR_ACTIVE', key: activeView });
+    }
+  }, [activeView, isEmbedded, postToShell]);
+
+  // ─── Data loading ────────────────────────────────────────
 
   /** Load counts from the repository. */
   const loadCounts = React.useCallback(async (): Promise<DataCounts> => {
@@ -102,8 +183,47 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
 
   const hasData = counts !== null && counts.services > 0;
 
-  return (
-    <div className={styles.marketingBudget}>
+  // ─── View renderer ────────────────────────────────────────
+
+  const renderActiveView = (): React.ReactNode => {
+    switch (activeView) {
+      case 'budgets':
+        return <BudgetListView repository={repository} />;
+      case 'schedules':
+        return <SchedulesView />;
+      case 'services':
+        return <ServicesView />;
+      case 'vendors':
+        return <VendorsView />;
+      case 'suburbs':
+        return <SuburbsView />;
+      default:
+        return <BudgetListView repository={repository} />;
+    }
+  };
+
+  // ─── Standalone sidebar (non-embedded mode) ───────────────
+
+  const renderStandaloneSidebar = (): React.ReactNode => (
+    <nav className={styles.standaloneSidebar}>
+      {APP_NAV_ITEMS.map((item) => (
+        <button
+          key={item.key}
+          className={`${styles.navItem} ${activeView === item.key ? styles.navItemActive : ''}`}
+          onClick={(): void => setActiveView(item.key as AppViewKey)}
+          type="button"
+        >
+          <Icon iconName={item.icon} />
+          <span>{item.label}</span>
+        </button>
+      ))}
+    </nav>
+  );
+
+  // ─── Main content ─────────────────────────────────────────
+
+  const renderMainContent = (): React.ReactNode => (
+    <>
       <div className={styles.header}>
         <div>
           <Text className={styles.title}>Marketing Budgets</Text>
@@ -187,21 +307,28 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
           </div>
         )}
 
-        {/* Ready state */}
-        {!isLoading && !isSeeding && hasData && (
-          <div className={styles.placeholder}>
-            <Icon iconName="Financial" style={{ fontSize: 48, marginBottom: 16, color: '#001CAD' }} />
-            <Text variant="large">
-              {counts.budgets} budget{counts.budgets === 1 ? '' : 's'} found
-            </Text>
-            <Text variant="medium" style={{ marginTop: 8, color: '#605e5c' }}>
-              Budget list and editor coming in Stage 4
-            </Text>
-          </div>
-        )}
+        {/* Ready state — show active view */}
+        {!isLoading && !isSeeding && hasData && renderActiveView()}
       </div>
-    </div>
+    </>
   );
+
+  // ─── Layout ──────────────────────────────────────────────
+
+  if (!isEmbedded) {
+    // Standalone mode: render own sidebar alongside content
+    return (
+      <div className={styles.standaloneLayout}>
+        {renderStandaloneSidebar()}
+        <div className={styles.standaloneContent}>
+          <div className={styles.marketingBudget}>{renderMainContent()}</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Embedded mode: no local sidebar, shell provides it via postMessage
+  return <div className={styles.marketingBudget}>{renderMainContent()}</div>;
 };
 
 export default MarketingBudget;

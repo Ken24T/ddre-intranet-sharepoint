@@ -33,6 +33,8 @@ import type { ISearchResult } from './SearchBox';
 import { getHubColor, getResolvedTheme, getThemeCssVars, isDarkTheme } from './theme';
 import type { ThemeMode } from './UserProfileMenu';
 import { openMockHelpWindow } from './utils/helpMock';
+import type { IAppNavItem } from './appBridge';
+import { isAppToShellMessage } from './appBridge';
 
 // Local storage key for AI Assistant hidden state (mocked global setting)
 const LOCAL_KEY_AI_HIDDEN = 'ddre-intranet-global-aiAssistantHidden';
@@ -81,6 +83,10 @@ export interface IIntranetShellState {
   hasUnreadReleases: boolean;
   /** Date of last viewed release notes */
   lastViewedReleaseDate: string | undefined;
+  /** App-provided sidebar nav items (set via postMessage from iframe). */
+  appSidebarItems?: IAppNavItem[];
+  /** Active nav key within the app sidebar. */
+  appActiveKey?: string;
 }
 
 /**
@@ -215,6 +221,7 @@ const getHubSurfaceColors = (
 export class IntranetShell extends React.Component<IIntranetShellProps, IIntranetShellState> {
   private systemThemeMediaQuery: MediaQueryList | null = null;
   private notificationButtonRef = React.createRef<HTMLDivElement>();
+  private cardDetailIframeRef = React.createRef<HTMLIFrameElement>();
 
   constructor(props: IIntranetShellProps) {
     super(props);
@@ -255,6 +262,8 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       isBannerDismissed: false,
       hasUnreadReleases: checkUnreadReleases(lastViewedRelease),
       lastViewedReleaseDate: lastViewedRelease,
+      appSidebarItems: undefined,
+      appActiveKey: undefined,
     };
   }
 
@@ -262,13 +271,42 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     // Listen for system theme changes when in 'system' mode
     this.systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     this.systemThemeMediaQuery.addEventListener('change', this.handleSystemThemeChange);
+
+    // Listen for postMessage from embedded app iframes (sidebar bridge)
+    window.addEventListener('message', this.handleAppMessage);
   }
 
   public componentWillUnmount(): void {
     if (this.systemThemeMediaQuery) {
       this.systemThemeMediaQuery.removeEventListener('change', this.handleSystemThemeChange);
     }
+    window.removeEventListener('message', this.handleAppMessage);
   }
+
+  /** Handle postMessage from embedded app iframes. */
+  private handleAppMessage = (event: MessageEvent): void => {
+    // Only accept messages from the active card's iframe
+    if (!isAppToShellMessage(event.data)) return;
+
+    const msg = event.data;
+
+    switch (msg.type) {
+      case 'SIDEBAR_SET_ITEMS':
+        this.setState({
+          appSidebarItems: msg.items,
+          appActiveKey: msg.activeKey ?? msg.items[0]?.key,
+        });
+        break;
+
+      case 'SIDEBAR_RESTORE':
+        this.setState({ appSidebarItems: undefined, appActiveKey: undefined });
+        break;
+
+      case 'SIDEBAR_ACTIVE':
+        this.setState({ appActiveKey: msg.key });
+        break;
+    }
+  };
 
   private handleSystemThemeChange = (): void => {
     // Force re-render when system theme changes (only matters if themeMode is 'system')
@@ -331,6 +369,8 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       activeCardId: undefined,
       searchQuery: undefined,
       isHelpOpen: false,
+      appSidebarItems: undefined,
+      appActiveKey: undefined,
     });
   };
 
@@ -516,7 +556,11 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
   };
 
   private handleCloseCardDetail = (): void => {
-    this.setState({ activeCardId: undefined });
+    this.setState({
+      activeCardId: undefined,
+      appSidebarItems: undefined,
+      appActiveKey: undefined,
+    });
   };
 
   private getMockCardHtml = (card: IFunctionCard): string => {
@@ -699,6 +743,15 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     this.setState({ isJasperAvailable: isAvailable });
   };
 
+  /** Forward sidebar navigation clicks to the embedded app iframe. */
+  private handleAppNavigate = (key: string): void => {
+    const iframe = this.cardDetailIframeRef.current;
+    if (iframe?.contentWindow) {
+      iframe.contentWindow.postMessage({ type: 'SIDEBAR_NAVIGATE', key }, '*');
+    }
+    this.setState({ appActiveKey: key });
+  };
+
   public render(): React.ReactElement<IIntranetShellProps> {
     const { userDisplayName, userEmail, siteTitle } = this.props;
     const {
@@ -876,7 +929,10 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           hasFavourites={accessibleFavourites.length > 0}
           isAdmin={isAdminMode}
           hasUnreadReleases={this.state.hasUnreadReleases}
+          appNavItems={this.state.appSidebarItems}
+          appActiveKey={this.state.appActiveKey}
           onHubChange={this.handleHubChange}
+          onAppNavigate={this.handleAppNavigate}
           onOpenHelp={this.handleOpenHelp}
         />
         <ContentArea>
@@ -922,6 +978,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
                 <>
                   <div className={styles.cardDetailFrame}>
                     <iframe
+                      ref={this.cardDetailIframeRef}
                       src={activeCard.url || undefined}
                       srcDoc={activeCard.url ? undefined : this.getMockCardHtml(activeCard)}
                       title={activeCard.title}

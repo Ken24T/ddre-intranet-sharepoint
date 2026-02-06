@@ -60,3 +60,106 @@
     text-align: center;
   }
 }
+
+/* ─────────────────────────────────────────────────────── */
+/* View-level styles (used by BudgetListView etc.)        */
+/* ─────────────────────────────────────────────────────── */
+
+.viewContainer {
+  padding: 0;
+}
+
+.viewHeader {
+  margin-bottom: 1rem;
+}
+
+.viewTitle {
+  display: block;
+  font-size: 20px;
+  font-weight: 600;
+  color: "[theme:themePrimary, default: #001CAD]";
+  margin-bottom: 4px;
+}
+
+.viewSubtitle {
+  display: block;
+  font-size: 13px;
+  color: "[theme:bodySubtext, default: #605e5c]";
+}
+
+.filterBar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filterSearch {
+  flex: 1;
+  min-width: 200px;
+  max-width: 360px;
+}
+
+.filterDropdown {
+  min-width: 160px;
+}
+
+.centeredState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Standalone sidebar (when NOT embedded in shell iframe) */
+.standaloneSidebar {
+  width: 220px;
+  min-height: 100%;
+  background-color: "[theme:neutralLighterAlt, default: #faf9f8]";
+  border-right: 1px solid "[theme:neutralLight, default: #edebe9]";
+  padding: 12px 0;
+
+  .navItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    color: "[theme:neutralPrimary, default: #323130]";
+    font-size: 14px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+
+    &:hover {
+      background-color: "[theme:neutralLight, default: #edebe9]";
+    }
+
+    &.navItemActive {
+      background-color: "[theme:themeLighterAlt, default: #EEF2F8]";
+      color: "[theme:themePrimary, default: #001CAD]";
+      font-weight: 600;
+      border-left: 3px solid "[theme:themePrimary, default: #001CAD]";
+      padding-left: 13px;
+    }
+
+    i {
+      font-size: 16px;
+    }
+  }
+}
+
+.standaloneLayout {
+  display: flex;
+  min-height: 100%;
+}
+
+.standaloneContent {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}

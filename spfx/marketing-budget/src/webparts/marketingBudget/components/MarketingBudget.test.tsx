@@ -1,11 +1,12 @@
 /**
- * Unit tests for the MarketingBudget component (Stage 2).
+ * Unit tests for the MarketingBudget component (Stage 3).
  *
- * Verifies auto-seed behaviour, data status bar, and various UI states.
+ * Verifies auto-seed behaviour, data status bar, view routing,
+ * standalone sidebar, and postMessage bridge integration.
  */
 
 import * as React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import MarketingBudget from './MarketingBudget';
 import type { IBudgetRepository } from '../../../services/IBudgetRepository';
@@ -49,10 +50,40 @@ const mockSchedules: Schedule[] = [
   },
 ];
 
+const mockBudgets: Budget[] = [
+  {
+    id: 1,
+    propertyAddress: '123 Test St',
+    propertyType: 'house',
+    propertySize: 'medium',
+    tier: 'standard',
+    suburbId: 1,
+    vendorId: 1,
+    scheduleId: 1,
+    lineItems: [],
+    status: 'draft',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 2,
+    propertyAddress: '456 Test Ave',
+    propertyType: 'unit',
+    propertySize: 'small',
+    tier: 'basic',
+    suburbId: 2,
+    vendorId: 1,
+    scheduleId: 1,
+    lineItems: [],
+    status: 'approved',
+    createdAt: '2024-01-02T00:00:00Z',
+    updatedAt: '2024-01-02T00:00:00Z',
+  },
+];
+
 /**
- * Creates a mock repo. If `preSeeded` is true, returns data from the start
- * (simulating a database that already has reference data). Otherwise starts
- * empty and populates after seedData() is called.
+ * Creates a mock repo. If `preSeeded` is true, returns data from the start.
+ * Otherwise starts empty and populates after seedData() is called.
  */
 const createMockRepository = (
   opts: { preSeeded?: boolean; budgets?: Budget[] } = {}
@@ -93,45 +124,34 @@ const createMockRepository = (
   };
 };
 
+const defaultProps = {
+  userDisplayName: 'Test User',
+  isDarkTheme: false,
+  isSharePointContext: false,
+};
+
 // ─── Tests ──────────────────────────────────────────────────
 
 describe('MarketingBudget component', () => {
+  // In JSDOM, window.self === window.top → standalone mode (not embedded)
+
   it('renders the title', () => {
     const repo = createMockRepository({ preSeeded: true });
-    render(
-      <MarketingBudget
-        userDisplayName="Test User"
-        isDarkTheme={false}
-        isSharePointContext={false}
-        repository={repo}
-      />
-    );
+    render(<MarketingBudget {...defaultProps} repository={repo} />);
     expect(screen.getByText('Marketing Budgets')).toBeInTheDocument();
   });
 
   it('displays the user greeting', () => {
     const repo = createMockRepository({ preSeeded: true });
     render(
-      <MarketingBudget
-        userDisplayName="Ken Boyle"
-        isDarkTheme={false}
-        isSharePointContext={false}
-        repository={repo}
-      />
+      <MarketingBudget {...defaultProps} userDisplayName="Ken Boyle" repository={repo} />
     );
     expect(screen.getByText(/G'day Ken Boyle/)).toBeInTheDocument();
   });
 
   it('auto-seeds when the database is empty', async () => {
     const repo = createMockRepository({ preSeeded: false });
-    render(
-      <MarketingBudget
-        userDisplayName="Test User"
-        isDarkTheme={false}
-        isSharePointContext={false}
-        repository={repo}
-      />
-    );
+    render(<MarketingBudget {...defaultProps} repository={repo} />);
 
     await waitFor(() => {
       expect(repo.seedData).toHaveBeenCalledTimes(1);
@@ -140,14 +160,7 @@ describe('MarketingBudget component', () => {
 
   it('does not seed when database already has data', async () => {
     const repo = createMockRepository({ preSeeded: true });
-    render(
-      <MarketingBudget
-        userDisplayName="Test User"
-        isDarkTheme={false}
-        isSharePointContext={false}
-        repository={repo}
-      />
-    );
+    render(<MarketingBudget {...defaultProps} repository={repo} />);
 
     await waitFor(() => {
       expect(screen.getByText('2 vendors')).toBeInTheDocument();
@@ -157,14 +170,7 @@ describe('MarketingBudget component', () => {
 
   it('shows the data status bar after loading', async () => {
     const repo = createMockRepository({ preSeeded: true });
-    render(
-      <MarketingBudget
-        userDisplayName="Test User"
-        isDarkTheme={false}
-        isSharePointContext={false}
-        repository={repo}
-      />
-    );
+    render(<MarketingBudget {...defaultProps} repository={repo} />);
 
     await waitFor(() => {
       expect(screen.getByText('2 vendors')).toBeInTheDocument();
@@ -177,113 +183,17 @@ describe('MarketingBudget component', () => {
 
   it('shows seed complete notification after auto-seed', async () => {
     const repo = createMockRepository({ preSeeded: false });
-    render(
-      <MarketingBudget
-        userDisplayName="Test User"
-        isDarkTheme={false}
-        isSharePointContext={false}
-        repository={repo}
-      />
-    );
+    render(<MarketingBudget {...defaultProps} repository={repo} />);
 
     await waitFor(() => {
       expect(screen.getByText(/Reference data seeded/)).toBeInTheDocument();
     });
-
-    // Verify the notification mentions vendor and service counts
     expect(screen.getByText(/2 vendors.*15 services/)).toBeInTheDocument();
-  });
-
-  it('shows budget count with pre-seeded data', async () => {
-    const mockBudgets: Budget[] = [
-      {
-        id: 1,
-        propertyAddress: '123 Test St',
-        propertyType: 'house',
-        propertySize: 'medium',
-        tier: 'standard',
-        suburbId: 1,
-        vendorId: 1,
-        scheduleId: 1,
-        lineItems: [],
-        status: 'draft',
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      },
-      {
-        id: 2,
-        propertyAddress: '456 Test Ave',
-        propertyType: 'unit',
-        propertySize: 'small',
-        tier: 'basic',
-        suburbId: 2,
-        vendorId: 1,
-        scheduleId: 1,
-        lineItems: [],
-        status: 'approved',
-        createdAt: '2024-01-02T00:00:00Z',
-        updatedAt: '2024-01-02T00:00:00Z',
-      },
-    ];
-
-    const repo = createMockRepository({ preSeeded: true, budgets: mockBudgets });
-    render(
-      <MarketingBudget
-        userDisplayName="Test User"
-        isDarkTheme={false}
-        isSharePointContext={false}
-        repository={repo}
-      />
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText('2 budgets found')).toBeInTheDocument();
-    });
-  });
-
-  it('shows singular budget count for one budget', async () => {
-    const mockBudgets: Budget[] = [
-      {
-        id: 1,
-        propertyAddress: '123 Test St',
-        propertyType: 'house',
-        propertySize: 'medium',
-        tier: 'standard',
-        suburbId: 1,
-        vendorId: 1,
-        scheduleId: 1,
-        lineItems: [],
-        status: 'draft',
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      },
-    ];
-
-    const repo = createMockRepository({ preSeeded: true, budgets: mockBudgets });
-    render(
-      <MarketingBudget
-        userDisplayName="Test User"
-        isDarkTheme={false}
-        isSharePointContext={false}
-        repository={repo}
-      />
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText('1 budget found')).toBeInTheDocument();
-    });
   });
 
   it('calls getVendors, getServices, getSuburbs, getSchedules, getBudgets on mount', async () => {
     const repo = createMockRepository({ preSeeded: true });
-    render(
-      <MarketingBudget
-        userDisplayName="Test User"
-        isDarkTheme={false}
-        isSharePointContext={false}
-        repository={repo}
-      />
-    );
+    render(<MarketingBudget {...defaultProps} repository={repo} />);
 
     await waitFor(() => {
       expect(screen.getByText('2 vendors')).toBeInTheDocument();
@@ -294,5 +204,192 @@ describe('MarketingBudget component', () => {
     expect(repo.getSuburbs).toHaveBeenCalled();
     expect(repo.getSchedules).toHaveBeenCalled();
     expect(repo.getBudgets).toHaveBeenCalled();
+  });
+
+  // ─── View Routing (Stage 3) ─────────────────────────────
+
+  describe('view routing', () => {
+    it('shows BudgetListView by default when data is loaded', async () => {
+      const repo = createMockRepository({ preSeeded: true });
+      render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        // BudgetListView renders its own "Budgets" header
+        expect(screen.getByText('Budgets')).toBeInTheDocument();
+      });
+    });
+
+    it('shows "No budgets yet" when no budgets exist', async () => {
+      const repo = createMockRepository({ preSeeded: true, budgets: [] });
+      render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('No budgets yet')).toBeInTheDocument();
+      });
+    });
+
+    it('renders budget rows in BudgetListView when budgets exist', async () => {
+      const repo = createMockRepository({ preSeeded: true, budgets: mockBudgets });
+      render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('123 Test St')).toBeInTheDocument();
+        expect(screen.getByText('456 Test Ave')).toBeInTheDocument();
+      });
+    });
+
+    it('switches to Schedules view when nav item clicked', async () => {
+      const repo = createMockRepository({ preSeeded: true });
+      render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Budgets')).toBeInTheDocument();
+      });
+
+      // In standalone mode, sidebar nav items are rendered as buttons
+      const schedulesBtn = screen.getByRole('button', { name: /Schedules/i });
+      fireEvent.click(schedulesBtn);
+
+      expect(screen.getByText('Schedule management coming soon')).toBeInTheDocument();
+    });
+
+    it('switches to Services view when nav item clicked', async () => {
+      const repo = createMockRepository({ preSeeded: true });
+      render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Budgets')).toBeInTheDocument();
+      });
+
+      const servicesBtn = screen.getByRole('button', { name: /Services/i });
+      fireEvent.click(servicesBtn);
+
+      expect(screen.getByText('Service management coming soon')).toBeInTheDocument();
+    });
+
+    it('switches to Vendors view when nav item clicked', async () => {
+      const repo = createMockRepository({ preSeeded: true });
+      render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Budgets')).toBeInTheDocument();
+      });
+
+      const vendorsBtn = screen.getByRole('button', { name: /Vendors/i });
+      fireEvent.click(vendorsBtn);
+
+      expect(screen.getByText('Vendor management coming soon')).toBeInTheDocument();
+    });
+
+    it('switches to Suburbs view when nav item clicked', async () => {
+      const repo = createMockRepository({ preSeeded: true });
+      render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Budgets')).toBeInTheDocument();
+      });
+
+      const suburbsBtn = screen.getByRole('button', { name: /Suburbs/i });
+      fireEvent.click(suburbsBtn);
+
+      expect(screen.getByText('Suburb management coming soon')).toBeInTheDocument();
+    });
+  });
+
+  // ─── Standalone Sidebar (Stage 3) ───────────────────────
+
+  describe('standalone sidebar', () => {
+    it('renders sidebar nav items in standalone mode', async () => {
+      const repo = createMockRepository({ preSeeded: true });
+      render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Budgets')).toBeInTheDocument();
+      });
+
+      // All five nav items should be visible as buttons
+      expect(screen.getByRole('button', { name: /Budgets/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Schedules/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Services/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Vendors/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Suburbs/i })).toBeInTheDocument();
+    });
+  });
+
+  // ─── PostMessage Bridge (Stage 3) ──────────────────────
+
+  describe('postMessage bridge', () => {
+    const originalSelf = Object.getOwnPropertyDescriptor(window, 'self');
+
+    beforeEach(() => {
+      // Simulate being embedded in an iframe
+      Object.defineProperty(window, 'self', {
+        value: { not: 'top' }, // Different object from window.top
+        writable: true,
+        configurable: true,
+      });
+    });
+
+    afterEach(() => {
+      if (originalSelf) {
+        Object.defineProperty(window, 'self', originalSelf);
+      }
+    });
+
+    it('sends SIDEBAR_SET_ITEMS to parent when embedded', async () => {
+      const postMessageSpy = jest.spyOn(window.parent, 'postMessage');
+      const repo = createMockRepository({ preSeeded: true });
+
+      render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(postMessageSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: 'SIDEBAR_SET_ITEMS',
+            items: expect.arrayContaining([
+              expect.objectContaining({ key: 'budgets', label: 'Budgets' }),
+            ]),
+            activeKey: 'budgets',
+          }),
+          '*'
+        );
+      });
+
+      postMessageSpy.mockRestore();
+    });
+
+    it('does not render standalone sidebar when embedded', async () => {
+      const repo = createMockRepository({ preSeeded: true });
+      render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Marketing Budgets')).toBeInTheDocument();
+      });
+
+      // In embedded mode, there should be no sidebar nav buttons
+      expect(screen.queryByRole('button', { name: /Schedules/i })).not.toBeInTheDocument();
+    });
+
+    it('navigates to a view when SIDEBAR_NAVIGATE message received', async () => {
+      const repo = createMockRepository({ preSeeded: true });
+      render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Marketing Budgets')).toBeInTheDocument();
+      });
+
+      // Simulate shell sending SIDEBAR_NAVIGATE message
+      act(() => {
+        window.dispatchEvent(
+          new MessageEvent('message', {
+            data: { type: 'SIDEBAR_NAVIGATE', key: 'vendors' },
+          })
+        );
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Vendor management coming soon')).toBeInTheDocument();
+      });
+    });
   });
 });
