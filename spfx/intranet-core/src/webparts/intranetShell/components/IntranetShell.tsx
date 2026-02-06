@@ -743,11 +743,14 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     this.setState({ isJasperAvailable: isAvailable });
   };
 
-  /** Forward sidebar navigation clicks to the embedded app iframe. */
+  /** Forward sidebar navigation clicks to the embedded app (iframe or inline). */
   private handleAppNavigate = (key: string): void => {
     const iframe = this.cardDetailIframeRef.current;
     if (iframe?.contentWindow) {
       iframe.contentWindow.postMessage({ type: 'SIDEBAR_NAVIGATE', key }, '*');
+    } else {
+      // Inline-rendered app: post to own window so the app's listener picks it up
+      window.postMessage({ type: 'SIDEBAR_NAVIGATE', key }, '*');
     }
     this.setState({ appActiveKey: key });
   };
@@ -973,6 +976,10 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
                       onAddTask={this.handleToggleTasksPanel}
                     />
                   </div>
+                </div>
+              ) : this.props.cardDetailRenderers?.[activeCard.id] ? (
+                <div className={styles.cardDetailFrame}>
+                  {React.createElement(this.props.cardDetailRenderers[activeCard.id])}
                 </div>
               ) : (
                 <>

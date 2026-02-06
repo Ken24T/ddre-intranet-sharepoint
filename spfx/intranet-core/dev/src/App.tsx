@@ -2,6 +2,7 @@ import React from 'react';
 import { ThemeProvider, createTheme } from '@fluentui/react';
 import { IntranetShell } from '@components/IntranetShell';
 import { IntranetShellWrapper } from '@components/IntranetShellWrapper';
+import { MarketingBudgetDevView } from './MarketingBudgetDevView';
 import packageJson from '../../package.json';
 
 // Mock SharePoint context for dev
@@ -13,6 +14,15 @@ const mockContext = {
 };
 
 const appVersion = packageJson.version || '0.0.0';
+
+/**
+ * Card detail renderers — inline React components for cards that would
+ * normally require a separate Vite dev server or SharePoint page.
+ * Dev-only: keeps everything on a single port (3027).
+ */
+const cardDetailRenderers: Record<string, React.ComponentType> = {
+  'marketing-budgets': MarketingBudgetDevView,
+};
 
 const lightTheme = createTheme({
   palette: {
@@ -51,6 +61,7 @@ export const App: React.FC = () => {
           siteTitle={mockContext.siteTitle}
           appVersion={appVersion}
           isAdmin={mockContext.isAdmin}
+          cardDetailRenderers={cardDetailRenderers}
         />
       </IntranetShellWrapper>
     </ThemeProvider>

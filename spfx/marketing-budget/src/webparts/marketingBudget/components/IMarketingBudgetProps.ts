@@ -13,4 +13,10 @@ export interface IMarketingBudgetProps {
   isSharePointContext: boolean;
   /** Repository instance for data operations. */
   repository: IBudgetRepository;
+  /**
+   * Options forwarded to useShellBridge.
+   * Pass `{ forceActive: true }` when rendering inline in the shell's
+   * Vite dev harness so the sidebar bridge works without an iframe.
+   */
+  shellBridgeOptions?: { forceActive?: boolean };
 }

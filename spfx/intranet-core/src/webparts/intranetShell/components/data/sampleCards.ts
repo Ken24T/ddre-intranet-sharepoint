@@ -184,8 +184,8 @@ export const sampleCards: IFunctionCard[] = [
     title: 'Marketing Budgets',
     description: 'Track and manage marketing spend and campaigns',
     icon: 'Financial',
-    // Dev: Vite dev harness on port 3028. In production this will be a SharePoint page URL.
-    url: 'http://localhost:3028',
+    // In production this will be a SharePoint page URL.
+    // In the Vite dev harness a cardDetailRenderer provides inline rendering.
     providesSidebar: true,
   },
 

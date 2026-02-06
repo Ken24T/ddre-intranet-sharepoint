@@ -3,7 +3,10 @@
  * and the Intranet Shell sidebar.
  *
  * When embedded in an iframe, sends nav items to the shell and listens
- * for SIDEBAR_NAVIGATE messages. In standalone mode, this hook is inert.
+ * for SIDEBAR_NAVIGATE messages. When `forceActive` is set (inline
+ * rendering in the shell's dev harness), posts to the same window so
+ * the shell's listener picks up the messages. In standalone mode this
+ * hook is inert.
  *
  * Extracted from MarketingBudget.tsx to keep files under ~300 lines.
  */
@@ -15,8 +18,17 @@ import type { AppViewKey } from "./MarketingBudget";
 import { APP_NAV_ITEMS } from "./MarketingBudget";
 
 interface IShellBridge {
-  /** Whether this app is embedded in the shell iframe. */
+  /** Whether the bridge is active (embedded in iframe or forced). */
   isEmbedded: boolean;
+}
+
+interface IShellBridgeOptions {
+  /**
+   * When true the bridge is active even when not inside an iframe.
+   * Used by the Vite dev harness to render inline within the shell
+   * while still driving the sidebar via PostMessage on the same window.
+   */
+  forceActive?: boolean;
 }
 
 /**
@@ -27,9 +39,10 @@ interface IShellBridge {
 export function useShellBridge(
   activeView: AppViewKey,
   setActiveView: (view: AppViewKey) => void,
+  options?: IShellBridgeOptions,
 ): IShellBridge {
   /** Detect whether we are running inside an iframe (embedded in shell). */
-  const isEmbedded = React.useMemo(() => {
+  const isIframe = React.useMemo(() => {
     try {
       return window.self !== window.top;
     } catch {
@@ -37,19 +50,26 @@ export function useShellBridge(
     }
   }, []);
 
-  /** Send a message to the parent shell. */
+  /** Bridge is active if in an iframe OR if the host forced it on. */
+  const isActive = isIframe || !!options?.forceActive;
+
+  /** Send a message to the host shell. */
   const postToShell = React.useCallback(
     (msg: AppToShellMessage): void => {
-      if (isEmbedded && window.parent) {
+      if (!isActive) return;
+      if (isIframe && window.parent) {
         window.parent.postMessage(msg, "*");
+      } else {
+        // Inline mode: post to same window (shell listens on window)
+        window.postMessage(msg, "*");
       }
     },
-    [isEmbedded],
+    [isActive, isIframe],
   );
 
   /** On mount: send nav items to shell; listen for SIDEBAR_NAVIGATE. */
   React.useEffect(() => {
-    if (!isEmbedded) return;
+    if (!isActive) return;
 
     postToShell({
       type: "SIDEBAR_SET_ITEMS",
@@ -70,14 +90,14 @@ export function useShellBridge(
       window.removeEventListener("message", handleMessage);
       postToShell({ type: "SIDEBAR_RESTORE" });
     };
-  }, [isEmbedded, postToShell, setActiveView]);
+  }, [isActive, postToShell, setActiveView]);
 
   /** When activeView changes, notify shell to update active indicator. */
   React.useEffect(() => {
-    if (isEmbedded) {
+    if (isActive) {
       postToShell({ type: "SIDEBAR_ACTIVE", key: activeView });
     }
-  }, [activeView, isEmbedded, postToShell]);
+  }, [activeView, isActive, postToShell]);
 
-  return { isEmbedded };
+  return { isEmbedded: isActive };
 }
