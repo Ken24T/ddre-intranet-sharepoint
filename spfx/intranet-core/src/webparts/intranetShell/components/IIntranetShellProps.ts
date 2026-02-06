@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 /**
  * Props for the IntranetShell component.
  * Keep SharePoint-specific concerns out - pass data as props.
@@ -17,4 +19,11 @@ export interface IIntranetShellProps {
   isDarkTheme?: boolean;
   /** Optional: Teams context flag */
   hasTeamsContext?: boolean;
+  /**
+   * Dev-only: map of card IDs to inline React components.
+   * When a card detail is opened and a matching renderer exists,
+   * it is rendered directly instead of an iframe. This allows
+   * the Vite dev harness to host multiple apps on a single port.
+   */
+  cardDetailRenderers?: Record<string, React.ComponentType>;
 }

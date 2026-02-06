@@ -56,7 +56,7 @@ interface DataCounts {
  * mode (Vite dev harness or new tab), it renders its own sidebar.
  */
 const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
-  const { userDisplayName, repository } = props;
+  const { userDisplayName, repository, shellBridgeOptions } = props;
   const [counts, setCounts] = React.useState<DataCounts | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSeeding, setIsSeeding] = React.useState(false);
@@ -65,7 +65,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const [activeView, setActiveView] = React.useState<AppViewKey>("budgets");
 
   // ─── Shell sidebar bridge ────────────────────────────────
-  const { isEmbedded } = useShellBridge(activeView, setActiveView);
+  const { isEmbedded } = useShellBridge(activeView, setActiveView, shellBridgeOptions);
 
   // ─── Data loading ────────────────────────────────────────
 
