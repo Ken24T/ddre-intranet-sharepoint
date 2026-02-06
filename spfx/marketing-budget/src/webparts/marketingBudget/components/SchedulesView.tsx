@@ -2,16 +2,27 @@
  * SchedulesView — View and inspect schedule templates (budget presets).
  *
  * Displays all schedules in a DetailsList. Clicking a row expands an inline
- * detail panel showing the schedule's line items and metadata. Schedules are
- * read-only reference data (managed via seed import).
+ * detail panel showing the schedule's line items and metadata.
+ * Admin users can add, edit and delete schedules via the "..." context menu.
  */
 
 import * as React from "react";
 import {
+  DefaultButton,
   DetailsList,
   DetailsListLayoutMode,
+  Dialog,
+  DialogFooter,
+  DialogType,
+  Dropdown,
+  IconButton,
+  Panel,
+  PanelType,
+  PrimaryButton,
   SelectionMode,
+  Separator,
   Text,
+  TextField,
   Icon,
   Spinner,
   SpinnerSize,
@@ -19,13 +30,16 @@ import {
   MessageBarType,
   SearchBox,
 } from "@fluentui/react";
-import type { IColumn } from "@fluentui/react";
-import type { Schedule, Service } from "../../../models/types";
+import type { IColumn, IContextualMenuProps, IContextualMenuItem, IDropdownOption } from "@fluentui/react";
+import type { Schedule, Service, Vendor, PropertyType, PropertySize, BudgetTier } from "../../../models/types";
+import type { UserRole } from "../../../models/permissions";
+import { canManageReferenceData } from "../../../models/permissions";
 import type { IBudgetRepository } from "../../../services/IBudgetRepository";
 import styles from "./MarketingBudget.module.scss";
 
 export interface ISchedulesViewProps {
   repository: IBudgetRepository;
+  userRole: UserRole;
 }
 
 interface IScheduleRow {
@@ -39,11 +53,39 @@ interface IScheduleRow {
   _schedule: Schedule;
 }
 
+const propertyTypeOptions: IDropdownOption[] = [
+  { key: "house", text: "House" },
+  { key: "unit", text: "Unit" },
+  { key: "townhouse", text: "Townhouse" },
+  { key: "land", text: "Land" },
+  { key: "rural", text: "Rural" },
+  { key: "commercial", text: "Commercial" },
+];
+
+const propertySizeOptions: IDropdownOption[] = [
+  { key: "small", text: "Small" },
+  { key: "medium", text: "Medium" },
+  { key: "large", text: "Large" },
+];
+
+const budgetTierOptions: IDropdownOption[] = [
+  { key: "basic", text: "Basic" },
+  { key: "standard", text: "Standard" },
+  { key: "premium", text: "Premium" },
+];
+
+const activeStatusOptions: IDropdownOption[] = [
+  { key: 1, text: "Active" },
+  { key: 0, text: "Inactive" },
+];
+
 export const SchedulesView: React.FC<ISchedulesViewProps> = ({
   repository,
+  userRole,
 }) => {
   const [schedules, setSchedules] = React.useState<Schedule[]>([]);
   const [services, setServices] = React.useState<Service[]>([]);
+  const [vendors, setVendors] = React.useState<Vendor[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | undefined>(undefined);
   const [searchText, setSearchText] = React.useState("");
@@ -51,33 +93,56 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
     undefined,
   );
 
-  React.useEffect(() => {
-    let cancelled = false;
-    const load = async (): Promise<void> => {
+  // Editor panel state
+  const [isEditorOpen, setIsEditorOpen] = React.useState(false);
+  const [editSchedule, setEditSchedule] = React.useState<Schedule | undefined>(undefined);
+  const [editorName, setEditorName] = React.useState("");
+  const [editorPropertyType, setEditorPropertyType] = React.useState<PropertyType>("house");
+  const [editorPropertySize, setEditorPropertySize] = React.useState<PropertySize>("medium");
+  const [editorTier, setEditorTier] = React.useState<BudgetTier>("standard");
+  const [editorDefaultVendorId, setEditorDefaultVendorId] = React.useState<number | undefined>(undefined);
+  const [editorIsActive, setEditorIsActive] = React.useState<number>(1);
+  const [isSaving, setIsSaving] = React.useState(false);
+
+  // Delete confirmation state
+  const [pendingDelete, setPendingDelete] = React.useState<Schedule | undefined>(undefined);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
+  const isAdmin = canManageReferenceData(userRole);
+
+  const loadData = React.useCallback(
+    async (signal: { cancelled: boolean }): Promise<void> => {
       setIsLoading(true);
       try {
-        const [sched, svc] = await Promise.all([
+        const [sched, svc, vendorList] = await Promise.all([
           repository.getSchedules(),
           repository.getAllServices(),
+          repository.getVendors(),
         ]);
-        if (!cancelled) {
+        if (!signal.cancelled) {
           setSchedules(sched);
           setServices(svc);
+          setVendors(vendorList);
         }
       } catch (err) {
-        if (!cancelled)
+        if (!signal.cancelled)
           setError(
             err instanceof Error ? err.message : "Failed to load schedules",
           );
       } finally {
-        if (!cancelled) setIsLoading(false);
+        if (!signal.cancelled) setIsLoading(false);
       }
-    };
-    load(); // eslint-disable-line @typescript-eslint/no-floating-promises
+    },
+    [repository],
+  );
+
+  React.useEffect(() => {
+    const signal = { cancelled: false };
+    loadData(signal); // eslint-disable-line @typescript-eslint/no-floating-promises
     return (): void => {
-      cancelled = true;
+      signal.cancelled = true;
     };
-  }, [repository]);
+  }, [loadData]);
 
   /** Build a service ID → Service lookup. */
   const serviceMap = React.useMemo(() => {
@@ -87,6 +152,15 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
     }
     return map;
   }, [services]);
+
+  /** Vendor dropdown options for the editor. */
+  const vendorOptions: IDropdownOption[] = React.useMemo(() => {
+    const opts: IDropdownOption[] = [{ key: "", text: "(None)" }];
+    for (const v of vendors) {
+      if (v.id !== undefined) opts.push({ key: v.id, text: v.name });
+    }
+    return opts;
+  }, [vendors]);
 
   /** Filter and map to rows. */
   const rows: IScheduleRow[] = React.useMemo(() => {
@@ -105,8 +179,134 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
       }));
   }, [schedules, searchText]);
 
-  const columns: IColumn[] = React.useMemo(
-    (): IColumn[] => [
+  // ─── Editor helpers ────────────────────────────────────
+
+  const openEditor = React.useCallback((schedule?: Schedule): void => {
+    setEditSchedule(schedule);
+    setEditorName(schedule?.name ?? "");
+    setEditorPropertyType(schedule?.propertyType ?? "house");
+    setEditorPropertySize(schedule?.propertySize ?? "medium");
+    setEditorTier(schedule?.tier ?? "standard");
+    setEditorDefaultVendorId(schedule?.defaultVendorId);
+    setEditorIsActive(schedule?.isActive ?? 1);
+    setIsEditorOpen(true);
+  }, []);
+
+  const closeEditor = React.useCallback((): void => {
+    setIsEditorOpen(false);
+    setEditSchedule(undefined);
+  }, []);
+
+  const handleSave = React.useCallback(async (): Promise<void> => {
+    setIsSaving(true);
+    try {
+      const now = new Date().toISOString();
+      const schedule: Schedule = {
+        ...(editSchedule ?? {
+          lineItems: [],
+          createdAt: now,
+          isActive: 1,
+        }),
+        name: editorName.trim(),
+        propertyType: editorPropertyType,
+        propertySize: editorPropertySize,
+        tier: editorTier,
+        defaultVendorId: editorDefaultVendorId,
+        isActive: editorIsActive,
+        updatedAt: now,
+      };
+      await repository.saveSchedule(schedule);
+      closeEditor();
+      loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save schedule");
+    } finally {
+      setIsSaving(false);
+    }
+  }, [editSchedule, editorName, editorPropertyType, editorPropertySize, editorTier, editorDefaultVendorId, editorIsActive, repository, closeEditor, loadData]);
+
+  // ─── Delete helpers ────────────────────────────────────
+
+  const handleDeleteConfirm = React.useCallback(async (): Promise<void> => {
+    if (!pendingDelete?.id) return;
+    setIsDeleting(true);
+    try {
+      await repository.deleteSchedule(pendingDelete.id);
+      setPendingDelete(undefined);
+      loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete schedule");
+      setPendingDelete(undefined);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [pendingDelete, repository, loadData]);
+
+  // ─── Duplicate helper ─────────────────────────────────
+
+  const handleDuplicate = React.useCallback(
+    async (schedule: Schedule): Promise<void> => {
+      try {
+        const now = new Date().toISOString();
+        const copy: Schedule = {
+          ...schedule,
+          id: undefined,
+          name: `${schedule.name} (Copy)`,
+          lineItems: schedule.lineItems.map((li) => ({ ...li })),
+          createdAt: now,
+          updatedAt: now,
+        };
+        await repository.saveSchedule(copy);
+        loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to duplicate schedule");
+      }
+    },
+    [repository, loadData],
+  );
+
+  // ─── Row menu builder ─────────────────────────────────
+
+  const getRowMenuItems = React.useCallback(
+    (schedule: Schedule): IContextualMenuItem[] => {
+      const items: IContextualMenuItem[] = [];
+      if (!isAdmin) return items;
+
+      items.push({
+        key: "edit",
+        text: "Edit",
+        iconProps: { iconName: "Edit" },
+        onClick: (): void => openEditor(schedule),
+      });
+      items.push({
+        key: "duplicate",
+        text: "Duplicate",
+        iconProps: { iconName: "Copy" },
+        onClick: (): void => {
+          handleDuplicate(schedule); // eslint-disable-line @typescript-eslint/no-floating-promises
+        },
+      });
+      items.push({
+        key: "divider",
+        text: "-",
+        itemType: 1,
+      });
+      items.push({
+        key: "delete",
+        text: "Delete",
+        iconProps: { iconName: "Delete", style: { color: "#a4262c" } },
+        style: { color: "#a4262c" },
+        onClick: (): void => setPendingDelete(schedule),
+      });
+      return items;
+    },
+    [isAdmin, openEditor, handleDuplicate],
+  );
+
+  // ─── Column definitions ───────────────────────────────
+
+  const columns: IColumn[] = React.useMemo((): IColumn[] => {
+    const cols: IColumn[] = [
       {
         key: "name",
         name: "Schedule Name",
@@ -162,9 +362,32 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
         maxWidth: 70,
         isResizable: true,
       },
-    ],
-    [],
-  );
+    ];
+
+    if (isAdmin) {
+      cols.push({
+        key: "actions",
+        name: "",
+        minWidth: 40,
+        maxWidth: 40,
+        onRender: (item: IScheduleRow): JSX.Element => {
+          const menuItems = getRowMenuItems(item._schedule);
+          if (menuItems.length === 0) return <></>;
+          const menuProps: IContextualMenuProps = { items: menuItems };
+          return (
+            <IconButton
+              menuIconProps={{ iconName: "More" }}
+              menuProps={menuProps}
+              title="Actions"
+              ariaLabel={`Actions for ${item.name}`}
+            />
+          );
+        },
+      });
+    }
+
+    return cols;
+  }, [isAdmin, getRowMenuItems]);
 
   const handleRowClick = React.useCallback((item: IScheduleRow): void => {
     setExpandedId((prev) => (prev === item.id ? undefined : item.id));
@@ -263,6 +486,13 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
           onChange={(_, val): void => setSearchText(val ?? "")}
           className={styles.filterSearch}
         />
+        {isAdmin && (
+          <PrimaryButton
+            text="New Schedule"
+            iconProps={{ iconName: "Add" }}
+            onClick={(): void => openEditor()}
+          />
+        )}
       </div>
 
       {isLoading ? (
@@ -299,6 +529,99 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
             })()}
         </>
       )}
+
+      {/* Editor panel */}
+      <Panel
+        isOpen={isEditorOpen}
+        onDismiss={closeEditor}
+        type={PanelType.custom}
+        customWidth="400px"
+        headerText={editSchedule ? `Edit — ${editSchedule.name}` : "New Schedule"}
+        isFooterAtBottom={true}
+        onRenderFooterContent={(): JSX.Element => (
+          <div className={styles.editorFooterRight}>
+            <DefaultButton text="Cancel" onClick={closeEditor} disabled={isSaving} />
+            <PrimaryButton
+              text={isSaving ? "Saving…" : editSchedule ? "Save Changes" : "Create Schedule"}
+              onClick={handleSave} // eslint-disable-line @typescript-eslint/no-floating-promises
+              disabled={isSaving || !editorName.trim()}
+            />
+          </div>
+        )}
+      >
+        <div className={styles.editorContent}>
+          <TextField
+            label="Schedule Name"
+            value={editorName}
+            onChange={(_, val): void => setEditorName(val ?? "")}
+            required
+            placeholder="e.g. House - Large - Premium"
+          />
+          <Separator />
+          <Dropdown
+            label="Property Type"
+            options={propertyTypeOptions}
+            selectedKey={editorPropertyType}
+            onChange={(_, opt): void => setEditorPropertyType((opt?.key ?? "house") as PropertyType)}
+          />
+          <Dropdown
+            label="Property Size"
+            options={propertySizeOptions}
+            selectedKey={editorPropertySize}
+            onChange={(_, opt): void => setEditorPropertySize((opt?.key ?? "medium") as PropertySize)}
+          />
+          <Dropdown
+            label="Budget Tier"
+            options={budgetTierOptions}
+            selectedKey={editorTier}
+            onChange={(_, opt): void => setEditorTier((opt?.key ?? "standard") as BudgetTier)}
+          />
+          <Separator />
+          <Dropdown
+            label="Default Vendor"
+            options={vendorOptions}
+            selectedKey={editorDefaultVendorId ?? ""}
+            onChange={(_, opt): void =>
+              setEditorDefaultVendorId(opt?.key === "" ? undefined : Number(opt?.key))
+            }
+            placeholder="(Optional)"
+          />
+          <Dropdown
+            label="Status"
+            options={activeStatusOptions}
+            selectedKey={editorIsActive}
+            onChange={(_, opt): void => setEditorIsActive(Number(opt?.key ?? 1))}
+          />
+        </div>
+      </Panel>
+
+      {/* Delete confirmation dialog */}
+      <Dialog
+        hidden={!pendingDelete}
+        onDismiss={(): void => setPendingDelete(undefined)}
+        dialogContentProps={{
+          type: DialogType.normal,
+          title: "Delete schedule",
+          subText: pendingDelete
+            ? `Are you sure you want to delete "${pendingDelete.name}"? This action cannot be undone.`
+            : "",
+        }}
+        modalProps={{ isBlocking: true }}
+      >
+        <DialogFooter>
+          <PrimaryButton
+            text={isDeleting ? "Deleting…" : "Delete"}
+            onClick={handleDeleteConfirm} // eslint-disable-line @typescript-eslint/no-floating-promises
+            disabled={isDeleting}
+            style={{ backgroundColor: "#a4262c", borderColor: "#a4262c" }}
+          />
+          <DefaultButton
+            text="Cancel"
+            onClick={(): void => setPendingDelete(undefined)}
+            disabled={isDeleting}
+          />
+        </DialogFooter>
+      </Dialog>
     </div>
   );
 };

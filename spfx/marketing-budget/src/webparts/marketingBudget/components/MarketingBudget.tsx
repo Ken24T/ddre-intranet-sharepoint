@@ -156,7 +156,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
       case "budgets":
         return <BudgetListView repository={repository} userRole={userRole} />;
       case "schedules":
-        return <SchedulesView repository={repository} />;
+        return <SchedulesView repository={repository} userRole={userRole} />;
       case "services":
         return <ServicesView repository={repository} />;
       case "vendors":

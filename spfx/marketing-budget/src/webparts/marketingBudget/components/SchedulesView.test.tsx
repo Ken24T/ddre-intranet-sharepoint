@@ -105,7 +105,7 @@ const createMockRepo = (): IBudgetRepository => ({
 describe("SchedulesView", () => {
   it("renders the schedules header", async () => {
     const repo = createMockRepo();
-    render(<SchedulesView repository={repo} />);
+    render(<SchedulesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("Schedules")).toBeInTheDocument();
     });
@@ -113,7 +113,7 @@ describe("SchedulesView", () => {
 
   it("loads and displays schedule rows", async () => {
     const repo = createMockRepo();
-    render(<SchedulesView repository={repo} />);
+    render(<SchedulesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("House - Large - Premium")).toBeInTheDocument();
       expect(screen.getByText("Unit - Small - Basic")).toBeInTheDocument();
@@ -122,7 +122,7 @@ describe("SchedulesView", () => {
 
   it("shows item counts in the list", async () => {
     const repo = createMockRepo();
-    render(<SchedulesView repository={repo} />);
+    render(<SchedulesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("2")).toBeInTheDocument(); // 2 line items
     });
@@ -130,7 +130,7 @@ describe("SchedulesView", () => {
 
   it("calls getSchedules and getAllServices on mount", async () => {
     const repo = createMockRepo();
-    render(<SchedulesView repository={repo} />);
+    render(<SchedulesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(repo.getSchedules).toHaveBeenCalled();
       expect(repo.getAllServices).toHaveBeenCalled();
@@ -140,7 +140,7 @@ describe("SchedulesView", () => {
   it("shows empty state when no schedules match search", async () => {
     const repo = createMockRepo();
     (repo.getSchedules as jest.Mock).mockResolvedValue([]);
-    render(<SchedulesView repository={repo} />);
+    render(<SchedulesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("No schedules found")).toBeInTheDocument();
     });
@@ -148,7 +148,7 @@ describe("SchedulesView", () => {
 
   it("filters schedules when search text is entered", async () => {
     const repo = createMockRepo();
-    render(<SchedulesView repository={repo} />);
+    render(<SchedulesView repository={repo} userRole="admin" />);
     await waitFor(() => {
       expect(screen.getByText("House - Large - Premium")).toBeInTheDocument();
     });
@@ -162,5 +162,52 @@ describe("SchedulesView", () => {
         screen.queryByText("House - Large - Premium"),
       ).not.toBeInTheDocument();
     });
+  });
+
+  // ─── Role-based access control ──────────────────────────
+
+  it("shows New Schedule button for admin", async () => {
+    const repo = createMockRepo();
+    render(<SchedulesView repository={repo} userRole="admin" />);
+    await waitFor(() => {
+      expect(screen.getByText("New Schedule")).toBeInTheDocument();
+    });
+  });
+
+  it("hides New Schedule button for viewer", async () => {
+    const repo = createMockRepo();
+    render(<SchedulesView repository={repo} userRole="viewer" />);
+    await waitFor(() => {
+      expect(screen.getByText("House - Large - Premium")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("New Schedule")).not.toBeInTheDocument();
+  });
+
+  it("hides New Schedule button for editor", async () => {
+    const repo = createMockRepo();
+    render(<SchedulesView repository={repo} userRole="editor" />);
+    await waitFor(() => {
+      expect(screen.getByText("House - Large - Premium")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("New Schedule")).not.toBeInTheDocument();
+  });
+
+  it("shows actions column for admin", async () => {
+    const repo = createMockRepo();
+    render(<SchedulesView repository={repo} userRole="admin" />);
+    await waitFor(() => {
+      expect(screen.getByText("House - Large - Premium")).toBeInTheDocument();
+    });
+    const actionButtons = screen.getAllByTitle("Actions");
+    expect(actionButtons.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("hides actions column for viewer", async () => {
+    const repo = createMockRepo();
+    render(<SchedulesView repository={repo} userRole="viewer" />);
+    await waitFor(() => {
+      expect(screen.getByText("House - Large - Premium")).toBeInTheDocument();
+    });
+    expect(screen.queryByTitle("Actions")).not.toBeInTheDocument();
   });
 });
