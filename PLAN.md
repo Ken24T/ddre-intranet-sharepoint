@@ -91,6 +91,7 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [x] 6.2 Implement quick results dropdown (grouped by type)
 - [x] 6.3 Create search results page with filters panel
 - [ ] 6.4 Wire up SharePoint Search API or Microsoft Graph Search
+      ⚠️ **Blocked:** Requires tenant access (Dev/Test/Prod not yet provisioned)
 - [x] 6.5 Implement keyboard navigation in results
 - [x] 6.6 Add "No results" empty state
 
@@ -120,6 +121,7 @@ The foundation SPFx solution providing the layout frame for all intranet content
 - [x] 9.4 Implement hide/show toggle (sessionStorage)
 - [x] 9.5 Add "Show AI Assistant" option to profile menu
 - [ ] 9.6 Wire up to Azure AI RAG proxy API
+      ⚠️ **Blocked:** Requires Azure proxy deployment (Grey Fox) + tenant access
 
 ### Phase 10: Accessibility & Polish ✅
 

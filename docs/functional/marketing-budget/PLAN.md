@@ -93,9 +93,43 @@ Deliverables:
 - Direct DOM manipulation: refactor to React components.
 
 ## Open Questions
-- Should we create a new SPFx solution or add a web part to intranet-core?
+- ~~Should we create a new SPFx solution or add a web part to intranet-core?~~
+  **Resolved:** New SPFx solution (`spfx/marketing-budget/`) per phase-aware delivery model.
 - Which data sets should be shipped as seed data?
 - Are there SharePoint-specific constraints on IndexedDB usage?
+
+## Data Migration Path (IndexedDB → SharePoint Lists)
+
+> IndexedDB is the initial storage layer. This section defines the planned migration
+> to SharePoint Lists once tenant environments are available.
+
+### Phase A: IndexedDB Only (Initial Release)
+
+- All budget data stored locally in the browser (Dexie/IndexedDB).
+- Users only see their own data on their own device.
+- Acceptable for single-user, single-device usage during pilot.
+
+### Phase B: SharePoint Lists (Post-Tenant Access)
+
+- Define SharePoint List schemas for budgets, schedules, and line items.
+- Build a data access abstraction layer (interface) so the UI doesn't know
+  whether data comes from IndexedDB or SharePoint.
+- Implement a `SharePointBudgetStore` that replaces `IndexedDBBudgetStore`.
+- Add a one-time migration utility: export from IndexedDB → import to List.
+
+### Design Guidance
+
+- Use the **Repository Pattern**: define `IBudgetRepository` with `getAll()`,
+  `getById()`, `create()`, `update()`, `delete()` methods.
+- Initial implementation: `DexieBudgetRepository` (IndexedDB).
+- Future implementation: `SPListBudgetRepository` (SharePoint REST/PnPjs).
+- Switching between them should require only a provider change, not UI rewrites.
+
+### Migration Risks
+
+- Users may have accumulated significant data locally before migration.
+- IndexedDB data is per-browser, per-origin — not transferable to other devices.
+- Plan a clear "export → import" workflow with user confirmation.
 
 ## Acceptance Criteria
 - Marketing Budget loads as an SPFx web part in SharePoint.

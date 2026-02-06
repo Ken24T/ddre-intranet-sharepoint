@@ -38,8 +38,13 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: E2E (Playwright)
-        run: npm run test:e2e
+      - name: Unit Tests (Jest)
+        run: npm run test
+
+      # E2E disabled until a deployed environment is available.
+      # Requires PLAYWRIGHT_BASE_URL pointing at a running SharePoint site.
+      # - name: E2E (Playwright)
+      #   run: npm run test:e2e
 
       - name: Build (Bundle + Package)
         run: npm run build
