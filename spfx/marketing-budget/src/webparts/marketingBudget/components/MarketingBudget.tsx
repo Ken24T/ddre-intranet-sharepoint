@@ -11,13 +11,13 @@ import {
   Text,
 } from "@fluentui/react";
 import { getSeedData, SEED_COUNTS } from "../../../models/seedData";
-import type { IAppNavItem, AppToShellMessage } from "../../../appBridge";
-import { isShellToAppMessage } from "../../../appBridge";
+import type { IAppNavItem } from "../../../appBridge";
 import { BudgetListView } from "./BudgetListView";
 import { SchedulesView } from "./SchedulesView";
 import { ServicesView } from "./ServicesView";
 import { VendorsView } from "./VendorsView";
 import { SuburbsView } from "./SuburbsView";
+import { useShellBridge } from "./useShellBridge";
 
 // ─────────────────────────────────────────────────────────────
 // App-level navigation definition
@@ -64,60 +64,8 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const [seedComplete, setSeedComplete] = React.useState(false);
   const [activeView, setActiveView] = React.useState<AppViewKey>("budgets");
 
-  /** Detect whether we are running inside an iframe (embedded in shell). */
-  const isEmbedded = React.useMemo(() => {
-    try {
-      return window.self !== window.top;
-    } catch {
-      return true; // Cross-origin = embedded
-    }
-  }, []);
-
-  // ─── postMessage bridge ──────────────────────────────────
-
-  /** Send a message to the parent shell. */
-  const postToShell = React.useCallback(
-    (msg: AppToShellMessage): void => {
-      if (isEmbedded && window.parent) {
-        window.parent.postMessage(msg, "*");
-      }
-    },
-    [isEmbedded],
-  );
-
-  /** On mount: send nav items to shell; listen for SIDEBAR_NAVIGATE. */
-  React.useEffect(() => {
-    if (!isEmbedded) return;
-
-    // Tell the shell what sidebar items we provide
-    postToShell({
-      type: "SIDEBAR_SET_ITEMS",
-      items: APP_NAV_ITEMS,
-      activeKey: "budgets",
-    });
-
-    const handleMessage = (event: MessageEvent): void => {
-      if (!isShellToAppMessage(event.data)) return;
-      if (event.data.type === "SIDEBAR_NAVIGATE") {
-        setActiveView(event.data.key as AppViewKey);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    return (): void => {
-      window.removeEventListener("message", handleMessage);
-      // Restore the shell sidebar when unmounting
-      postToShell({ type: "SIDEBAR_RESTORE" });
-    };
-  }, [isEmbedded, postToShell]);
-
-  /** When activeView changes, notify shell to update active indicator. */
-  React.useEffect(() => {
-    if (isEmbedded) {
-      postToShell({ type: "SIDEBAR_ACTIVE", key: activeView });
-    }
-  }, [activeView, isEmbedded, postToShell]);
+  // ─── Shell sidebar bridge ────────────────────────────────
+  const { isEmbedded } = useShellBridge(activeView, setActiveView);
 
   // ─── Data loading ────────────────────────────────────────
 

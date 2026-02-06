@@ -23,6 +23,7 @@ import {
 import type { IColumn, IDropdownOption } from "@fluentui/react";
 import type { Service, Vendor } from "../../../models/types";
 import type { IBudgetRepository } from "../../../services/IBudgetRepository";
+import { ServiceDetailPanel } from "./ServiceDetailPanel";
 import styles from "./MarketingBudget.module.scss";
 
 export interface IServicesViewProps {
@@ -204,115 +205,13 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
     setExpandedId((prev) => (prev === item.id ? undefined : item.id));
   }, []);
 
-  /** Expanded detail for a service. */
-  const renderExpandedDetail = (service: Service): React.ReactNode => (
-    <div className={styles.refDetailPanel}>
-      <Text className={styles.refDetailTitle}>{service.name}</Text>
-      <div className={styles.refDetailMeta}>
-        <span>
-          Category:{" "}
-          <strong style={{ textTransform: "capitalize" }}>
-            {service.category}
-          </strong>
-        </span>
-        <span>
-          Vendor:{" "}
-          <strong>
-            {service.vendorId !== null
-              ? (vendorMap.get(service.vendorId) ?? "—")
-              : "System"}
-          </strong>
-        </span>
-        <span>
-          Selection:{" "}
-          <strong style={{ textTransform: "capitalize" }}>
-            {service.variantSelector ?? "None"}
-          </strong>
-        </span>
-        <span>
-          GST inclusive: <strong>{service.includesGst ? "Yes" : "No"}</strong>
-        </span>
-      </div>
-
-      <Text
-        className={styles.sectionTitle}
-        style={{ marginTop: 12, fontSize: 13 }}
-      >
-        Variants
-      </Text>
-      <div className={styles.refItemList}>
-        {service.variants.length === 0 ? (
-          <Text variant="small" style={{ color: "#605e5c", padding: "8px 0" }}>
-            No variants defined.
-          </Text>
-        ) : (
-          service.variants.map((v) => (
-            <div key={v.id} className={styles.refItemRow}>
-              <span className={styles.refItemName}>{v.name}</span>
-              <span className={styles.refItemVariant}>
-                {v.sizeMatch
-                  ? `Size: ${v.sizeMatch}`
-                  : v.tierMatch
-                    ? `Tier: ${v.tierMatch}`
-                    : ""}
-              </span>
-              <span className={styles.refItemPrice}>
-                ${v.basePrice.toFixed(2)}
-              </span>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Show included services for package variants */}
-      {service.variants.some(
-        (v) => v.includedServices && v.includedServices.length > 0,
-      ) && (
-        <>
-          <Text
-            className={styles.sectionTitle}
-            style={{ marginTop: 12, fontSize: 13 }}
-          >
-            Included Services
-          </Text>
-          <div className={styles.refItemList}>
-            {service.variants
-              .filter(
-                (v) => v.includedServices && v.includedServices.length > 0,
-              )
-              .map((v) => (
-                <div key={v.id} style={{ marginBottom: 8 }}>
-                  <Text variant="small" style={{ fontWeight: 600 }}>
-                    {v.name}:
-                  </Text>
-                  {v.includedServices!.map((inc, idx) => (
-                    <div
-                      key={idx}
-                      className={styles.refItemRow}
-                      style={{ paddingLeft: 16 }}
-                    >
-                      <Icon
-                        iconName="StatusCircleCheckmark"
-                        style={{
-                          color: "#001CAD",
-                          fontSize: 12,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <span className={styles.refItemName}>
-                        {inc.serviceName}
-                      </span>
-                      <span className={styles.refItemVariant}>
-                        {inc.variantName ?? ""}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ))}
-          </div>
-        </>
-      )}
-    </div>
+  /** Resolve vendor display name for a service. */
+  const getVendorName = React.useCallback(
+    (service: Service): string =>
+      service.vendorId !== null
+        ? (vendorMap.get(service.vendorId) ?? "—")
+        : "System",
+    [vendorMap],
   );
 
   return (
@@ -383,7 +282,12 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository }) => {
           {expandedId !== undefined &&
             (() => {
               const service = services.find((s) => s.id === expandedId);
-              return service ? renderExpandedDetail(service) : undefined;
+              return service ? (
+                <ServiceDetailPanel
+                  service={service}
+                  vendorName={getVendorName(service)}
+                />
+              ) : undefined;
             })()}
         </>
       )}
