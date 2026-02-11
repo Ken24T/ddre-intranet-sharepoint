@@ -53,3 +53,27 @@ export {
   validateForApproval,
   validateTransition,
 } from "./budgetValidation";
+
+export type { MonthlySpend } from "./dashboardAggregations";
+
+export {
+  countBudgetsByStatus,
+  totalSpendByCategory,
+  totalSpendByTier,
+  monthlySpendTrend,
+  overallSpendSummary,
+} from "./dashboardAggregations";
+
+export type { ExportEntityType, ImportSummary } from "./exportHelpers";
+
+export {
+  ALL_ENTITY_TYPES,
+  budgetListToCsv,
+  budgetLineItemsToCsv,
+  downloadCsv,
+  downloadJson,
+  downloadFile,
+  exportSelective,
+  analyseImport,
+  importSelective,
+} from "./exportHelpers";
