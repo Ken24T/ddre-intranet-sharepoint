@@ -353,6 +353,7 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
               menuProps={menuProps}
               title="Actions"
               ariaLabel={`Actions for ${item.name}`}
+              onClick={(ev): void => ev.stopPropagation()}
             />
           );
         },
@@ -430,9 +431,12 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
         )}
       </div>
 
-      {/* Bulk tier action bar */}
-      {isAdmin && selectedCount > 0 && (
-        <div className={styles.bulkActionBar}>
+      {/* Bulk tier action bar — always rendered to prevent layout shift */}
+      {isAdmin && (
+        <div
+          className={styles.bulkActionBar}
+          style={{ visibility: selectedCount > 0 ? "visible" : "hidden" }}
+        >
           <Text variant="small" style={{ fontWeight: 600 }}>
             {selectedCount} suburb{selectedCount !== 1 ? "s" : ""} selected
           </Text>
