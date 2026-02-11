@@ -302,6 +302,34 @@
   }
 }
 
+/* ─── Drag Handle ────────────────────────────────────── */
+
+.dragHandle {
+  width: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: "[theme:neutralTertiary, default: #a19f9d]";
+  touch-action: none;
+
+  &:hover {
+    color: "[theme:neutralSecondary, default: #605e5c]";
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.lineItemDragging {
+  background-color: "[theme:themeLighterAlt, default: #eff6fc]";
+  border: 1px dashed "[theme:themePrimary, default: #001CAD]";
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
 /* ─────────────────────────────────────────────────────── */
 /* Budget Totals Bar                                       */
 /* ─────────────────────────────────────────────────────── */
