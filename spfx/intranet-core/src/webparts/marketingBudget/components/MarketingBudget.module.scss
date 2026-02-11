@@ -900,3 +900,63 @@
   border: 1px solid "[theme:neutralLight, default: #edebe9]";
   border-radius: 4px;
 }
+
+/* ─── Shared helpers ───────────────────────────────────── */
+
+.emptyHint {
+  display: block;
+  color: "[theme:neutralSecondary, default: #605e5c]";
+  font-style: italic;
+  padding: 8px 0;
+}
+
+/* ─── Audit Timeline ───────────────────────────────────── */
+
+.auditTimeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 4px;
+}
+
+.auditEntry {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid "[theme:neutralLighter, default: #f3f2f1]";
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.auditEntryIcon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: "[theme:themeLighterAlt, default: #EEF2F8]";
+  color: "[theme:themePrimary, default: #001CAD]";
+  font-size: 12px;
+}
+
+.auditEntryBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.auditEntrySummary {
+  color: "[theme:neutralPrimary, default: #323130]";
+  word-break: break-word;
+}
+
+.auditEntryMeta {
+  color: "[theme:neutralSecondary, default: #605e5c]";
+  font-size: 11px;
+}

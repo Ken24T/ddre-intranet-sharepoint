@@ -32,9 +32,11 @@ import type { Budget } from "../models/types";
 import type { UserRole } from "../models/permissions";
 import { canEditBudget, canTransitionBudget } from "../models/permissions";
 import type { IBudgetRepository } from "../services/IBudgetRepository";
+import type { IAuditLogger } from "../services/IAuditLogger";
 import { LineItemEditor } from "./LineItemEditor";
 import { BudgetTotals } from "./BudgetTotals";
 import { BudgetPropertyForm } from "./BudgetPropertyForm";
+import { AuditTimeline } from "./AuditTimeline";
 import { useBudgetEditorState } from "./useBudgetEditorState";
 import { printElement } from "./BudgetPrintView";
 import styles from "./MarketingBudget.module.scss";
@@ -50,6 +52,8 @@ export interface IBudgetEditorPanelProps {
   onSaved: (budget: Budget) => void;
   /** User's role — controls which fields and actions are available. */
   userRole: UserRole;
+  /** Optional audit logger for displaying change history. */
+  auditLogger?: IAuditLogger;
 }
 
 // ─── Component ─────────────────────────────────────────────
@@ -61,6 +65,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
   onDismiss,
   onSaved,
   userRole,
+  auditLogger,
 }) => {
   const state = useBudgetEditorState(editBudget, repository, isOpen, onSaved);
 
@@ -263,6 +268,19 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
             placeholder="Any additional notes for this budget…"
             readOnly={!isEditable}
           />
+
+          {/* ─── Change History ─────────────────────────── */}
+          {auditLogger && !state.isNew && editBudget?.id && (
+            <>
+              <Separator />
+              <Label>Change History</Label>
+              <AuditTimeline
+                auditLogger={auditLogger}
+                entityType="budget"
+                entityId={editBudget.id}
+              />
+            </>
+          )}
         </div>
       )}
     </Panel>

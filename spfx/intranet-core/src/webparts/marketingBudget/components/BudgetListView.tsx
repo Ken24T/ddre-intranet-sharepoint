@@ -46,6 +46,7 @@ import { validateTransition } from "../models/budgetValidation";
 import { budgetListToCsv, budgetLineItemsToCsv, downloadCsv } from "../models/exportHelpers";
 import { statusTransitions } from "./budgetEditorConstants";
 import type { IBudgetRepository } from "../services/IBudgetRepository";
+import type { IAuditLogger } from "../services/IAuditLogger";
 import { BudgetEditorPanel } from "./BudgetEditorPanel";
 import { BudgetPrintView } from "./BudgetPrintView";
 import styles from "./MarketingBudget.module.scss";
@@ -53,6 +54,7 @@ import styles from "./MarketingBudget.module.scss";
 export interface IBudgetListViewProps {
   repository: IBudgetRepository;
   userRole: UserRole;
+  auditLogger?: IAuditLogger;
 }
 
 /** Column-friendly row shape. */
@@ -230,6 +232,7 @@ const BudgetAddressCell: React.FC<IBudgetAddressCellProps> = ({ budget }) => {
 export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   repository,
   userRole,
+  auditLogger,
 }) => {
   const [budgets, setBudgets] = React.useState<Budget[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -844,6 +847,7 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
       <BudgetEditorPanel
         budget={editBudget}
         repository={repository}
+        auditLogger={auditLogger}
         isOpen={isEditorOpen}
         onDismiss={handleEditorDismiss}
         onSaved={handleEditorSaved}

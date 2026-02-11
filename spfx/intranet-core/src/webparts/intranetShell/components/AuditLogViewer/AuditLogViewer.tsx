@@ -2,8 +2,10 @@ import * as React from 'react';
 import {
   DetailsList,
   DetailsListLayoutMode,
+  DetailsRow,
   SelectionMode,
   IColumn,
+  IDetailsRowProps,
   Dropdown,
   IDropdownOption,
   DatePicker,
@@ -16,12 +18,15 @@ import {
   Icon,
   TooltipHost,
   DirectionalHint,
+  HoverCard,
+  HoverCardType,
   Modal,
   IconButton,
   Selection,
 } from '@fluentui/react';
 import { useAudit } from '../AuditContext';
 import type { EventType } from '../AuditContext';
+import { useAuditQuery } from '../AuditQueryContext';
 import { HelpTooltip } from '../HelpTooltip';
 import { adminTooltips } from '../data/helpTooltips';
 import styles from './AuditLogViewer.module.scss';
@@ -457,6 +462,58 @@ const SummaryWidgets: React.FC<{ stats: ISummaryStats }> = ({ stats }) => {
 };
 
 // =============================================================================
+// HOVER FLYOUT COMPONENT
+// =============================================================================
+
+const EventFlyout: React.FC<{ entry: IAuditLogEntry }> = ({ entry }) => {
+  const fields = [
+    { label: 'Event ID', value: entry.eventId },
+    { label: 'Timestamp', value: formatTimestamp(entry.timestamp) },
+    { label: 'User', value: entry.userDisplayName || entry.userId },
+    { label: 'Email', value: entry.userId },
+    { label: 'Session', value: entry.sessionId },
+    { label: 'Event Type', value: entry.eventType },
+    { label: 'Action', value: entry.action.replace(/_/g, ' ') },
+    { label: 'Hub', value: entry.hub || '—' },
+    { label: 'Tool', value: entry.tool || '—' },
+    { label: 'App Version', value: entry.appVersion },
+  ];
+
+  return (
+    <div className={styles.flyout}>
+      <div className={styles.flyoutHeader}>
+        <Icon
+          iconName={getEventTypeIcon(entry.eventType)}
+          style={{ color: getEventTypeColor(entry.eventType), fontSize: 18 }}
+        />
+        <span className={styles.flyoutTitle}>
+          {entry.action.replace(/_/g, ' ')}
+        </span>
+        <span className={styles.flyoutTimestamp}>
+          {formatTimestamp(entry.timestamp)}
+        </span>
+      </div>
+      <div className={styles.flyoutFields}>
+        {fields.map((f) => (
+          <div key={f.label} className={styles.flyoutField}>
+            <span className={styles.flyoutLabel}>{f.label}</span>
+            <span className={styles.flyoutValue}>{f.value}</span>
+          </div>
+        ))}
+      </div>
+      {entry.metadata && Object.keys(entry.metadata).length > 0 && (
+        <div className={styles.flyoutMeta}>
+          <span className={styles.flyoutLabel}>Metadata</span>
+          <pre className={styles.flyoutJson}>
+            {JSON.stringify(entry.metadata, null, 2)}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// =============================================================================
 // DETAIL MODAL COMPONENT
 // =============================================================================
 
@@ -534,6 +591,7 @@ const DetailModal: React.FC<IDetailModalProps> = ({ entry, onDismiss }) => {
  */
 export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
   const audit = useAudit();
+  const queryService = useAuditQuery();
 
   // State
   const [logs, setLogs] = React.useState<IAuditLogEntry[]>([]);
@@ -573,24 +631,60 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
     });
   }, [audit]);
 
-  // Simulate loading logs (mock data for now)
+  // Load logs from query service (real data) or fall back to mock data
   React.useEffect(() => {
+    let cancelled = false;
     setIsLoading(true);
     setError(undefined);
 
-    // Simulate API call
-    const timer = setTimeout(() => {
-      try {
-        setLogs(mockLogEntries);
-        setIsLoading(false);
-      } catch {
-        setError('Failed to load audit logs. Please try again.');
-        setIsLoading(false);
-      }
-    }, 500);
+    if (queryService) {
+      queryService
+        .query(undefined, 500)
+        .then((entries) => {
+          if (!cancelled) {
+            // Map query service entries to the local IAuditLogEntry shape
+            setLogs(
+              entries.map((e) => ({
+                eventId: e.eventId,
+                eventType: e.eventType,
+                action: e.action,
+                timestamp: e.timestamp,
+                userId: e.userId,
+                userDisplayName: e.userDisplayName,
+                sessionId: e.sessionId,
+                appVersion: e.appVersion,
+                hub: e.hub,
+                tool: e.tool,
+                metadata: e.metadata,
+              })),
+            );
+            setIsLoading(false);
+          }
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setError('Failed to load audit logs. Please try again.');
+            setIsLoading(false);
+          }
+        });
+    } else {
+      // No query service — fall back to mock data (legacy/tests)
+      const timer = setTimeout(() => {
+        if (!cancelled) {
+          setLogs(mockLogEntries);
+          setIsLoading(false);
+        }
+      }, 500);
+      return () => {
+        cancelled = true;
+        clearTimeout(timer);
+      };
+    }
 
-    return () => clearTimeout(timer);
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [queryService]);
 
   // Calculate effective date range from preset or custom dates
   const effectiveDates = React.useMemo(() => {
@@ -1018,6 +1112,26 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
             selection={selection}
             isHeaderVisible={true}
             compact={true}
+            onRenderRow={(rowProps?: IDetailsRowProps) => {
+              if (!rowProps) return <></>;
+              const entry = rowProps.item as IAuditLogEntry;
+              return (
+                <HoverCard
+                  type={HoverCardType.plain}
+                  plainCardProps={{
+                    onRenderPlainCard: () => <EventFlyout entry={entry} />,
+                    directionalHint: DirectionalHint.rightTopEdge,
+                    gapSpace: 8,
+                    calloutProps: { isBeakVisible: false },
+                  }}
+                  instantOpenOnClick={false}
+                  cardDismissDelay={200}
+                  cardOpenDelay={400}
+                >
+                  <DetailsRow {...rowProps} />
+                </HoverCard>
+              );
+            }}
           />
         </div>
       )}
