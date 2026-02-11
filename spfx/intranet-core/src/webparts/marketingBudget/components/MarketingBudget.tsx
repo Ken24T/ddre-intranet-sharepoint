@@ -1,6 +1,7 @@
 import * as React from "react";
 import styles from "./MarketingBudget.module.scss";
 import type { IMarketingBudgetProps } from "./IMarketingBudgetProps";
+import type { UserRole } from "../models/permissions";
 import {
   Icon,
   MessageBar,
@@ -47,6 +48,15 @@ export const APP_NAV_ITEMS: IAppNavItem[] = [
   { key: "dataManagement", label: "Data Mgmt", icon: "DatabaseSync" },
 ];
 
+/** Keys visible to all roles. Admin-only items are filtered out for editor/viewer. */
+const PUBLIC_NAV_KEYS: ReadonlyArray<string> = ["dashboard", "budgets", "comparison"];
+
+/** Return the nav items appropriate for the given role. */
+export function getNavItemsForRole(role: UserRole): IAppNavItem[] {
+  if (role === "admin") return APP_NAV_ITEMS;
+  return APP_NAV_ITEMS.filter((item) => PUBLIC_NAV_KEYS.indexOf(item.key) >= 0);
+}
+
 /** Counts returned after loading reference data. */
 interface DataCounts {
   vendors: number;
@@ -73,8 +83,11 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const [seedComplete, setSeedComplete] = React.useState(false);
   const [activeView, setActiveView] = React.useState<AppViewKey>("dashboard");
 
+  // ─── Filtered nav items (role-gated) ───────────────────
+  const navItems = React.useMemo(() => getNavItemsForRole(userRole), [userRole]);
+
   // ─── Shell sidebar bridge ────────────────────────────────
-  const { isEmbedded } = useShellBridge(activeView, setActiveView, shellBridgeOptions);
+  const { isEmbedded } = useShellBridge(activeView, setActiveView, navItems, shellBridgeOptions);
 
   // ─── Data loading ────────────────────────────────────────
 
@@ -164,7 +177,18 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     setActiveView(view as AppViewKey);
   }, []);
 
+  /** Check whether the current role is allowed to see the active view. */
+  const isViewAllowed = React.useMemo(
+    () => navItems.some((item) => item.key === activeView),
+    [navItems, activeView],
+  );
+
   const renderActiveView = (): React.ReactNode => {
+    // Guard: redirect non-admin users away from admin-only views
+    if (!isViewAllowed) {
+      return <DashboardView repository={repository} userRole={userRole} onNavigate={handleNavigate} />;
+    }
+
     switch (activeView) {
       case "dashboard":
         return <DashboardView repository={repository} userRole={userRole} onNavigate={handleNavigate} />;
@@ -191,7 +215,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
 
   const renderStandaloneSidebar = (): React.ReactNode => (
     <nav className={styles.standaloneSidebar}>
-      {APP_NAV_ITEMS.map((item) => (
+      {navItems.map((item) => (
         <button
           key={item.key}
           className={`${styles.navItem} ${activeView === item.key ? styles.navItemActive : ""}`}

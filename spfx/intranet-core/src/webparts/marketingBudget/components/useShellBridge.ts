@@ -15,7 +15,6 @@ import * as React from "react";
 import type { IAppNavItem, AppToShellMessage } from "../../intranetShell/components/appBridge";
 import { isShellToAppMessage } from "../../intranetShell/components/appBridge";
 import type { AppViewKey } from "./MarketingBudget";
-import { APP_NAV_ITEMS } from "./MarketingBudget";
 
 interface IShellBridge {
   /** Whether the bridge is active (embedded in iframe or forced). */
@@ -39,6 +38,7 @@ interface IShellBridgeOptions {
 export function useShellBridge(
   activeView: AppViewKey,
   setActiveView: (view: AppViewKey) => void,
+  navItems: IAppNavItem[],
   options?: IShellBridgeOptions,
 ): IShellBridge {
   /** Detect whether we are running inside an iframe (embedded in shell). */
@@ -73,7 +73,7 @@ export function useShellBridge(
 
     postToShell({
       type: "SIDEBAR_SET_ITEMS",
-      items: APP_NAV_ITEMS as IAppNavItem[],
+      items: navItems,
       activeKey: activeView,
     });
 
