@@ -264,7 +264,7 @@ Modified: `MarketingBudget.tsx` (8 nav items, dashboard default),
 
 Connect to the wider DDRE ecosystem and add power-user capabilities.
 
-- [ ] **PropertyMe integration** — Pull property address and type
+- [ ] ~~**PropertyMe integration**~~ *(deferred until SharePoint deployment)* — Pull property address and type
   from PropertyMe API (via `pkg-api-client` `PropertyMeClient`)
   to auto-fill `BudgetPropertyForm` fields.
 - [ ] **Audit trail** — Record

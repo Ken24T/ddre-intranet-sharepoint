@@ -12,8 +12,11 @@ import * as strings from "MarketingBudgetWebPartStrings";
 import MarketingBudget from "./components/MarketingBudget";
 import type { IMarketingBudgetProps } from "./components/IMarketingBudgetProps";
 import type { IBudgetRepository } from "./services/IBudgetRepository";
+import type { IAuditLogger } from "./services/IAuditLogger";
 import { getSPFI, createRepository } from "./services/RepositoryFactory";
 import { resolveUserRole } from "./services/RoleResolver";
+import { DexieAuditLogger } from "./services/DexieAuditLogger";
+import { AuditedBudgetRepository } from "./services/AuditedBudgetRepository";
 import type { UserRole } from "./models/permissions";
 
 export interface IMarketingBudgetWebPartProps {
@@ -23,6 +26,7 @@ export interface IMarketingBudgetWebPartProps {
 export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarketingBudgetWebPartProps> {
   private _isDarkTheme: boolean = false;
   private _repository!: IBudgetRepository;
+  private _auditLogger!: IAuditLogger;
   private _userRole: UserRole = 'viewer';
 
   protected async onInit(): Promise<void> {
@@ -31,7 +35,13 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
     // Initialise PnPjs and create the SP List repository.
     // Falls back to DexieBudgetRepository if context is unavailable.
     const sp = getSPFI(this.context);
-    this._repository = createRepository(sp);
+    const baseRepo = createRepository(sp);
+    this._auditLogger = new DexieAuditLogger();
+    this._repository = new AuditedBudgetRepository(
+      baseRepo,
+      this._auditLogger,
+      this.context.pageContext.user.displayName,
+    );
 
     // Resolve user role from Entra ID / SharePoint group membership.
     this._userRole = await resolveUserRole(sp);
@@ -44,6 +54,7 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
         isDarkTheme: this._isDarkTheme,
         isSharePointContext: true,
         repository: this._repository,
+        auditLogger: this._auditLogger,
         userRole: this._userRole,
       });
 

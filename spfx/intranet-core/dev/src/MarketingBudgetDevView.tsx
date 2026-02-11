@@ -15,9 +15,13 @@
 import React from 'react';
 import MarketingBudget from '@mb-components/MarketingBudget';
 import { DexieBudgetRepository } from '@mb-services/DexieBudgetRepository';
+import { DexieAuditLogger } from '@mb-services/DexieAuditLogger';
+import { AuditedBudgetRepository } from '@mb-services/AuditedBudgetRepository';
 
-// Single repository instance, reused across renders
-const repository = new DexieBudgetRepository();
+// Single instances, reused across renders
+const baseRepository = new DexieBudgetRepository();
+const auditLogger = new DexieAuditLogger();
+const repository = new AuditedBudgetRepository(baseRepository, auditLogger, 'Ken Boyle');
 
 interface MarketingBudgetDevViewProps {
   isAdmin: boolean;
@@ -30,6 +34,7 @@ export const MarketingBudgetDevView: React.FC<MarketingBudgetDevViewProps> = ({ 
       isDarkTheme={false}
       isSharePointContext={false}
       repository={repository}
+      auditLogger={auditLogger}
       shellBridgeOptions={{ forceActive: true }}
       userRole={isAdmin ? 'admin' : 'editor'}
     />
