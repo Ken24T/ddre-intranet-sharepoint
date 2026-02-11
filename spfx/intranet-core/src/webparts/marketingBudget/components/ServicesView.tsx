@@ -274,6 +274,28 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
     setEditorVariants((prev) => prev.filter((v) => v.id !== variantId));
   }, []);
 
+  const moveVariantUp = React.useCallback((index: number): void => {
+    if (index === 0) return;
+    setEditorVariants((prev) => {
+      const updated = prev.map((v) => ({ ...v }));
+      const temp = updated[index];
+      updated[index] = updated[index - 1];
+      updated[index - 1] = temp;
+      return updated;
+    });
+  }, []);
+
+  const moveVariantDown = React.useCallback((index: number): void => {
+    setEditorVariants((prev) => {
+      if (index >= prev.length - 1) return prev;
+      const updated = prev.map((v) => ({ ...v }));
+      const temp = updated[index];
+      updated[index] = updated[index + 1];
+      updated[index + 1] = temp;
+      return updated;
+    });
+  }, []);
+
   const updateVariant = React.useCallback(
     (variantId: string, field: keyof ServiceVariant, value: string | number | IncludedService[] | undefined): void => {
       setEditorVariants((prev) =>
@@ -518,6 +540,24 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
             styles={{ root: { flex: 1 } }}
           />
         )}
+        <div className={styles.lineItemEditorReorder}>
+          <IconButton
+            iconProps={{ iconName: "ChevronUp" }}
+            title="Move up"
+            ariaLabel="Move variant up"
+            disabled={idx === 0}
+            onClick={(): void => moveVariantUp(idx)}
+            styles={{ root: { width: 24, height: 20, marginTop: idx === 0 ? 28 : 0 } }}
+          />
+          <IconButton
+            iconProps={{ iconName: "ChevronDown" }}
+            title="Move down"
+            ariaLabel="Move variant down"
+            disabled={idx === editorVariants.length - 1}
+            onClick={(): void => moveVariantDown(idx)}
+            styles={{ root: { width: 24, height: 20 } }}
+          />
+        </div>
         <IconButton
           iconProps={{ iconName: "Delete" }}
           title="Remove variant"
@@ -607,10 +647,34 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
             (() => {
               const service = services.find((s) => s.id === expandedId);
               return service ? (
-                <ServiceDetailPanel
-                  service={service}
-                  vendorName={getVendorName(service)}
-                />
+                <>
+                  {isAdmin && (
+                    <div className={styles.detailActionBar} style={{ marginTop: 8 }}>
+                      <DefaultButton
+                        text="Edit"
+                        iconProps={{ iconName: "Edit" }}
+                        onClick={(): void => openEditor(service)}
+                      />
+                      <DefaultButton
+                        text="Duplicate"
+                        iconProps={{ iconName: "Copy" }}
+                        onClick={(): void => {
+                          handleDuplicate(service); // eslint-disable-line @typescript-eslint/no-floating-promises
+                        }}
+                      />
+                      <DefaultButton
+                        text="Delete"
+                        iconProps={{ iconName: "Delete" }}
+                        onClick={(): void => setPendingDelete(service)}
+                        styles={{ root: { color: "#a4262c", borderColor: "#a4262c" } }}
+                      />
+                    </div>
+                  )}
+                  <ServiceDetailPanel
+                    service={service}
+                    vendorName={getVendorName(service)}
+                  />
+                </>
               ) : undefined;
             })()}
         </>

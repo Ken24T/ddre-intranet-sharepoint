@@ -3,6 +3,8 @@
  *
  * Displays suburbs in a DetailsList grouped/filterable by pricing tier.
  * Admin users can add, edit and delete suburbs via the "..." context menu.
+ * Bulk tier management allows admins to multi-select suburbs and change
+ * pricing tiers in bulk. Postcode validation enforces 4-digit Australian format.
  */
 
 import * as React from "react";
@@ -15,9 +17,11 @@ import {
   DialogType,
   Dropdown,
   IconButton,
+  MarqueeSelection,
   Panel,
   PanelType,
   PrimaryButton,
+  Selection,
   SelectionMode,
   Separator,
   Text,
@@ -73,6 +77,13 @@ const tierEditOptions: IDropdownOption[] = [
   { key: "D", text: "Tier D" },
 ];
 
+/** Validate an Australian postcode (4 digits). Returns error message or undefined. */
+const validatePostcode = (postcode: string): string | undefined => {
+  if (!postcode) return undefined; // optional field
+  if (!/^\d{4}$/.test(postcode)) return "Postcode must be exactly 4 digits";
+  return undefined;
+};
+
 export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole }) => {
   const [suburbs, setSuburbs] = React.useState<Suburb[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -88,10 +99,26 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
   const [editorPostcode, setEditorPostcode] = React.useState("");
   const [editorState, setEditorState] = React.useState("QLD");
   const [isSaving, setIsSaving] = React.useState(false);
+  const [postcodeError, setPostcodeError] = React.useState<string | undefined>(undefined);
+
+  // Bulk tier management state
+  const [selectedCount, setSelectedCount] = React.useState(0);
+  const [isBulkTierOpen, setIsBulkTierOpen] = React.useState(false);
+  const [bulkTier, setBulkTier] = React.useState<PricingTier>("A");
+  const [isBulkSaving, setIsBulkSaving] = React.useState(false);
 
   // Delete confirmation state
   const [pendingDelete, setPendingDelete] = React.useState<Suburb | undefined>(undefined);
   const [isDeleting, setIsDeleting] = React.useState(false);
+
+  // Selection for bulk operations
+  const selectionRef = React.useRef(
+    new Selection({
+      onSelectionChanged: (): void => {
+        setSelectedCount(selectionRef.current.getSelectedCount());
+      },
+    }),
+  );
 
   const isAdmin = canManageReferenceData(userRole);
 
@@ -167,6 +194,13 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
   }, []);
 
   const handleSave = React.useCallback(async (): Promise<void> => {
+    // Validate postcode
+    const pcError = validatePostcode(editorPostcode.trim());
+    if (pcError) {
+      setPostcodeError(pcError);
+      return;
+    }
+    setPostcodeError(undefined);
     setIsSaving(true);
     try {
       const suburb: Suburb = {
@@ -202,6 +236,27 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
       setIsDeleting(false);
     }
   }, [pendingDelete, repository, loadData]);
+
+  // ─── Bulk tier helpers ─────────────────────────────────
+
+  const handleBulkTierChange = React.useCallback(async (): Promise<void> => {
+    const selected = selectionRef.current.getSelection() as ISuburbRow[];
+    if (selected.length === 0) return;
+    setIsBulkSaving(true);
+    try {
+      for (const row of selected) {
+        const suburb: Suburb = { ...row._suburb, pricingTier: bulkTier };
+        await repository.saveSuburb(suburb);
+      }
+      setIsBulkTierOpen(false);
+      selectionRef.current.setAllSelected(false);
+      loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update tiers");
+    } finally {
+      setIsBulkSaving(false);
+    }
+  }, [bulkTier, repository, loadData]);
 
   // ─── Row menu builder ─────────────────────────────────
 
@@ -375,6 +430,20 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
         )}
       </div>
 
+      {/* Bulk tier action bar */}
+      {isAdmin && selectedCount > 0 && (
+        <div className={styles.bulkActionBar}>
+          <Text variant="small" style={{ fontWeight: 600 }}>
+            {selectedCount} suburb{selectedCount !== 1 ? "s" : ""} selected
+          </Text>
+          <PrimaryButton
+            text="Change Tier"
+            iconProps={{ iconName: "StackedLineChart" }}
+            onClick={(): void => setIsBulkTierOpen(true)}
+          />
+        </div>
+      )}
+
       {isLoading ? (
         <div className={styles.centeredState}>
           <Spinner size={SpinnerSize.large} label="Loading suburbs…" />
@@ -391,13 +460,26 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
           </Text>
         </div>
       ) : (
-        <DetailsList
-          items={rows}
-          columns={columns}
-          layoutMode={DetailsListLayoutMode.justified}
-          selectionMode={SelectionMode.none}
-          isHeaderVisible={true}
-        />
+        isAdmin ? (
+          <MarqueeSelection selection={selectionRef.current}>
+            <DetailsList
+              items={rows}
+              columns={columns}
+              layoutMode={DetailsListLayoutMode.justified}
+              selectionMode={SelectionMode.multiple}
+              selection={selectionRef.current}
+              isHeaderVisible={true}
+            />
+          </MarqueeSelection>
+        ) : (
+          <DetailsList
+            items={rows}
+            columns={columns}
+            layoutMode={DetailsListLayoutMode.justified}
+            selectionMode={SelectionMode.none}
+            isHeaderVisible={true}
+          />
+        )
       )}
 
       {/* Editor panel */}
@@ -437,9 +519,13 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
           <TextField
             label="Postcode"
             value={editorPostcode}
-            onChange={(_, val): void => setEditorPostcode(val ?? "")}
+            onChange={(_, val): void => {
+              setEditorPostcode(val ?? "");
+              setPostcodeError(undefined);
+            }}
             placeholder="e.g. 4065"
             maxLength={4}
+            errorMessage={postcodeError}
           />
           <TextField
             label="State"
@@ -474,6 +560,37 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
             text="Cancel"
             onClick={(): void => setPendingDelete(undefined)}
             disabled={isDeleting}
+          />
+        </DialogFooter>
+      </Dialog>
+
+      {/* Bulk tier change dialog */}
+      <Dialog
+        hidden={!isBulkTierOpen}
+        onDismiss={(): void => setIsBulkTierOpen(false)}
+        dialogContentProps={{
+          type: DialogType.normal,
+          title: "Change pricing tier",
+          subText: `Assign a new pricing tier to ${selectedCount} selected suburb${selectedCount !== 1 ? "s" : ""}.`,
+        }}
+        modalProps={{ isBlocking: true }}
+      >
+        <Dropdown
+          label="New Pricing Tier"
+          options={tierEditOptions}
+          selectedKey={bulkTier}
+          onChange={(_, opt): void => setBulkTier((opt?.key ?? "A") as PricingTier)}
+        />
+        <DialogFooter>
+          <PrimaryButton
+            text={isBulkSaving ? "Updating…" : "Apply"}
+            onClick={handleBulkTierChange} // eslint-disable-line @typescript-eslint/no-floating-promises
+            disabled={isBulkSaving}
+          />
+          <DefaultButton
+            text="Cancel"
+            onClick={(): void => setIsBulkTierOpen(false)}
+            disabled={isBulkSaving}
           />
         </DialogFooter>
       </Dialog>

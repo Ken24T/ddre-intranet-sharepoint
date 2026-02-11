@@ -35,6 +35,7 @@ import type { Schedule, Service, Vendor, PropertyType, PropertySize, BudgetTier 
 import type { UserRole } from "../models/permissions";
 import { canManageReferenceData } from "../models/permissions";
 import type { IBudgetRepository } from "../services/IBudgetRepository";
+import { ScheduleLineItemEditor } from "./ScheduleLineItemEditor";
 import styles from "./MarketingBudget.module.scss";
 
 export interface ISchedulesViewProps {
@@ -102,6 +103,7 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
   const [editorTier, setEditorTier] = React.useState<BudgetTier>("standard");
   const [editorDefaultVendorId, setEditorDefaultVendorId] = React.useState<number | undefined>(undefined);
   const [editorIsActive, setEditorIsActive] = React.useState<number>(1);
+  const [editorLineItems, setEditorLineItems] = React.useState<Schedule["lineItems"]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
 
   // Delete confirmation state
@@ -189,6 +191,7 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
     setEditorTier(schedule?.tier ?? "standard");
     setEditorDefaultVendorId(schedule?.defaultVendorId);
     setEditorIsActive(schedule?.isActive ?? 1);
+    setEditorLineItems(schedule?.lineItems.map((li) => ({ ...li })) ?? []);
     setIsEditorOpen(true);
   }, []);
 
@@ -213,6 +216,7 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
         tier: editorTier,
         defaultVendorId: editorDefaultVendorId,
         isActive: editorIsActive,
+        lineItems: editorLineItems,
         updatedAt: now,
       };
       await repository.saveSchedule(schedule);
@@ -223,7 +227,7 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
     } finally {
       setIsSaving(false);
     }
-  }, [editSchedule, editorName, editorPropertyType, editorPropertySize, editorTier, editorDefaultVendorId, editorIsActive, repository, closeEditor, loadData]);
+  }, [editSchedule, editorName, editorPropertyType, editorPropertySize, editorTier, editorDefaultVendorId, editorIsActive, editorLineItems, repository, closeEditor, loadData]);
 
   // ─── Delete helpers ────────────────────────────────────
 
@@ -396,6 +400,28 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
   /** Render the expanded detail section for a schedule. */
   const renderExpandedDetail = (schedule: Schedule): React.ReactNode => (
     <div className={styles.refDetailPanel}>
+      {isAdmin && (
+        <div className={styles.detailActionBar}>
+          <DefaultButton
+            text="Edit"
+            iconProps={{ iconName: "Edit" }}
+            onClick={(): void => openEditor(schedule)}
+          />
+          <DefaultButton
+            text="Duplicate"
+            iconProps={{ iconName: "Copy" }}
+            onClick={(): void => {
+              handleDuplicate(schedule); // eslint-disable-line @typescript-eslint/no-floating-promises
+            }}
+          />
+          <DefaultButton
+            text="Delete"
+            iconProps={{ iconName: "Delete" }}
+            onClick={(): void => setPendingDelete(schedule)}
+            styles={{ root: { color: "#a4262c", borderColor: "#a4262c" } }}
+          />
+        </div>
+      )}
       <Text className={styles.refDetailTitle}>{schedule.name}</Text>
       <div className={styles.refDetailMeta}>
         <span>
@@ -535,7 +561,7 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
         isOpen={isEditorOpen}
         onDismiss={closeEditor}
         type={PanelType.custom}
-        customWidth="400px"
+        customWidth="560px"
         headerText={editSchedule ? `Edit — ${editSchedule.name}` : "New Schedule"}
         isFooterAtBottom={true}
         onRenderFooterContent={(): JSX.Element => (
@@ -591,6 +617,20 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
             options={activeStatusOptions}
             selectedKey={editorIsActive}
             onChange={(_, opt): void => setEditorIsActive(Number(opt?.key ?? 1))}
+          />
+
+          <Separator />
+
+          {/* Schedule line item editor */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <Text variant="mediumPlus" style={{ fontWeight: 600 }}>
+              Line Items ({editorLineItems.length})
+            </Text>
+          </div>
+          <ScheduleLineItemEditor
+            lineItems={editorLineItems}
+            services={services}
+            onChange={setEditorLineItems}
           />
         </div>
       </Panel>

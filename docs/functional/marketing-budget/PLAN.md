@@ -213,16 +213,16 @@ Improve day-to-day usability for editors and admins.
 - [x] **Budget duplication** — Deep-copy an existing budget (already
   permitted by `canDuplicateBudget`) with option to change property
   address and schedule.
-- [ ] **Inline editing on reference data** — Replace
+- [x] **Inline editing on reference data** — Replace
   context-menu-only CRUD on Vendors, Services, Suburbs, Schedules
   with edit panels (similar to `BudgetEditorPanel`).
-- [ ] **Service variant management UI** — Dedicated panel for
+- [x] **Service variant management UI** — Dedicated panel for
   adding/editing/reordering `ServiceVariant[]` within a service,
   improving on the current read-only `ServiceDetailPanel`.
-- [ ] **Schedule builder** — Visual editor for composing
+- [x] **Schedule builder** — Visual editor for composing
   `ScheduleLineItem[]` within a schedule (drag-to-reorder,
   toggle services).
-- [ ] **Suburb tier management** — Bulk assign/reassign pricing tiers to suburbs with postcode validation.
+- [x] **Suburb tier management** — Bulk assign/reassign pricing tiers to suburbs with postcode validation.
 
 Deliverables: Validation rules, multi-select UX, full CRUD panels for all reference entities.
 
@@ -275,8 +275,8 @@ Deliverables: PropertyMe auto-fill, audit log, templates, shell notifications, s
 
 1. 🟢 SharePoint List backend operational (2A) — core implementation complete, list provisioning remaining.
 2. 🟢 Entra ID group-based roles live (2A) — `RoleResolver` implemented.
-3. ⬜ Validation and bulk operations shipped (2B).
-4. ⬜ Reference data edit panels complete (2B).
+3. 🟢 Validation and bulk operations shipped (2B).
+4. 🟢 Reference data edit panels complete (2B).
 5. ⬜ Dashboard and export features live (2C).
 6. ⬜ PropertyMe integration functional (2D).
 7. ⬜ Audit trail and templates shipped (2D).
