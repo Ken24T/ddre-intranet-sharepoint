@@ -2,8 +2,10 @@ import * as React from 'react';
 import {
   DetailsList,
   DetailsListLayoutMode,
+  DetailsRow,
   SelectionMode,
   IColumn,
+  IDetailsRowProps,
   Dropdown,
   IDropdownOption,
   DatePicker,
@@ -16,6 +18,8 @@ import {
   Icon,
   TooltipHost,
   DirectionalHint,
+  HoverCard,
+  HoverCardType,
   Modal,
   IconButton,
   Selection,
@@ -453,6 +457,58 @@ const SummaryWidgets: React.FC<{ stats: ISummaryStats }> = ({ stats }) => {
           ))}
         </div>
       </div>
+    </div>
+  );
+};
+
+// =============================================================================
+// HOVER FLYOUT COMPONENT
+// =============================================================================
+
+const EventFlyout: React.FC<{ entry: IAuditLogEntry }> = ({ entry }) => {
+  const fields = [
+    { label: 'Event ID', value: entry.eventId },
+    { label: 'Timestamp', value: formatTimestamp(entry.timestamp) },
+    { label: 'User', value: entry.userDisplayName || entry.userId },
+    { label: 'Email', value: entry.userId },
+    { label: 'Session', value: entry.sessionId },
+    { label: 'Event Type', value: entry.eventType },
+    { label: 'Action', value: entry.action.replace(/_/g, ' ') },
+    { label: 'Hub', value: entry.hub || '—' },
+    { label: 'Tool', value: entry.tool || '—' },
+    { label: 'App Version', value: entry.appVersion },
+  ];
+
+  return (
+    <div className={styles.flyout}>
+      <div className={styles.flyoutHeader}>
+        <Icon
+          iconName={getEventTypeIcon(entry.eventType)}
+          style={{ color: getEventTypeColor(entry.eventType), fontSize: 18 }}
+        />
+        <span className={styles.flyoutTitle}>
+          {entry.action.replace(/_/g, ' ')}
+        </span>
+        <span className={styles.flyoutTimestamp}>
+          {formatTimestamp(entry.timestamp)}
+        </span>
+      </div>
+      <div className={styles.flyoutFields}>
+        {fields.map((f) => (
+          <div key={f.label} className={styles.flyoutField}>
+            <span className={styles.flyoutLabel}>{f.label}</span>
+            <span className={styles.flyoutValue}>{f.value}</span>
+          </div>
+        ))}
+      </div>
+      {entry.metadata && Object.keys(entry.metadata).length > 0 && (
+        <div className={styles.flyoutMeta}>
+          <span className={styles.flyoutLabel}>Metadata</span>
+          <pre className={styles.flyoutJson}>
+            {JSON.stringify(entry.metadata, null, 2)}
+          </pre>
+        </div>
+      )}
     </div>
   );
 };
@@ -1056,6 +1112,26 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
             selection={selection}
             isHeaderVisible={true}
             compact={true}
+            onRenderRow={(rowProps?: IDetailsRowProps) => {
+              if (!rowProps) return <></>;
+              const entry = rowProps.item as IAuditLogEntry;
+              return (
+                <HoverCard
+                  type={HoverCardType.plain}
+                  plainCardProps={{
+                    onRenderPlainCard: () => <EventFlyout entry={entry} />,
+                    directionalHint: DirectionalHint.rightTopEdge,
+                    gapSpace: 8,
+                    calloutProps: { isBeakVisible: false },
+                  }}
+                  instantOpenOnClick={false}
+                  cardDismissDelay={200}
+                  cardOpenDelay={400}
+                >
+                  <DetailsRow {...rowProps} />
+                </HoverCard>
+              );
+            }}
           />
         </div>
       )}
