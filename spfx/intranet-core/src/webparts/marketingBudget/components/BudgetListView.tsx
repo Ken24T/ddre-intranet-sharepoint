@@ -43,9 +43,11 @@ import {
 } from "../models/permissions";
 import { calculateBudgetSummary } from "../models/budgetCalculations";
 import { validateTransition } from "../models/budgetValidation";
+import { budgetListToCsv, budgetLineItemsToCsv, downloadCsv } from "../models/exportHelpers";
 import { statusTransitions } from "./budgetEditorConstants";
 import type { IBudgetRepository } from "../services/IBudgetRepository";
 import { BudgetEditorPanel } from "./BudgetEditorPanel";
+import { BudgetPrintView } from "./BudgetPrintView";
 import styles from "./MarketingBudget.module.scss";
 
 export interface IBudgetListViewProps {
@@ -244,6 +246,9 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   // Delete confirmation state
   const [pendingDeleteBudget, setPendingDeleteBudget] = React.useState<Budget | undefined>(undefined);
   const [isDeleting, setIsDeleting] = React.useState(false);
+
+  // Print view state
+  const [printBudget, setPrintBudget] = React.useState<Budget | undefined>(undefined);
 
   // Multi-select state (admin only — for bulk status transitions)
   const [selectedCount, setSelectedCount] = React.useState(0);
@@ -574,6 +579,29 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
         });
       }
 
+      // Print & Export — available to all roles
+      if (items.length > 0) {
+        items.push({ key: "divider-export", text: "-", itemType: 1 });
+      }
+      items.push({
+        key: "print",
+        text: "Print",
+        iconProps: { iconName: "Print" },
+        onClick: (): void => {
+          setPrintBudget(budget);
+        },
+      });
+      items.push({
+        key: "export-csv",
+        text: "Export line items CSV",
+        iconProps: { iconName: "DownloadDocument" },
+        onClick: (): void => {
+          const csv = budgetLineItemsToCsv(budget);
+          const addr = budget.propertyAddress.replace(/[^a-zA-Z0-9]/g, "_") || "budget";
+          downloadCsv(csv, `${addr}_line_items.csv`);
+        },
+      });
+
       return items;
     },
     [userRole, handleDeleteClick, handleDuplicate, handleQuickTransition],
@@ -748,6 +776,17 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
             onClick={handleNewBudget}
           />
         )}
+        {rows.length > 0 && (
+          <DefaultButton
+            text="Export CSV"
+            iconProps={{ iconName: "DownloadDocument" }}
+            onClick={(): void => {
+              const filteredBudgets = rows.map((r) => r._budget);
+              const csv = budgetListToCsv(filteredBudgets);
+              downloadCsv(csv, "budgets.csv");
+            }}
+          />
+        )}
       </div>
 
       {isLoading ? (
@@ -831,6 +870,13 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
           />
         </DialogFooter>
       </Dialog>
+
+      {/* Print view overlay */}
+      {printBudget && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "#fff" }}>
+          <BudgetPrintView budget={printBudget} onDismiss={(): void => setPrintBudget(undefined)} />
+        </div>
+      )}
     </div>
   );
 };

@@ -230,21 +230,35 @@ Deliverables: Validation rules, multi-select UX, full CRUD panels for all refere
 
 Surface insights and support external workflows.
 
-- [ ] **Dashboard view** — New top-level view showing:
+- [x] **Dashboard view** — New default landing view showing:
   - Budget count by status (draft/approved/sent/archived).
   - Total spend by `ServiceCategory`.
   - Spend by `BudgetTier` and `PricingTier`.
   - Monthly trend if budget dates are captured.
-- [ ] **Print / PDF export** — Generate a printable budget summary
-  (property details, line items, totals with GST) using a
-  print-friendly layout or a library like `jsPDF`/`react-to-print`.
-- [ ] **CSV export** — Export budget list and line items as CSV for
-  spreadsheet workflows.
-- [ ] **Budget comparison** — Side-by-side view of two budgets
+  - Quick-action links to Budgets and Compare views.
+- [x] **Print / PDF export** — Browser-print layout using an
+  iframe-copy technique (no external dependencies). Print button
+  on budget row context menu and in BudgetEditorPanel footer.
+- [x] **CSV export** — Export filtered budget list as CSV from
+  BudgetListView toolbar, and export individual budget line items
+  from row context menu.
+- [x] **Budget comparison** — Side-by-side view of two budgets
   highlighting price differences (useful for re-quoting or tier
-  changes).
+  changes) with diff colouring (green = cheaper, red = more
+  expensive, grey = missing).
+- [x] **Selective data export/import** — Entity-type-level
+  export/import (budgets, services, vendors, suburbs, schedules)
+  with additive merge for cross-environment data transfer and
+  backup/restore. Admin-only access.
 
-Deliverables: Dashboard component, PDF/print layout, CSV download, comparison view.
+Deliverables: Dashboard component, print layout, CSV download,
+comparison view, selective data management panel.
+New files: `dashboardAggregations.ts`, `exportHelpers.ts`,
+`DashboardView.tsx`, `BudgetPrintView.tsx`,
+`BudgetComparisonView.tsx`, `DataManagementView.tsx` + tests.
+Modified: `MarketingBudget.tsx` (8 nav items, dashboard default),
+`useShellBridge.ts`, `BudgetListView.tsx` (CSV/Print integration),
+`BudgetEditorPanel.tsx` (Print button), `MarketingBudget.module.scss`.
 
 ### 2D) Integration & Advanced Features
 
@@ -277,7 +291,7 @@ Deliverables: PropertyMe auto-fill, audit log, templates, shell notifications, s
 2. 🟢 Entra ID group-based roles live (2A) — `RoleResolver` implemented.
 3. 🟢 Validation and bulk operations shipped (2B).
 4. 🟢 Reference data edit panels complete (2B).
-5. ⬜ Dashboard and export features live (2C).
+5. 🟢 Dashboard and export features live (2C) — 356 tests passing.
 6. ⬜ PropertyMe integration functional (2D).
 7. ⬜ Audit trail and templates shipped (2D).
 

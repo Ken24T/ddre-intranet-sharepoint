@@ -74,7 +74,7 @@ export function useShellBridge(
     postToShell({
       type: "SIDEBAR_SET_ITEMS",
       items: APP_NAV_ITEMS as IAppNavItem[],
-      activeKey: "budgets",
+      activeKey: activeView,
     });
 
     const handleMessage = (event: MessageEvent): void => {

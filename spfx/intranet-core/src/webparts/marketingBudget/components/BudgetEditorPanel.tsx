@@ -36,6 +36,7 @@ import { LineItemEditor } from "./LineItemEditor";
 import { BudgetTotals } from "./BudgetTotals";
 import { BudgetPropertyForm } from "./BudgetPropertyForm";
 import { useBudgetEditorState } from "./useBudgetEditorState";
+import { printElement } from "./BudgetPrintView";
 import styles from "./MarketingBudget.module.scss";
 
 // ─── Props ──────────────────────────────────────────────────
@@ -90,6 +91,19 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
             ))}
         </div>
         <div className={styles.editorFooterRight}>
+          {!state.isNew && (
+            <DefaultButton
+              text="Print"
+              iconProps={{ iconName: "Print" }}
+              onClick={(): void => {
+                const panel = document.querySelector("[data-testid='editor-panel-content']") as HTMLElement | null;
+                if (panel) {
+                  printElement(panel);
+                }
+              }}
+              disabled={state.isSaving}
+            />
+          )}
           <DefaultButton
             text={isEditable ? "Cancel" : "Close"}
             onClick={onDismiss}
@@ -134,7 +148,7 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
           <Spinner size={SpinnerSize.large} label="Loading reference data…" />
         </div>
       ) : (
-        <div className={styles.editorContent}>
+        <div className={styles.editorContent} data-testid="editor-panel-content">
           {state.error && (
             <MessageBar
               messageBarType={MessageBarType.error}

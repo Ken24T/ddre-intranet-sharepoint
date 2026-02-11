@@ -244,31 +244,30 @@ describe("MarketingBudget component", () => {
   // ─── View Routing (Stage 3) ─────────────────────────────
 
   describe("view routing", () => {
-    it("shows BudgetListView by default when data is loaded", async () => {
+    it("shows DashboardView by default when data is loaded", async () => {
       const repo = createMockRepository({ preSeeded: true });
       render(<MarketingBudget {...defaultProps} repository={repo} />);
 
       await waitFor(() => {
-        // BudgetListView renders its own "Budgets" header
-        expect(screen.getByText("Budgets")).toBeInTheDocument();
+        // DashboardView renders its own "Dashboard" header
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
       });
     });
 
-    it('shows "No budgets yet" when no budgets exist', async () => {
-      const repo = createMockRepository({ preSeeded: true, budgets: [] });
-      render(<MarketingBudget {...defaultProps} repository={repo} />);
-
-      await waitFor(() => {
-        expect(screen.getByText("No budgets yet")).toBeInTheDocument();
-      });
-    });
-
-    it("renders budget rows in BudgetListView when budgets exist", async () => {
+    it("switches to BudgetListView and shows budgets", async () => {
       const repo = createMockRepository({
         preSeeded: true,
         budgets: mockBudgets,
       });
       render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
+      });
+
+      // Click Budgets nav item to switch views
+      const budgetsBtn = screen.getByRole("button", { name: /Budgets/i });
+      fireEvent.click(budgetsBtn);
 
       await waitFor(() => {
         expect(screen.getByText("123 Test St")).toBeInTheDocument();
@@ -281,7 +280,7 @@ describe("MarketingBudget component", () => {
       render(<MarketingBudget {...defaultProps} repository={repo} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Budgets")).toBeInTheDocument();
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
       });
 
       // In standalone mode, sidebar nav items are rendered as buttons
@@ -300,7 +299,7 @@ describe("MarketingBudget component", () => {
       render(<MarketingBudget {...defaultProps} repository={repo} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Budgets")).toBeInTheDocument();
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
       });
 
       const servicesBtn = screen.getByRole("button", { name: /Services/i });
@@ -318,7 +317,7 @@ describe("MarketingBudget component", () => {
       render(<MarketingBudget {...defaultProps} repository={repo} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Budgets")).toBeInTheDocument();
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
       });
 
       const vendorsBtn = screen.getByRole("button", { name: /Vendors/i });
@@ -336,7 +335,7 @@ describe("MarketingBudget component", () => {
       render(<MarketingBudget {...defaultProps} repository={repo} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Budgets")).toBeInTheDocument();
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
       });
 
       const suburbsBtn = screen.getByRole("button", { name: /Suburbs/i });
@@ -361,9 +360,15 @@ describe("MarketingBudget component", () => {
         expect(screen.getByText("Budgets")).toBeInTheDocument();
       });
 
-      // All five nav items should be visible as buttons
+      // All eight nav items should be visible as buttons
+      expect(
+        screen.getByRole("button", { name: /Dashboard/i }),
+      ).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /Budgets/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Compare/i }),
       ).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /Schedules/i }),
@@ -376,6 +381,9 @@ describe("MarketingBudget component", () => {
       ).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /Suburbs/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Data Mgmt/i }),
       ).toBeInTheDocument();
     });
   });
@@ -413,7 +421,7 @@ describe("MarketingBudget component", () => {
             items: expect.arrayContaining([
               expect.objectContaining({ key: "budgets", label: "Budgets" }),
             ]),
-            activeKey: "budgets",
+            activeKey: "dashboard",
           }),
           "*",
         );

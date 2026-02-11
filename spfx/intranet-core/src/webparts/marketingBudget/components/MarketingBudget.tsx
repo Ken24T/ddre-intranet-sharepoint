@@ -17,6 +17,9 @@ import { SchedulesView } from "./SchedulesView";
 import { ServicesView } from "./ServicesView";
 import { VendorsView } from "./VendorsView";
 import { SuburbsView } from "./SuburbsView";
+import { DashboardView } from "./DashboardView";
+import { BudgetComparisonView } from "./BudgetComparisonView";
+import { DataManagementView } from "./DataManagementView";
 import { useShellBridge } from "./useShellBridge";
 
 // ─────────────────────────────────────────────────────────────
@@ -24,18 +27,24 @@ import { useShellBridge } from "./useShellBridge";
 // ─────────────────────────────────────────────────────────────
 
 export type AppViewKey =
+  | "dashboard"
   | "budgets"
+  | "comparison"
   | "schedules"
   | "services"
   | "vendors"
-  | "suburbs";
+  | "suburbs"
+  | "dataManagement";
 
 export const APP_NAV_ITEMS: IAppNavItem[] = [
+  { key: "dashboard", label: "Dashboard", icon: "ViewDashboard" },
   { key: "budgets", label: "Budgets", icon: "Financial" },
+  { key: "comparison", label: "Compare", icon: "CompareSingle" },
   { key: "schedules", label: "Schedules", icon: "CalendarWeek" },
   { key: "services", label: "Services", icon: "Settings" },
   { key: "vendors", label: "Vendors", icon: "People" },
   { key: "suburbs", label: "Suburbs", icon: "MapPin" },
+  { key: "dataManagement", label: "Data Mgmt", icon: "DatabaseSync" },
 ];
 
 /** Counts returned after loading reference data. */
@@ -62,7 +71,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const [isSeeding, setIsSeeding] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [seedComplete, setSeedComplete] = React.useState(false);
-  const [activeView, setActiveView] = React.useState<AppViewKey>("budgets");
+  const [activeView, setActiveView] = React.useState<AppViewKey>("dashboard");
 
   // ─── Shell sidebar bridge ────────────────────────────────
   const { isEmbedded } = useShellBridge(activeView, setActiveView, shellBridgeOptions);
@@ -151,10 +160,18 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
 
   // ─── View renderer ────────────────────────────────────────
 
+  const handleNavigate = React.useCallback((view: string): void => {
+    setActiveView(view as AppViewKey);
+  }, []);
+
   const renderActiveView = (): React.ReactNode => {
     switch (activeView) {
+      case "dashboard":
+        return <DashboardView repository={repository} userRole={userRole} onNavigate={handleNavigate} />;
       case "budgets":
         return <BudgetListView repository={repository} userRole={userRole} />;
+      case "comparison":
+        return <BudgetComparisonView repository={repository} userRole={userRole} />;
       case "schedules":
         return <SchedulesView repository={repository} userRole={userRole} />;
       case "services":
@@ -163,8 +180,10 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
         return <VendorsView repository={repository} userRole={userRole} />;
       case "suburbs":
         return <SuburbsView repository={repository} userRole={userRole} />;
+      case "dataManagement":
+        return <DataManagementView repository={repository} userRole={userRole} />;
       default:
-        return <BudgetListView repository={repository} userRole={userRole} />;
+        return <DashboardView repository={repository} userRole={userRole} onNavigate={handleNavigate} />;
     }
   };
 
