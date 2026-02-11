@@ -724,17 +724,36 @@ AI-powered document library search using Dante AI.
 
 ### app-marketing-budget
 
-> **Status:** ⚪ Planning
+> **Status:** 🟢 Phase 1 Complete · Phase 2 Planning
 >
 > **Hub:** Administration
 
-Marketing budget tracking and reporting.
+Marketing budget tracking and reporting for sales & marketing teams.
 
-- [ ] Define requirements in `apps/app-marketing-budget/`
-- [ ] Create SPFx solution `spfx/marketing-budget/`
-- [ ] Design data model (SharePoint List or external)
-- [ ] Implement budget dashboard component
-- [ ] Implement budget entry/edit forms
+**Phase 1 — SPFx Port (Complete):**
+
+- [x] Define requirements in `apps/app-marketing-budget/`
+- [x] Create SPFx solution `spfx/marketing-budget/`
+- [x] Design data model (IndexedDB via Dexie 4.x, repository pattern)
+- [x] Implement budget dashboard component (5 views: budgets, schedules, services, vendors, suburbs)
+- [x] Implement budget entry/edit forms (editor panel, line item editor, property form)
+- [x] Role-based CRUD (viewer/editor/admin) with context menus on all views
+- [x] Shell integration (PostMessage sidebar bridge, dev harness in intranet-core v0.6.0)
+- [x] Quality gates (130 tests, 88% line coverage, zero lint warnings)
+
+**Phase 2 — Enhancement & Production Readiness (Planned):**
+
+- [ ] SharePoint List backend (`SPListBudgetRepository` replacing IndexedDB)
+- [ ] Entra ID group-based role resolution
+- [ ] Budget validation and bulk status transitions
+- [ ] Reference data edit panels (vendors, services, suburbs, schedules)
+- [ ] Dashboard view (spend by category, status breakdown, tier analysis)
+- [ ] Print/PDF and CSV export
+- [ ] PropertyMe API integration for property auto-fill
+- [ ] Audit trail and budget templates
+- [ ] Shared appBridge package extraction
+
+> **Detailed plan:** `docs/functional/marketing-budget/PLAN.md`
 
 ### app-pm-dashboard
 
