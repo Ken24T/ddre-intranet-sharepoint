@@ -205,12 +205,12 @@ Deliverables: `SPListBudgetRepository`, group-based permissions, list provisioni
 
 Improve day-to-day usability for editors and admins.
 
-- [ ] **Budget validation** — Enforce completeness rules before
+- [x] **Budget validation** — Enforce completeness rules before
   `draft → approved` transition (address required, at least one
   line item, schedule selected).
-- [ ] **Bulk status transitions** — Multi-select budgets in
+- [x] **Bulk status transitions** — Multi-select budgets in
   `BudgetListView` and apply a status change to all selected.
-- [ ] **Budget duplication** — Deep-copy an existing budget (already
+- [x] **Budget duplication** — Deep-copy an existing budget (already
   permitted by `canDuplicateBudget`) with option to change property
   address and schedule.
 - [ ] **Inline editing on reference data** — Replace

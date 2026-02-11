@@ -762,7 +762,8 @@ Marketing budget tracking and reporting for sales & marketing teams.
 
 **Phase 2B–D — Enhancement & Production Readiness (Planned):**
 
-- [ ] Budget validation and bulk status transitions
+- [x] Budget validation and bulk status transitions
+- [x] Budget duplication (deep-copy with address/schedule edit)
 - [ ] Reference data edit panels (vendors, services, suburbs, schedules)
 - [ ] Dashboard view (spend by category, status breakdown, tier analysis)
 - [ ] Print/PDF and CSV export

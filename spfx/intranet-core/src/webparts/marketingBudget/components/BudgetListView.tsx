@@ -9,6 +9,7 @@
 import * as React from "react";
 import {
   Callout,
+  CommandBar,
   DefaultButton,
   DetailsList,
   DetailsListLayoutMode,
@@ -18,17 +19,19 @@ import {
   DirectionalHint,
   Dropdown,
   IconButton,
+  MarqueeSelection,
   MessageBar,
   MessageBarType,
   PrimaryButton,
   SearchBox,
+  Selection,
   SelectionMode,
   Spinner,
   SpinnerSize,
   Text,
   Icon,
 } from "@fluentui/react";
-import type { IColumn, IDropdownOption, IContextualMenuProps, IContextualMenuItem } from "@fluentui/react";
+import type { IColumn, ICommandBarItemProps, IDropdownOption, IContextualMenuProps, IContextualMenuItem } from "@fluentui/react";
 import type { Budget, BudgetStatus } from "../models/types";
 import type { UserRole } from "../models/permissions";
 import {
@@ -39,6 +42,7 @@ import {
   canTransitionBudget,
 } from "../models/permissions";
 import { calculateBudgetSummary } from "../models/budgetCalculations";
+import { validateTransition } from "../models/budgetValidation";
 import { statusTransitions } from "./budgetEditorConstants";
 import type { IBudgetRepository } from "../services/IBudgetRepository";
 import { BudgetEditorPanel } from "./BudgetEditorPanel";
@@ -241,6 +245,19 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   const [pendingDeleteBudget, setPendingDeleteBudget] = React.useState<Budget | undefined>(undefined);
   const [isDeleting, setIsDeleting] = React.useState(false);
 
+  // Multi-select state (admin only — for bulk status transitions)
+  const [selectedCount, setSelectedCount] = React.useState(0);
+  const selectionRef = React.useRef<Selection>(
+    new Selection({
+      onSelectionChanged: () => {
+        setSelectedCount(selectionRef.current.getSelectedCount());
+      },
+      getKey: (item: IBudgetRow) => item.key,
+    } as never),  // eslint-disable-line @typescript-eslint/no-explicit-any
+  );
+  const selection = selectionRef.current;
+  const canBulkSelect = canTransitionBudget(userRole);
+
   const loadBudgets = React.useCallback(
     async (signal: { cancelled: boolean }): Promise<void> => {
       setIsLoading(true);
@@ -305,13 +322,15 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   const handleDuplicate = React.useCallback(
     async (budget: Budget): Promise<void> => {
       try {
+        const now = new Date().toISOString();
         const duplicate: Budget = {
           ...budget,
           id: undefined as unknown as number,
           propertyAddress: `${budget.propertyAddress} (copy)`,
           status: "draft" as const,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          lineItems: budget.lineItems.map((li) => ({ ...li })),
+          createdAt: now,
+          updatedAt: now,
         };
         const saved = await repository.saveBudget(duplicate);
         // Open the duplicate in the editor
@@ -331,6 +350,14 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
 
   const handleQuickTransition = React.useCallback(
     async (budget: Budget, newStatus: BudgetStatus): Promise<void> => {
+      // Validate the transition (e.g. draft → approved requires completeness)
+      const validation = validateTransition(budget, budget.status, newStatus);
+      if (!validation.isValid) {
+        const messages = validation.errors.map((e) => e.message).join(" ");
+        setError(messages);
+        return;
+      }
+
       try {
         await repository.saveBudget({
           ...budget,
@@ -346,6 +373,121 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
     },
     [repository, loadBudgets],
   );
+
+  // ─── Bulk status transition handler ────────────────────
+
+  const handleBulkTransition = React.useCallback(
+    async (newStatus: BudgetStatus): Promise<void> => {
+      const selected = selection.getSelection() as IBudgetRow[];
+      if (selected.length === 0) return;
+
+      const budgetsToTransition = selected.map((row) => row._budget);
+
+      // Validate all selected budgets
+      const failures: string[] = [];
+      for (const budget of budgetsToTransition) {
+        const allowed = statusTransitions[budget.status] ?? [];
+        if (allowed.indexOf(newStatus) < 0) {
+          failures.push(
+            `"${budget.propertyAddress}" cannot move from ${budget.status} to ${newStatus}.`,
+          );
+          continue;
+        }
+        const validation = validateTransition(budget, budget.status, newStatus);
+        if (!validation.isValid) {
+          const msgs = validation.errors.map((e) => e.message).join(" ");
+          failures.push(`"${budget.propertyAddress}": ${msgs}`);
+        }
+      }
+
+      if (failures.length > 0) {
+        setError(failures.join(" "));
+        return;
+      }
+
+      try {
+        const now = new Date().toISOString();
+        for (const budget of budgetsToTransition) {
+          await repository.saveBudget({
+            ...budget,
+            status: newStatus,
+            updatedAt: now,
+          });
+        }
+        selection.setAllSelected(false);
+        loadBudgets({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to update budgets",
+        );
+      }
+    },
+    [selection, repository, loadBudgets],
+  );
+
+  // ─── Bulk command bar items ────────────────────────────
+
+  const bulkCommandItems: ICommandBarItemProps[] = React.useMemo((): ICommandBarItemProps[] => {
+    if (!canBulkSelect || selectedCount === 0) return [];
+
+    const selected = selection.getSelection() as IBudgetRow[];
+    const selectedBudgets = selected.map((row) => row._budget);
+
+    // Determine which transitions are common to all selected budgets
+    const commonTransitions = selectedBudgets.reduce<BudgetStatus[]>(
+      (acc, budget, idx) => {
+        const allowed = statusTransitions[budget.status] ?? [];
+        return idx === 0 ? allowed : acc.filter((s) => allowed.indexOf(s) >= 0);
+      },
+      [],
+    );
+
+    const items: ICommandBarItemProps[] = [
+      {
+        key: "selection-count",
+        text: `${selectedCount} selected`,
+        disabled: true,
+        iconProps: { iconName: "CheckboxComposite" },
+      },
+    ];
+
+    for (const nextStatus of commonTransitions) {
+      const label =
+        nextStatus === "draft"
+          ? "Revert to Draft"
+          : nextStatus === "archived"
+            ? "Archive"
+            : `Mark as ${nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1)}`;
+      items.push({
+        key: `bulk-${nextStatus}`,
+        text: label,
+        iconProps: {
+          iconName:
+            nextStatus === "approved"
+              ? "CheckMark"
+              : nextStatus === "sent"
+                ? "Mail"
+                : nextStatus === "archived"
+                  ? "Archive"
+                  : "Undo",
+        },
+        onClick: (): void => {
+          handleBulkTransition(nextStatus); // eslint-disable-line @typescript-eslint/no-floating-promises
+        },
+      });
+    }
+
+    items.push({
+      key: "clear-selection",
+      text: "Clear selection",
+      iconProps: { iconName: "Cancel" },
+      onClick: (): void => {
+        selection.setAllSelected(false);
+      },
+    });
+
+    return items;
+  }, [canBulkSelect, selectedCount, selection, handleBulkTransition]);
 
   // ─── Permission flags ──────────────────────────────────
 
@@ -625,13 +767,31 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
           </Text>
         </div>
       ) : (
-        <DetailsList
-          items={rows}
-          columns={columns}
-          layoutMode={DetailsListLayoutMode.justified}
-          selectionMode={SelectionMode.none}
-          isHeaderVisible={true}
-        />
+        <>
+          {bulkCommandItems.length > 0 && (
+            <CommandBar
+              items={bulkCommandItems}
+              styles={{
+                root: {
+                  padding: 0,
+                  marginBottom: 8,
+                  backgroundColor: "#EEF2F8",
+                  borderRadius: 4,
+                },
+              }}
+            />
+          )}
+          <MarqueeSelection selection={selection} isEnabled={canBulkSelect}>
+            <DetailsList
+              items={rows}
+              columns={columns}
+              layoutMode={DetailsListLayoutMode.justified}
+              selectionMode={canBulkSelect ? SelectionMode.multiple : SelectionMode.none}
+              selection={canBulkSelect ? selection : undefined}
+              isHeaderVisible={true}
+            />
+          </MarqueeSelection>
+        </>
       )}
 
       {/* Budget editor panel */}

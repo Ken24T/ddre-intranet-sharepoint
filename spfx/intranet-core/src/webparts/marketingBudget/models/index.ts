@@ -41,3 +41,15 @@ export {
 } from "./budgetCalculations";
 
 export { getSeedData, SEED_COUNTS } from "./seedData";
+
+export type { ValidationError, ValidationResult } from "./budgetValidation";
+
+export {
+  validateAddress,
+  validateHasLineItems,
+  validateSelectedItems,
+  validateItemPrices,
+  validateSchedule,
+  validateForApproval,
+  validateTransition,
+} from "./budgetValidation";
