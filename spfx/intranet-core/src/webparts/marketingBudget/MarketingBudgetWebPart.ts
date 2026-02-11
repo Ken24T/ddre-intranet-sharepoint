@@ -16,6 +16,7 @@ import type { IAuditLogger } from "./services/IAuditLogger";
 import { getSPFI, createRepository } from "./services/RepositoryFactory";
 import { resolveUserRole } from "./services/RoleResolver";
 import { DexieAuditLogger } from "./services/DexieAuditLogger";
+import { DexieBudgetTemplateService } from "./services/DexieBudgetTemplateService";
 import { AuditedBudgetRepository } from "./services/AuditedBudgetRepository";
 import type { UserRole } from "./models/permissions";
 
@@ -27,6 +28,7 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
   private _isDarkTheme: boolean = false;
   private _repository!: IBudgetRepository;
   private _auditLogger!: IAuditLogger;
+  private _templateService = new DexieBudgetTemplateService();
   private _userRole: UserRole = 'viewer';
 
   protected async onInit(): Promise<void> {
@@ -55,6 +57,7 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
         isSharePointContext: true,
         repository: this._repository,
         auditLogger: this._auditLogger,
+        templateService: this._templateService,
         userRole: this._userRole,
       });
 

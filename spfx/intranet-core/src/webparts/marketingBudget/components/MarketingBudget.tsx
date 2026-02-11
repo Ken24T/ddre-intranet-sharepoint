@@ -75,7 +75,7 @@ interface DataCounts {
  * mode (Vite dev harness or new tab), it renders its own sidebar.
  */
 const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
-  const { userDisplayName, repository, auditLogger, shellBridgeOptions, userRole = 'viewer' } = props;
+  const { userDisplayName, repository, auditLogger, templateService, shellBridgeOptions, userRole = 'viewer' } = props;
   const [counts, setCounts] = React.useState<DataCounts | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSeeding, setIsSeeding] = React.useState(false);
@@ -193,7 +193,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
       case "dashboard":
         return <DashboardView repository={repository} userRole={userRole} onNavigate={handleNavigate} />;
       case "budgets":
-        return <BudgetListView repository={repository} userRole={userRole} auditLogger={auditLogger} />;
+        return <BudgetListView repository={repository} userRole={userRole} auditLogger={auditLogger} templateService={templateService} />;
       case "comparison":
         return <BudgetComparisonView repository={repository} userRole={userRole} />;
       case "schedules":

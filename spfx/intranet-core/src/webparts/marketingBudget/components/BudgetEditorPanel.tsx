@@ -28,15 +28,18 @@ import {
   Text,
   Icon,
 } from "@fluentui/react";
-import type { Budget } from "../models/types";
+import type { Budget, BudgetLineItem, BudgetTemplate } from "../models/types";
 import type { UserRole } from "../models/permissions";
 import { canEditBudget, canTransitionBudget } from "../models/permissions";
 import type { IBudgetRepository } from "../services/IBudgetRepository";
 import type { IAuditLogger } from "../services/IAuditLogger";
+import type { IBudgetTemplateService } from "../services/IBudgetTemplateService";
 import { LineItemEditor } from "./LineItemEditor";
 import { BudgetTotals } from "./BudgetTotals";
 import { BudgetPropertyForm } from "./BudgetPropertyForm";
 import { AuditTimeline } from "./AuditTimeline";
+import { SaveTemplateDialog } from "./SaveTemplateDialog";
+import { TemplatePickerDialog } from "./TemplatePickerDialog";
 import { useBudgetEditorState } from "./useBudgetEditorState";
 import { printElement } from "./BudgetPrintView";
 import styles from "./MarketingBudget.module.scss";
@@ -54,6 +57,8 @@ export interface IBudgetEditorPanelProps {
   userRole: UserRole;
   /** Optional audit logger for displaying change history. */
   auditLogger?: IAuditLogger;
+  /** Optional template service for save/load template features. */
+  templateService?: IBudgetTemplateService;
 }
 
 // ─── Component ─────────────────────────────────────────────
@@ -66,11 +71,41 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
   onSaved,
   userRole,
   auditLogger,
+  templateService,
 }) => {
   const state = useBudgetEditorState(editBudget, repository, isOpen, onSaved);
 
   const isEditable = canEditBudget(userRole, state.status);
   const showTransitions = canTransitionBudget(userRole);
+
+  // ─── Template dialog state ─────────────────────────────
+  const [isSaveTemplateOpen, setIsSaveTemplateOpen] = React.useState(false);
+  const [isPickerOpen, setIsPickerOpen] = React.useState(false);
+
+  /** Apply a saved template's line items into the editor. */
+  const handleApplyTemplate = React.useCallback(
+    (template: BudgetTemplate): void => {
+      const items: BudgetLineItem[] = template.lineItems.map((tli) => ({
+        serviceId: tli.serviceId,
+        serviceName: tli.serviceName,
+        variantId: tli.variantId,
+        variantName: tli.variantName,
+        isSelected: tli.isSelected,
+        schedulePrice: tli.savedPrice ?? 0,
+        overridePrice: tli.overridePrice,
+        isOverridden: tli.isOverridden,
+      }));
+      state.setLineItems(items);
+
+      // Apply property defaults from template if set
+      if (template.propertyType) state.setPropertyType(template.propertyType);
+      if (template.propertySize) state.setPropertySize(template.propertySize);
+      if (template.tier) state.setTier(template.tier);
+
+      setIsPickerOpen(false);
+    },
+    [state],
+  );
 
   // ─── Footer ────────────────────────────────────────────
 
@@ -237,9 +272,29 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
           <Separator />
 
           {/* ─── Line Items ────────────────────────────── */}
-          <Text variant="large" className={styles.sectionTitle}>
-            Line Items
-          </Text>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <Text variant="large" className={styles.sectionTitle}>
+              Line Items
+            </Text>
+            {templateService && isEditable && (
+              <div style={{ display: "flex", gap: 8 }}>
+                <DefaultButton
+                  text="Load Template"
+                  iconProps={{ iconName: "OpenFolderHorizontal" }}
+                  onClick={(): void => setIsPickerOpen(true)}
+                  disabled={state.isSaving}
+                />
+                {state.lineItems.length > 0 && (
+                  <DefaultButton
+                    text="Save as Template"
+                    iconProps={{ iconName: "SaveTemplate" }}
+                    onClick={(): void => setIsSaveTemplateOpen(true)}
+                    disabled={state.isSaving}
+                  />
+                )}
+              </div>
+            )}
+          </div>
 
           <LineItemEditor
             lineItems={state.lineItems}
@@ -282,6 +337,29 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
             </>
           )}
         </div>
+      )}
+
+      {/* ─── Template Dialogs ───────────────────────── */}
+      {templateService && (
+        <>
+          <SaveTemplateDialog
+            isOpen={isSaveTemplateOpen}
+            onDismiss={(): void => setIsSaveTemplateOpen(false)}
+            onSaved={(): void => setIsSaveTemplateOpen(false)}
+            templateService={templateService}
+            lineItems={state.lineItems}
+            propertyType={state.propertyType}
+            propertySize={state.propertySize}
+            tier={state.tier}
+            sourceScheduleId={state.scheduleId ?? undefined}
+          />
+          <TemplatePickerDialog
+            isOpen={isPickerOpen}
+            onDismiss={(): void => setIsPickerOpen(false)}
+            onApply={handleApplyTemplate}
+            templateService={templateService}
+          />
+        </>
       )}
     </Panel>
   );
