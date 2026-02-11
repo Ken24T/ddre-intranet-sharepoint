@@ -692,9 +692,16 @@ Wire up shared packages to SPFx solutions.
 
 ## 3. Business Apps
 
-> **Location:** `apps/` (requirements), `spfx/` (implementations)
+> **Location:** `apps/` (business definitions), `spfx/intranet-core/src/webparts/` (code)
 
-Each app gets its own SPFx solution deployed as a separate `.sppkg`.
+All apps are delivered as **web parts inside the single `intranet-core` solution**.
+One `npm install`, one build, one `.sppkg`, one deployment.
+
+To add a new app:
+1. Define requirements in `apps/app-<name>/`
+2. Create web part at `spfx/intranet-core/src/webparts/<camelCaseName>/`
+3. Register bundle + localised resources in `config/config.json`
+4. Run `npm run test` and `npm run build` (includes all web parts)
 
 ### app-cognito-forms
 
@@ -705,7 +712,8 @@ Each app gets its own SPFx solution deployed as a separate `.sppkg`.
 Embedded Cognito Forms for internal requests.
 
 - [ ] Define requirements in `apps/app-cognito-forms/`
-- [ ] Create SPFx solution `spfx/cognito-forms/`
+- [ ] Create web part at `spfx/intranet-core/src/webparts/cognitoForms/`
+- [ ] Register in `config/config.json`
 - [ ] Implement form embedding component
 - [ ] Configure forms list (Help & Support, IT Request, etc.)
 
@@ -718,7 +726,8 @@ Embedded Cognito Forms for internal requests.
 AI-powered document library search using Dante AI.
 
 - [ ] Define requirements in `apps/app-dante-library/`
-- [ ] Create SPFx solution `spfx/dante-library/`
+- [ ] Create web part at `spfx/intranet-core/src/webparts/danteLibrary/`
+- [ ] Register in `config/config.json`
 - [ ] Implement Dante AI chat integration
 - [ ] Wire up document context from SharePoint
 
@@ -769,10 +778,11 @@ Marketing budget tracking and reporting for sales & marketing teams.
 >
 > **Hub:** Property Management
 
-PropertyMe data visualization dashboard.
+PropertyMe data visualisation dashboard.
 
 - [ ] Define requirements in `apps/app-pm-dashboard/`
-- [ ] Create SPFx solution `spfx/pm-dashboard/`
+- [ ] Create web part at `spfx/intranet-core/src/webparts/pmDashboard/`
+- [ ] Register in `config/config.json`
 - [ ] Design dashboard layout and widgets
 - [ ] Integrate with `pkg-api-client` PropertyMeClient
 - [ ] Implement property list, tenant info, maintenance views
@@ -786,7 +796,8 @@ PropertyMe data visualization dashboard.
 QR code generation utility for business use.
 
 - [ ] Define requirements in `apps/app-qrcoder/`
-- [ ] Create SPFx solution `spfx/qrcoder/`
+- [ ] Create web part at `spfx/intranet-core/src/webparts/qrCoder/`
+- [ ] Register in `config/config.json`
 - [ ] Select QR code generation library
 - [ ] Implement QR generator UI
 - [ ] Add download/print functionality
@@ -800,10 +811,11 @@ QR code generation utility for business use.
 Internal survey creation and management.
 
 - [ ] Define requirements in `apps/app-surveys/`
-- [ ] Create SPFx solution `spfx/surveys/`
+- [ ] Create web part at `spfx/intranet-core/src/webparts/surveys/`
+- [ ] Register in `config/config.json`
 - [ ] Design survey builder UI
 - [ ] Implement survey response collection
-- [ ] Add results visualization
+- [ ] Add results visualisation
 
 ### app-vault-batcher
 
@@ -814,7 +826,8 @@ Internal survey creation and management.
 Batch operations for Vault CRM data.
 
 - [ ] Define requirements in `apps/app-vault-batcher/`
-- [ ] Create SPFx solution `spfx/vault-batcher/`
+- [ ] Create web part at `spfx/intranet-core/src/webparts/vaultBatcher/`
+- [ ] Register in `config/config.json`
 - [ ] Define batch operation types
 - [ ] Integrate with `pkg-api-client` VaultClient
 - [ ] Implement batch upload/update UI

@@ -15,52 +15,52 @@ SPFx is used as the **delivery mechanism** for interactive intranet features (we
 
 ---
 
-## Folder Strategy (Phase-aware)
+## Solution Strategy (Single Solution)
 
-### Phase 1: Intranet Core
-
-Phase 1 ships foundation capabilities (not business apps).
+All web parts — the Intranet Shell and every business app — are bundled into
+one SPFx solution: **`intranet-core`**.
 
 - Primary SPFx solution: `intranet-core`
-- Typical contents:
-  - Dante Library (read-only Markdown rendering)
-  - Optional AI assistant (knowledge Q&A only)
-  - Shared intranet UX components
+- Produces one `.sppkg` containing all web parts
+- One `npm install`, one build, one deployment
 
-### Phase 2+: One Solution per App
+Current web parts:
 
-From Phase 2 onward, each user-facing app should have:
+| Web Part | Purpose |
+|----------|---------|
+| `intranetShell` | Foundation layout (navbar, sidebar, content area, cards, status bar, Jasper AI) |
+| `marketingBudget` | Marketing budget tracking and reporting |
 
-- Its own SPFx solution folder (e.g. `app-marketing-budget`)
-- Its own deployable package (`.sppkg`)
-- Its own semantic version
+Future web parts (planned):
 
-This supports:
-
-- Independent deployment and rollback
-- Smaller blast radius
-- Clear "what version is installed" audit trail
+| Web Part | App Definition |
+|----------|----------------|
+| `cognitoForms` | `apps/app-cognito-forms/` |
+| `danteLibrary` | `apps/app-dante-library/` |
+| `pmDashboard` | `apps/app-pm-dashboard/` |
+| `qrCoder` | `apps/app-qrcoder/` |
+| `surveys` | `apps/app-surveys/` |
+| `vaultBatcher` | `apps/app-vault-batcher/` |
 
 ---
 
 ## Naming Conventions
 
-- Solutions:
-  - `intranet-core`
-  - `app-<name>` (e.g. `app-marketing-budget`, `app-tenant-surveys`)
-
-- Display names (package/web part) should be human-friendly and stable.
+- Solution: `intranet-core` (the single SPFx solution)
+- Web part folders: `src/webparts/<camelCaseName>/` (e.g. `marketingBudget`, `qrCoder`)
+- App definitions: `apps/app-<name>/` (lowercase, hyphenated — e.g. `app-marketing-budget`)
+- Display names (in manifests) should be human-friendly and stable.
 
 ---
 
 ## Versioning Rules
 
-Each SPFx solution is versioned independently.
+There is one version for the entire solution — all web parts ship together.
 
-Keep these in sync for every solution:
+Keep these in sync:
 
-- `package.json` version
-- `config/package-solution.json` version
+- `spfx/intranet-core/package.json` version
+- `spfx/intranet-core/config/package-solution.json` version
 
 Use semantic versioning:
 
@@ -114,29 +114,23 @@ Does **not** belong in `/spfx`:
 
 ---
 
-## Quick Checklist for New SPFx Solutions
+## Quick Checklist for Adding a New Web Part (App)
 
-When creating a new SPFx solution, confirm the following before first deployment:
+When adding a new business app as a web part inside `intranet-core`:
 
 ### Structure & Naming
 
-- [ ] Solution folder created under `/spfx/<solution-name>`
-- [ ] Solution name follows convention:
-  - `intranet-core` **or**
-  - `app-<app-name>` (lowercase, hyphenated)
-- [ ] Solution purpose is documented in this README (brief paragraph)
-
-### Versioning & Packaging
-
-- [ ] `package.json` version updated
-- [ ] `config/package-solution.json` version updated
-- [ ] Versions match exactly
-- [ ] Version bump follows semantic versioning rules
+- [ ] Business requirements defined in `apps/app-<name>/`
+- [ ] Web part folder created at `src/webparts/<camelCaseName>/`
+- [ ] Folder includes: `<Name>WebPart.ts`, `<Name>WebPart.manifest.json`, `components/`, `loc/`
+- [ ] Add `models/` and `services/` subfolders if needed
+- [ ] Bundle entry added to `config/config.json`
+- [ ] `<Name>WebPartStrings` localised resource registered in `config/config.json`
 
 ### Configuration & Environment Safety
 
 - [ ] No hard-coded tenant URLs, site URLs, list IDs, or environment-specific values
-- [ ] All configurable values exposed via web part properties or config files
+- [ ] All configurable values exposed via web part properties or environment config
 - [ ] Solution is safe to deploy to Dev / Test / Prod tenants
 
 ### Security & Data Access
@@ -144,26 +138,28 @@ When creating a new SPFx solution, confirm the following before first deployment
 - [ ] No secrets, tokens, or keys in SPFx code or config
 - [ ] All external APIs accessed via approved Azure proxy
 - [ ] SharePoint permissions are respected (no custom auth logic)
+- [ ] Role resolution uses Entra ID groups (not custom auth)
 
 ### UX & Behaviour
 
 - [ ] Loading state implemented
 - [ ] Empty state implemented
 - [ ] Error state implemented (user-visible, non-fatal)
-- [ ] Fluent UI used consistently
+- [ ] Fluent UI 8 used consistently
 - [ ] Accessibility basics met (keyboard, contrast, semantics)
 
 ### Quality & Hygiene
 
-- [ ] Build succeeds locally (`gulp build` / `gulp bundle`)
-- [ ] Package generates successfully (`gulp package-solution`)
-- [ ] Console errors reviewed and resolved
+- [ ] `npm run build` succeeds with zero errors and zero warnings
+- [ ] `npm run test` passes (all tests across all web parts)
+- [ ] `npm run lint` clean (zero-warnings policy)
 - [ ] No unused files, sample code, or scaffolding left behind
+- [ ] Files kept under ~300 lines; split by responsibility
 
 ### Documentation
 
-- [ ] Solution purpose documented (what it does / who it's for)
+- [ ] Web part purpose documented in the app-level README (`apps/app-<name>/`)
 - [ ] Any assumptions or constraints noted
-- [ ] README updated if this introduces a new app or capability
+- [ ] PLAN.md updated with the new app's tasks
 
 This checklist is intentionally conservative. If any item is unclear, stop and document the decision before proceeding.

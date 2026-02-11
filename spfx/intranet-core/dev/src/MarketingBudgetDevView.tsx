@@ -8,8 +8,8 @@
  * in "forceActive" mode so the sidebar integration works without an
  * iframe boundary.
  *
- * In production SharePoint the Marketing Budget is its own .sppkg on
- * its own page — this file is never included in the SPFx build.
+ * In production SharePoint the Marketing Budget is a web part inside
+ * the intranet-core .sppkg — this file is never included in the SPFx build.
  */
 
 import React from 'react';

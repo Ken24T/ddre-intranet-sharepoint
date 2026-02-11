@@ -3,9 +3,10 @@
 
 ## Context
 
-The Marketing Budget is the first Phase 2 business app, deployed as its own
-SPFx solution (`spfx/marketing-budget/`) with a separate `.sppkg` package.
-It loads inside the Intranet Shell content area and communicates with the
+The Marketing Budget is the first business app, delivered as a **web part
+inside `intranet-core`** (`spfx/intranet-core/src/webparts/marketingBudget/`).
+It ships in the single `intranet-core.sppkg` alongside the Intranet Shell.
+It loads inside the shell's content area and communicates with the
 shell sidebar via a PostMessage bridge.
 
 ---
@@ -53,9 +54,13 @@ shell sidebar via a PostMessage bridge.
 
 ### Repository Pattern
 
-All data access goes through `IBudgetRepository`. The current implementation
-uses Dexie 4.x (IndexedDB), but the interface is designed for future swap to
-SharePoint Lists without changing any UI code.
+All data access goes through `IBudgetRepository`. Two implementations exist:
+
+- **`DexieBudgetRepository`** — IndexedDB via Dexie 4.x (dev harness / fallback)
+- **`SPListBudgetRepository`** — SharePoint Lists via PnPjs v4 (production)
+
+`RepositoryFactory.createRepository(sp)` auto-selects the backend based on
+whether a valid PnPjs `SPFI` instance is available.
 
 ```
 IBudgetRepository
@@ -63,13 +68,20 @@ IBudgetRepository
 ├── getServices() / getVendors() / getSuburbs() / getSchedules()
 ├── seedData()
 ├── exportAll() / importAll()
-└── DexieBudgetRepository  ← current implementation
-    └── database: 'salesmarketing-spfx'
-        ├── Table: budgets
-        ├── Table: services
-        ├── Table: vendors
-        ├── Table: suburbs
-        └── Table: schedules
+├── DexieBudgetRepository  ← dev harness / offline fallback
+│   └── database: 'salesmarketing-spfx'
+│       ├── Table: budgets
+│       ├── Table: services
+│       ├── Table: vendors
+│       ├── Table: suburbs
+│       └── Table: schedules
+└── SPListBudgetRepository  ← production (SharePoint Lists)
+    └── 5 SP Lists via PnPjs v4
+        ├── MarketingBudgets
+        ├── MarketingServices
+        ├── MarketingVendors
+        ├── MarketingSuburbs
+        └── MarketingSchedules
 ```
 
 ### Variant Pricing
@@ -124,15 +136,21 @@ All totals include 10% Australian GST (inclusive):
 ## Security
 
 - No secrets in browser code.
-- No external API calls — all data is local IndexedDB.
+- Production data stored in SharePoint Lists (server-side persistence).
+- Dev harness uses IndexedDB (local browser only).
 - No CDN dependencies — all assets bundled in `.sppkg`.
-- Respects SharePoint/Entra ID group-based permissions.
+- Role resolution via Entra ID groups (`RoleResolver`):
+  - Admin group → admin role
+  - Editor group → editor role
+  - Default → viewer role
 
 ---
 
 ## Future Considerations
 
-- **Phase B:** `SPListBudgetRepository` backed by SharePoint Lists for
-  multi-user collaboration and server-side persistence.
-- **Phase C:** Azure proxy API for budget approval workflow notifications.
+- **List provisioning:** PnP template or PowerShell script for SP List creation.
+- **Offline fallback:** Auto-switch to Dexie when SP is unreachable.
+- **Phase 2B:** Budget validation, bulk status transitions, reference data editors.
+- **Phase 2C:** Dashboard view (spend by category, status breakdown, tier analysis).
 - **Reporting:** Export budgets to Excel or PDF.
+- **Azure proxy:** Budget approval workflow notifications.
