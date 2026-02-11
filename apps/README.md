@@ -110,13 +110,17 @@ Lightweight metadata, for example:
 
 Each app maps to **one web part folder** inside `spfx/intranet-core/src/webparts/`.
 
-For example:
+Current apps:
 
-| App | Web Part Location |
-|-----|--------------------|
-| `app-marketing-budget` | `spfx/intranet-core/src/webparts/marketingBudget/` |
-| `app-qrcoder` | `spfx/intranet-core/src/webparts/qrCoder/` |
-| `app-vault-batcher` | `spfx/intranet-core/src/webparts/vaultBatcher/` |
+| App | Hub | Web Part | Status |
+|-----|-----|----------|--------|
+| `app-cognito-forms` | Administration | `cognitoForms` | Planning |
+| `app-dante-library` | Office | `danteLibrary` | Planning |
+| `app-marketing-budget` | Administration | `marketingBudget` | Active |
+| `app-pm-dashboard` | Property Management | `pmDashboard` | Planning |
+| `app-qrcoder` | Office | `qrCoder` | Planning |
+| `app-surveys` | Administration | `surveys` | Planning |
+| `app-vault-batcher` | Sales | `vaultBatcher` | Planning |
 
 ---
 

@@ -711,7 +711,7 @@ To add a new app:
 
 Embedded Cognito Forms for internal requests.
 
-- [ ] Define requirements in `apps/app-cognito-forms/`
+- [x] Define requirements in `apps/app-cognito-forms/`
 - [ ] Create web part at `spfx/intranet-core/src/webparts/cognitoForms/`
 - [ ] Register in `config/config.json`
 - [ ] Implement form embedding component
@@ -725,7 +725,7 @@ Embedded Cognito Forms for internal requests.
 
 AI-powered document library search using Dante AI.
 
-- [ ] Define requirements in `apps/app-dante-library/`
+- [x] Define requirements in `apps/app-dante-library/`
 - [ ] Create web part at `spfx/intranet-core/src/webparts/danteLibrary/`
 - [ ] Register in `config/config.json`
 - [ ] Implement Dante AI chat integration
@@ -780,7 +780,7 @@ Marketing budget tracking and reporting for sales & marketing teams.
 
 PropertyMe data visualisation dashboard.
 
-- [ ] Define requirements in `apps/app-pm-dashboard/`
+- [x] Define requirements in `apps/app-pm-dashboard/`
 - [ ] Create web part at `spfx/intranet-core/src/webparts/pmDashboard/`
 - [ ] Register in `config/config.json`
 - [ ] Design dashboard layout and widgets
@@ -795,7 +795,7 @@ PropertyMe data visualisation dashboard.
 
 QR code generation utility for business use.
 
-- [ ] Define requirements in `apps/app-qrcoder/`
+- [x] Define requirements in `apps/app-qrcoder/`
 - [ ] Create web part at `spfx/intranet-core/src/webparts/qrCoder/`
 - [ ] Register in `config/config.json`
 - [ ] Select QR code generation library
@@ -810,7 +810,7 @@ QR code generation utility for business use.
 
 Internal survey creation and management.
 
-- [ ] Define requirements in `apps/app-surveys/`
+- [x] Define requirements in `apps/app-surveys/`
 - [ ] Create web part at `spfx/intranet-core/src/webparts/surveys/`
 - [ ] Register in `config/config.json`
 - [ ] Design survey builder UI
@@ -825,7 +825,7 @@ Internal survey creation and management.
 
 Batch operations for Vault CRM data.
 
-- [ ] Define requirements in `apps/app-vault-batcher/`
+- [x] Define requirements in `apps/app-vault-batcher/`
 - [ ] Create web part at `spfx/intranet-core/src/webparts/vaultBatcher/`
 - [ ] Register in `config/config.json`
 - [ ] Define batch operation types

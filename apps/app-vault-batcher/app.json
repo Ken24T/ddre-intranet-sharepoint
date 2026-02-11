@@ -1,0 +1,10 @@
+{
+  "name": "app-vault-batcher",
+  "displayName": "Vault Batcher",
+  "owner": "Sales",
+  "status": "planning",
+  "hub": "Sales",
+  "webPart": "vaultBatcher",
+  "introduced": null,
+  "description": "Batch operations for Vault CRM data."
+}
