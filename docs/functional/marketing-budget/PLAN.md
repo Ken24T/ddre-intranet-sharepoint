@@ -275,14 +275,16 @@ Connect to the wider DDRE ecosystem and add power-user capabilities.
   (schedule + overrides) as a reusable template for common
   property types. BudgetTemplate types, Dexie DB v3, IBudgetTemplateService,
   SaveTemplateDialog, TemplatePickerDialog, wired through component tree.
-- [ ] **Notifications** — Surface budgets awaiting approval in
-  the intranet shell status bar or Jasper prompts.
-- [ ] **Shared appBridge package** — Extract the PostMessage
-  protocol types from `appBridge.ts` into
-  `packages/pkg-app-bridge` so both `intranet-core` and
-  `marketing-budget` import from the same source
-  (noted in code as a TODO).
-- [ ] **Drag-and-drop line item reordering** — Leverage the existing `@dnd-kit` aliases already configured in the dev harness.
+- [x] **Notifications** — Budget approval notifications surfaced in the
+  intranet shell notification bell via AppBridge `NOTIFICATION_UPDATE`
+  protocol. `useBudgetNotifications` hook polls repository for draft
+  budgets and pushes to shell. Admin-only.
+- [x] **Shared appBridge package** — Extracted PostMessage protocol
+  types into `packages/pkg-app-bridge` with full type guards and
+  `NOTIFICATION_UPDATE` message support. Shell re-exports via
+  thin barrel in `appBridge.ts`.
+- [x] **Drag-and-drop line item reordering** — Implemented with
+  `@dnd-kit/sortable`, `SortableLineItem` wrapper.
 
 Deliverables: PropertyMe auto-fill, audit log, templates, shell notifications, shared bridge package.
 

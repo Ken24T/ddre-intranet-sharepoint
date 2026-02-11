@@ -22,6 +22,7 @@ import { DashboardView } from "./DashboardView";
 import { BudgetComparisonView } from "./BudgetComparisonView";
 import { DataManagementView } from "./DataManagementView";
 import { useShellBridge } from "./useShellBridge";
+import { useBudgetNotifications } from "./useBudgetNotifications";
 
 // ─────────────────────────────────────────────────────────────
 // App-level navigation definition
@@ -88,6 +89,11 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
 
   // ─── Shell sidebar bridge ────────────────────────────────
   const { isEmbedded } = useShellBridge(activeView, setActiveView, navItems, shellBridgeOptions);
+
+  // ─── Budget notifications → shell ───────────────────────
+  // Push draft-budget notifications to the shell's notification bell.
+  // Only admins need approval notifications.
+  useBudgetNotifications(repository, userRole === 'admin');
 
   // ─── Data loading ────────────────────────────────────────
 

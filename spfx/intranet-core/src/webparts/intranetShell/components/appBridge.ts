@@ -11,6 +11,8 @@ export {
   type ISidebarSetItemsMessage,
   type ISidebarRestoreMessage,
   type ISidebarActiveMessage,
+  type IAppNotificationItem,
+  type INotificationUpdateMessage,
   type AppToShellMessage,
   type ISidebarNavigateMessage,
   type ShellToAppMessage,

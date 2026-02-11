@@ -27,6 +27,18 @@ describe('isAppToShellMessage', () => {
     ).toBe(true);
   });
 
+  it('returns true for NOTIFICATION_UPDATE', () => {
+    expect(
+      isAppToShellMessage({
+        type: 'NOTIFICATION_UPDATE',
+        source: 'budget',
+        notifications: [
+          { id: 'budget-1', category: 'budget-approval', title: 'Draft', timestamp: '2025-01-01T00:00:00Z' },
+        ],
+      }),
+    ).toBe(true);
+  });
+
   it('returns false for SIDEBAR_NAVIGATE (Shell → App)', () => {
     expect(
       isAppToShellMessage({ type: 'SIDEBAR_NAVIGATE', key: 'budgets' }),

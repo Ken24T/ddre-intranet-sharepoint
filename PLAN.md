@@ -772,7 +772,8 @@ Marketing budget tracking and reporting for sales & marketing teams.
 - [x] Audit trail (budget-specific + unified shell audit + hover flyout + field-level change tracking)
 - [x] Budget templates (BudgetTemplate types, Dexie DB v3, IBudgetTemplateService + DexieBudgetTemplateService, SaveTemplateDialog, TemplatePickerDialog)
 - [x] Drag-and-drop line item reordering (@dnd-kit/sortable, SortableLineItem)
-- [ ] Shared appBridge package extraction
+- [x] Shared appBridge package extraction (`@ddre/pkg-app-bridge`)
+- [x] Notifications — Budget approval notifications via AppBridge NOTIFICATION_UPDATE protocol
 
 > **Detailed plan:** `docs/functional/marketing-budget/PLAN.md`
 

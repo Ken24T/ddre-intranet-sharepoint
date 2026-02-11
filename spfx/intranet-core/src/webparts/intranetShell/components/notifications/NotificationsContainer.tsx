@@ -18,6 +18,8 @@ export interface INotificationsContainerProps {
   targetRef: React.RefObject<HTMLDivElement>;
   /** Hub accent color for dynamic theming */
   hubAccentColor?: string;
+  /** Additional notifications from external sources (e.g. app bridge) */
+  additionalNotifications?: Notification[];
   /** Callback when flyout is dismissed */
   onDismiss: () => void;
   /** Callback when a notification is clicked (for deep linking) */
@@ -41,12 +43,15 @@ export const NotificationsContainer: React.FC<INotificationsContainerProps> = ({
   isOpen,
   targetRef,
   hubAccentColor,
+  additionalNotifications,
   onDismiss,
   onNotificationClick,
   onViewAllTasks,
   onStateChange,
 }) => {
-  const { state, markAsRead, markAllAsRead, getBannerNotifications } = useUnifiedNotifications();
+  const { state, markAsRead, markAllAsRead, getBannerNotifications } = useUnifiedNotifications({
+    additionalNotifications,
+  });
 
   // Function to mark all banner notifications as read
   const markBannerAsRead = React.useCallback(() => {

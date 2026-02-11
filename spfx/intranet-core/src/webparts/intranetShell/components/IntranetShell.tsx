@@ -35,6 +35,7 @@ import type { ThemeMode } from './UserProfileMenu';
 import { openMockHelpWindow } from './utils/helpMock';
 import type { IAppNavItem } from './appBridge';
 import { isAppToShellMessage } from './appBridge';
+import type { IAppNotificationItem } from './appBridge';
 
 // Local storage key for AI Assistant hidden state (mocked global setting)
 const LOCAL_KEY_AI_HIDDEN = 'ddre-intranet-global-aiAssistantHidden';
@@ -87,6 +88,8 @@ export interface IIntranetShellState {
   appSidebarItems?: IAppNavItem[];
   /** Active nav key within the app sidebar. */
   appActiveKey?: string;
+  /** Notifications pushed by embedded apps via NOTIFICATION_UPDATE messages. */
+  appNotifications: Notification[];
 }
 
 /**
@@ -264,6 +267,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       lastViewedReleaseDate: lastViewedRelease,
       appSidebarItems: undefined,
       appActiveKey: undefined,
+      appNotifications: [],
     };
   }
 
@@ -305,8 +309,33 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       case 'SIDEBAR_ACTIVE':
         this.setState({ appActiveKey: msg.key });
         break;
+
+      case 'NOTIFICATION_UPDATE':
+        this.setState({
+          appNotifications: this.convertAppNotifications(msg.source, msg.notifications),
+        });
+        break;
     }
   };
+
+  /**
+   * Convert app bridge notification items into the shell's Notification type.
+   */
+  private convertAppNotifications(
+    source: string,
+    items: IAppNotificationItem[],
+  ): Notification[] {
+    return items.map((item) => ({
+      id: item.id,
+      category: item.category as Notification['category'],
+      source: source as Notification['source'],
+      title: item.title,
+      message: item.message,
+      timestamp: item.timestamp,
+      isRead: false,
+      priority: item.priority,
+    }));
+  }
 
   private handleSystemThemeChange = (): void => {
     // Force re-render when system theme changes (only matters if themeMode is 'system')
@@ -1133,6 +1162,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           isOpen={this.state.isNotificationFlyoutOpen}
           targetRef={this.notificationButtonRef}
           hubAccentColor={aiAccentColor}
+          additionalNotifications={this.state.appNotifications}
           onDismiss={this.handleCloseNotificationFlyout}
           onNotificationClick={this.handleNotificationClick}
           onViewAllTasks={this.handleToggleTasksPanel}

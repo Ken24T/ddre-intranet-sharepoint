@@ -48,11 +48,40 @@ export interface ISidebarActiveMessage {
   key: string;
 }
 
+/**
+ * A lightweight notification item sent from an app to the shell.
+ * The shell converts these into its internal Notification type.
+ */
+export interface IAppNotificationItem {
+  /** Unique ID (scoped to the app, e.g. "budget-42"). */
+  id: string;
+  /** Notification category (must match a registered category in the shell). */
+  category: string;
+  /** Human-readable title. */
+  title: string;
+  /** Optional supporting message. */
+  message?: string;
+  /** ISO 8601 timestamp (e.g. createdAt / updatedAt). */
+  timestamp: string;
+  /** Optional priority for sorting. */
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+}
+
+/** App pushes notification items to the shell's notification system. */
+export interface INotificationUpdateMessage {
+  type: 'NOTIFICATION_UPDATE';
+  /** The source app identifier (e.g. "budget"). */
+  source: string;
+  /** Full set of current notifications from this source. Replaces previous set. */
+  notifications: IAppNotificationItem[];
+}
+
 /** Union of all App → Shell messages. */
 export type AppToShellMessage =
   | ISidebarSetItemsMessage
   | ISidebarRestoreMessage
-  | ISidebarActiveMessage;
+  | ISidebarActiveMessage
+  | INotificationUpdateMessage;
 
 // ─────────────────────────────────────────────────────────────
 // Shell → App messages
@@ -78,7 +107,8 @@ export function isAppToShellMessage(data: unknown): data is AppToShellMessage {
   return (
     msg.type === 'SIDEBAR_SET_ITEMS' ||
     msg.type === 'SIDEBAR_RESTORE' ||
-    msg.type === 'SIDEBAR_ACTIVE'
+    msg.type === 'SIDEBAR_ACTIVE' ||
+    msg.type === 'NOTIFICATION_UPDATE'
   );
 }
 
