@@ -807,18 +807,25 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
         </div>
       ) : (
         <>
-          {bulkCommandItems.length > 0 && (
-            <CommandBar
-              items={bulkCommandItems}
-              styles={{
-                root: {
-                  padding: 0,
-                  marginBottom: 8,
-                  backgroundColor: "#EEF2F8",
-                  borderRadius: 4,
-                },
+          {canBulkSelect && (
+            <div
+              style={{
+                minHeight: 44,
+                marginBottom: 8,
+                visibility: bulkCommandItems.length > 0 ? "visible" : "hidden",
               }}
-            />
+            >
+              <CommandBar
+                items={bulkCommandItems.length > 0 ? bulkCommandItems : []}
+                styles={{
+                  root: {
+                    padding: 0,
+                    backgroundColor: "#EEF2F8",
+                    borderRadius: 4,
+                  },
+                }}
+              />
+            </div>
           )}
           <MarqueeSelection selection={selection} isEnabled={canBulkSelect}>
             <DetailsList

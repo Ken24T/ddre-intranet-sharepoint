@@ -119,6 +119,67 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
     [updateItem],
   );
 
+  /** Add a service as a new line item. */
+  const handleAddService = React.useCallback(
+    (serviceId: number): void => {
+      const service = services.find((s) => s.id === serviceId);
+      if (!service) return;
+
+      // Pick the first variant (or use context-resolved variant)
+      const variant = service.variants.length > 0
+        ? getServiceVariant(service, context, undefined)
+        : undefined;
+
+      const newItem: BudgetLineItem = {
+        serviceId: service.id!,
+        serviceName: service.name,
+        variantId: variant?.id ?? null,
+        variantName: variant?.name ?? null,
+        isSelected: true,
+        schedulePrice: variant?.basePrice ?? 0,
+        overridePrice: null,
+        isOverridden: false,
+      };
+
+      onChange([...lineItems, newItem]);
+    },
+    [services, context, lineItems, onChange],
+  );
+
+  /** Remove a line item by index. */
+  const handleRemove = React.useCallback(
+    (index: number): void => {
+      onChange(lineItems.filter((_, i) => i !== index));
+    },
+    [lineItems, onChange],
+  );
+
+  /** Services not already in the line items list. */
+  const availableServiceOptions: IDropdownOption[] = React.useMemo(() => {
+    const usedIds = new Set(lineItems.map((li) => li.serviceId));
+    return services
+      .filter((s) => s.isActive === 1 && !usedIds.has(s.id!))
+      .map((s) => ({ key: s.id!, text: `${s.name} (${s.category})` }));
+  }, [services, lineItems]);
+
+  /** Render the "Add Service" button — shown when editable. */
+  const renderAddService = (): JSX.Element | null => {
+    if (readOnly || availableServiceOptions.length === 0) return null;
+    return (
+      <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8 }}>
+        <Dropdown
+          placeholder="Add a service…"
+          options={availableServiceOptions}
+          selectedKey={null}
+          onChange={(_, opt): void => {
+            if (opt) handleAddService(Number(opt.key));
+          }}
+          styles={{ root: { minWidth: 240 } }}
+        />
+      </div>
+    );
+  };
+
   if (lineItems.length === 0) {
     return (
       <div className={styles.centeredState} style={{ minHeight: 100 }}>
@@ -127,8 +188,12 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
           style={{ fontSize: 32, marginBottom: 8, color: "#605e5c" }}
         />
         <Text variant="medium" style={{ color: "#605e5c" }}>
-          No line items. Select a schedule template to populate items.
+          No line items yet.
         </Text>
+        <Text variant="small" style={{ color: "#a19f9d", marginTop: 4 }}>
+          Apply a schedule template above, or add services individually below.
+        </Text>
+        {renderAddService()}
       </div>
     );
   }
@@ -246,7 +311,7 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
               )}
             </div>
 
-            {/* Override toggle */}
+            {/* Override toggle + remove */}
             <div className={styles.lineItemActions}>
               {!readOnly && li.isSelected && (
                 <TooltipHost
@@ -271,10 +336,28 @@ export const LineItemEditor: React.FC<ILineItemEditorProps> = ({
                   </button>
                 </TooltipHost>
               )}
+              {!readOnly && (
+                <TooltipHost content="Remove line item">
+                  <button
+                    type="button"
+                    className={styles.overrideBtn}
+                    onClick={(): void => handleRemove(index)}
+                    aria-label={`Remove ${li.serviceName ?? "line item"}`}
+                  >
+                    <Icon
+                      iconName="Delete"
+                      style={{ fontSize: 14, color: "#a4262c" }}
+                    />
+                  </button>
+                </TooltipHost>
+              )}
             </div>
           </div>
         );
       })}
+
+      {/* Add another service */}
+      {renderAddService()}
     </div>
   );
 };

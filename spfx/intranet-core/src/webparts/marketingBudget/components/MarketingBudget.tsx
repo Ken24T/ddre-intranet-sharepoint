@@ -39,7 +39,7 @@ export type AppViewKey =
 export const APP_NAV_ITEMS: IAppNavItem[] = [
   { key: "dashboard", label: "Dashboard", icon: "ViewDashboard" },
   { key: "budgets", label: "Budgets", icon: "Financial" },
-  { key: "comparison", label: "Compare", icon: "CompareSingle" },
+  { key: "comparison", label: "Compare", icon: "BranchCompare" },
   { key: "schedules", label: "Schedules", icon: "CalendarWeek" },
   { key: "services", label: "Services", icon: "Settings" },
   { key: "vendors", label: "Vendors", icon: "People" },
