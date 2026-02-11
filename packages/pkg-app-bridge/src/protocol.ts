@@ -76,12 +76,32 @@ export interface INotificationUpdateMessage {
   notifications: IAppNotificationItem[];
 }
 
+/**
+ * App relays an audit event to the shell's global audit log.
+ *
+ * Budget-level audit entries are stored locally (IndexedDB) by the app.
+ * This message lets the shell's IAuditLogger (AuditContext) record a
+ * summary-level event as well, providing cross-app traceability.
+ */
+export interface IAuditEventMessage {
+  type: 'AUDIT_EVENT';
+  /** Source app identifier (e.g. "marketing-budget"). */
+  source: string;
+  /** Entity type (e.g. "vendor", "budget"). */
+  entityType: string;
+  /** Action performed (e.g. "create", "update", "delete"). */
+  action: string;
+  /** Human-readable summary. */
+  summary: string;
+}
+
 /** Union of all App → Shell messages. */
 export type AppToShellMessage =
   | ISidebarSetItemsMessage
   | ISidebarRestoreMessage
   | ISidebarActiveMessage
-  | INotificationUpdateMessage;
+  | INotificationUpdateMessage
+  | IAuditEventMessage;
 
 // ─────────────────────────────────────────────────────────────
 // Shell → App messages
@@ -108,7 +128,8 @@ export function isAppToShellMessage(data: unknown): data is AppToShellMessage {
     msg.type === 'SIDEBAR_SET_ITEMS' ||
     msg.type === 'SIDEBAR_RESTORE' ||
     msg.type === 'SIDEBAR_ACTIVE' ||
-    msg.type === 'NOTIFICATION_UPDATE'
+    msg.type === 'NOTIFICATION_UPDATE' ||
+    msg.type === 'AUDIT_EVENT'
   );
 }
 

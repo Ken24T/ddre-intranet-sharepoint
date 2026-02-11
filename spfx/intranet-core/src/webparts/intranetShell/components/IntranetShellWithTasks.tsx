@@ -9,6 +9,8 @@ import * as React from 'react';
 import IntranetShell from './IntranetShell';
 import { useTasks } from './tasks/TasksContext';
 import { useTaskCounts } from './tasks/hooks';
+import { useAudit } from './AuditContext';
+import type { IAuditEventMessage } from './appBridge';
 import type { IIntranetShellProps } from './IIntranetShellProps';
 
 export interface IIntranetShellWithTasksProps extends IIntranetShellProps {
@@ -27,6 +29,25 @@ export const IntranetShellWithTasks: React.FC<IIntranetShellWithTasksProps> = (
 
   // Get task counts
   const { overdueCount, dueSoonCount, totalCount } = useTaskCounts();
+
+  // Get shell audit logger for app-bridge relay
+  const shellAudit = useAudit();
+
+  // Handle audit events from embedded apps (e.g. Marketing Budget)
+  const handleAppAuditEvent = React.useCallback(
+    (event: IAuditEventMessage): void => {
+      shellAudit.logUserInteraction('feedback_form_submitted', {
+        hub: 'sales',
+        tool: event.source,
+        metadata: {
+          entityType: event.entityType,
+          action: event.action,
+          summary: event.summary,
+        },
+      });
+    },
+    [shellAudit],
+  );
 
   // When task counts change, update the shell state if it exists
   React.useEffect(() => {
@@ -49,7 +70,7 @@ export const IntranetShellWithTasks: React.FC<IIntranetShellWithTasksProps> = (
   }, [tasks, isLoading, error, overdueCount, dueSoonCount, totalCount]);
 
   // Pass through all props - task data will be available globally via hooks
-  return <IntranetShell {...props} />;
+  return <IntranetShell {...props} onAppAuditEvent={handleAppAuditEvent} />;
 };
 
 export default IntranetShellWithTasks;

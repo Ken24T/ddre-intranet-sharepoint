@@ -6,7 +6,7 @@
  */
 
 import type { IBudgetRepository } from "./IBudgetRepository";
-import type { IAuditLogger } from "./IAuditLogger";
+import type { IBudgetAuditLogger } from "./IAuditLogger";
 import { AuditedBudgetRepository } from "./AuditedBudgetRepository";
 import type {
   Vendor,
@@ -68,7 +68,7 @@ const createMockInner = (): IBudgetRepository => ({
   importAll: jest.fn().mockResolvedValue(undefined),
 });
 
-const createMockLogger = (): IAuditLogger => ({
+const createMockLogger = (): IBudgetAuditLogger => ({
   log: jest.fn().mockImplementation((entry) =>
     Promise.resolve({ ...entry, id: 1 }),
   ),
@@ -326,5 +326,276 @@ describe("AuditedBudgetRepository", () => {
     await expect(
       repo.saveVendor({ name: "V", shortCode: "V", isActive: 1 }),
     ).resolves.toBeDefined();
+  });
+
+  // ── Service writes ────────────────────────────────────
+
+  it("logs create when saving a new service", async () => {
+    const inner = createMockInner();
+    const logger = createMockLogger();
+    const repo = new AuditedBudgetRepository(inner, logger, "tester");
+
+    const service: Service = {
+      name: "Photography",
+      category: "photography",
+      vendorId: 1,
+      variantSelector: null,
+      variants: [],
+      includesGst: false,
+      isActive: 1,
+    };
+    await repo.saveService(service);
+
+    expect(inner.saveService).toHaveBeenCalledWith(service);
+    expect(logger.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entityType: "service",
+        action: "create",
+        user: "tester",
+      }),
+    );
+  });
+
+  it("logs update when saving an existing service", async () => {
+    const inner = createMockInner();
+    const existing: Service = {
+      id: 20,
+      name: "Photography",
+      category: "photography",
+      vendorId: 1,
+      variantSelector: null,
+      variants: [],
+      includesGst: false,
+      isActive: 1,
+    };
+    (inner.getAllServices as jest.Mock).mockResolvedValue([existing]);
+    const logger = createMockLogger();
+    const repo = new AuditedBudgetRepository(inner, logger, "tester");
+
+    await repo.saveService({ ...existing, name: "Updated Photography" });
+
+    expect(logger.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entityType: "service",
+        action: "update",
+      }),
+    );
+  });
+
+  it("logs delete service", async () => {
+    const inner = createMockInner();
+    const existing: Service = {
+      id: 22,
+      name: "Staging",
+      category: "photography",
+      vendorId: null,
+      variantSelector: null,
+      variants: [],
+      includesGst: false,
+      isActive: 1,
+    };
+    (inner.getAllServices as jest.Mock).mockResolvedValue([existing]);
+    const logger = createMockLogger();
+    const repo = new AuditedBudgetRepository(inner, logger, "tester");
+
+    await repo.deleteService(22);
+
+    expect(inner.deleteService).toHaveBeenCalledWith(22);
+    expect(logger.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entityType: "service",
+        action: "delete",
+        entityId: 22,
+      }),
+    );
+  });
+
+  // ── Suburb writes ─────────────────────────────────────
+
+  it("logs create when saving a new suburb", async () => {
+    const inner = createMockInner();
+    const logger = createMockLogger();
+    const repo = new AuditedBudgetRepository(inner, logger, "tester");
+
+    const suburb: Suburb = { name: "Mosman", pricingTier: "A" };
+    await repo.saveSuburb(suburb);
+
+    expect(inner.saveSuburb).toHaveBeenCalledWith(suburb);
+    expect(logger.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entityType: "suburb",
+        action: "create",
+        user: "tester",
+      }),
+    );
+  });
+
+  it("logs update when saving an existing suburb", async () => {
+    const inner = createMockInner();
+    const existing: Suburb = { id: 30, name: "Mosman", pricingTier: "A" };
+    (inner.getSuburbs as jest.Mock).mockResolvedValue([existing]);
+    const logger = createMockLogger();
+    const repo = new AuditedBudgetRepository(inner, logger, "tester");
+
+    await repo.saveSuburb({ ...existing, pricingTier: "B" });
+
+    expect(logger.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entityType: "suburb",
+        action: "update",
+      }),
+    );
+  });
+
+  it("logs delete suburb", async () => {
+    const inner = createMockInner();
+    const existing: Suburb = { id: 33, name: "Bondi", pricingTier: "A" };
+    (inner.getSuburbs as jest.Mock).mockResolvedValue([existing]);
+    const logger = createMockLogger();
+    const repo = new AuditedBudgetRepository(inner, logger, "tester");
+
+    await repo.deleteSuburb(33);
+
+    expect(inner.deleteSuburb).toHaveBeenCalledWith(33);
+    expect(logger.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entityType: "suburb",
+        action: "delete",
+        entityId: 33,
+      }),
+    );
+  });
+
+  // ── Schedule writes ───────────────────────────────────
+
+  it("logs create when saving a new schedule", async () => {
+    const inner = createMockInner();
+    const logger = createMockLogger();
+    const repo = new AuditedBudgetRepository(inner, logger, "tester");
+
+    const schedule: Schedule = {
+      name: "Standard House",
+      propertyType: "house",
+      propertySize: "medium",
+      tier: "standard",
+      lineItems: [],
+      createdAt: "2024-01-01",
+      updatedAt: "2024-01-01",
+      isActive: 1,
+    };
+    await repo.saveSchedule(schedule);
+
+    expect(inner.saveSchedule).toHaveBeenCalledWith(schedule);
+    expect(logger.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entityType: "schedule",
+        action: "create",
+        user: "tester",
+      }),
+    );
+  });
+
+  it("logs update when saving an existing schedule", async () => {
+    const inner = createMockInner();
+    const existing: Schedule = {
+      id: 40,
+      name: "Standard House",
+      propertyType: "house",
+      propertySize: "medium",
+      tier: "standard",
+      lineItems: [],
+      createdAt: "2024-01-01",
+      updatedAt: "2024-01-01",
+      isActive: 1,
+    };
+    (inner.getSchedule as jest.Mock).mockResolvedValue(existing);
+    const logger = createMockLogger();
+    const repo = new AuditedBudgetRepository(inner, logger, "tester");
+
+    await repo.saveSchedule({ ...existing, name: "Premium House" });
+
+    expect(logger.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entityType: "schedule",
+        action: "update",
+      }),
+    );
+  });
+
+  it("logs delete schedule", async () => {
+    const inner = createMockInner();
+    const existing: Schedule = {
+      id: 44,
+      name: "Economy Apartment",
+      propertyType: "unit",
+      propertySize: "small",
+      tier: "basic",
+      lineItems: [],
+      createdAt: "2024-01-01",
+      updatedAt: "2024-01-01",
+      isActive: 1,
+    };
+    (inner.getSchedule as jest.Mock).mockResolvedValue(existing);
+    const logger = createMockLogger();
+    const repo = new AuditedBudgetRepository(inner, logger, "tester");
+
+    await repo.deleteSchedule(44);
+
+    expect(inner.deleteSchedule).toHaveBeenCalledWith(44);
+    expect(logger.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entityType: "schedule",
+        action: "delete",
+        entityId: 44,
+      }),
+    );
+  });
+
+  // ── Diff / change tracking ────────────────────────────
+
+  it("captures field-level changes on vendor update", async () => {
+    const inner = createMockInner();
+    const before: Vendor = { id: 5, name: "OldCo", shortCode: "OC", isActive: 1 };
+    (inner.getVendor as jest.Mock).mockResolvedValue(before);
+    const logger = createMockLogger();
+    const repo = new AuditedBudgetRepository(inner, logger, "tester");
+
+    await repo.saveVendor({ ...before, name: "NewCo" });
+
+    const entry = (logger.log as jest.Mock).mock.calls[0][0];
+    // Summary should mention the change
+    expect(entry.summary).toContain("name");
+    // before/after snapshots should be serialised
+    expect(entry.before).toBeDefined();
+    expect(entry.after).toBeDefined();
+  });
+
+  it("captures status transition as a statusChange action", async () => {
+    const inner = createMockInner();
+    const before: Budget = {
+      id: 99,
+      propertyAddress: "1 Diff St",
+      propertyType: "house",
+      propertySize: "medium",
+      tier: "standard",
+      suburbId: 1,
+      vendorId: 1,
+      scheduleId: 1,
+      status: "draft",
+      lineItems: [],
+      notes: "",
+      createdAt: "2024-01-01",
+      updatedAt: "2024-01-01",
+    };
+    (inner.getBudget as jest.Mock).mockResolvedValue(before);
+    const logger = createMockLogger();
+    const repo = new AuditedBudgetRepository(inner, logger, "admin");
+
+    await repo.saveBudget({ ...before, status: "approved" });
+
+    const entry = (logger.log as jest.Mock).mock.calls[0][0];
+    expect(entry.action).toBe("statusChange");
+    expect(entry.summary).toContain("draft");
+    expect(entry.summary).toContain("approved");
   });
 });

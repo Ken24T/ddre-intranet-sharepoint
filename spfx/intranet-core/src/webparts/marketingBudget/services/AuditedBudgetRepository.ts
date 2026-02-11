@@ -3,14 +3,14 @@
  * any IBudgetRepository implementation.
  *
  * Every write operation (save, delete, seed, import, clearAllData)
- * is logged through an IAuditLogger while the underlying repository
+ * is logged through an IBudgetAuditLogger while the underlying repository
  * does the actual persistence.
  *
  * Reads are delegated directly with no overhead.
  */
 
 import type { IBudgetRepository, BudgetFilters } from "./IBudgetRepository";
-import type { IAuditLogger } from "./IAuditLogger";
+import type { IBudgetAuditLogger } from "./IAuditLogger";
 import type {
   Vendor,
   Service,
@@ -39,7 +39,7 @@ export interface BudgetAuditEvent {
 export class AuditedBudgetRepository implements IBudgetRepository {
   constructor(
     private readonly inner: IBudgetRepository,
-    private readonly logger: IAuditLogger,
+    private readonly logger: IBudgetAuditLogger,
     private readonly userName: string,
     /** Optional callback to relay high-level events to an external audit system. */
     private readonly onAuditEvent?: (event: BudgetAuditEvent) => void,

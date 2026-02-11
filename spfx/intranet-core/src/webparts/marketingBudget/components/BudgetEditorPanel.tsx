@@ -32,7 +32,7 @@ import type { Budget, BudgetLineItem, BudgetTemplate } from "../models/types";
 import type { UserRole } from "../models/permissions";
 import { canEditBudget, canTransitionBudget } from "../models/permissions";
 import type { IBudgetRepository } from "../services/IBudgetRepository";
-import type { IAuditLogger } from "../services/IAuditLogger";
+import type { IBudgetAuditLogger } from "../services/IAuditLogger";
 import type { IBudgetTemplateService } from "../services/IBudgetTemplateService";
 import { LineItemEditor } from "./LineItemEditor";
 import { BudgetTotals } from "./BudgetTotals";
@@ -56,7 +56,7 @@ export interface IBudgetEditorPanelProps {
   /** User's role — controls which fields and actions are available. */
   userRole: UserRole;
   /** Optional audit logger for displaying change history. */
-  auditLogger?: IAuditLogger;
+  auditLogger?: IBudgetAuditLogger;
   /** Optional template service for save/load template features. */
   templateService?: IBudgetTemplateService;
 }

@@ -267,10 +267,10 @@ Connect to the wider DDRE ecosystem and add power-user capabilities.
 - [ ] ~~**PropertyMe integration**~~ *(deferred until SharePoint deployment)* — Pull property address and type
   from PropertyMe API (via `pkg-api-client` `PropertyMeClient`)
   to auto-fill `BudgetPropertyForm` fields.
-- [ ] **Audit trail** — Record
-  `{ user, action, timestamp, before, after }` on every budget
-  and reference data change. Display as a timeline in the editor
-  panel.
+- [x] **Audit trail** — `AuditedBudgetRepository` decorator logs all
+  write operations with field-level diffs (`diffChanges`,
+  `diffLineItems`). `AuditTimeline` in the budget editor panel.
+  Shell bridge via `onAuditEvent` callback. 12+ tests.
 - [x] **Budget templates** — Save a budget configuration
   (schedule + overrides) as a reusable template for common
   property types. BudgetTemplate types, Dexie DB v3, IBudgetTemplateService,
@@ -296,7 +296,7 @@ Deliverables: PropertyMe auto-fill, audit log, templates, shell notifications, s
 4. 🟢 Reference data edit panels complete (2B).
 5. 🟢 Dashboard and export features live (2C) — 356 tests passing.
 6. ⬜ PropertyMe integration functional (2D).
-7. ⬜ Audit trail and templates shipped (2D).
+7. 🟢 Audit trail and templates shipped (2D).
 
 ### Phase 2 Acceptance Criteria
 

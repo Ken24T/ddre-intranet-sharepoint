@@ -2,11 +2,11 @@
  * DexieAuditLogger — IndexedDB-backed audit log using the shared Dexie db.
  */
 
-import type { IAuditLogger } from "./IAuditLogger";
+import type { IBudgetAuditLogger } from "./IAuditLogger";
 import type { AuditEntry, AuditEntityType } from "../models/auditTypes";
 import { db } from "./db";
 
-export class DexieAuditLogger implements IAuditLogger {
+export class DexieAuditLogger implements IBudgetAuditLogger {
   async log(entry: Omit<AuditEntry, "id">): Promise<AuditEntry> {
     const id = await db.auditLog.add(entry as AuditEntry);
     return { ...entry, id };

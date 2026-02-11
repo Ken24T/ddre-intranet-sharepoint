@@ -1,4 +1,5 @@
 import * as React from 'react';
+import type { IAuditEventMessage } from './appBridge';
 
 /**
  * Props for the IntranetShell component.
@@ -29,4 +30,9 @@ export interface IIntranetShellProps {
    * respect the shell's admin/user toggle.
    */
   cardDetailRenderers?: Record<string, React.ComponentType<{ isAdmin: boolean }>>;
+  /**
+   * Callback invoked when an embedded app sends an AUDIT_EVENT message.
+   * Wired by IntranetShellWithTasks using useAudit().
+   */
+  onAppAuditEvent?: (event: IAuditEventMessage) => void;
 }

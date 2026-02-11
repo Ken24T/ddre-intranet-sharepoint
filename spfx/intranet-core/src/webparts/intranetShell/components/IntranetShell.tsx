@@ -315,6 +315,12 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           appNotifications: this.convertAppNotifications(msg.source, msg.notifications),
         });
         break;
+
+      case 'AUDIT_EVENT':
+        if (this.props.onAppAuditEvent) {
+          this.props.onAppAuditEvent(msg);
+        }
+        break;
     }
   };
 

@@ -9,14 +9,14 @@ import * as React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { AuditTimeline } from "./AuditTimeline";
-import type { IAuditLogger } from "../services/IAuditLogger";
+import type { IBudgetAuditLogger } from "../services/IAuditLogger";
 import type { AuditEntry } from "../models/auditTypes";
 
 // ─── Mock logger ────────────────────────────────────────────
 
 const createMockLogger = (
   entries: AuditEntry[] = [],
-): IAuditLogger => ({
+): IBudgetAuditLogger => ({
   log: jest.fn().mockResolvedValue({} as AuditEntry),
   getByEntity: jest.fn().mockResolvedValue(entries),
   getAll: jest.fn().mockResolvedValue(entries),
@@ -44,7 +44,7 @@ const makeEntry = (
 describe("AuditTimeline", () => {
   it("shows loading spinner initially", () => {
     // Logger returns a promise that never resolves
-    const logger: IAuditLogger = {
+    const logger: IBudgetAuditLogger = {
       log: jest.fn(),
       getByEntity: jest.fn().mockReturnValue(new Promise(() => {})),
       getAll: jest.fn(),
@@ -155,7 +155,7 @@ describe("AuditTimeline", () => {
   });
 
   it("handles logger errors gracefully", async () => {
-    const logger: IAuditLogger = {
+    const logger: IBudgetAuditLogger = {
       log: jest.fn(),
       getByEntity: jest.fn().mockRejectedValue(new Error("DB fail")),
       getAll: jest.fn(),

@@ -12,7 +12,9 @@ import * as strings from "MarketingBudgetWebPartStrings";
 import MarketingBudget from "./components/MarketingBudget";
 import type { IMarketingBudgetProps } from "./components/IMarketingBudgetProps";
 import type { IBudgetRepository } from "./services/IBudgetRepository";
-import type { IAuditLogger } from "./services/IAuditLogger";
+import type { IBudgetAuditLogger } from "./services/IAuditLogger";
+import type { BudgetAuditEvent } from "./services/AuditedBudgetRepository";
+import type { IAuditEventMessage } from "../intranetShell/components/appBridge";
 import { getSPFI, createRepository } from "./services/RepositoryFactory";
 import { resolveUserRole } from "./services/RoleResolver";
 import { DexieAuditLogger } from "./services/DexieAuditLogger";
@@ -27,7 +29,7 @@ export interface IMarketingBudgetWebPartProps {
 export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarketingBudgetWebPartProps> {
   private _isDarkTheme: boolean = false;
   private _repository!: IBudgetRepository;
-  private _auditLogger!: IAuditLogger;
+  private _auditLogger!: IBudgetAuditLogger;
   private _templateService = new DexieBudgetTemplateService();
   private _userRole: UserRole = 'viewer';
 
@@ -43,6 +45,7 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
       baseRepo,
       this._auditLogger,
       this.context.pageContext.user.displayName,
+      this.relayAuditEvent,
     );
 
     // Resolve user role from Entra ID / SharePoint group membership.
@@ -63,6 +66,22 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
 
     ReactDom.render(element, this.domElement);
   }
+
+  /**
+   * Relay budget audit events to the shell via AppBridge postMessage.
+   * The shell's IntranetShellWithTasks picks up AUDIT_EVENT messages
+   * and logs them through the global audit context.
+   */
+  private relayAuditEvent = (event: BudgetAuditEvent): void => {
+    const msg: IAuditEventMessage = {
+      type: 'AUDIT_EVENT',
+      source: 'marketing-budget',
+      entityType: event.entityType,
+      action: event.action,
+      summary: event.summary,
+    };
+    window.postMessage(msg, window.location.origin);
+  };
 
   protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
     if (!currentTheme) {

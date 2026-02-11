@@ -39,6 +39,18 @@ describe('isAppToShellMessage', () => {
     ).toBe(true);
   });
 
+  it('returns true for AUDIT_EVENT', () => {
+    expect(
+      isAppToShellMessage({
+        type: 'AUDIT_EVENT',
+        source: 'marketing-budget',
+        entityType: 'vendor',
+        action: 'create',
+        summary: 'Created vendor "TestCo"',
+      }),
+    ).toBe(true);
+  });
+
   it('returns false for SIDEBAR_NAVIGATE (Shell → App)', () => {
     expect(
       isAppToShellMessage({ type: 'SIDEBAR_NAVIGATE', key: 'budgets' }),

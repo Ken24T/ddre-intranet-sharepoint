@@ -46,7 +46,7 @@ import { validateTransition } from "../models/budgetValidation";
 import { budgetListToCsv, budgetLineItemsToCsv, downloadCsv } from "../models/exportHelpers";
 import { statusTransitions } from "./budgetEditorConstants";
 import type { IBudgetRepository } from "../services/IBudgetRepository";
-import type { IAuditLogger } from "../services/IAuditLogger";
+import type { IBudgetAuditLogger } from "../services/IAuditLogger";
 import type { IBudgetTemplateService } from "../services/IBudgetTemplateService";
 import { BudgetEditorPanel } from "./BudgetEditorPanel";
 import { BudgetPrintView } from "./BudgetPrintView";
@@ -55,7 +55,7 @@ import styles from "./MarketingBudget.module.scss";
 export interface IBudgetListViewProps {
   repository: IBudgetRepository;
   userRole: UserRole;
-  auditLogger?: IAuditLogger;
+  auditLogger?: IBudgetAuditLogger;
   templateService?: IBudgetTemplateService;
 }
 

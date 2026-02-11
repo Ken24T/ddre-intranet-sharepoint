@@ -13,6 +13,7 @@ export {
   type ISidebarActiveMessage,
   type IAppNotificationItem,
   type INotificationUpdateMessage,
+  type IAuditEventMessage,
   type AppToShellMessage,
   type ISidebarNavigateMessage,
   type ShellToAppMessage,
