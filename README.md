@@ -48,6 +48,16 @@ Every business app is delivered as a **web part inside `intranet-core`**:
 - `spfx/intranet-core/src/webparts/<camelCaseName>/` contains the implementation
 - `config/config.json` registers each web part's bundle and localised resources
 
+| App | Hub | Web Part | Status |
+|-----|-----|----------|--------|
+| Marketing Budget | Administration | `marketingBudget` | Active |
+| Cognito Forms | Administration | `cognitoForms` | Planning |
+| Dante Library | Office | `danteLibrary` | Planning |
+| PM Dashboard | Property Management | `pmDashboard` | Planning |
+| QR Coder | Office | `qrCoder` | Planning |
+| Surveys | Administration | `surveys` | Planning |
+| Vault Batcher | Sales | `vaultBatcher` | Planning |
+
 To add a new app:
 1. Define requirements in `apps/app-<name>/`
 2. Create web part at `spfx/intranet-core/src/webparts/<camelCaseName>/`

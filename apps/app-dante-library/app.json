@@ -1,0 +1,10 @@
+{
+  "name": "app-dante-library",
+  "displayName": "Dante Library",
+  "owner": "Office",
+  "status": "planning",
+  "hub": "Office",
+  "webPart": "danteLibrary",
+  "introduced": null,
+  "description": "AI-powered document library search using Dante AI."
+}

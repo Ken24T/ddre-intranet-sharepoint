@@ -1,0 +1,10 @@
+{
+  "name": "app-pm-dashboard",
+  "displayName": "PM Dashboard",
+  "owner": "Property Management",
+  "status": "planning",
+  "hub": "Property Management",
+  "webPart": "pmDashboard",
+  "introduced": null,
+  "description": "PropertyMe data visualisation dashboard for property management."
+}
