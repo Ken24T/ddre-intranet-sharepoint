@@ -16,6 +16,9 @@ export default defineConfig({
       '@dnd-kit/core': path.resolve(__dirname, 'node_modules/@dnd-kit/core'),
       '@dnd-kit/sortable': path.resolve(__dirname, 'node_modules/@dnd-kit/sortable'),
       '@dnd-kit/utilities': path.resolve(__dirname, 'node_modules/@dnd-kit/utilities'),
+      // Force bare imports from marketing-budget sources to resolve from dev/node_modules
+      // (those files live outside the project root, so Vite can't find them automatically)
+      'dexie': path.resolve(__dirname, 'node_modules/dexie'),
     },
   },
   server: {
