@@ -16,9 +16,16 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@components/*": ["../src/webparts/intranetShell/components/*"]
+      "@components/*": ["../src/webparts/intranetShell/components/*"],
+      "@mb-components/*": ["../src/webparts/marketingBudget/components/*"],
+      "@mb-services/*": ["../src/webparts/marketingBudget/services/*"],
+      "@mb-models/*": ["../src/webparts/marketingBudget/models/*"]
     },
     "baseUrl": "."
   },
-  "include": ["src", "../src/webparts/intranetShell/components"]
+  "include": [
+    "src",
+    "../src/webparts/intranetShell/components",
+    "../src/webparts/marketingBudget"
+  ]
 }

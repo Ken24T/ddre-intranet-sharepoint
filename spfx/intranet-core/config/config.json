@@ -9,10 +9,19 @@
           "manifest": "./src/webparts/intranetShell/IntranetShellWebPart.manifest.json"
         }
       ]
+    },
+    "marketing-budget-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/marketingBudget/MarketingBudgetWebPart.js",
+          "manifest": "./src/webparts/marketingBudget/MarketingBudgetWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
   "localizedResources": {
-    "IntranetShellWebPartStrings": "lib/webparts/intranetShell/loc/{locale}.js"
+    "IntranetShellWebPartStrings": "lib/webparts/intranetShell/loc/{locale}.js",
+    "MarketingBudgetWebPartStrings": "lib/webparts/marketingBudget/loc/{locale}.js"
   }
 }

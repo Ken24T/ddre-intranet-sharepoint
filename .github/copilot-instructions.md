@@ -12,7 +12,7 @@ SharePoint Online intranet using **SPFx 1.22.1 + TypeScript + React 17**. Monore
 
 | Folder | Purpose |
 |--------|---------|
-| `/spfx` | SPFx solutions (deployable `.sppkg` packages) |
+| `/spfx` | SPFx solution (`intranet-core` — single `.sppkg` containing all web parts) |
 | `/apps` | Business tool definitions (requirements, UX docs—no code) |
 | `/packages` | Shared TypeScript libraries (no business logic) |
 | `/contracts` | API schemas (OpenAPI, JSON Schema) |
@@ -88,10 +88,19 @@ SPFx solutions consume these via local npm install (not published to registry ye
 4. **Permissions** – Never re-implement auth; respect SharePoint/Entra ID group-based permissions
 5. **Regional language** – Use Australian English spelling and grammar in all UI text
 
-## Phase-Aware Delivery
+## Single-Solution Architecture
 
-- **Phase 1 (current):** Single `intranet-core` solution for foundation features
-- **Phase 2+:** Each business app gets its own SPFx solution and `.sppkg`
+All business apps are delivered as **web parts inside `intranet-core`** (one `.sppkg`).
+
+- `/apps/app-<name>/` — business definition (requirements, UX, data model)
+- `spfx/intranet-core/src/webparts/<camelCaseName>/` — implementation code
+- `spfx/intranet-core/config/config.json` — register each web part's bundle + localised resources
+
+To add a new app:
+1. Define requirements in `/apps/app-<name>/`
+2. Create web part folder at `spfx/intranet-core/src/webparts/<camelCaseName>/`
+3. Add bundle entry and `*Strings` resource to `config/config.json`
+4. `npm run test` → `npm run build` → deploy single `.sppkg`
 
 ## Jasper (AI Chatbot)
 
@@ -108,12 +117,17 @@ When writing Jasper's dialogue or messages, use a warm, encouraging tone that ma
 
 For SHIP/TCTBP activation, steps, approvals, and versioning rules, see the TCTBP agent guidance in [TCTBP Agent.md](TCTBP Agent.md).
 
-## File Organization
+## File Organisation
 
-- Web parts: `spfx/*/src/webparts/<name>/`
-- Component + styles + props in `components/` subfolder
-- Localization strings in `loc/` subfolder
+- Web parts: `spfx/intranet-core/src/webparts/<name>/`
+  - `<Name>WebPart.ts` — SPFx entry point
+  - `<Name>WebPart.manifest.json` — web part manifest
+  - `components/` — React components, styles, props, hooks
+  - `models/` — types, calculations, helpers
+  - `services/` — data access (repository pattern)
+  - `loc/` — localisation strings (`en-us.js`, `mystrings.d.ts`)
 - Config files in `config/` (Jest, TypeScript, SPFx)
+- Business definitions in `apps/app-<name>/` (requirements, UX docs — no code)
 
 ## When Generating Code
 

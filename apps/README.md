@@ -96,22 +96,27 @@ Lightweight metadata, for example:
 
 ## Lifecycle & Phases
 
-- Phase 1: apps may exist here as **concepts only** (no SPFx solution yet)
-- Phase 2+: apps gain their own SPFx solution under `/spfx`
-
-An app can exist in `/apps` before it is built.
+- An app can exist in `/apps` as a **concept** before any code is written.
+- When ready to build, the app's code is added as a **web part** inside `spfx/intranet-core/`.
+- There is **one SPFx solution** (`intranet-core`) that bundles all web parts.
 
 ---
 
 ## Relationship to SPFx
 
-- `/apps` answers **what** the tool is
-- `/spfx` answers **how** it is shipped
+- `/apps` answers **what** the tool is (business definition, UX, requirements)
+- `/spfx/intranet-core/src/webparts/<name>/` answers **how** it is built (code)
+- The single `intranet-core.sppkg` carries all web parts and is the deployment unit
 
-From Phase 2 onward:
+Each app maps to **one web part folder** inside `spfx/intranet-core/src/webparts/`.
 
-- Each app normally maps to **one SPFx solution**
-- That SPFx solution carries the authoritative deployed version
+For example:
+
+| App | Web Part Location |
+|-----|--------------------|
+| `app-marketing-budget` | `spfx/intranet-core/src/webparts/marketingBudget/` |
+| `app-qrcoder` | `spfx/intranet-core/src/webparts/qrCoder/` |
+| `app-vault-batcher` | `spfx/intranet-core/src/webparts/vaultBatcher/` |
 
 ---
 
@@ -131,10 +136,23 @@ From Phase 2 onward:
 
 ---
 
+## Adding a New App (Step by Step)
+
+1. **Define** — Create `/apps/app-<name>/README.md` with business requirements, UX docs, data model
+2. **Code** — Add web part folder at `spfx/intranet-core/src/webparts/<camelCaseName>/`
+3. **Register** — Add the web part's bundle entry and localized resources to `spfx/intranet-core/config/config.json`
+4. **Test** — `cd spfx/intranet-core && npm run test` runs all tests (shell + all apps)
+5. **Build** — `npm run build` produces a single `.sppkg` containing all web parts
+6. **Deploy** — Upload `intranet-core.sppkg` to the SharePoint App Catalog
+
+See `spfx/README.md` for the detailed new-web-part checklist.
+
+---
+
 ## When Unsure
 
 If it's unclear whether something belongs in `/apps`:
 
-- If users recognize it as a tool, it probably belongs here
+- If users recognise it as a tool, it probably belongs here
 - If it's reusable code, it belongs in `/packages`
 - If it's deployment mechanics, it belongs in `/spfx`

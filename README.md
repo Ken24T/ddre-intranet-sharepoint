@@ -19,8 +19,8 @@ This is a **monorepo**: one Git history, one set of repo standards, multiple del
 
 ```
 .
-|-- spfx/         # SPFx solutions (deployable .sppkg packages)
-|-- apps/         # User-facing tool definitions (business context)
+|-- spfx/         # SPFx solution (intranet-core — single .sppkg with all web parts)
+|-- apps/         # User-facing tool definitions (business context, no code)
 |-- packages/     # Shared TypeScript libraries (reusable building blocks)
 |-- contracts/    # API schemas/contracts (interfaces, OpenAPI, JSON schemas)
 |-- docs/         # Architecture notes, runbooks, decisions
@@ -32,42 +32,35 @@ This is a **monorepo**: one Git history, one set of repo standards, multiple del
 
 ---
 
-## Phase-Aware Delivery Model
+## Delivery Model (Single Solution)
 
-### Phase 1: Foundation
+### Foundation (Intranet Shell)
 
-Phase 1 ships **intranet foundation features**, not business apps.
+The Intranet Shell provides the foundation layout frame: navbar, sidebar,
+content area, card grid, status bar, Jasper AI assistant, and Help Centre.
 
-Typical Phase 1 deliverables:
+### Business Apps (Web Parts)
 
-- Intranet core navigation and UX shell
-- **Dante Library** (read-only Markdown rendering from SharePoint)
-- Optional AI assistant (knowledge Q&A only, read-only)
+Every business app is delivered as a **web part inside `intranet-core`**:
 
-Implementation:
+- One SPFx solution, one `.sppkg`, one deployment
+- `/apps/app-<name>/` defines the business requirements (no code)
+- `spfx/intranet-core/src/webparts/<camelCaseName>/` contains the implementation
+- `config/config.json` registers each web part's bundle and localised resources
 
-- One SPFx solution under `/spfx` (typically `intranet-core`)
-
-### Phase 2+: Apps
-
-From Phase 2 onward, each user-facing app is delivered as:
-
-- A dedicated SPFx solution (its own `.sppkg`)
-- Its own semantic version
-- Independently deployable via the SharePoint App Catalog
+To add a new app:
+1. Define requirements in `apps/app-<name>/`
+2. Create web part at `spfx/intranet-core/src/webparts/<camelCaseName>/`
+3. Register in `config/config.json`
+4. `npm run test` → `npm run build` → deploy single `.sppkg`
 
 ---
 
 ## Versioning
 
 - **Git**: one history (monorepo). Tags represent what was deployed.
-- **SPFx**: each SPFx solution has its own version.
+- **SPFx**: one solution version for `intranet-core` (all web parts ship together).
   - Keep versions in sync across `package.json` and `config/package-solution.json`.
-
-Guiding idea:
-
-- In Phase 1, you mostly track the **intranet-core** solution version.
-- In Phase 2+, you track **per-app** SPFx solution versions.
 
 ---
 

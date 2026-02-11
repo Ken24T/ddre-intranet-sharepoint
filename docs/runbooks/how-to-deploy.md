@@ -1,6 +1,8 @@
 # How to Deploy (SPFx)
 
-This intranet is deployed as a SharePoint Framework (SPFx) solution package (`.sppkg`) to SharePoint Online.
+The DDRE Intranet is deployed as a single SharePoint Framework (SPFx) solution
+package (`.sppkg`) to SharePoint Online. This package contains **all web parts**
+(the Intranet Shell plus every business app).
 
 ## Prerequisites
 
@@ -24,7 +26,8 @@ From the SPFx solution folder:
 
 Output:
 
-- The packaged solution is written to `spfx/intranet-core/solution/intranet-core.sppkg`.
+- The packaged solution is written to `spfx/intranet-core/sharepoint/solution/intranet-core.sppkg`.
+- This single package contains all web parts (Intranet Shell, Marketing Budget, and any future apps).
 
 ## Deploy to SharePoint App Catalog
 
@@ -46,7 +49,11 @@ Notes:
 2. Add the **DDRE Intranet** app.
 3. Edit (or create) a modern page.
 4. Add the relevant web part(s) to the page and configure properties.
+**Typical page layout:**
 
+- **Home page** — IntranetShell web part (full-width, provides navbar/sidebar/cards)
+- **App-specific pages** — Individual web parts (e.g. Marketing Budget) on dedicated pages,
+  navigated to from the shell's cards or sidebar
 ## Environment configuration
 
 - Authentication is Microsoft Entra ID SSO; there are no deployment-time secrets for the SPFx package.
