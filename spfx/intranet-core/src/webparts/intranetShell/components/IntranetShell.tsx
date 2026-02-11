@@ -979,7 +979,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
                 </div>
               ) : this.props.cardDetailRenderers?.[activeCard.id] ? (
                 <div className={styles.cardDetailFrame}>
-                  {React.createElement(this.props.cardDetailRenderers[activeCard.id])}
+                  {React.createElement(this.props.cardDetailRenderers[activeCard.id], { isAdmin: isAdminMode })}
                 </div>
               ) : (
                 <>

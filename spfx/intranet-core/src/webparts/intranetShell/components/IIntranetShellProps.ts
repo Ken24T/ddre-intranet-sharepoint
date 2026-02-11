@@ -24,6 +24,9 @@ export interface IIntranetShellProps {
    * When a card detail is opened and a matching renderer exists,
    * it is rendered directly instead of an iframe. This allows
    * the Vite dev harness to host multiple apps on a single port.
+   *
+   * Each renderer receives `{ isAdmin: boolean }` so it can
+   * respect the shell's admin/user toggle.
    */
-  cardDetailRenderers?: Record<string, React.ComponentType>;
+  cardDetailRenderers?: Record<string, React.ComponentType<{ isAdmin: boolean }>>;
 }

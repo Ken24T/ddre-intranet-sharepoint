@@ -19,7 +19,11 @@ import { DexieBudgetRepository } from '@mb-services/DexieBudgetRepository';
 // Single repository instance, reused across renders
 const repository = new DexieBudgetRepository();
 
-export const MarketingBudgetDevView: React.FC = () => {
+interface MarketingBudgetDevViewProps {
+  isAdmin: boolean;
+}
+
+export const MarketingBudgetDevView: React.FC<MarketingBudgetDevViewProps> = ({ isAdmin }) => {
   return (
     <MarketingBudget
       userDisplayName="Ken Boyle"
@@ -27,7 +31,7 @@ export const MarketingBudgetDevView: React.FC = () => {
       isSharePointContext={false}
       repository={repository}
       shellBridgeOptions={{ forceActive: true }}
-      userRole="admin" // Change to 'editor' or 'viewer' to test role-gating
+      userRole={isAdmin ? 'admin' : 'editor'}
     />
   );
 };
