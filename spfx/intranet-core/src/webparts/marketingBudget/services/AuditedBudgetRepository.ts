@@ -21,11 +21,23 @@ import type {
 } from "../models/types";
 import type { AuditAction, AuditEntityType } from "../models/auditTypes";
 
+/**
+ * Lightweight event emitted to an external audit system (e.g. the
+ * intranet shell's global audit log).  Keeps the dependency one-way.
+ */
+export interface BudgetAuditEvent {
+  entityType: AuditEntityType;
+  action: AuditAction;
+  summary: string;
+}
+
 export class AuditedBudgetRepository implements IBudgetRepository {
   constructor(
     private readonly inner: IBudgetRepository,
     private readonly logger: IAuditLogger,
     private readonly userName: string,
+    /** Optional callback to relay high-level events to an external audit system. */
+    private readonly onAuditEvent?: (event: BudgetAuditEvent) => void,
   ) {}
 
   // ─── Private helpers ────────────────────────────────────
@@ -50,6 +62,15 @@ export class AuditedBudgetRepository implements IBudgetRepository {
       before: before ? JSON.stringify(before) : null,
       after: after ? JSON.stringify(after) : null,
     });
+
+    // Relay to external audit system if wired.
+    if (this.onAuditEvent) {
+      try {
+        this.onAuditEvent({ entityType, action, summary });
+      } catch {
+        // External relay is non-critical — swallow errors.
+      }
+    }
   }
 
   // ─── Vendors ────────────────────────────────────────────

@@ -282,4 +282,49 @@ describe("AuditedBudgetRepository", () => {
     expect(calls[0][0].user).toBe("jdoe");
     expect(calls[1][0].user).toBe("jdoe");
   });
+
+  // ── onAuditEvent callback ─────────────────────────────
+
+  it("calls onAuditEvent callback when provided", async () => {
+    const inner = createMockInner();
+    const logger = createMockLogger();
+    const onAuditEvent = jest.fn();
+    const repo = new AuditedBudgetRepository(inner, logger, "admin", onAuditEvent);
+
+    await repo.saveVendor({ name: "TestCo", shortCode: "TC", isActive: 1 });
+
+    expect(onAuditEvent).toHaveBeenCalledTimes(1);
+    expect(onAuditEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entityType: "vendor",
+        action: "create",
+        summary: expect.stringContaining("TestCo"),
+      }),
+    );
+  });
+
+  it("works without onAuditEvent callback", async () => {
+    const inner = createMockInner();
+    const logger = createMockLogger();
+    // No fourth argument — should not throw
+    const repo = new AuditedBudgetRepository(inner, logger, "admin");
+
+    await repo.saveVendor({ name: "V", shortCode: "V", isActive: 1 });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+  });
+
+  it("swallows errors from onAuditEvent callback", async () => {
+    const inner = createMockInner();
+    const logger = createMockLogger();
+    const onAuditEvent = jest.fn().mockImplementation(() => {
+      throw new Error("Shell audit failed");
+    });
+    const repo = new AuditedBudgetRepository(inner, logger, "admin", onAuditEvent);
+
+    // Should not throw despite callback error
+    await expect(
+      repo.saveVendor({ name: "V", shortCode: "V", isActive: 1 }),
+    ).resolves.toBeDefined();
+  });
 });

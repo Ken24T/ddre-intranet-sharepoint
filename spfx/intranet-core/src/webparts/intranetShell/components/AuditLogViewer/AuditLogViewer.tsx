@@ -22,6 +22,7 @@ import {
 } from '@fluentui/react';
 import { useAudit } from '../AuditContext';
 import type { EventType } from '../AuditContext';
+import { useAuditQuery } from '../AuditQueryContext';
 import { HelpTooltip } from '../HelpTooltip';
 import { adminTooltips } from '../data/helpTooltips';
 import styles from './AuditLogViewer.module.scss';
@@ -534,6 +535,7 @@ const DetailModal: React.FC<IDetailModalProps> = ({ entry, onDismiss }) => {
  */
 export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
   const audit = useAudit();
+  const queryService = useAuditQuery();
 
   // State
   const [logs, setLogs] = React.useState<IAuditLogEntry[]>([]);
@@ -573,24 +575,60 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
     });
   }, [audit]);
 
-  // Simulate loading logs (mock data for now)
+  // Load logs from query service (real data) or fall back to mock data
   React.useEffect(() => {
+    let cancelled = false;
     setIsLoading(true);
     setError(undefined);
 
-    // Simulate API call
-    const timer = setTimeout(() => {
-      try {
-        setLogs(mockLogEntries);
-        setIsLoading(false);
-      } catch {
-        setError('Failed to load audit logs. Please try again.');
-        setIsLoading(false);
-      }
-    }, 500);
+    if (queryService) {
+      queryService
+        .query(undefined, 500)
+        .then((entries) => {
+          if (!cancelled) {
+            // Map query service entries to the local IAuditLogEntry shape
+            setLogs(
+              entries.map((e) => ({
+                eventId: e.eventId,
+                eventType: e.eventType,
+                action: e.action,
+                timestamp: e.timestamp,
+                userId: e.userId,
+                userDisplayName: e.userDisplayName,
+                sessionId: e.sessionId,
+                appVersion: e.appVersion,
+                hub: e.hub,
+                tool: e.tool,
+                metadata: e.metadata,
+              })),
+            );
+            setIsLoading(false);
+          }
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setError('Failed to load audit logs. Please try again.');
+            setIsLoading(false);
+          }
+        });
+    } else {
+      // No query service — fall back to mock data (legacy/tests)
+      const timer = setTimeout(() => {
+        if (!cancelled) {
+          setLogs(mockLogEntries);
+          setIsLoading(false);
+        }
+      }, 500);
+      return () => {
+        cancelled = true;
+        clearTimeout(timer);
+      };
+    }
 
-    return () => clearTimeout(timer);
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [queryService]);
 
   // Calculate effective date range from preset or custom dates
   const effectiveDates = React.useMemo(() => {

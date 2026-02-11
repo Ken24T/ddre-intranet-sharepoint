@@ -17,17 +17,37 @@ import MarketingBudget from '@mb-components/MarketingBudget';
 import { DexieBudgetRepository } from '@mb-services/DexieBudgetRepository';
 import { DexieAuditLogger } from '@mb-services/DexieAuditLogger';
 import { AuditedBudgetRepository } from '@mb-services/AuditedBudgetRepository';
+import type { BudgetAuditEvent } from '@mb-services/AuditedBudgetRepository';
+import { useAudit } from '../../src/webparts/intranetShell/components/AuditContext';
 
 // Single instances, reused across renders
 const baseRepository = new DexieBudgetRepository();
 const auditLogger = new DexieAuditLogger();
-const repository = new AuditedBudgetRepository(baseRepository, auditLogger, 'Ken Boyle');
 
 interface MarketingBudgetDevViewProps {
   isAdmin: boolean;
 }
 
 export const MarketingBudgetDevView: React.FC<MarketingBudgetDevViewProps> = ({ isAdmin }) => {
+  const shellAudit = useAudit();
+
+  // Create audited repository with shell bridge callback.
+  // Memoised so it doesn't change on every render.
+  const repository = React.useMemo(() => {
+    const onAuditEvent = (event: BudgetAuditEvent): void => {
+      shellAudit.logUserInteraction('feedback_form_submitted', {
+        hub: 'sales',
+        tool: 'marketing-budget',
+        metadata: {
+          entityType: event.entityType,
+          action: event.action,
+          summary: event.summary,
+        },
+      });
+    };
+    return new AuditedBudgetRepository(baseRepository, auditLogger, 'Ken Boyle', onAuditEvent);
+  }, [shellAudit]);
+
   return (
     <MarketingBudget
       userDisplayName="Ken Boyle"

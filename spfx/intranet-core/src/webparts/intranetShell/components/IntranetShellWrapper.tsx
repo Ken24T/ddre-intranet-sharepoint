@@ -3,8 +3,12 @@ import { ToastProvider, ToastContainer, useToast } from './Toast';
 import { OfflineBanner } from './OfflineBanner';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import type { IToastContext } from './Toast';
-import { AuditProvider, ConsoleAuditLogger, useAudit } from './AuditContext';
+import { AuditProvider, useAudit } from './AuditContext';
 import type { IAuditLogger } from './AuditContext';
+import { AuditQueryProvider, useAuditQuery } from './AuditQueryContext';
+import type { IAuditLogQueryService } from './services/IAuditLogQueryService';
+import { DexieShellAuditLogger } from './services/DexieShellAuditLogger';
+import { DexieAuditLogQueryService } from './services/DexieAuditLogQueryService';
 import { TasksProvider } from './tasks/TasksContext';
 
 /**
@@ -12,8 +16,10 @@ import { TasksProvider } from './tasks/TasksContext';
  */
 export interface IIntranetShellWrapperProps {
   children: React.ReactNode;
-  /** Optional audit logger instance. If not provided, uses ConsoleAuditLogger (dev mode). */
+  /** Optional audit logger instance. If not provided, uses DexieShellAuditLogger (dev mode). */
   auditLogger?: IAuditLogger;
+  /** Optional query service for AuditLogViewer. If not provided, uses DexieAuditLogQueryService (dev mode). */
+  auditQueryService?: IAuditLogQueryService;
 }
 
 /**
@@ -78,12 +84,21 @@ const IntranetShellInner: React.FC<IIntranetShellWrapperProps> = ({ children }) 
  */
 export const IntranetShellWrapper: React.FC<IIntranetShellWrapperProps> = ({ 
   children,
-  auditLogger 
+  auditLogger,
+  auditQueryService,
 }) => {
-  // Use provided logger or fall back to console logger for dev
+  // Use provided logger or fall back to Dexie logger for dev
+  // (DexieShellAuditLogger persists events to IndexedDB so they
+  //  survive page reloads and appear in AuditLogViewer.)
   const logger = React.useMemo(
-    () => auditLogger ?? new ConsoleAuditLogger(),
+    () => auditLogger ?? new DexieShellAuditLogger(),
     [auditLogger]
+  );
+
+  // Use provided query service or fall back to Dexie reader for dev
+  const queryService = React.useMemo(
+    () => auditQueryService ?? new DexieAuditLogQueryService(),
+    [auditQueryService]
   );
 
   // Log app_loaded on mount
@@ -93,11 +108,13 @@ export const IntranetShellWrapper: React.FC<IIntranetShellWrapperProps> = ({
 
   return (
     <AuditProvider logger={logger}>
-      <ToastProvider>
-        <TasksProvider>
-          <IntranetShellInner>{children}</IntranetShellInner>
-        </TasksProvider>
-      </ToastProvider>
+      <AuditQueryProvider service={queryService}>
+        <ToastProvider>
+          <TasksProvider>
+            <IntranetShellInner>{children}</IntranetShellInner>
+          </TasksProvider>
+        </ToastProvider>
+      </AuditQueryProvider>
     </AuditProvider>
   );
 };
@@ -113,5 +130,7 @@ export { useToast, type IToastContext };
  * Re-export from AuditContext for convenience.
  */
 export { useAudit, type IAuditLogger };
+export { useAuditQuery };
+export type { IAuditLogQueryService };
 
 export default IntranetShellWrapper;
