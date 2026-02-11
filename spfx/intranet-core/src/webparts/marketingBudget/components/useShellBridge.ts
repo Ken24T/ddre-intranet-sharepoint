@@ -90,7 +90,7 @@ export function useShellBridge(
       window.removeEventListener("message", handleMessage);
       postToShell({ type: "SIDEBAR_RESTORE" });
     };
-  }, [isActive, postToShell, setActiveView]);
+  }, [isActive, navItems, postToShell, setActiveView]);
 
   /** When activeView changes, notify shell to update active indicator. */
   React.useEffect(() => {
