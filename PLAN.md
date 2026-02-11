@@ -698,6 +698,7 @@ All apps are delivered as **web parts inside the single `intranet-core` solution
 One `npm install`, one build, one `.sppkg`, one deployment.
 
 To add a new app:
+
 1. Define requirements in `apps/app-<name>/`
 2. Create web part at `spfx/intranet-core/src/webparts/<camelCaseName>/`
 3. Register bundle + localised resources in `config/config.json`
