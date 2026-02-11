@@ -2,7 +2,9 @@
 
 This folder contains **user-facing intranet tools** ("apps") for the DDRE Intranet.
 
-Apps represent **business capabilities**, not deployment units. They describe *what the tool is*, *who it is for*, and *how it behaves* from a business and UX perspective.
+Apps represent **business capabilities**, not deployment units. They describe
+*what the tool is*, *who it is for*, and *how it behaves* from a business
+and UX perspective.
 
 Actual deployment is handled separately via SPFx solutions under `/spfx`.
 
@@ -31,7 +33,7 @@ There must be **no `.git` folders** inside `/apps`.
 
 Each app lives in its own folder:
 
-```
+```text
 /apps
   /app-<name>
     README.md

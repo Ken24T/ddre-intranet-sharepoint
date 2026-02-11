@@ -13,7 +13,7 @@ shell sidebar via a PostMessage bridge.
 
 ## Component Diagram
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Intranet Shell (intranet-core)               │
 │  ┌───────────┐                                                  │
@@ -62,7 +62,7 @@ All data access goes through `IBudgetRepository`. Two implementations exist:
 `RepositoryFactory.createRepository(sp)` auto-selects the backend based on
 whether a valid PnPjs `SPFI` instance is available.
 
-```
+```text
 IBudgetRepository
 ├── getBudgets() / saveBudget() / deleteBudget()
 ├── getServices() / getVendors() / getSuburbs() / getSchedules()
@@ -119,7 +119,7 @@ attaches a `message` event listener and cleans up on unmount.
 
 ## Budget Workflow
 
-```
+```text
 draft ──► approved ──► sent ──► archived
 ```
 

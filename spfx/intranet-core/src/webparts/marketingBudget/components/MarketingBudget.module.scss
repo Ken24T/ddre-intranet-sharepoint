@@ -555,3 +555,65 @@
   gap: 8px;
   align-items: flex-end;
 }
+
+/* ─────────────────────────────────────────────────────── */
+/* Detail Panel Action Bar                                 */
+/* ─────────────────────────────────────────────────────── */
+
+.detailActionBar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* ─────────────────────────────────────────────────────── */
+/* Schedule Line Item Editor                               */
+/* ─────────────────────────────────────────────────────── */
+
+.lineItemEditorContainer {
+  margin-top: 8px;
+}
+
+.lineItemEditorRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid "[theme:neutralLight, default: #edebe9]";
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.lineItemEditorService {
+  flex: 2;
+  font-size: 13px;
+  font-weight: 500;
+  color: "[theme:neutralPrimary, default: #323130]";
+}
+
+.lineItemEditorVariant {
+  flex: 2;
+}
+
+.lineItemEditorReorder {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─────────────────────────────────────────────────────── */
+/* Suburb Bulk Tier Bar                                    */
+/* ─────────────────────────────────────────────────────── */
+
+.bulkActionBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background-color: "[theme:themeLighterAlt, default: #eff6fc]";
+  border: 1px solid "[theme:themeLighter, default: #deecf9]";
+  border-radius: 4px;
+}

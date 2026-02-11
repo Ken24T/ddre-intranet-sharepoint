@@ -310,6 +310,21 @@ export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole 
     const vendorServices = servicesByVendor.get(vendor.id ?? 0) ?? [];
     return (
       <div className={styles.refDetailPanel}>
+        {isAdmin && (
+          <div className={styles.detailActionBar}>
+            <DefaultButton
+              text="Edit"
+              iconProps={{ iconName: "Edit" }}
+              onClick={(): void => openEditor(vendor)}
+            />
+            <DefaultButton
+              text="Delete"
+              iconProps={{ iconName: "Delete" }}
+              onClick={(): void => setPendingDelete(vendor)}
+              styles={{ root: { color: "#a4262c", borderColor: "#a4262c" } }}
+            />
+          </div>
+        )}
         <Text className={styles.refDetailTitle}>{vendor.name}</Text>
         <div className={styles.refDetailMeta}>
           {vendor.shortCode && (
