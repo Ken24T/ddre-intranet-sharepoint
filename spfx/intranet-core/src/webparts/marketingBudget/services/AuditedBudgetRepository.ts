@@ -20,6 +20,9 @@ import type {
   DataExport,
 } from "../models/types";
 import type { AuditAction, AuditEntityType } from "../models/auditTypes";
+import type { FieldChange } from "../models/diffChanges";
+import { diffChanges, summariseChanges } from "../models/diffChanges";
+import type { BudgetLineItem } from "../models/types";
 
 /**
  * Lightweight event emitted to an external audit system (e.g. the
@@ -29,6 +32,8 @@ export interface BudgetAuditEvent {
   entityType: AuditEntityType;
   action: AuditAction;
   summary: string;
+  /** Field-level changes when action is 'update' or 'statusChange'. */
+  changes?: FieldChange[];
 }
 
 export class AuditedBudgetRepository implements IBudgetRepository {
@@ -50,6 +55,7 @@ export class AuditedBudgetRepository implements IBudgetRepository {
     summary: string,
     before: unknown,
     after: unknown,
+    changes?: FieldChange[],
   ): Promise<void> {
     await this.logger.log({
       timestamp: new Date().toISOString(),
@@ -66,11 +72,68 @@ export class AuditedBudgetRepository implements IBudgetRepository {
     // Relay to external audit system if wired.
     if (this.onAuditEvent) {
       try {
-        this.onAuditEvent({ entityType, action, summary });
+        this.onAuditEvent({ entityType, action, summary, changes });
       } catch {
         // External relay is non-critical — swallow errors.
       }
     }
+  }
+
+  /**
+   * Diff two line-item arrays and return human-readable FieldChange entries
+   * describing added/removed services, selection toggles, and price changes.
+   */
+  private static diffLineItems(
+    before: BudgetLineItem[],
+    after: BudgetLineItem[],
+  ): FieldChange[] {
+    const result: FieldChange[] = [];
+    const beforeMap = new Map(before.map((li) => [li.serviceId, li]));
+    const afterMap = new Map(after.map((li) => [li.serviceId, li]));
+
+    // Removed services
+    before.forEach((li) => {
+      if (!afterMap.has(li.serviceId)) {
+        result.push({
+          field: `service "${li.serviceName || li.serviceId}"`,
+          from: "included",
+          to: "removed",
+        });
+      }
+    });
+
+    // Added or changed services
+    after.forEach((li) => {
+      const old = beforeMap.get(li.serviceId);
+      const label = li.serviceName || String(li.serviceId);
+      if (!old) {
+        result.push({ field: `service "${label}"`, from: "\u2014", to: "added" });
+        return;
+      }
+      if (old.isSelected !== li.isSelected) {
+        result.push({
+          field: `service "${label}"`,
+          from: old.isSelected ? "selected" : "deselected",
+          to: li.isSelected ? "selected" : "deselected",
+        });
+      }
+      if (old.variantId !== li.variantId) {
+        result.push({
+          field: `variant for "${label}"`,
+          from: old.variantName || old.variantId || "\u2014",
+          to: li.variantName || li.variantId || "\u2014",
+        });
+      }
+      if (old.overridePrice !== li.overridePrice) {
+        result.push({
+          field: `price for "${label}"`,
+          from: old.overridePrice !== null ? `$${old.overridePrice}` : "\u2014",
+          to: li.overridePrice !== null ? `$${li.overridePrice}` : "\u2014",
+        });
+      }
+    });
+
+    return result;
   }
 
   // ─── Vendors ────────────────────────────────────────────
@@ -87,14 +150,22 @@ export class AuditedBudgetRepository implements IBudgetRepository {
       ? await this.inner.getVendor(vendor.id)
       : undefined;
     const saved = await this.inner.saveVendor(vendor);
+    const isUpdate = !!before;
+    const changes = isUpdate
+      ? diffChanges(before as unknown as Record<string, unknown>, saved as unknown as Record<string, unknown>)
+      : undefined;
+    const summary = isUpdate
+      ? summariseChanges(`Updated vendor "${saved.name}"`, changes!)
+      : `Created vendor "${saved.name}"`;
     await this.logEntry(
       "vendor",
       saved.id ?? null,
       saved.name,
-      before ? "update" : "create",
-      before ? `Updated vendor "${saved.name}"` : `Created vendor "${saved.name}"`,
+      isUpdate ? "update" : "create",
+      summary,
       before ?? null,
       saved,
+      changes,
     );
     return saved;
   }
@@ -133,14 +204,26 @@ export class AuditedBudgetRepository implements IBudgetRepository {
       ? (await this.inner.getAllServices()).find((s) => s.id === service.id)
       : undefined;
     const saved = await this.inner.saveService(service);
+    const isUpdate = !!before;
+    const changes = isUpdate
+      ? diffChanges(
+          before as unknown as Record<string, unknown>,
+          saved as unknown as Record<string, unknown>,
+          new Set(["variants"]),
+        )
+      : undefined;
+    const summary = isUpdate
+      ? summariseChanges(`Updated service "${saved.name}"`, changes!)
+      : `Created service "${saved.name}"`;
     await this.logEntry(
       "service",
       saved.id ?? null,
       saved.name,
-      before ? "update" : "create",
-      before ? `Updated service "${saved.name}"` : `Created service "${saved.name}"`,
+      isUpdate ? "update" : "create",
+      summary,
       before ?? null,
       saved,
+      changes,
     );
     return saved;
   }
@@ -174,14 +257,22 @@ export class AuditedBudgetRepository implements IBudgetRepository {
       ? (await this.inner.getSuburbs()).find((s) => s.id === suburb.id)
       : undefined;
     const saved = await this.inner.saveSuburb(suburb);
+    const isUpdate = !!before;
+    const changes = isUpdate
+      ? diffChanges(before as unknown as Record<string, unknown>, saved as unknown as Record<string, unknown>)
+      : undefined;
+    const summary = isUpdate
+      ? summariseChanges(`Updated suburb "${saved.name}"`, changes!)
+      : `Created suburb "${saved.name}"`;
     await this.logEntry(
       "suburb",
       saved.id ?? null,
       saved.name,
-      before ? "update" : "create",
-      before ? `Updated suburb "${saved.name}"` : `Created suburb "${saved.name}"`,
+      isUpdate ? "update" : "create",
+      summary,
       before ?? null,
       saved,
+      changes,
     );
     return saved;
   }
@@ -214,14 +305,26 @@ export class AuditedBudgetRepository implements IBudgetRepository {
       ? await this.inner.getSchedule(schedule.id)
       : undefined;
     const saved = await this.inner.saveSchedule(schedule);
+    const isUpdate = !!before;
+    const changes = isUpdate
+      ? diffChanges(
+          before as unknown as Record<string, unknown>,
+          saved as unknown as Record<string, unknown>,
+          new Set(["lineItems"]),
+        )
+      : undefined;
+    const summary = isUpdate
+      ? summariseChanges(`Updated schedule "${saved.name}"`, changes!)
+      : `Created schedule "${saved.name}"`;
     await this.logEntry(
       "schedule",
       saved.id ?? null,
       saved.name,
-      before ? "update" : "create",
-      before ? `Updated schedule "${saved.name}"` : `Created schedule "${saved.name}"`,
+      isUpdate ? "update" : "create",
+      summary,
       before ?? null,
       saved,
+      changes,
     );
     return saved;
   }
@@ -255,19 +358,45 @@ export class AuditedBudgetRepository implements IBudgetRepository {
       : undefined;
     const saved = await this.inner.saveBudget(budget);
 
-    const isStatusChange = before && before.status !== saved.status;
+    const isUpdate = !!before;
+    let changes: FieldChange[] | undefined;
+    if (isUpdate) {
+      // Field-level diff (skip lineItems — handled separately)
+      changes = diffChanges(
+        before as unknown as Record<string, unknown>,
+        saved as unknown as Record<string, unknown>,
+        new Set(["lineItems"]),
+      );
+      // Line item diff (services added/removed, prices, selections)
+      const lineItemChanges = AuditedBudgetRepository.diffLineItems(
+        before!.lineItems ?? [],
+        saved.lineItems ?? [],
+      );
+      changes = [...changes, ...lineItemChanges];
+    }
+
+    const isStatusChange = isUpdate && before!.status !== saved.status;
+    let summary: string;
+    if (isStatusChange) {
+      summary = summariseChanges(
+        `Budget "${saved.propertyAddress}" status ${before!.status} \u2192 ${saved.status}`,
+        (changes ?? []).filter((c) => c.field !== "status"),
+      );
+    } else if (isUpdate) {
+      summary = summariseChanges(`Updated budget "${saved.propertyAddress}"`, changes!);
+    } else {
+      summary = `Created budget for "${saved.propertyAddress}"`;
+    }
+
     await this.logEntry(
       "budget",
       saved.id ?? null,
       saved.propertyAddress,
-      isStatusChange ? "statusChange" : before ? "update" : "create",
-      isStatusChange
-        ? `Status changed from "${before.status}" to "${saved.status}"`
-        : before
-          ? `Updated budget for "${saved.propertyAddress}"`
-          : `Created budget for "${saved.propertyAddress}"`,
+      isStatusChange ? "statusChange" : isUpdate ? "update" : "create",
+      summary,
       before ?? null,
       saved,
+      changes,
     );
     return saved;
   }

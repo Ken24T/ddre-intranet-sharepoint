@@ -42,6 +42,7 @@ export const MarketingBudgetDevView: React.FC<MarketingBudgetDevViewProps> = ({ 
           entityType: event.entityType,
           action: event.action,
           summary: event.summary,
+          changes: event.changes,
         },
       });
     };
