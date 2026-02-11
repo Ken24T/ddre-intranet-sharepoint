@@ -119,7 +119,9 @@ architecture documentation.
 ## Resolved Questions
 
 - **New solution or web part in intranet-core?** →
-  Separate SPFx solution at `spfx/marketing-budget/` (Phase 2 pattern).
+  ~~Separate SPFx solution at `spfx/marketing-budget/`~~ Consolidated into
+  `spfx/intranet-core/src/webparts/marketingBudget/` (single solution, single
+  `npm install`, single build). Dev harness remains at `spfx/marketing-budget/dev/`.
 - **Which data sets as seed data?** →
   2 vendors, 15 services (6 categories), 10 suburbs (4 tiers),
   3 schedule templates.
@@ -155,7 +157,7 @@ architecture documentation.
 | mb-v0.2.0 | Role-based CRUD, context menus on all reference data views | `app/marketing-budgets` |
 | v0.6.0 | Integrated dev harness into intranet-core shell (Vite, dexie alias) | `app/marketing-budgets` |
 
-### Phase 2 Status: 🟡 Planning
+### Phase 2 Status: 🟡 In Progress
 
 The repository pattern (`IBudgetRepository` → `DexieBudgetRepository`) was designed from the
 start to support a seamless backend swap. Phase 2 builds on this foundation.
@@ -164,20 +166,38 @@ start to support a seamless backend swap. Phase 2 builds on this foundation.
 
 Move from IndexedDB to SharePoint Lists for multi-user, persistent storage.
 
-- [ ] **SPListBudgetRepository** — Implement `IBudgetRepository` against SharePoint Lists using `@pnp/sp`.
-  - [ ] Design list schemas: Vendors, Services, ServiceVariants, Suburbs, Schedules, ScheduleLineItems, Budgets, BudgetLineItems.
-  - [ ] Map repository CRUD methods to SharePoint REST/batch operations.
-  - [ ] Handle list item limits (threshold-safe queries, indexed columns).
+- [x] **SPListBudgetRepository** — Implement `IBudgetRepository`
+  against SharePoint Lists using `@pnp/sp` v4 (PnPjs).
+  - [x] Design list schemas: MB_Vendors, MB_Services,
+    MB_Suburbs, MB_Schedules, MB_Budgets (5 lists, complex
+    arrays stored as JSON in multi-line text fields).
+  - [x] Map repository CRUD methods to SharePoint REST/batch
+    operations (22 methods: full CRUD + bulk + import/export).
+  - [x] Handle list item limits (threshold-safe queries via
+    PnPjs v4 invokable collections, batched deletes in groups of 100).
   - [ ] Provisioning script or PnP template for list creation.
-- [ ] **Entra ID role resolution** — Replace the dev harness
+
+- [x] **Entra ID role resolution** — Replace the dev harness
   `userRole` prop with runtime resolution from SharePoint group
-  membership (e.g. "Marketing Budget Admins",
+  membership ("Marketing Budget Admins",
   "Marketing Budget Editors").
-- [ ] **Repository factory** — Auto-select
+
+- [x] **Repository factory** — Auto-select
   `DexieBudgetRepository` (dev/workbench) or
   `SPListBudgetRepository` (production) based on context.
-- [ ] **Data migration** — One-time seed of SharePoint Lists from current `seedData.ts` reference data.
+
+- [x] **Data migration** — `seedData()` and `importAll()` methods
+  with ID remapping for cross-entity references (vendorId,
+  serviceId) and name-based import resolution.
+
 - [ ] **Offline fallback** (stretch) — Read-through cache in IndexedDB for offline viewing.
+
+New files: `listSchemas.ts`, `SPListBudgetRepository.ts`,
+`RepositoryFactory.ts`, `RoleResolver.ts` (all under
+`intranet-core/src/webparts/marketingBudget/services/`).
+Modified: `services/index.ts`, `MarketingBudgetWebPart.ts`,
+`intranet-core/package.json` (+`@pnp/sp@^4.17.0`, `dexie@^4.0.0`),
+`intranet-core/config/config.json` (new bundle entry).
 
 Deliverables: `SPListBudgetRepository`, group-based permissions, list provisioning, zero-downtime repository swap.
 
@@ -253,8 +273,8 @@ Deliverables: PropertyMe auto-fill, audit log, templates, shell notifications, s
 
 ### Phase 2 Milestones
 
-1. ⬜ SharePoint List backend operational (2A).
-2. ⬜ Entra ID group-based roles live (2A).
+1. 🟢 SharePoint List backend operational (2A) — core implementation complete, list provisioning remaining.
+2. 🟢 Entra ID group-based roles live (2A) — `RoleResolver` implemented.
 3. ⬜ Validation and bulk operations shipped (2B).
 4. ⬜ Reference data edit panels complete (2B).
 5. ⬜ Dashboard and export features live (2C).

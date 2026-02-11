@@ -6,9 +6,9 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@components': path.resolve(__dirname, '../src/webparts/marketingBudget/components'),
-      '@models': path.resolve(__dirname, '../src/models'),
-      '@services': path.resolve(__dirname, '../src/services'),
+      '@components': path.resolve(__dirname, '../../intranet-core/src/webparts/marketingBudget/components'),
+      '@models': path.resolve(__dirname, '../../intranet-core/src/webparts/marketingBudget/models'),
+      '@services': path.resolve(__dirname, '../../intranet-core/src/webparts/marketingBudget/services'),
       // Force bare imports from parent ../src/ files to resolve from dev harness node_modules
       // (parent node_modules may be incomplete when only the dev harness is installed)
       'dexie': path.resolve(__dirname, 'node_modules/dexie'),

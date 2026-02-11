@@ -1,0 +1,24 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "d7e5a3b1-9c4f-4e8d-b2a6-3f1c7d8e9a5b",
+  "alias": "MarketingBudgetWebPart",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "supportedHosts": [
+    "SharePointWebPart",
+    "TeamsPersonalApp",
+    "SharePointFullPage"
+  ],
+  "preconfiguredEntries": [
+    {
+      "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+      "group": { "default": "DDRE" },
+      "title": { "default": "Marketing Budget" },
+      "description": { "default": "Track and manage property marketing budgets" },
+      "officeFabricIconFontName": "Financial",
+      "properties": {}
+    }
+  ]
+}

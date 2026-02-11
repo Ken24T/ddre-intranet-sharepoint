@@ -724,7 +724,7 @@ AI-powered document library search using Dante AI.
 
 ### app-marketing-budget
 
-> **Status:** 🟢 Phase 1 Complete · Phase 2 Planning
+> **Status:** 🟢 Phase 1 Complete · 🟡 Phase 2A In Progress
 >
 > **Hub:** Administration
 
@@ -733,18 +733,26 @@ Marketing budget tracking and reporting for sales & marketing teams.
 **Phase 1 — SPFx Port (Complete):**
 
 - [x] Define requirements in `apps/app-marketing-budget/`
-- [x] Create SPFx solution `spfx/marketing-budget/`
+- [x] ~~Create SPFx solution `spfx/marketing-budget/`~~ Consolidated into `spfx/intranet-core/`
 - [x] Design data model (IndexedDB via Dexie 4.x, repository pattern)
 - [x] Implement budget dashboard component (5 views: budgets, schedules, services, vendors, suburbs)
 - [x] Implement budget entry/edit forms (editor panel, line item editor, property form)
 - [x] Role-based CRUD (viewer/editor/admin) with context menus on all views
 - [x] Shell integration (PostMessage sidebar bridge, dev harness in intranet-core v0.6.0)
-- [x] Quality gates (130 tests, 88% line coverage, zero lint warnings)
+- [x] Quality gates (268 tests combined, zero lint warnings)
 
-**Phase 2 — Enhancement & Production Readiness (Planned):**
+**Phase 2A — SharePoint Integration (In Progress):**
 
-- [ ] SharePoint List backend (`SPListBudgetRepository` replacing IndexedDB)
-- [ ] Entra ID group-based role resolution
+- [x] SPListBudgetRepository (22 methods, PnPjs v4, 5 SP Lists)
+- [x] Entra ID group-based role resolution (RoleResolver)
+- [x] Repository factory (auto-select Dexie or SP backend)
+- [x] Data migration (seedData with ID remapping, importAll with name-based matching)
+- [x] Consolidate into intranet-core (single SPFx solution, single npm install, single build)
+- [ ] List provisioning script or PnP template
+- [ ] Offline fallback (stretch)
+
+**Phase 2B–D — Enhancement & Production Readiness (Planned):**
+
 - [ ] Budget validation and bulk status transitions
 - [ ] Reference data edit panels (vendors, services, suburbs, schedules)
 - [ ] Dashboard view (spend by category, status breakdown, tier analysis)
