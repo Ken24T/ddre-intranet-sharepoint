@@ -770,7 +770,7 @@ Marketing budget tracking and reporting for sales & marketing teams.
 - [ ] Print/PDF and CSV export
 - [ ] PropertyMe API integration for property auto-fill
 - [x] Audit trail (budget-specific + unified shell audit + hover flyout + field-level change tracking)
-- [ ] Budget templates
+- [x] Budget templates (BudgetTemplate types, Dexie DB v3, IBudgetTemplateService + DexieBudgetTemplateService, SaveTemplateDialog, TemplatePickerDialog)
 - [x] Drag-and-drop line item reordering (@dnd-kit/sortable, SortableLineItem)
 - [ ] Shared appBridge package extraction
 

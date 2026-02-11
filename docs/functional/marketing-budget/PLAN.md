@@ -271,9 +271,10 @@ Connect to the wider DDRE ecosystem and add power-user capabilities.
   `{ user, action, timestamp, before, after }` on every budget
   and reference data change. Display as a timeline in the editor
   panel.
-- [ ] **Budget templates** — Save a budget configuration
+- [x] **Budget templates** — Save a budget configuration
   (schedule + overrides) as a reusable template for common
-  property types.
+  property types. BudgetTemplate types, Dexie DB v3, IBudgetTemplateService,
+  SaveTemplateDialog, TemplatePickerDialog, wired through component tree.
 - [ ] **Notifications** — Surface budgets awaiting approval in
   the intranet shell status bar or Jasper prompts.
 - [ ] **Shared appBridge package** — Extract the PostMessage
