@@ -137,21 +137,23 @@ const saveToStorage = <T,>(key: string, value: T): void => {
 };
 
 /**
- * Hub keys that require admin access
- */
-const ADMIN_ONLY_HUBS = ['administration'];
-
-/**
- * Filter favourites to only include cards from hubs the user can access
+ * Filter favourites to only include cards from hubs the user can access.
+ * When visibleHubs is provided (SP context), uses group-based filtering.
+ * Falls back to the legacy isAdmin check for dev mode.
  */
 const filterFavouritesByAccess = (
   favourites: IFavouriteCard[],
-  isAdmin: boolean
+  isAdmin: boolean,
+  visibleHubs?: string[],
 ): IFavouriteCard[] => {
   if (isAdmin) {
     return favourites;
   }
-  return favourites.filter((fav) => ADMIN_ONLY_HUBS.indexOf(fav.sourceHubKey) === -1);
+  if (visibleHubs) {
+    return favourites.filter((fav) => visibleHubs.indexOf(fav.sourceHubKey) !== -1);
+  }
+  // Legacy fallback: hide administration hub cards for non-admins
+  return favourites.filter((fav) => fav.sourceHubKey !== 'administration');
 };
 
 // =============================================================================
@@ -372,7 +374,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       
       // If switching to non-admin while on Favourites hub, check if any favourites remain accessible
       if (!newIsAdmin && prevState.activeHubKey === 'favourites') {
-        const accessibleFavs = filterFavouritesByAccess(prevState.favourites, newIsAdmin);
+        const accessibleFavs = filterFavouritesByAccess(prevState.favourites, newIsAdmin, this.props.visibleHubs);
         if (accessibleFavs.length === 0) {
           newActiveHub = 'home';
         }
@@ -827,7 +829,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     } = this.state;
 
     // Filter favourites by role-based hub access (e.g., hide admin cards for non-admins)
-    const accessibleFavourites = filterFavouritesByAccess(favourites, isAdminMode);
+    const accessibleFavourites = filterFavouritesByAccess(favourites, isAdminMode, this.props.visibleHubs);
 
     // Get cards for current hub
     const hubCards = activeHubKey === 'favourites'
@@ -982,6 +984,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           activeHubKey={activeHubKey}
           hasFavourites={accessibleFavourites.length > 0}
           isAdmin={isAdminMode}
+          visibleHubs={this.props.visibleHubs}
           hasUnreadReleases={this.state.hasUnreadReleases}
           appNavItems={this.state.appSidebarItems}
           appActiveKey={this.state.appActiveKey}

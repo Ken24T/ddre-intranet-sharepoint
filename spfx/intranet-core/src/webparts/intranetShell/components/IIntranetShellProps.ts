@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { IAuditEventMessage } from './appBridge';
+import type { HubKey } from './services/ShellGroupResolver';
 
 /**
  * Props for the IntranetShell component.
@@ -16,8 +17,10 @@ export interface IIntranetShellProps {
   siteUrl?: string;
   /** App version string */
   appVersion: string;
-  /** Optional: User is admin (can hide cards for all users) */
+  /** Optional: User is admin (member of DDRE-Admins group) */
   isAdmin?: boolean;
+  /** Hub keys the user is allowed to see (resolved from SP group membership) */
+  visibleHubs?: HubKey[];
   /** Optional: Dark theme flag (for future theme support) */
   isDarkTheme?: boolean;
   /** Optional: Teams context flag */
