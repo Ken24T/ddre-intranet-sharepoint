@@ -36,6 +36,9 @@ import { openMockHelpWindow } from './utils/helpMock';
 import type { IAppNavItem } from './appBridge';
 import { isAppToShellMessage } from './appBridge';
 import type { IAppNotificationItem } from './appBridge';
+import { GroupSimulatorPanel, getSimulatedMBRole } from './GroupSimulator/GroupSimulatorPanel';
+import type { HubKey } from './services/ShellGroupResolver';
+import { SIDEBAR_HUB_KEYS } from './services/ShellGroupResolver';
 
 // Local storage key for AI Assistant hidden state (mocked global setting)
 const LOCAL_KEY_AI_HIDDEN = 'ddre-intranet-global-aiAssistantHidden';
@@ -90,6 +93,14 @@ export interface IIntranetShellState {
   appActiveKey?: string;
   /** Notifications pushed by embedded apps via NOTIFICATION_UPDATE messages. */
   appNotifications: Notification[];
+  /** Group Simulator panel open state (dev only) */
+  isGroupSimulatorOpen: boolean;
+  /**
+   * Simulated SP groups for dev testing.
+   * undefined = no simulation (use real SP groups from props).
+   * string[] = active simulation (even empty array means "user in zero groups").
+   */
+  simulatedGroups: string[] | undefined;
 }
 
 /**
@@ -270,6 +281,8 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       appSidebarItems: undefined,
       appActiveKey: undefined,
       appNotifications: [],
+      isGroupSimulatorOpen: false,
+      simulatedGroups: undefined,
     };
   }
 
@@ -280,6 +293,9 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
 
     // Listen for postMessage from embedded app iframes (sidebar bridge)
     window.addEventListener('message', this.handleAppMessage);
+
+    // Keyboard shortcut: Ctrl+Shift+G opens Group Simulator
+    window.addEventListener('keydown', this.handleKeyDown);
   }
 
   public componentWillUnmount(): void {
@@ -287,6 +303,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       this.systemThemeMediaQuery.removeEventListener('change', this.handleSystemThemeChange);
     }
     window.removeEventListener('message', this.handleAppMessage);
+    window.removeEventListener('keydown', this.handleKeyDown);
   }
 
   /** Handle postMessage from embedded app iframes. */
@@ -359,6 +376,110 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       return { isSidebarCollapsed: newCollapsed };
     });
   };
+
+  // ─── Keyboard shortcut: Ctrl+Shift+G → Group Simulator ────────
+  private handleKeyDown = (e: KeyboardEvent): void => {
+    if (e.ctrlKey && e.shiftKey && (e.key === 'G' || e.key === 'g')) {
+      e.preventDefault();
+      this.setState((prev) => ({
+        isGroupSimulatorOpen: !prev.isGroupSimulatorOpen,
+      }));
+    }
+  };
+
+  // ─── Group Simulator handlers ─────────────────────────────────
+  private handleOpenGroupSimulator = (): void => {
+    this.setState((prev) => ({
+      isGroupSimulatorOpen: true,
+      // Activate simulation if not already active
+      simulatedGroups: prev.simulatedGroups !== undefined ? prev.simulatedGroups : [],
+    }));
+  };
+
+  private handleCloseGroupSimulator = (): void => {
+    this.setState({ isGroupSimulatorOpen: false });
+  };
+
+  private handleResetGroupSimulator = (): void => {
+    this.setState({
+      isGroupSimulatorOpen: false,
+      simulatedGroups: undefined,
+    });
+  };
+
+  private handleSimulatedGroupsChange = (groups: string[]): void => {
+    this.setState((prevState) => {
+      // Redirect to Home if current hub becomes invisible
+      const newState: Partial<IIntranetShellState> = { simulatedGroups: groups };
+      const isAdmin = groups.indexOf('DDRE-Admins') !== -1;
+      if (!isAdmin && prevState.activeHubKey === 'administration') {
+        newState.activeHubKey = 'home';
+      }
+      return newState as IIntranetShellState;
+    });
+  };
+
+  /**
+   * Compute effective admin state and visible hubs.
+   * When simulation is active, derives everything from simulated groups.
+   * When inactive, falls back to props (real SP group resolution).
+   */
+  private getEffectiveAccess(): {
+    isAdmin: boolean;
+    visibleHubs: HubKey[] | undefined;
+    simulationLabel: string | undefined;
+  } {
+    const { simulatedGroups } = this.state;
+
+    // No simulation — use real SP‐resolved values from props
+    if (simulatedGroups === undefined) {
+      return {
+        isAdmin: this.props.isAdmin ?? false,
+        visibleHubs: this.props.visibleHubs,
+        simulationLabel: undefined,
+      };
+    }
+
+    // Simulation active — compute from selected groups
+    const isAdmin = simulatedGroups.indexOf('DDRE-Admins') !== -1;
+
+    if (isAdmin) {
+      return {
+        isAdmin: true,
+        visibleHubs: [...SIDEBAR_HUB_KEYS, 'favourites', 'help'],
+        simulationLabel: 'Admin',
+      };
+    }
+
+    // Build visible hubs from group membership
+    const HUB_GROUP_MAP: Record<string, HubKey> = {
+      'DDRE-Sales': 'sales',
+      'DDRE-PropertyManagement': 'property-management',
+      'DDRE-Office': 'office',
+    };
+    const DEFAULT_OPEN: HubKey[] = ['home', 'library'];
+
+    const visible: HubKey[] = [...DEFAULT_OPEN];
+    const labels: string[] = [];
+    const groupNames = Object.keys(HUB_GROUP_MAP);
+    for (let i = 0; i < groupNames.length; i++) {
+      const g = groupNames[i];
+      if (simulatedGroups.indexOf(g) !== -1) {
+        visible.push(HUB_GROUP_MAP[g]);
+        labels.push(g.replace('DDRE-', ''));
+      }
+    }
+    visible.push('favourites', 'help');
+
+    // Build label: e.g. "Sales+Office" or "No groups"
+    const mbRole = getSimulatedMBRole(simulatedGroups);
+    if (mbRole !== 'viewer') {
+      labels.push('MB:' + mbRole);
+    }
+    const simulationLabel = labels.length > 0 ? labels.join('+') : 'No groups';
+
+    return { isAdmin: false, visibleHubs: visible, simulationLabel };
+  }
 
   private handleToggleAdmin = (): void => {
     this.setState((prevState) => {
@@ -815,7 +936,6 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       activeHubKey,
       pinnedCardIds,
       hiddenCardIds,
-      isAdminMode,
       cardOrder,
       cardOpenBehavior,
       themeMode,
@@ -828,8 +948,15 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
       isTasksPanelOpen,
     } = this.state;
 
+    // Compute effective access (simulation overrides real SP groups)
+    const effective = this.getEffectiveAccess();
+    const isAdminMode = this.state.simulatedGroups !== undefined
+      ? effective.isAdmin
+      : this.state.isAdminMode;
+    const effectiveVisibleHubs = effective.visibleHubs;
+
     // Filter favourites by role-based hub access (e.g., hide admin cards for non-admins)
-    const accessibleFavourites = filterFavouritesByAccess(favourites, isAdminMode, this.props.visibleHubs);
+    const accessibleFavourites = filterFavouritesByAccess(favourites, isAdminMode, effectiveVisibleHubs);
 
     // Get cards for current hub
     const hubCards = activeHubKey === 'favourites'
@@ -964,7 +1091,6 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           onSearchResultSelect={this.handleSearchResultSelect}
           onOpenHelp={this.handleOpenHelp}
           isAdmin={isAdminMode}
-          onToggleAdmin={this.handleToggleAdmin}
           isAiAssistantHidden={isAiAssistantHidden}
           onShowAiAssistant={this.handleShowAiAssistant}
           onHideAiAssistant={this.handleHideAiAssistant}
@@ -984,7 +1110,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           activeHubKey={activeHubKey}
           hasFavourites={accessibleFavourites.length > 0}
           isAdmin={isAdminMode}
-          visibleHubs={this.props.visibleHubs}
+          visibleHubs={effectiveVisibleHubs}
           hasUnreadReleases={this.state.hasUnreadReleases}
           appNavItems={this.state.appSidebarItems}
           appActiveKey={this.state.appActiveKey}
@@ -1201,6 +1327,15 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
           isUnavailable={!this.state.isJasperAvailable}
           onHide={this.handleHideAiAssistant}
           accentColor={aiAccentColor}
+        />
+
+        {/* Group Simulator (dev only — Ctrl+Shift+G) */}
+        <GroupSimulatorPanel
+          isOpen={this.state.isGroupSimulatorOpen}
+          onDismiss={this.handleCloseGroupSimulator}
+          selectedGroups={this.state.simulatedGroups || []}
+          onGroupsChange={this.handleSimulatedGroupsChange}
+          onReset={this.handleResetGroupSimulator}
         />
         </div>
       </ThemeProvider>
