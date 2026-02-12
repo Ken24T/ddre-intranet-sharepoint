@@ -103,7 +103,7 @@ describe('useBudgetNotifications', () => {
           }),
         ]),
       }),
-      '*',
+      window.location.origin,
     );
   });
 
@@ -120,7 +120,7 @@ describe('useBudgetNotifications', () => {
         source: 'budget',
         notifications: [],
       }),
-      '*',
+      window.location.origin,
     );
   });
 
@@ -176,7 +176,7 @@ describe('useBudgetNotifications', () => {
         source: 'budget',
         notifications: [],
       }),
-      '*',
+      window.location.origin,
     );
   });
 

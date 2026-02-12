@@ -186,7 +186,7 @@ describe("MarketingBudget component", () => {
 
   it("auto-seeds when the database is empty", async () => {
     const repo = createMockRepository({ preSeeded: false });
-    render(<MarketingBudget {...defaultProps} repository={repo} />);
+    render(<MarketingBudget {...defaultProps} userRole="admin" repository={repo} />);
 
     await waitFor(() => {
       expect(repo.seedData).toHaveBeenCalledTimes(1);
@@ -199,6 +199,17 @@ describe("MarketingBudget component", () => {
 
     await waitFor(() => {
       expect(screen.getByText("2 vendors")).toBeInTheDocument();
+    });
+    expect(repo.seedData).not.toHaveBeenCalled();
+  });
+
+  it("does not auto-seed for viewer role even when database is empty", async () => {
+    const repo = createMockRepository({ preSeeded: false });
+    render(<MarketingBudget {...defaultProps} userRole="viewer" repository={repo} />);
+
+    // Viewer sees the "No reference data found" placeholder but seed is NOT triggered
+    await waitFor(() => {
+      expect(screen.getByText(/No reference data found/)).toBeInTheDocument();
     });
     expect(repo.seedData).not.toHaveBeenCalled();
   });
@@ -218,7 +229,7 @@ describe("MarketingBudget component", () => {
 
   it("shows seed complete notification after auto-seed", async () => {
     const repo = createMockRepository({ preSeeded: false });
-    render(<MarketingBudget {...defaultProps} repository={repo} />);
+    render(<MarketingBudget {...defaultProps} userRole="admin" repository={repo} />);
 
     await waitFor(() => {
       expect(screen.getByText(/Reference data seeded/)).toBeInTheDocument();
@@ -460,7 +471,7 @@ describe("MarketingBudget component", () => {
             ]),
             activeKey: "dashboard",
           }),
-          "*",
+          window.location.origin,
         );
       });
 

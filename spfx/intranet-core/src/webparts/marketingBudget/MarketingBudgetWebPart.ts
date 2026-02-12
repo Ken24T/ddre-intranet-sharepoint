@@ -13,12 +13,15 @@ import MarketingBudget from "./components/MarketingBudget";
 import type { IMarketingBudgetProps } from "./components/IMarketingBudgetProps";
 import type { IBudgetRepository } from "./services/IBudgetRepository";
 import type { IBudgetAuditLogger } from "./services/IAuditLogger";
+import type { IBudgetTemplateService } from "./services/IBudgetTemplateService";
 import type { BudgetAuditEvent } from "./services/AuditedBudgetRepository";
 import type { IAuditEventMessage } from "../intranetShell/components/appBridge";
 import { getSPFI, createRepository } from "./services/RepositoryFactory";
 import { resolveUserRole } from "./services/RoleResolver";
 import { DexieAuditLogger } from "./services/DexieAuditLogger";
 import { DexieBudgetTemplateService } from "./services/DexieBudgetTemplateService";
+import { SPListAuditLogger } from "./services/SPListAuditLogger";
+import { SPListBudgetTemplateService } from "./services/SPListBudgetTemplateService";
 import { AuditedBudgetRepository } from "./services/AuditedBudgetRepository";
 import type { UserRole } from "./models/permissions";
 
@@ -30,7 +33,7 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
   private _isDarkTheme: boolean = false;
   private _repository!: IBudgetRepository;
   private _auditLogger!: IBudgetAuditLogger;
-  private _templateService = new DexieBudgetTemplateService();
+  private _templateService!: IBudgetTemplateService;
   private _userRole: UserRole = 'viewer';
 
   protected async onInit(): Promise<void> {
@@ -40,7 +43,16 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
     // Falls back to DexieBudgetRepository if context is unavailable.
     const sp = getSPFI(this.context);
     const baseRepo = createRepository(sp);
-    this._auditLogger = new DexieAuditLogger();
+
+    // Use SP-backed services in SharePoint, Dexie in dev harness.
+    if (sp) {
+      this._auditLogger = new SPListAuditLogger(sp);
+      this._templateService = new SPListBudgetTemplateService(sp);
+    } else {
+      this._auditLogger = new DexieAuditLogger();
+      this._templateService = new DexieBudgetTemplateService();
+    }
+
     this._repository = new AuditedBudgetRepository(
       baseRepo,
       this._auditLogger,

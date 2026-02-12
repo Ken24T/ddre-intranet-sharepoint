@@ -80,6 +80,27 @@ const BUDGET_FIELDS: FieldDef[] = [
   { name: 'Status', type: 'text' },
 ];
 
+const TEMPLATE_FIELDS: FieldDef[] = [
+  { name: 'Description0', type: 'note' },
+  { name: 'PropertyType', type: 'text' },
+  { name: 'PropertySize', type: 'text' },
+  { name: 'Tier', type: 'text' },
+  { name: 'SourceScheduleId', type: 'number' },
+  { name: 'LineItems', type: 'note' },
+];
+
+const AUDIT_LOG_FIELDS: FieldDef[] = [
+  { name: 'Timestamp0', type: 'text' },
+  { name: 'User0', type: 'text' },
+  { name: 'EntityType', type: 'text' },
+  { name: 'EntityId', type: 'number' },
+  { name: 'EntityLabel', type: 'text' },
+  { name: 'Action0', type: 'text' },
+  { name: 'Summary', type: 'note' },
+  { name: 'Before0', type: 'note' },
+  { name: 'After0', type: 'note' },
+];
+
 // ─────────────────────────────────────────────────────────────
 // Field creation helper
 // ─────────────────────────────────────────────────────────────
@@ -147,9 +168,9 @@ async function ensureListWithFields(
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Ensure all five Marketing Budget SharePoint lists exist with
- * the correct custom columns. Safe to call repeatedly — existing
- * lists and fields are silently skipped.
+ * Ensure all Marketing Budget SharePoint lists exist with the correct
+ * custom columns. Safe to call repeatedly — existing lists and fields
+ * are silently skipped.
  */
 export async function ensureMarketingBudgetLists(
   sp: SPFI,
@@ -159,4 +180,6 @@ export async function ensureMarketingBudgetLists(
   await ensureListWithFields(sp, SP_LISTS.suburbs, SUBURB_FIELDS);
   await ensureListWithFields(sp, SP_LISTS.schedules, SCHEDULE_FIELDS);
   await ensureListWithFields(sp, SP_LISTS.budgets, BUDGET_FIELDS);
+  await ensureListWithFields(sp, 'MB_Templates', TEMPLATE_FIELDS);
+  await ensureListWithFields(sp, 'MB_AuditLog', AUDIT_LOG_FIELDS);
 }

@@ -132,9 +132,10 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     }
   }, [repository, loadCounts]);
 
-  // Auto-seed on first load if the database is empty
+  // Auto-seed on first load if the database is empty (admin/editor only)
   React.useEffect(() => {
     let cancelled = false;
+    const canSeed = userRole === 'admin' || userRole === 'editor';
 
     const init = async (): Promise<void> => {
       try {
@@ -142,7 +143,9 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
         if (cancelled) return;
 
         // Auto-seed when the database has no reference data at all
+        // Only admin/editor roles are allowed to write seed data
         if (
+          canSeed &&
           loaded.vendors === 0 &&
           loaded.services === 0 &&
           loaded.suburbs === 0
@@ -173,7 +176,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     return (): void => {
       cancelled = true;
     };
-  }, [repository, loadCounts]);
+  }, [repository, loadCounts, userRole]);
 
   const hasData = counts !== null && counts.services > 0;
 

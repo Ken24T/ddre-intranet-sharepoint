@@ -48,9 +48,9 @@ function postNotifications(items: IAppNotificationItem[]): void {
   // Post to parent window (iframe scenario) and own window (inline scenario).
   // The shell's handleAppMessage listener picks it up from either.
   if (window.parent !== window) {
-    window.parent.postMessage(message, '*');
+    window.parent.postMessage(message, window.location.origin);
   }
-  window.postMessage(message, '*');
+  window.postMessage(message, window.location.origin);
 }
 
 /**
