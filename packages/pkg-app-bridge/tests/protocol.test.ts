@@ -1,3 +1,5 @@
+/// <reference types="jest" />
+
 /**
  * Unit tests for @ddre/pkg-app-bridge protocol types and type guards.
  */

@@ -34,11 +34,18 @@ npm run test:e2e
 
 ### Runtime Environment Detection
 
-SPFx web parts can detect their environment at runtime via `this.context.pageContext.web.absoluteUrl` and match against known site collection paths (e.g. `/sites/dev-intranet`, `/sites/test-intranet`).
+SPFx web parts detect their environment at runtime via
+`this.context.pageContext.web.absoluteUrl` and match against known
+site collection paths (e.g. `/sites/dev-intranet`,
+`/sites/test-intranet`).
 
 ## Updating Tenant URLs
 
-When your actual tenant is provisioned, update the placeholder values in each JSON file. The domain naming pattern will depend on your Microsoft 365 tenant configuration.
+When your actual tenant is provisioned, update the placeholder
+values in each JSON file.
 
 **Current pattern:**
-- Single tenant: `disher.sharepoint.com` with separate site collections (`/sites/dev-intranet`, `/sites/test-intranet`, `/sites/intranet`)
+
+- Single tenant: `disher.sharepoint.com` with separate site
+  collections (`/sites/dev-intranet`, `/sites/test-intranet`,
+  `/sites/intranet`)
