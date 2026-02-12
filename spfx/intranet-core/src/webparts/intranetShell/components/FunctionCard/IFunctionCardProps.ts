@@ -55,6 +55,12 @@ export interface IFunctionCard {
   hubKey: string;
   /** URL to navigate to (SharePoint page or external) */
   url?: string;
+  /**
+   * Site-relative page path (e.g. 'SitePages/marketing-budgets.aspx').
+   * Resolved at runtime by prepending the current site URL.
+   * Takes precedence over `url` when `siteUrl` is available.
+   */
+  sitePagePath?: string;
   /** URL to help article for this card */
   helpUrl?: string;
   /** Preferred open behavior for this card (admin-configurable) */

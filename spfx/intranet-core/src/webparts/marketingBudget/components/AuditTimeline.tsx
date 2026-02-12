@@ -15,14 +15,14 @@ import {
   SpinnerSize,
   Text,
 } from "@fluentui/react";
-import type { IAuditLogger } from "../services/IAuditLogger";
+import type { IBudgetAuditLogger } from "../services/IAuditLogger";
 import type { AuditEntry, AuditAction, AuditEntityType } from "../models/auditTypes";
 import styles from "./MarketingBudget.module.scss";
 
 // ─── Props ──────────────────────────────────────────────────
 
 export interface IAuditTimelineProps {
-  auditLogger: IAuditLogger;
+  auditLogger: IBudgetAuditLogger;
   entityType: AuditEntityType;
   entityId: number;
 }

@@ -2,8 +2,8 @@
   "$schema": "./environment.schema.json",
   "name": "test",
   "displayName": "Test",
-  "tenantDomain": "ddretest.sharepoint.com",
-  "siteUrl": "https://ddretest.sharepoint.com/sites/intranet",
-  "workbenchUrl": "https://ddretest.sharepoint.com/_layouts/workbench.aspx",
-  "apiProxyBaseUrl": "https://api-test.dougdisher.com.au"
+  "tenantDomain": "disher.sharepoint.com",
+  "siteUrl": "https://disher.sharepoint.com/sites/test-intranet",
+  "workbenchUrl": "https://disher.sharepoint.com/_layouts/workbench.aspx",
+  "apiProxyBaseUrl": "https://api-test.disher.com.au"
 }

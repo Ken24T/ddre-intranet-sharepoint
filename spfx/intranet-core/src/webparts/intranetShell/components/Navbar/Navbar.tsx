@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Icon, Toggle } from '@fluentui/react';
+import { Icon } from '@fluentui/react';
 import { UserProfileMenu, ThemeMode } from '../UserProfileMenu';
 import { SearchBox, ISearchResult } from '../SearchBox';
 import { TasksNavButton } from '../tasks/widgets/TasksNavButton';
@@ -31,8 +31,6 @@ export interface INavbarProps {
   onOpenHelp?: () => void;
   /** Dev mode: current admin state */
   isAdmin?: boolean;
-  /** Dev mode: toggle admin rights */
-  onToggleAdmin?: () => void;
   /** Whether AI Assistant is hidden */
   isAiAssistantHidden?: boolean;
   /** Called when user wants to show AI Assistant */
@@ -82,7 +80,6 @@ export const Navbar: React.FC<INavbarProps> = ({
   onSearchResultSelect,
   onOpenHelp,
   isAdmin = false,
-  onToggleAdmin,
   isAiAssistantHidden = false,
   onShowAiAssistant,
   onHideAiAssistant,
@@ -135,33 +132,6 @@ export const Navbar: React.FC<INavbarProps> = ({
         themeVars={searchThemeVars}
         isAdmin={isAdmin}
       />
-
-      {/* ⚠️ DEV ONLY - Admin/User toggle for testing permission-based UI.
-          This MUST NEVER appear in Test or Prod SPFx builds.
-          
-          SAFETY: This toggle only renders when onToggleAdmin prop is provided.
-          - Vite dev server (dev/src/App.tsx) passes onToggleAdmin → renders
-          - SPFx web part (IntranetShellWebPart.ts) does NOT pass it → never renders
-          
-          The /dev/ folder is completely separate from SPFx bundling and is not
-          included in the .sppkg package. */}
-      {onToggleAdmin && (
-        <div style={{ display: 'flex', alignItems: 'center', marginLeft: 16, gap: 8 }}>
-          <Toggle
-            checked={isAdmin}
-            onChange={onToggleAdmin}
-            onText="Admin"
-            offText="User"
-            styles={{
-              root: { marginBottom: 0 },
-              label: { color: 'white', fontSize: 12 },
-              pill: { 
-                background: 'rgba(255,255,255,0.3)',
-              },
-            }}
-          />
-        </div>
-      )}
 
       <div className={styles.navbarActions}>
         {/* Tasks button */}

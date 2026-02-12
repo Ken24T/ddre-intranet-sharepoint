@@ -58,10 +58,10 @@ export function useShellBridge(
     (msg: AppToShellMessage): void => {
       if (!isActive) return;
       if (isIframe && window.parent) {
-        window.parent.postMessage(msg, "*");
+        window.parent.postMessage(msg, window.location.origin);
       } else {
         // Inline mode: post to same window (shell listens on window)
-        window.postMessage(msg, "*");
+        window.postMessage(msg, window.location.origin);
       }
     },
     [isActive, isIframe],

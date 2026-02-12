@@ -12,10 +12,16 @@ import * as strings from "MarketingBudgetWebPartStrings";
 import MarketingBudget from "./components/MarketingBudget";
 import type { IMarketingBudgetProps } from "./components/IMarketingBudgetProps";
 import type { IBudgetRepository } from "./services/IBudgetRepository";
-import type { IAuditLogger } from "./services/IAuditLogger";
+import type { IBudgetAuditLogger } from "./services/IAuditLogger";
+import type { IBudgetTemplateService } from "./services/IBudgetTemplateService";
+import type { BudgetAuditEvent } from "./services/AuditedBudgetRepository";
+import type { IAuditEventMessage } from "../intranetShell/components/appBridge";
 import { getSPFI, createRepository } from "./services/RepositoryFactory";
 import { resolveUserRole } from "./services/RoleResolver";
 import { DexieAuditLogger } from "./services/DexieAuditLogger";
+import { DexieBudgetTemplateService } from "./services/DexieBudgetTemplateService";
+import { SPListAuditLogger } from "./services/SPListAuditLogger";
+import { SPListBudgetTemplateService } from "./services/SPListBudgetTemplateService";
 import { AuditedBudgetRepository } from "./services/AuditedBudgetRepository";
 import type { UserRole } from "./models/permissions";
 
@@ -26,7 +32,8 @@ export interface IMarketingBudgetWebPartProps {
 export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarketingBudgetWebPartProps> {
   private _isDarkTheme: boolean = false;
   private _repository!: IBudgetRepository;
-  private _auditLogger!: IAuditLogger;
+  private _auditLogger!: IBudgetAuditLogger;
+  private _templateService!: IBudgetTemplateService;
   private _userRole: UserRole = 'viewer';
 
   protected async onInit(): Promise<void> {
@@ -36,11 +43,21 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
     // Falls back to DexieBudgetRepository if context is unavailable.
     const sp = getSPFI(this.context);
     const baseRepo = createRepository(sp);
-    this._auditLogger = new DexieAuditLogger();
+
+    // Use SP-backed services in SharePoint, Dexie in dev harness.
+    if (sp) {
+      this._auditLogger = new SPListAuditLogger(sp);
+      this._templateService = new SPListBudgetTemplateService(sp);
+    } else {
+      this._auditLogger = new DexieAuditLogger();
+      this._templateService = new DexieBudgetTemplateService();
+    }
+
     this._repository = new AuditedBudgetRepository(
       baseRepo,
       this._auditLogger,
       this.context.pageContext.user.displayName,
+      this.relayAuditEvent,
     );
 
     // Resolve user role from Entra ID / SharePoint group membership.
@@ -55,11 +72,28 @@ export default class MarketingBudgetWebPart extends BaseClientSideWebPart<IMarke
         isSharePointContext: true,
         repository: this._repository,
         auditLogger: this._auditLogger,
+        templateService: this._templateService,
         userRole: this._userRole,
       });
 
     ReactDom.render(element, this.domElement);
   }
+
+  /**
+   * Relay budget audit events to the shell via AppBridge postMessage.
+   * The shell's IntranetShellWithTasks picks up AUDIT_EVENT messages
+   * and logs them through the global audit context.
+   */
+  private relayAuditEvent = (event: BudgetAuditEvent): void => {
+    const msg: IAuditEventMessage = {
+      type: 'AUDIT_EVENT',
+      source: 'marketing-budget',
+      entityType: event.entityType,
+      action: event.action,
+      summary: event.summary,
+    };
+    window.postMessage(msg, window.location.origin);
+  };
 
   protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
     if (!currentTheme) {

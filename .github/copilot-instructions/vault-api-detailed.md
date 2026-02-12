@@ -12,7 +12,7 @@
 | **Base URL** | `https://ap-southeast-2.api.vaultre.com.au/api/v1.3` |
 | **Swagger Docs** | https://docs.api.vaultre.com.au/swagger/index.html |
 | **Auth** | API Key + Bearer Token (server-side only) |
-| **Azure Proxy** | `https://api.dougdisher.com.au/api/v1/vault/` |
+| **Azure Proxy** | `https://api.disher.com.au/api/v1/vault/` |
 
 ## Authentication
 

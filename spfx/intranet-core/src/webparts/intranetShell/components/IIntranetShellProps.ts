@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { IAuditEventMessage } from './appBridge';
+import type { HubKey } from './services/ShellGroupResolver';
 
 /**
  * Props for the IntranetShell component.
@@ -11,10 +13,14 @@ export interface IIntranetShellProps {
   userEmail: string;
   /** Site title for branding */
   siteTitle: string;
+  /** SharePoint site absolute URL (e.g. https://disher.sharepoint.com/sites/dev-intranet) */
+  siteUrl?: string;
   /** App version string */
   appVersion: string;
-  /** Optional: User is admin (can hide cards for all users) */
+  /** Optional: User is admin (member of DDRE-Admins group) */
   isAdmin?: boolean;
+  /** Hub keys the user is allowed to see (resolved from SP group membership) */
+  visibleHubs?: HubKey[];
   /** Optional: Dark theme flag (for future theme support) */
   isDarkTheme?: boolean;
   /** Optional: Teams context flag */
@@ -29,4 +35,9 @@ export interface IIntranetShellProps {
    * respect the shell's admin/user toggle.
    */
   cardDetailRenderers?: Record<string, React.ComponentType<{ isAdmin: boolean }>>;
+  /**
+   * Callback invoked when an embedded app sends an AUDIT_EVENT message.
+   * Wired by IntranetShellWithTasks using useAudit().
+   */
+  onAppAuditEvent?: (event: IAuditEventMessage) => void;
 }

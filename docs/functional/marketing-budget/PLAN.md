@@ -267,21 +267,24 @@ Connect to the wider DDRE ecosystem and add power-user capabilities.
 - [ ] ~~**PropertyMe integration**~~ *(deferred until SharePoint deployment)* — Pull property address and type
   from PropertyMe API (via `pkg-api-client` `PropertyMeClient`)
   to auto-fill `BudgetPropertyForm` fields.
-- [ ] **Audit trail** — Record
-  `{ user, action, timestamp, before, after }` on every budget
-  and reference data change. Display as a timeline in the editor
-  panel.
-- [ ] **Budget templates** — Save a budget configuration
+- [x] **Audit trail** — `AuditedBudgetRepository` decorator logs all
+  write operations with field-level diffs (`diffChanges`,
+  `diffLineItems`). `AuditTimeline` in the budget editor panel.
+  Shell bridge via `onAuditEvent` callback. 12+ tests.
+- [x] **Budget templates** — Save a budget configuration
   (schedule + overrides) as a reusable template for common
-  property types.
-- [ ] **Notifications** — Surface budgets awaiting approval in
-  the intranet shell status bar or Jasper prompts.
-- [ ] **Shared appBridge package** — Extract the PostMessage
-  protocol types from `appBridge.ts` into
-  `packages/pkg-app-bridge` so both `intranet-core` and
-  `marketing-budget` import from the same source
-  (noted in code as a TODO).
-- [ ] **Drag-and-drop line item reordering** — Leverage the existing `@dnd-kit` aliases already configured in the dev harness.
+  property types. BudgetTemplate types, Dexie DB v3, IBudgetTemplateService,
+  SaveTemplateDialog, TemplatePickerDialog, wired through component tree.
+- [x] **Notifications** — Budget approval notifications surfaced in the
+  intranet shell notification bell via AppBridge `NOTIFICATION_UPDATE`
+  protocol. `useBudgetNotifications` hook polls repository for draft
+  budgets and pushes to shell. Admin-only.
+- [x] **Shared appBridge package** — Extracted PostMessage protocol
+  types into `packages/pkg-app-bridge` with full type guards and
+  `NOTIFICATION_UPDATE` message support. Shell re-exports via
+  thin barrel in `appBridge.ts`.
+- [x] **Drag-and-drop line item reordering** — Implemented with
+  `@dnd-kit/sortable`, `SortableLineItem` wrapper.
 
 Deliverables: PropertyMe auto-fill, audit log, templates, shell notifications, shared bridge package.
 
@@ -293,7 +296,7 @@ Deliverables: PropertyMe auto-fill, audit log, templates, shell notifications, s
 4. 🟢 Reference data edit panels complete (2B).
 5. 🟢 Dashboard and export features live (2C) — 356 tests passing.
 6. ⬜ PropertyMe integration functional (2D).
-7. ⬜ Audit trail and templates shipped (2D).
+7. 🟢 Audit trail and templates shipped (2D).
 
 ### Phase 2 Acceptance Criteria
 

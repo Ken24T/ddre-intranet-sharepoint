@@ -46,7 +46,8 @@ import { validateTransition } from "../models/budgetValidation";
 import { budgetListToCsv, budgetLineItemsToCsv, downloadCsv } from "../models/exportHelpers";
 import { statusTransitions } from "./budgetEditorConstants";
 import type { IBudgetRepository } from "../services/IBudgetRepository";
-import type { IAuditLogger } from "../services/IAuditLogger";
+import type { IBudgetAuditLogger } from "../services/IAuditLogger";
+import type { IBudgetTemplateService } from "../services/IBudgetTemplateService";
 import { BudgetEditorPanel } from "./BudgetEditorPanel";
 import { BudgetPrintView } from "./BudgetPrintView";
 import styles from "./MarketingBudget.module.scss";
@@ -54,7 +55,8 @@ import styles from "./MarketingBudget.module.scss";
 export interface IBudgetListViewProps {
   repository: IBudgetRepository;
   userRole: UserRole;
-  auditLogger?: IAuditLogger;
+  auditLogger?: IBudgetAuditLogger;
+  templateService?: IBudgetTemplateService;
 }
 
 /** Column-friendly row shape. */
@@ -233,6 +235,7 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   repository,
   userRole,
   auditLogger,
+  templateService,
 }) => {
   const [budgets, setBudgets] = React.useState<Budget[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -848,6 +851,7 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
         budget={editBudget}
         repository={repository}
         auditLogger={auditLogger}
+        templateService={templateService}
         isOpen={isEditorOpen}
         onDismiss={handleEditorDismiss}
         onSaved={handleEditorSaved}

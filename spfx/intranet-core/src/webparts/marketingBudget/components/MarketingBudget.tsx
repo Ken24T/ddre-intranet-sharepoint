@@ -22,6 +22,7 @@ import { DashboardView } from "./DashboardView";
 import { BudgetComparisonView } from "./BudgetComparisonView";
 import { DataManagementView } from "./DataManagementView";
 import { useShellBridge } from "./useShellBridge";
+import { useBudgetNotifications } from "./useBudgetNotifications";
 
 // ─────────────────────────────────────────────────────────────
 // App-level navigation definition
@@ -75,7 +76,7 @@ interface DataCounts {
  * mode (Vite dev harness or new tab), it renders its own sidebar.
  */
 const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
-  const { userDisplayName, repository, auditLogger, shellBridgeOptions, userRole = 'viewer' } = props;
+  const { userDisplayName, repository, auditLogger, templateService, shellBridgeOptions, userRole = 'viewer' } = props;
   const [counts, setCounts] = React.useState<DataCounts | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSeeding, setIsSeeding] = React.useState(false);
@@ -88,6 +89,11 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
 
   // ─── Shell sidebar bridge ────────────────────────────────
   const { isEmbedded } = useShellBridge(activeView, setActiveView, navItems, shellBridgeOptions);
+
+  // ─── Budget notifications → shell ───────────────────────
+  // Push draft-budget notifications to the shell's notification bell.
+  // Only admins need approval notifications.
+  useBudgetNotifications(repository, userRole === 'admin');
 
   // ─── Data loading ────────────────────────────────────────
 
@@ -126,9 +132,10 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     }
   }, [repository, loadCounts]);
 
-  // Auto-seed on first load if the database is empty
+  // Auto-seed on first load if the database is empty (admin/editor only)
   React.useEffect(() => {
     let cancelled = false;
+    const canSeed = userRole === 'admin' || userRole === 'editor';
 
     const init = async (): Promise<void> => {
       try {
@@ -136,7 +143,9 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
         if (cancelled) return;
 
         // Auto-seed when the database has no reference data at all
+        // Only admin/editor roles are allowed to write seed data
         if (
+          canSeed &&
           loaded.vendors === 0 &&
           loaded.services === 0 &&
           loaded.suburbs === 0
@@ -167,7 +176,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     return (): void => {
       cancelled = true;
     };
-  }, [repository, loadCounts]);
+  }, [repository, loadCounts, userRole]);
 
   const hasData = counts !== null && counts.services > 0;
 
@@ -193,7 +202,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
       case "dashboard":
         return <DashboardView repository={repository} userRole={userRole} onNavigate={handleNavigate} />;
       case "budgets":
-        return <BudgetListView repository={repository} userRole={userRole} auditLogger={auditLogger} />;
+        return <BudgetListView repository={repository} userRole={userRole} auditLogger={auditLogger} templateService={templateService} />;
       case "comparison":
         return <BudgetComparisonView repository={repository} userRole={userRole} />;
       case "schedules":

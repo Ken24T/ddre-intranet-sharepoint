@@ -1,3 +1,35 @@
+jest.mock("@pnp/sp", () => ({
+  spfi: jest.fn(() => ({})),
+  SPFx: jest.fn(),
+}));
+jest.mock("@pnp/sp/webs", () => ({}));
+jest.mock("@pnp/sp/site-users/web", () => ({}));
+jest.mock("@pnp/sp/site-groups", () => ({}));
+
+jest.mock("./components/services/ShellGroupResolver", () => ({
+  resolveShellAccess: jest.fn(() =>
+    Promise.resolve({
+      isAdmin: false,
+      visibleHubs: [
+        "home",
+        "library",
+        "administration",
+        "office",
+        "property-management",
+        "sales",
+      ],
+    }),
+  ),
+  SIDEBAR_HUB_KEYS: [
+    "home",
+    "library",
+    "administration",
+    "office",
+    "property-management",
+    "sales",
+  ],
+}));
+
 jest.mock("@microsoft/sp-webpart-base", () => {
   class BaseClientSideWebPart {
     public context: unknown;

@@ -769,8 +769,11 @@ Marketing budget tracking and reporting for sales & marketing teams.
 - [ ] Dashboard view (spend by category, status breakdown, tier analysis)
 - [ ] Print/PDF and CSV export
 - [ ] PropertyMe API integration for property auto-fill
-- [ ] Audit trail and budget templates
-- [ ] Shared appBridge package extraction
+- [x] Audit trail (budget-specific + unified shell audit + hover flyout + field-level change tracking)
+- [x] Budget templates (BudgetTemplate types, Dexie DB v3, IBudgetTemplateService + DexieBudgetTemplateService, SaveTemplateDialog, TemplatePickerDialog)
+- [x] Drag-and-drop line item reordering (@dnd-kit/sortable, SortableLineItem)
+- [x] Shared appBridge package extraction (`@ddre/pkg-app-bridge`)
+- [x] Notifications — Budget approval notifications via AppBridge NOTIFICATION_UPDATE protocol
 
 > **Detailed plan:** `docs/functional/marketing-budget/PLAN.md`
 

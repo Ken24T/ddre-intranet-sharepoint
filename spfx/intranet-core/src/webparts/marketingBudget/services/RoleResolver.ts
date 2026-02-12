@@ -3,9 +3,9 @@
  * from SharePoint group membership.
  *
  * Group names are configurable but default to:
- *   - "Marketing Budget Admins"  → admin
- *   - "Marketing Budget Editors" → editor
- *   - (no matching group)        → viewer
+ *   - "DDRE-MarketingBudget-Admins"  → admin
+ *   - "DDRE-MarketingBudget-Editors" → editor
+ *   - (no matching group)              → viewer
  *
  * The resolver is resilient: if group resolution fails (e.g.
  * permissions, network), it falls back to 'viewer' (safest default).
@@ -33,8 +33,8 @@ export interface RoleGroupConfig {
 }
 
 const DEFAULT_GROUPS: RoleGroupConfig = {
-  adminGroup: 'Marketing Budget Admins',
-  editorGroup: 'Marketing Budget Editors',
+  adminGroup: 'DDRE-MarketingBudget-Admins',
+  editorGroup: 'DDRE-MarketingBudget-Editors',
 };
 
 // ─────────────────────────────────────────────────────────────
