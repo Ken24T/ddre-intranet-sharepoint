@@ -19,7 +19,7 @@ Update `config/serve.json` with your target environment's workbench URL:
 
 ```json
 {
-  "initialPage": "https://ddredev.sharepoint.com/_layouts/workbench.aspx"
+  "initialPage": "https://disher.sharepoint.com/sites/dev-intranet/_layouts/workbench.aspx"
 }
 ```
 
@@ -28,18 +28,17 @@ Update `config/serve.json` with your target environment's workbench URL:
 Set the `PLAYWRIGHT_BASE_URL` environment variable:
 
 ```powershell
-$env:PLAYWRIGHT_BASE_URL = "https://ddredev.sharepoint.com/sites/intranet"
+$env:PLAYWRIGHT_BASE_URL = "https://disher.sharepoint.com/sites/dev-intranet"
 npm run test:e2e
 ```
 
 ### Runtime Environment Detection
 
-SPFx web parts can detect their environment at runtime via `this.context.pageContext.web.absoluteUrl` and match against known patterns.
+SPFx web parts can detect their environment at runtime via `this.context.pageContext.web.absoluteUrl` and match against known site collection paths (e.g. `/sites/dev-intranet`, `/sites/test-intranet`).
 
 ## Updating Tenant URLs
 
 When your actual tenant is provisioned, update the placeholder values in each JSON file. The domain naming pattern will depend on your Microsoft 365 tenant configuration.
 
-**Example patterns:**
-- Single tenant: `dougdisher.sharepoint.com` (prod), with dev/test as separate site collections
-- Multi-tenant: `ddredev.sharepoint.com`, `ddretest.sharepoint.com`, `dougdisher.sharepoint.com`
+**Current pattern:**
+- Single tenant: `disher.sharepoint.com` with separate site collections (`/sites/dev-intranet`, `/sites/test-intranet`, `/sites/intranet`)
