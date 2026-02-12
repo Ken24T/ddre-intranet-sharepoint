@@ -490,6 +490,20 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     this.setState({ isSidebarCollapsed: collapsed });
   };
 
+  /**
+   * Resolve the full URL for a function card.
+   * In SharePoint: siteUrl + sitePagePath (e.g. .../SitePages/marketing-budgets.aspx)
+   * In dev harness: falls back to card.url (e.g. /marketing-budgets.html)
+   */
+  private resolveCardUrl = (card: IFunctionCard): string | undefined => {
+    if (card.sitePagePath && this.props.siteUrl) {
+      const base = this.props.siteUrl.replace(/\/+$/, '');
+      const path = card.sitePagePath.replace(/^\/+/, '');
+      return `${base}/${path}`;
+    }
+    return card.url;
+  };
+
   private getCardOpenBehavior = (card: IFunctionCard): CardOpenBehavior => {
     const { cardOpenBehavior } = this.state;
     if (cardOpenBehavior[card.id]) {
@@ -571,8 +585,9 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     }
 
     if (behavior === 'newTab') {
-      if (card.url) {
-        window.open(card.url, '_blank');
+      const resolvedUrl = this.resolveCardUrl(card);
+      if (resolvedUrl) {
+        window.open(resolvedUrl, '_blank');
       } else {
         this.openMockCardWindow(card, false);
       }
@@ -580,11 +595,12 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     }
 
     // newWindow
-    if (card.url) {
+    const resolvedUrl = this.resolveCardUrl(card);
+    if (resolvedUrl) {
       const width = window.screen?.width || 1280;
       const height = window.screen?.height || 720;
       const features = `popup=yes,width=${width},height=${height},left=0,top=0`;
-      window.open(card.url, '_blank', features);
+      window.open(resolvedUrl, '_blank', features);
     } else {
       this.openMockCardWindow(card, true);
     }
@@ -1021,19 +1037,20 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
                   <div className={styles.cardDetailFrame}>
                     <iframe
                       ref={this.cardDetailIframeRef}
-                      src={activeCard.url || undefined}
-                      srcDoc={activeCard.url ? undefined : this.getMockCardHtml(activeCard)}
+                      src={this.resolveCardUrl(activeCard) || undefined}
+                      srcDoc={this.resolveCardUrl(activeCard) ? undefined : this.getMockCardHtml(activeCard)}
                       title={activeCard.title}
                       className={styles.cardDetailIframe}
                     />
                   </div>
                   <button
                     className={styles.cardDetailAction}
-                    onClick={() =>
-                      activeCard.url
-                        ? window.open(activeCard.url, '_blank')
-                        : this.openMockCardWindow(activeCard, false)
-                    }
+                    onClick={() => {
+                      const url = this.resolveCardUrl(activeCard);
+                      return url
+                        ? window.open(url, '_blank')
+                        : this.openMockCardWindow(activeCard, false);
+                    }}
                     type="button"
                   >
                     Open in new tab

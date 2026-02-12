@@ -12,6 +12,8 @@ export interface IIntranetShellProps {
   userEmail: string;
   /** Site title for branding */
   siteTitle: string;
+  /** SharePoint site absolute URL (e.g. https://disher.sharepoint.com/sites/dev-intranet) */
+  siteUrl?: string;
   /** App version string */
   appVersion: string;
   /** Optional: User is admin (can hide cards for all users) */

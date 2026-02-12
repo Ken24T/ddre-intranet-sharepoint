@@ -27,6 +27,7 @@ export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntrane
         userDisplayName: this.context.pageContext.user.displayName,
         userEmail: this.context.pageContext.user.email || '',
         siteTitle: this.context.pageContext.web.title,
+        siteUrl: this.context.pageContext.web.absoluteUrl,
         appVersion: this.manifest.version,
         isDarkTheme: this._isDarkTheme,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
