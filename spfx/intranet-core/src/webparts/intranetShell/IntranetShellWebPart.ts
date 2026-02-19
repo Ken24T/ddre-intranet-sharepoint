@@ -12,6 +12,10 @@ import * as strings from "IntranetShellWebPartStrings";
 import { IntranetShellWithTasks } from "./components/IntranetShellWithTasks";
 import { IntranetShellWrapper } from "./components/IntranetShellWrapper";
 import { IIntranetShellProps } from "./components/IIntranetShellProps";
+import MarketingBudget from "../marketingBudget/components/MarketingBudget";
+import type { IBudgetRepository } from "../marketingBudget/services/IBudgetRepository";
+import { DexieBudgetRepository } from "../marketingBudget/services/DexieBudgetRepository";
+import type { UserRole } from "../marketingBudget/models/permissions";
 
 export interface IIntranetShellWebPartProps {
   description: string;
@@ -20,8 +24,24 @@ export interface IIntranetShellWebPartProps {
 export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntranetShellWebPartProps> {
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = "";
+  private _marketingBudgetRepository: IBudgetRepository = new DexieBudgetRepository();
+  private _marketingBudgetUserRole: UserRole = "viewer";
 
   public render(): void {
+    const MarketingBudgetInline: React.FC = () =>
+      React.createElement(MarketingBudget, {
+        userDisplayName: this.context.pageContext.user.displayName,
+        isDarkTheme: this._isDarkTheme,
+        isSharePointContext: true,
+        repository: this._marketingBudgetRepository,
+        userRole: this._marketingBudgetUserRole,
+        shellBridgeOptions: { forceActive: true },
+      });
+
+    const cardDetailRenderers: Record<string, React.ComponentType> = {
+      "marketing-budgets": MarketingBudgetInline,
+    };
+
     const shellElement: React.ReactElement<IIntranetShellProps> =
       React.createElement(IntranetShellWithTasks, {
         userDisplayName: this.context.pageContext.user.displayName,
@@ -30,6 +50,7 @@ export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntrane
         appVersion: this.manifest.version,
         isDarkTheme: this._isDarkTheme,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
+        cardDetailRenderers,
       });
 
     // Wrap shell with error handling providers (Toast, OfflineBanner)
@@ -38,10 +59,30 @@ export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntrane
     ReactDom.render(element, this.domElement);
   }
 
-  protected onInit(): Promise<void> {
-    return this._getEnvironmentMessage().then((message) => {
-      this._environmentMessage = message;
-    });
+  protected async onInit(): Promise<void> {
+    this._environmentMessage = await this._getEnvironmentMessage();
+
+    try {
+      const [repoFactory, roleResolver] = await Promise.all([
+        import(
+          /* webpackChunkName: 'marketing-budget-repository-factory' */ "../marketingBudget/services/RepositoryFactory"
+        ),
+        import(
+          /* webpackChunkName: 'marketing-budget-role-resolver' */ "../marketingBudget/services/RoleResolver"
+        ),
+      ]);
+
+      const sp = repoFactory.getSPFI(this.context);
+      this._marketingBudgetRepository = repoFactory.createRepository(sp);
+      this._marketingBudgetUserRole = await roleResolver.resolveUserRole(sp);
+    } catch (error) {
+      console.warn(
+        "[IntranetShell] Marketing Budget repository/role init failed, falling back to viewer mode",
+        error,
+      );
+      this._marketingBudgetRepository = new DexieBudgetRepository();
+      this._marketingBudgetUserRole = "viewer";
+    }
   }
 
   private _getEnvironmentMessage(): Promise<string> {
