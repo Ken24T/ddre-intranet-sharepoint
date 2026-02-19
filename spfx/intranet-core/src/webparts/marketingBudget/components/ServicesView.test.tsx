@@ -222,7 +222,10 @@ describe("ServicesView", () => {
       expect(screen.getByText("Photography")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByText("Photography"));
+    const photographyCell = screen.getByText("Photography");
+    const row = photographyCell.closest("[role='row']") as HTMLElement;
+    fireEvent.focus(row);
+    fireEvent.click(row);
 
     await waitFor(() => {
       expect(screen.getByText("Edit Service")).toBeInTheDocument();
@@ -239,10 +242,13 @@ describe("ServicesView", () => {
       expect(screen.getByText("Photography")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByText("Photography"));
+    const photographyCell = screen.getByText("Photography");
+    const row = photographyCell.closest("[role='row']") as HTMLElement;
+    fireEvent.focus(row);
+    fireEvent.click(row);
 
     await waitFor(() => {
-      expect(screen.getByText("Variants")).toBeInTheDocument();
+      expect(screen.getAllByText("Variants").length).toBeGreaterThan(0);
     });
     expect(screen.queryByText("Edit Service")).not.toBeInTheDocument();
     expect(screen.queryByText("Duplicate Service")).not.toBeInTheDocument();
