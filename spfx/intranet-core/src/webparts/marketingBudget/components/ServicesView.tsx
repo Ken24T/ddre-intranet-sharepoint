@@ -456,6 +456,27 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
     setExpandedId((prev) => (prev === item.id ? undefined : item.id));
   }, []);
 
+  const handleEditFromExpanded = React.useCallback(
+    (service: Service): void => {
+      openEditor(service);
+    },
+    [openEditor],
+  );
+
+  const handleDuplicateFromExpanded = React.useCallback(
+    (service: Service): void => {
+      handleDuplicate(service); // eslint-disable-line @typescript-eslint/no-floating-promises
+    },
+    [handleDuplicate],
+  );
+
+  const handleDeleteFromExpanded = React.useCallback(
+    (service: Service): void => {
+      setPendingDelete(service);
+    },
+    [],
+  );
+
   /** Resolve vendor display name for a service. */
   const getVendorName = React.useCallback(
     (service: Service): string =>
@@ -610,6 +631,10 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
                 <ServiceDetailPanel
                   service={service}
                   vendorName={getVendorName(service)}
+                  isAdmin={isAdmin}
+                  onEdit={handleEditFromExpanded}
+                  onDuplicate={handleDuplicateFromExpanded}
+                  onDelete={handleDeleteFromExpanded}
                 />
               ) : undefined;
             })()}

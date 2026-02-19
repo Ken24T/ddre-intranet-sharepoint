@@ -360,6 +360,13 @@
   margin-bottom: 8px;
 }
 
+.refDetailActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
 .refDetailMeta {
   display: flex;
   gap: 16px;

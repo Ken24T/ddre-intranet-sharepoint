@@ -213,4 +213,39 @@ describe("ServicesView", () => {
     });
     expect(screen.queryByTitle("Actions")).not.toBeInTheDocument();
   });
+
+  it("shows expanded quick actions for admin users", async () => {
+    const repo = createMockRepo();
+    render(<ServicesView repository={repo} userRole="admin" />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Photography")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("Photography"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit Service")).toBeInTheDocument();
+      expect(screen.getByText("Duplicate Service")).toBeInTheDocument();
+      expect(screen.getByText("Delete Service")).toBeInTheDocument();
+    });
+  });
+
+  it("hides expanded quick actions for viewer users", async () => {
+    const repo = createMockRepo();
+    render(<ServicesView repository={repo} userRole="viewer" />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Photography")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("Photography"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Variants")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("Edit Service")).not.toBeInTheDocument();
+    expect(screen.queryByText("Duplicate Service")).not.toBeInTheDocument();
+    expect(screen.queryByText("Delete Service")).not.toBeInTheDocument();
+  });
 });

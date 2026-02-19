@@ -7,21 +7,48 @@
  */
 
 import * as React from "react";
-import { Text, Icon } from "@fluentui/react";
+import { Text, Icon, DefaultButton } from "@fluentui/react";
 import type { Service } from "../models/types";
 import styles from "./MarketingBudget.module.scss";
 
 export interface IServiceDetailPanelProps {
   service: Service;
   vendorName: string;
+  isAdmin: boolean;
+  onEdit: (service: Service) => void;
+  onDuplicate: (service: Service) => void;
+  onDelete: (service: Service) => void;
 }
 
 export const ServiceDetailPanel: React.FC<IServiceDetailPanelProps> = ({
   service,
   vendorName,
+  isAdmin,
+  onEdit,
+  onDuplicate,
+  onDelete,
 }) => (
   <div className={styles.refDetailPanel}>
     <Text className={styles.refDetailTitle}>{service.name}</Text>
+    {isAdmin && (
+      <div className={styles.refDetailActions}>
+        <DefaultButton
+          text="Edit Service"
+          iconProps={{ iconName: "Edit" }}
+          onClick={(): void => onEdit(service)}
+        />
+        <DefaultButton
+          text="Duplicate Service"
+          iconProps={{ iconName: "Copy" }}
+          onClick={(): void => onDuplicate(service)}
+        />
+        <DefaultButton
+          text="Delete Service"
+          iconProps={{ iconName: "Delete" }}
+          onClick={(): void => onDelete(service)}
+        />
+      </div>
+    )}
     <div className={styles.refDetailMeta}>
       <span>
         Category:{" "}
