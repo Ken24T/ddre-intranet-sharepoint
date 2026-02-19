@@ -363,6 +363,10 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
     [isAdmin, openEditor, handleDuplicate],
   );
 
+  const handleRowClick = React.useCallback((item: IServiceRow): void => {
+    setExpandedId((prev) => (prev === item.id ? undefined : item.id));
+  }, []);
+
   // ─── Column definitions ───────────────────────────────
 
   const columns: IColumn[] = React.useMemo((): IColumn[] => {
@@ -374,6 +378,27 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
         minWidth: 150,
         maxWidth: 250,
         isResizable: true,
+        onRender: (item: IServiceRow): JSX.Element => (
+          <button
+            type="button"
+            onClick={(event): void => {
+              event.stopPropagation();
+              handleRowClick(item);
+            }}
+            style={{
+              border: "none",
+              background: "none",
+              padding: 0,
+              margin: 0,
+              cursor: "pointer",
+              textAlign: "left",
+              color: "inherit",
+              font: "inherit",
+            }}
+          >
+            {item.name}
+          </button>
+        ),
       },
       {
         key: "category",
@@ -451,10 +476,6 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
 
     return cols;
   }, [isAdmin, getRowMenuItems]);
-
-  const handleRowClick = React.useCallback((item: IServiceRow): void => {
-    setExpandedId((prev) => (prev === item.id ? undefined : item.id));
-  }, []);
 
   const handleEditFromExpanded = React.useCallback(
     (service: Service): void => {
