@@ -56,3 +56,28 @@ Some apps may have a lightweight Vite dev harness for rapid UI iteration
 without the heavier SPFx build. For example, `spfx/marketing-budget/dev/`
 imports directly from the intranet-core source tree. These are optional
 and don't require their own `npm install` in intranet-core.
+
+## Recommended Daily Workflow (Fast Local Loop)
+
+Use this workflow for minor and frequent commits while a feature branch is in progress.
+
+1. Start Vite for fast UI iteration:
+  - `cd spfx/intranet-core`
+  - `npm run dev`
+2. Validate the specific change quickly in the Vite harness.
+3. Commit small increments to your feature branch.
+4. Run SPFx gates only when needed (before PR, handoff, or branch completion):
+  - `npm run lint`
+  - `npm run test`
+  - `npm run build`
+
+Why this is safe:
+
+- Vite runs from `spfx/intranet-core/dev/` and is for local developer feedback only.
+- SharePoint deployable output (`.sppkg`) is still produced only by `npm run build` in `spfx/intranet-core`.
+- App Catalog deployments are still controlled by SPFx solution versioning in `config/package-solution.json`.
+
+Practical policy:
+
+- Minor commits: use Vite loop, no App Catalog deployment.
+- Branch-complete milestone: run full SPFx gates, build/package, then deploy `.sppkg`.
