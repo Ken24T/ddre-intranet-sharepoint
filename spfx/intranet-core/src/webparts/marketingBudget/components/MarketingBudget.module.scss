@@ -2,6 +2,24 @@
   padding: 1rem;
   color: "[theme:bodyText, default: #323130]";
 
+  :global(.ms-Button.ms-Button--primary) {
+    background-color: var(--hub-accent, #001CAD);
+    border-color: var(--hub-accent, #001CAD);
+  }
+
+  :global(.ms-Button.ms-Button--primary:hover) {
+    background-color: var(--hub-accent, #001CAD);
+    border-color: var(--hub-accent, #001CAD);
+    filter: brightness(0.92);
+  }
+
+  :global(.ms-Button.ms-Button--primary:focus),
+  :global(.ms-Button.ms-Button--primary:active) {
+    background-color: var(--hub-accent, #001CAD);
+    border-color: var(--hub-accent, #001CAD);
+    filter: brightness(0.86);
+  }
+
   .header {
     display: flex;
     align-items: center;
