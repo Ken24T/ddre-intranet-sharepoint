@@ -511,13 +511,17 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
           </Text>
         </div>
       ) : (
-        <>
+        <div style={{ maxHeight: "65vh", overflowY: "auto" }}>
           <DetailsList
             items={rows}
             columns={columns}
             layoutMode={DetailsListLayoutMode.justified}
             selectionMode={SelectionMode.none}
             isHeaderVisible={true}
+            onRenderRow={(rowProps, defaultRender): JSX.Element | null => {
+              if (!rowProps || !defaultRender) return null;
+              return <div style={{ cursor: "pointer" }}>{defaultRender(rowProps)}</div>;
+            }}
             onActiveItemChanged={(item): void =>
               handleRowClick(item as IScheduleRow)
             }
@@ -527,7 +531,7 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
               const schedule = schedules.find((s) => s.id === expandedId);
               return schedule ? renderExpandedDetail(schedule) : undefined;
             })()}
-        </>
+        </div>
       )}
 
       {/* Editor panel */}

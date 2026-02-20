@@ -7,48 +7,29 @@
  */
 
 import * as React from "react";
-import { Text, Icon, DefaultButton } from "@fluentui/react";
-import type { Service } from "../models/types";
+import { Text, Icon } from "@fluentui/react";
+import type { Service, ServiceVariant } from "../models/types";
 import styles from "./MarketingBudget.module.scss";
 
 export interface IServiceDetailPanelProps {
   service: Service;
   vendorName: string;
-  isAdmin: boolean;
-  onEdit: (service: Service) => void;
-  onDuplicate: (service: Service) => void;
-  onDelete: (service: Service) => void;
 }
 
 export const ServiceDetailPanel: React.FC<IServiceDetailPanelProps> = ({
   service,
   vendorName,
-  isAdmin,
-  onEdit,
-  onDuplicate,
-  onDelete,
-}) => (
+}) => {
+  const variants: ServiceVariant[] = Array.isArray(service.variants)
+    ? service.variants.filter(
+      (variant): variant is ServiceVariant =>
+        Boolean(variant) && typeof variant === "object" && "id" in variant,
+    )
+    : [];
+
+  return (
   <div className={styles.refDetailPanel}>
     <Text className={styles.refDetailTitle}>{service.name}</Text>
-    {isAdmin && (
-      <div className={styles.refDetailActions}>
-        <DefaultButton
-          text="Edit Service"
-          iconProps={{ iconName: "Edit" }}
-          onClick={(): void => onEdit(service)}
-        />
-        <DefaultButton
-          text="Duplicate Service"
-          iconProps={{ iconName: "Copy" }}
-          onClick={(): void => onDuplicate(service)}
-        />
-        <DefaultButton
-          text="Delete Service"
-          iconProps={{ iconName: "Delete" }}
-          onClick={(): void => onDelete(service)}
-        />
-      </div>
-    )}
     <div className={styles.refDetailMeta}>
       <span>
         Category:{" "}
@@ -77,12 +58,12 @@ export const ServiceDetailPanel: React.FC<IServiceDetailPanelProps> = ({
       Variants
     </Text>
     <div className={styles.refItemList}>
-      {service.variants.length === 0 ? (
+      {variants.length === 0 ? (
         <Text variant="small" style={{ color: "#605e5c", padding: "8px 0" }}>
           No variants defined.
         </Text>
       ) : (
-        service.variants.map((v) => (
+        variants.map((v) => (
           <div key={v.id} className={styles.refItemRow}>
             <span className={styles.refItemName}>{v.name}</span>
             <span className={styles.refItemVariant}>
@@ -93,7 +74,10 @@ export const ServiceDetailPanel: React.FC<IServiceDetailPanelProps> = ({
                   : ""}
             </span>
             <span className={styles.refItemPrice}>
-              ${v.basePrice.toFixed(2)}
+              {((): string => {
+                const amount = Number(v.basePrice);
+                return Number.isFinite(amount) ? `$${amount.toFixed(2)}` : "—";
+              })()}
             </span>
           </div>
         ))
@@ -101,7 +85,7 @@ export const ServiceDetailPanel: React.FC<IServiceDetailPanelProps> = ({
     </div>
 
     {/* Included services for package variants */}
-    {service.variants.some(
+    {variants.some(
       (v) => v.includedServices && v.includedServices.length > 0,
     ) && (
       <>
@@ -112,7 +96,7 @@ export const ServiceDetailPanel: React.FC<IServiceDetailPanelProps> = ({
           Included Services
         </Text>
         <div className={styles.refItemList}>
-          {service.variants
+          {variants
             .filter(
               (v) => v.includedServices && v.includedServices.length > 0,
             )
@@ -149,4 +133,5 @@ export const ServiceDetailPanel: React.FC<IServiceDetailPanelProps> = ({
       </>
     )}
   </div>
-);
+  );
+};

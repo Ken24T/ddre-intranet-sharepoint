@@ -107,9 +107,10 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
   const [error, setError] = React.useState<string | undefined>(undefined);
   const [searchText, setSearchText] = React.useState("");
   const [categoryFilter, setCategoryFilter] = React.useState("all");
-  const [expandedId, setExpandedId] = React.useState<number | undefined>(
+  const [expandedRowKey, setExpandedRowKey] = React.useState<string | undefined>(
     undefined,
   );
+  const [expandedService, setExpandedService] = React.useState<Service | undefined>(undefined);
 
   // Editor panel state
   const [isEditorOpen, setIsEditorOpen] = React.useState(false);
@@ -202,8 +203,8 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
           return false;
         return true;
       })
-      .map((s) => ({
-        key: String(s.id ?? 0),
+      .map((s, idx) => ({
+        key: s.id !== undefined ? `id-${s.id}` : `row-${idx}-${s.name}`,
         id: s.id ?? 0,
         name: s.name,
         category: s.category,
@@ -215,6 +216,15 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
         _service: s,
       }));
   }, [services, searchText, categoryFilter, vendorMap]);
+
+  React.useEffect(() => {
+    if (!expandedRowKey) return;
+    const stillVisible = rows.some((row) => row.key === expandedRowKey);
+    if (!stillVisible) {
+      setExpandedRowKey(undefined);
+      setExpandedService(undefined);
+    }
+  }, [rows, expandedRowKey]);
 
   // ─── Editor helpers ────────────────────────────────────
 
@@ -364,7 +374,12 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
   );
 
   const handleRowClick = React.useCallback((item: IServiceRow): void => {
-    setExpandedId((prev) => (prev === item.id ? undefined : item.id));
+    setExpandedRowKey((prev) => {
+      const isClosing = prev === item.key;
+      const next = isClosing ? undefined : item.key;
+      setExpandedService(isClosing ? undefined : item._service);
+      return next;
+    });
   }, []);
 
   // ─── Column definitions ───────────────────────────────
@@ -382,9 +397,11 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
           <button
             type="button"
             onClick={(event): void => {
+              event.preventDefault();
               event.stopPropagation();
               handleRowClick(item);
             }}
+            data-no-row-toggle="true"
             style={{
               border: "none",
               background: "none",
@@ -477,27 +494,6 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
     return cols;
   }, [isAdmin, getRowMenuItems]);
 
-  const handleEditFromExpanded = React.useCallback(
-    (service: Service): void => {
-      openEditor(service);
-    },
-    [openEditor],
-  );
-
-  const handleDuplicateFromExpanded = React.useCallback(
-    (service: Service): void => {
-      handleDuplicate(service); // eslint-disable-line @typescript-eslint/no-floating-promises
-    },
-    [handleDuplicate],
-  );
-
-  const handleDeleteFromExpanded = React.useCallback(
-    (service: Service): void => {
-      setPendingDelete(service);
-    },
-    [],
-  );
-
   /** Resolve vendor display name for a service. */
   const getVendorName = React.useCallback(
     (service: Service): string =>
@@ -505,6 +501,46 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
         ? (vendorMap.get(service.vendorId) ?? "—")
         : "System",
     [vendorMap],
+  );
+
+  const renderServicesList = React.useCallback(
+    (items: IServiceRow[], isHeaderVisible: boolean): React.ReactNode => (
+      <DetailsList
+        items={items}
+        columns={columns}
+        layoutMode={DetailsListLayoutMode.justified}
+        selectionMode={SelectionMode.none}
+        isHeaderVisible={isHeaderVisible}
+        onRenderRow={(rowProps, defaultRender): JSX.Element | null => {
+          if (!rowProps || !defaultRender) return null;
+          const rowItem = rowProps.item as IServiceRow;
+          return (
+            <div
+              style={{ cursor: "pointer" }}
+              onClick={(event): void => {
+                const target = event.target as HTMLElement;
+                if (target.closest("button, a, input, textarea, [role='button'], [data-no-row-toggle='true']")) {
+                  return;
+                }
+                handleRowClick(rowItem);
+              }}
+              onKeyDown={(event): void => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                const target = event.target as HTMLElement;
+                if (target.closest("button, a, input, textarea, [role='button'], [data-no-row-toggle='true']")) {
+                  return;
+                }
+                event.preventDefault();
+                handleRowClick(rowItem);
+              }}
+            >
+              {defaultRender(rowProps)}
+            </div>
+          );
+        }}
+      />
+    ),
+    [columns, handleRowClick],
   );
 
   // ─── Variant editor row ────────────────────────────────
@@ -634,32 +670,34 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
           </Text>
         </div>
       ) : (
-        <>
-          <DetailsList
-            items={rows}
-            columns={columns}
-            layoutMode={DetailsListLayoutMode.justified}
-            selectionMode={SelectionMode.none}
-            isHeaderVisible={true}
-            onActiveItemChanged={(item): void =>
-              handleRowClick(item as IServiceRow)
+        <div style={{ maxHeight: "65vh", overflowY: "auto" }}>
+          {((): React.ReactNode => {
+            if (!expandedRowKey || !expandedService) {
+              return renderServicesList(rows, true);
             }
-          />
-          {expandedId !== undefined &&
-            (() => {
-              const service = services.find((s) => s.id === expandedId);
-              return service ? (
-                <ServiceDetailPanel
-                  service={service}
-                  vendorName={getVendorName(service)}
-                  isAdmin={isAdmin}
-                  onEdit={handleEditFromExpanded}
-                  onDuplicate={handleDuplicateFromExpanded}
-                  onDelete={handleDeleteFromExpanded}
-                />
-              ) : undefined;
-            })()}
-        </>
+
+            const expandedIndex = rows.findIndex((row) => row.key === expandedRowKey);
+            if (expandedIndex < 0) {
+              return renderServicesList(rows, true);
+            }
+
+            const topRows = rows.slice(0, expandedIndex + 1);
+            const bottomRows = rows.slice(expandedIndex + 1);
+
+            return (
+              <>
+                {renderServicesList(topRows, true)}
+                <div style={{ maxHeight: 300, overflowY: "auto" }}>
+                  <ServiceDetailPanel
+                    service={expandedService}
+                    vendorName={getVendorName(expandedService)}
+                  />
+                </div>
+                {bottomRows.length > 0 && renderServicesList(bottomRows, false)}
+              </>
+            );
+          })()}
+        </div>
       )}
 
       {/* Editor panel — wider to accommodate variant editing */}

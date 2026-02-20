@@ -214,7 +214,7 @@ describe("ServicesView", () => {
     expect(screen.queryByTitle("Actions")).not.toBeInTheDocument();
   });
 
-  it("shows expanded quick actions for admin users", async () => {
+  it("shows expanded variants for admin users", async () => {
     const repo = createMockRepo();
     render(<ServicesView repository={repo} userRole="admin" />);
 
@@ -228,13 +228,15 @@ describe("ServicesView", () => {
     fireEvent.click(row);
 
     await waitFor(() => {
-      expect(screen.getByText("Edit Service")).toBeInTheDocument();
-      expect(screen.getByText("Duplicate Service")).toBeInTheDocument();
-      expect(screen.getByText("Delete Service")).toBeInTheDocument();
+      expect(screen.getByText("4 Photos")).toBeInTheDocument();
+      expect(screen.getByText("8 Photos")).toBeInTheDocument();
     });
+    expect(screen.queryByText("Edit Service")).not.toBeInTheDocument();
+    expect(screen.queryByText("Duplicate Service")).not.toBeInTheDocument();
+    expect(screen.queryByText("Delete Service")).not.toBeInTheDocument();
   });
 
-  it("hides expanded quick actions for viewer users", async () => {
+  it("shows expanded variants for viewer users", async () => {
     const repo = createMockRepo();
     render(<ServicesView repository={repo} userRole="viewer" />);
 
@@ -248,10 +250,37 @@ describe("ServicesView", () => {
     fireEvent.click(row);
 
     await waitFor(() => {
-      expect(screen.getAllByText("Variants").length).toBeGreaterThan(0);
+      expect(screen.getByText("4 Photos")).toBeInTheDocument();
+      expect(screen.getByText("8 Photos")).toBeInTheDocument();
     });
     expect(screen.queryByText("Edit Service")).not.toBeInTheDocument();
     expect(screen.queryByText("Duplicate Service")).not.toBeInTheDocument();
     expect(screen.queryByText("Delete Service")).not.toBeInTheDocument();
+  });
+
+  it("expands details when a service has no id", async () => {
+    const repo = createMockRepo();
+    (repo.getAllServices as jest.Mock).mockResolvedValue([
+      {
+        ...mockServices[0],
+        id: undefined,
+        name: "No ID Service",
+      },
+    ]);
+
+    render(<ServicesView repository={repo} userRole="admin" />);
+
+    await waitFor(() => {
+      expect(screen.getByText("No ID Service")).toBeInTheDocument();
+    });
+
+    const serviceCell = screen.getByText("No ID Service");
+    const row = serviceCell.closest("[role='row']") as HTMLElement;
+    fireEvent.focus(row);
+    fireEvent.click(row);
+
+    await waitFor(() => {
+      expect(screen.getByText("4 Photos")).toBeInTheDocument();
+    });
   });
 });

@@ -12,12 +12,14 @@ Policy:
 Run releases from whatever branch you are working on. The release process
 must not merge anything into `main` unless you explicitly request a merge.
 
+This team uses a branch-only workflow with no pull requests.
+
 ### Branch Workflow Policy
 
 - During active feature development, prefer local Vite testing for fast iteration.
 - Do not deploy a new `.sppkg` for every minor commit.
 - Deploy to SharePoint App Catalog when the branch reaches a complete, testable milestone
-  (typically branch completion or PR-ready state).
+  (typically branch completion or release-candidate state).
 - Before any deployment, always run full SPFx gates from `spfx/intranet-core`:
   - `npm run lint`
   - `npm run test`
