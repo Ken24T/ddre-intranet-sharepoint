@@ -18,6 +18,7 @@ import { ServicesView } from "./ServicesView";
 import { VendorsView } from "./VendorsView";
 import { SuburbsView } from "./SuburbsView";
 import { useShellBridge } from "./useShellBridge";
+import { loadDefaultAgentName, saveDefaultAgentName } from "./settings";
 
 // ─────────────────────────────────────────────────────────────
 // App-level navigation definition
@@ -63,9 +64,17 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const [error, setError] = React.useState<string | null>(null);
   const [seedComplete, setSeedComplete] = React.useState(false);
   const [activeView, setActiveView] = React.useState<AppViewKey>("budgets");
+  const [defaultAgentName, setDefaultAgentName] = React.useState<string>(() =>
+    loadDefaultAgentName(),
+  );
 
   // ─── Shell sidebar bridge ────────────────────────────────
   const { isEmbedded } = useShellBridge(activeView, setActiveView, shellBridgeOptions);
+
+  const handleDefaultAgentNameChange = React.useCallback((value: string): void => {
+    const saved = saveDefaultAgentName(value);
+    setDefaultAgentName(saved);
+  }, []);
 
   // ─── Data loading ────────────────────────────────────────
 
@@ -154,7 +163,14 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const renderActiveView = (): React.ReactNode => {
     switch (activeView) {
       case "budgets":
-        return <BudgetListView repository={repository} userRole={userRole} />;
+        return (
+          <BudgetListView
+            repository={repository}
+            userRole={userRole}
+            defaultAgentName={defaultAgentName}
+            onDefaultAgentNameChange={handleDefaultAgentNameChange}
+          />
+        );
       case "schedules":
         return <SchedulesView repository={repository} userRole={userRole} />;
       case "services":
@@ -164,7 +180,14 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
       case "suburbs":
         return <SuburbsView repository={repository} userRole={userRole} />;
       default:
-        return <BudgetListView repository={repository} userRole={userRole} />;
+        return (
+          <BudgetListView
+            repository={repository}
+            userRole={userRole}
+            defaultAgentName={defaultAgentName}
+            onDefaultAgentNameChange={handleDefaultAgentNameChange}
+          />
+        );
     }
   };
 

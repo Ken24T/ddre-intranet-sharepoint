@@ -12,6 +12,7 @@ import {
   DefaultButton,
   DetailsList,
   DetailsListLayoutMode,
+  TextField,
   Dialog,
   DialogFooter,
   DialogType,
@@ -42,11 +43,14 @@ import { calculateBudgetSummary } from "../models/budgetCalculations";
 import { statusTransitions } from "./budgetEditorConstants";
 import type { IBudgetRepository } from "../services/IBudgetRepository";
 import { BudgetEditorPanel } from "./BudgetEditorPanel";
+import { DEFAULT_AGENT_NAME, normaliseDefaultAgentName } from "./settings";
 import styles from "./MarketingBudget.module.scss";
 
 export interface IBudgetListViewProps {
   repository: IBudgetRepository;
   userRole: UserRole;
+  defaultAgentName: string;
+  onDefaultAgentNameChange: (value: string) => void;
 }
 
 /** Column-friendly row shape. */
@@ -224,6 +228,8 @@ const BudgetAddressCell: React.FC<IBudgetAddressCellProps> = ({ budget }) => {
 export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   repository,
   userRole,
+  defaultAgentName,
+  onDefaultAgentNameChange,
 }) => {
   const [budgets, setBudgets] = React.useState<Budget[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -240,6 +246,9 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   // Delete confirmation state
   const [pendingDeleteBudget, setPendingDeleteBudget] = React.useState<Budget | undefined>(undefined);
   const [isDeleting, setIsDeleting] = React.useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+  const [defaultAgentNameDraft, setDefaultAgentNameDraft] =
+    React.useState(defaultAgentName);
 
   const loadBudgets = React.useCallback(
     async (signal: { cancelled: boolean }): Promise<void> => {
@@ -564,6 +573,22 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
     setEditBudget(undefined);
   }, []);
 
+  const handleOpenSettings = React.useCallback((): void => {
+    setDefaultAgentNameDraft(defaultAgentName);
+    setIsSettingsOpen(true);
+  }, [defaultAgentName]);
+
+  const handleCloseSettings = React.useCallback((): void => {
+    setIsSettingsOpen(false);
+  }, []);
+
+  const handleSaveSettings = React.useCallback((): void => {
+    onDefaultAgentNameChange(
+      normaliseDefaultAgentName(defaultAgentNameDraft),
+    );
+    setIsSettingsOpen(false);
+  }, [defaultAgentNameDraft, onDefaultAgentNameChange]);
+
   return (
     <div className={styles.viewContainer}>
       <div className={styles.viewHeader}>
@@ -598,6 +623,11 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
             setStatusFilter(String(option?.key ?? "all"))
           }
           className={styles.filterDropdown}
+        />
+        <DefaultButton
+          text="Settings"
+          iconProps={{ iconName: "Settings" }}
+          onClick={handleOpenSettings}
         />
         {showCreate && (
           <PrimaryButton
@@ -642,7 +672,33 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
         onDismiss={handleEditorDismiss}
         onSaved={handleEditorSaved}
         userRole={userRole}
+        defaultAgentName={defaultAgentName}
       />
+
+      <Dialog
+        hidden={!isSettingsOpen}
+        onDismiss={handleCloseSettings}
+        dialogContentProps={{
+          type: DialogType.normal,
+          title: "Settings",
+          subText:
+            "Set the default Agent Name used when creating a new budget.",
+        }}
+        modalProps={{ isBlocking: false }}
+      >
+        <TextField
+          label="Default Agent Name"
+          value={defaultAgentNameDraft}
+          onChange={(_, value): void =>
+            setDefaultAgentNameDraft(value ?? "")
+          }
+          placeholder={DEFAULT_AGENT_NAME}
+        />
+        <DialogFooter>
+          <PrimaryButton text="Save" onClick={handleSaveSettings} />
+          <DefaultButton text="Cancel" onClick={handleCloseSettings} />
+        </DialogFooter>
+      </Dialog>
 
       {/* Delete confirmation dialog */}
       <Dialog

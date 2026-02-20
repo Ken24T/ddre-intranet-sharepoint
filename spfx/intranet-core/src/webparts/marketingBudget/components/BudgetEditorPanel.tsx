@@ -49,6 +49,8 @@ export interface IBudgetEditorPanelProps {
   onSaved: (budget: Budget) => void;
   /** User's role — controls which fields and actions are available. */
   userRole: UserRole;
+  /** Default value used for Agent Name when creating a new budget. */
+  defaultAgentName?: string;
 }
 
 // ─── Component ─────────────────────────────────────────────
@@ -60,8 +62,15 @@ export const BudgetEditorPanel: React.FC<IBudgetEditorPanelProps> = ({
   onDismiss,
   onSaved,
   userRole,
+  defaultAgentName,
 }) => {
-  const state = useBudgetEditorState(editBudget, repository, isOpen, onSaved);
+  const state = useBudgetEditorState(
+    editBudget,
+    repository,
+    isOpen,
+    onSaved,
+    defaultAgentName,
+  );
 
   const isEditable = canEditBudget(userRole, state.status);
   const showTransitions = canTransitionBudget(userRole);
