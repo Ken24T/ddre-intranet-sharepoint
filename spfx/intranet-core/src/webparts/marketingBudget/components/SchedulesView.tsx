@@ -96,6 +96,9 @@ const ScheduleNameCell: React.FC<IScheduleNameCellProps> = ({
         className={styles.budgetRowAddress}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onFocus={handleMouseEnter}
+        onBlur={handleMouseLeave}
+        tabIndex={0}
       >
         {schedule.name}
       </div>
@@ -404,8 +407,11 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
       items.push({
         key: "delete",
         text: "Delete",
-        iconProps: { iconName: "Delete", style: { color: "#a4262c" } },
-        style: { color: "#a4262c" },
+        iconProps: {
+          iconName: "Delete",
+          style: { color: "var(--errorText, #a4262c)" },
+        },
+        style: { color: "var(--errorText, #a4262c)" },
         onClick: (): void => setPendingDelete(schedule),
       });
       return items;
@@ -558,7 +564,9 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
               <Icon
                 iconName={li.isSelected ? "CheckboxComposite" : "Checkbox"}
                 style={{
-                  color: li.isSelected ? "#001CAD" : "#a19f9d",
+                  color: li.isSelected
+                    ? "var(--hub-accent, #001CAD)"
+                    : "#a19f9d",
                   fontSize: 14,
                   flexShrink: 0,
                 }}
@@ -623,7 +631,11 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
         <div className={styles.centeredState}>
           <Icon
             iconName="CalendarWeek"
-            style={{ fontSize: 48, marginBottom: 16, color: "#001CAD" }}
+            style={{
+              fontSize: 48,
+              marginBottom: 16,
+              color: "var(--hub-accent, #001CAD)",
+            }}
           />
           <Text variant="large">No schedules found</Text>
           <Text variant="medium" style={{ marginTop: 8, color: "#605e5c" }}>
@@ -737,7 +749,10 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
             text={isDeleting ? "Deleting…" : "Delete"}
             onClick={handleDeleteConfirm} // eslint-disable-line @typescript-eslint/no-floating-promises
             disabled={isDeleting}
-            style={{ backgroundColor: "#a4262c", borderColor: "#a4262c" }}
+            style={{
+              backgroundColor: "var(--errorText, #a4262c)",
+              borderColor: "var(--errorText, #a4262c)",
+            }}
           />
           <DefaultButton
             text="Cancel"

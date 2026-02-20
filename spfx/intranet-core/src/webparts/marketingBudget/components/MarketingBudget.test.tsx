@@ -114,7 +114,9 @@ const createMockRepository = (
     getServices: jest
       .fn()
       .mockImplementation(() => Promise.resolve(seeded ? mockServices : [])),
-    getAllServices: jest.fn().mockResolvedValue([]),
+    getAllServices: jest
+      .fn()
+      .mockImplementation(() => Promise.resolve(seeded ? mockServices : [])),
     getServicesByVendor: jest.fn().mockResolvedValue([]),
     getServicesByCategory: jest.fn().mockResolvedValue([]),
     saveService: jest.fn().mockResolvedValue({} as Service),
@@ -226,7 +228,7 @@ describe("MarketingBudget component", () => {
     expect(screen.getByText(/2 vendors.*15 services/)).toBeInTheDocument();
   });
 
-  it("calls getVendors, getServices, getSuburbs, getSchedules, getBudgets on mount", async () => {
+  it("calls getVendors, getAllServices, getSuburbs, getSchedules, getBudgets on mount", async () => {
     const repo = createMockRepository({ preSeeded: true });
     render(<MarketingBudget {...defaultProps} repository={repo} />);
 
@@ -235,7 +237,7 @@ describe("MarketingBudget component", () => {
     });
 
     expect(repo.getVendors).toHaveBeenCalled();
-    expect(repo.getServices).toHaveBeenCalled();
+    expect(repo.getAllServices).toHaveBeenCalled();
     expect(repo.getSuburbs).toHaveBeenCalled();
     expect(repo.getSchedules).toHaveBeenCalled();
     expect(repo.getBudgets).toHaveBeenCalled();

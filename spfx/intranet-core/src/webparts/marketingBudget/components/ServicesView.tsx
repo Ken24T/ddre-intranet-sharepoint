@@ -107,6 +107,8 @@ const ServiceNameCell: React.FC<IServiceNameCellProps> = ({
       >
         <button
           type="button"
+          onFocus={handleMouseEnter}
+          onBlur={handleMouseLeave}
           onClick={(event): void => {
             event.preventDefault();
             event.stopPropagation();
@@ -477,8 +479,11 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
       items.push({
         key: "delete",
         text: "Delete",
-        iconProps: { iconName: "Delete", style: { color: "#a4262c" } },
-        style: { color: "#a4262c" },
+        iconProps: {
+          iconName: "Delete",
+          style: { color: "var(--errorText, #a4262c)" },
+        },
+        style: { color: "var(--errorText, #a4262c)" },
         onClick: (): void => setPendingDelete(service),
       });
       return items;
@@ -700,7 +705,10 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
           ariaLabel={`Remove ${variant.name || "variant"}`}
           onClick={(): void => removeVariant(variant.id)}
           styles={{
-            root: { marginTop: idx === 0 ? 28 : 0, color: "#a4262c" },
+            root: {
+              marginTop: idx === 0 ? 28 : 0,
+              color: "var(--errorText, #a4262c)",
+            },
           }}
         />
       </div>
@@ -760,7 +768,11 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
         <div className={styles.centeredState}>
           <Icon
             iconName="Settings"
-            style={{ fontSize: 48, marginBottom: 16, color: "#001CAD" }}
+            style={{
+              fontSize: 48,
+              marginBottom: 16,
+              color: "var(--hub-accent, #001CAD)",
+            }}
           />
           <Text variant="large">No services found</Text>
           <Text variant="medium" style={{ marginTop: 8, color: "#605e5c" }}>
@@ -900,7 +912,10 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
             text={isDeleting ? "Deleting…" : "Delete"}
             onClick={handleDeleteConfirm} // eslint-disable-line @typescript-eslint/no-floating-promises
             disabled={isDeleting}
-            style={{ backgroundColor: "#a4262c", borderColor: "#a4262c" }}
+            style={{
+              backgroundColor: "var(--errorText, #a4262c)",
+              borderColor: "var(--errorText, #a4262c)",
+            }}
           />
           <DefaultButton
             text="Cancel"

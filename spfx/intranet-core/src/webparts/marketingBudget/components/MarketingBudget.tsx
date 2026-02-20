@@ -67,6 +67,13 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const [defaultAgentName, setDefaultAgentName] = React.useState<string>(() =>
     loadDefaultAgentName(),
   );
+  const isMountedRef = React.useRef(true);
+
+  React.useEffect(() => {
+    return (): void => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // ─── Shell sidebar bridge ────────────────────────────────
   const { isEmbedded } = useShellBridge(activeView, setActiveView, shellBridgeOptions);
@@ -83,7 +90,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     const [vendorList, serviceList, suburbList, scheduleList, budgetList] =
       await Promise.all([
         repository.getVendors(),
-        repository.getServices(),
+        repository.getAllServices(),
         repository.getSuburbs(),
         repository.getSchedules(),
         repository.getBudgets(),
@@ -99,9 +106,15 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
 
   const handleDataChanged = React.useCallback((): void => {
     loadCounts()
-      .then((updatedCounts) => setCounts(updatedCounts))
+      .then((updatedCounts) => {
+        if (!isMountedRef.current) return;
+        setCounts(updatedCounts);
+      })
       .catch(() => {
-        // Ignore transient refresh errors to avoid interrupting the current view workflow.
+        if (!isMountedRef.current) return;
+        setError((prev) =>
+          prev ?? "Summary counts may be out of date. Please refresh the page.",
+        );
       });
   }, [loadCounts]);
 
@@ -164,7 +177,9 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     };
   }, [repository, loadCounts]);
 
-  const hasData = counts !== null && counts.services > 0;
+  const hasData =
+    counts !== null &&
+    (counts.vendors + counts.services + counts.suburbs + counts.schedules + counts.budgets > 0);
 
   // ─── View renderer ────────────────────────────────────────
 

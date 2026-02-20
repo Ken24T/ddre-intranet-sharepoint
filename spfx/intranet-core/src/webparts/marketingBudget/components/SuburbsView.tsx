@@ -82,6 +82,9 @@ const SuburbNameCell: React.FC<ISuburbNameCellProps> = ({ suburb }) => {
         className={styles.budgetRowAddress}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onFocus={handleMouseEnter}
+        onBlur={handleMouseLeave}
+        tabIndex={0}
       >
         {suburb.name}
       </div>
@@ -306,8 +309,11 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole,
       items.push({
         key: "delete",
         text: "Delete",
-        iconProps: { iconName: "Delete", style: { color: "#a4262c" } },
-        style: { color: "#a4262c" },
+        iconProps: {
+          iconName: "Delete",
+          style: { color: "var(--errorText, #a4262c)" },
+        },
+        style: { color: "var(--errorText, #a4262c)" },
         onClick: (): void => setPendingDelete(suburb),
       });
       return items;
@@ -468,7 +474,11 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole,
         <div className={styles.centeredState}>
           <Icon
             iconName="MapPin"
-            style={{ fontSize: 48, marginBottom: 16, color: "#001CAD" }}
+            style={{
+              fontSize: 48,
+              marginBottom: 16,
+              color: "var(--hub-accent, #001CAD)",
+            }}
           />
           <Text variant="large">No suburbs found</Text>
           <Text variant="medium" style={{ marginTop: 8, color: "#605e5c" }}>
@@ -553,7 +563,10 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole,
             text={isDeleting ? "Deleting…" : "Delete"}
             onClick={handleDeleteConfirm} // eslint-disable-line @typescript-eslint/no-floating-promises
             disabled={isDeleting}
-            style={{ backgroundColor: "#a4262c", borderColor: "#a4262c" }}
+            style={{
+              backgroundColor: "var(--errorText, #a4262c)",
+              borderColor: "var(--errorText, #a4262c)",
+            }}
           />
           <DefaultButton
             text="Cancel"
