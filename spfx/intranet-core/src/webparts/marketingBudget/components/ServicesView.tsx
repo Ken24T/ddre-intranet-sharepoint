@@ -10,6 +10,7 @@
 
 import * as React from "react";
 import {
+  Callout,
   Checkbox,
   DefaultButton,
   DetailsList,
@@ -17,6 +18,7 @@ import {
   Dialog,
   DialogFooter,
   DialogType,
+  DirectionalHint,
   Dropdown,
   IconButton,
   Panel,
@@ -51,6 +53,7 @@ import styles from "./MarketingBudget.module.scss";
 export interface IServicesViewProps {
   repository: IBudgetRepository;
   userRole: UserRole;
+  onDataChanged?: () => void;
 }
 
 interface IServiceRow {
@@ -64,6 +67,115 @@ interface IServiceRow {
   priceRange: string;
   _service: Service;
 }
+
+interface IServiceNameCellProps {
+  service: Service;
+  vendorName: string;
+  priceRange: string;
+  onToggle: () => void;
+}
+
+const ServiceNameCell: React.FC<IServiceNameCellProps> = ({
+  service,
+  vendorName,
+  priceRange,
+  onToggle,
+}) => {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const cellRef = React.useRef<HTMLDivElement>(null);
+  const timerRef = React.useRef<number | undefined>(undefined);
+
+  const handleMouseEnter = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(true), 350);
+  }, []);
+
+  const handleMouseLeave = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(false), 200);
+  }, []);
+
+  React.useEffect(() => (): void => window.clearTimeout(timerRef.current), []);
+
+  return (
+    <>
+      <div
+        ref={cellRef}
+        className={styles.budgetRowAddress}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <button
+          type="button"
+          onFocus={handleMouseEnter}
+          onBlur={handleMouseLeave}
+          onClick={(event): void => {
+            event.preventDefault();
+            event.stopPropagation();
+            onToggle();
+          }}
+          data-no-row-toggle="true"
+          style={{
+            border: "none",
+            background: "none",
+            padding: 0,
+            margin: 0,
+            cursor: "pointer",
+            textAlign: "left",
+            color: "inherit",
+            font: "inherit",
+          }}
+        >
+          {service.name}
+        </button>
+      </div>
+      {isVisible && cellRef.current && (
+        <Callout
+          target={cellRef.current}
+          directionalHint={DirectionalHint.bottomLeftEdge}
+          gapSpace={8}
+          isBeakVisible={true}
+          beakWidth={12}
+          onMouseEnter={(): void => {
+            window.clearTimeout(timerRef.current);
+          }}
+          onMouseLeave={handleMouseLeave}
+          onDismiss={(): void => setIsVisible(false)}
+          setInitialFocus={false}
+          className={styles.budgetCallout}
+        >
+          <div className={styles.budgetCalloutContent}>
+            <div className={`${styles.budgetCalloutHeader} ${styles.statusDraft}`}>
+              <Icon iconName="Settings" />
+              <span>SERVICE</span>
+            </div>
+            <div className={styles.budgetCalloutBody}>
+              <p className={styles.budgetCalloutAddress}>{service.name}</p>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="Tag" className={styles.budgetCalloutMetaIcon} />
+                <span style={{ textTransform: "capitalize" }}>{service.category}</span>
+              </div>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="People" className={styles.budgetCalloutMetaIcon} />
+                <span>{vendorName}</span>
+              </div>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="NumberedList" className={styles.budgetCalloutMetaIcon} />
+                <span>
+                  {service.variants.length} variant{service.variants.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+            </div>
+            <div className={styles.budgetCalloutTotals}>
+              <span className={styles.budgetCalloutTotalLabel}>Price range</span>
+              <span className={styles.budgetCalloutTotalValue}>{priceRange}</span>
+            </div>
+          </div>
+        </Callout>
+      )}
+    </>
+  );
+};
 
 /** Format a price range string from a set of variants. */
 const formatPriceRange = (service: Service): string => {
@@ -100,16 +212,17 @@ const activeStatusOptions: IDropdownOption[] = [
   { key: 0, text: "Inactive" },
 ];
 
-export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRole }) => {
+export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRole, onDataChanged }) => {
   const [services, setServices] = React.useState<Service[]>([]);
   const [vendors, setVendors] = React.useState<Vendor[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | undefined>(undefined);
   const [searchText, setSearchText] = React.useState("");
   const [categoryFilter, setCategoryFilter] = React.useState("all");
-  const [expandedId, setExpandedId] = React.useState<number | undefined>(
+  const [expandedRowKey, setExpandedRowKey] = React.useState<string | undefined>(
     undefined,
   );
+  const [expandedService, setExpandedService] = React.useState<Service | undefined>(undefined);
 
   // Editor panel state
   const [isEditorOpen, setIsEditorOpen] = React.useState(false);
@@ -202,8 +315,8 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
           return false;
         return true;
       })
-      .map((s) => ({
-        key: String(s.id ?? 0),
+      .map((s, idx) => ({
+        key: s.id !== undefined ? `id-${s.id}` : `row-${idx}-${s.name}`,
         id: s.id ?? 0,
         name: s.name,
         category: s.category,
@@ -215,6 +328,15 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
         _service: s,
       }));
   }, [services, searchText, categoryFilter, vendorMap]);
+
+  React.useEffect(() => {
+    if (!expandedRowKey) return;
+    const stillVisible = rows.some((row) => row.key === expandedRowKey);
+    if (!stillVisible) {
+      setExpandedRowKey(undefined);
+      setExpandedService(undefined);
+    }
+  }, [rows, expandedRowKey]);
 
   // ─── Editor helpers ────────────────────────────────────
 
@@ -253,6 +375,7 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
       await repository.saveService(service);
       closeEditor();
       loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save service");
     } finally {
@@ -272,28 +395,6 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
 
   const removeVariant = React.useCallback((variantId: string): void => {
     setEditorVariants((prev) => prev.filter((v) => v.id !== variantId));
-  }, []);
-
-  const moveVariantUp = React.useCallback((index: number): void => {
-    if (index === 0) return;
-    setEditorVariants((prev) => {
-      const updated = prev.map((v) => ({ ...v }));
-      const temp = updated[index];
-      updated[index] = updated[index - 1];
-      updated[index - 1] = temp;
-      return updated;
-    });
-  }, []);
-
-  const moveVariantDown = React.useCallback((index: number): void => {
-    setEditorVariants((prev) => {
-      if (index >= prev.length - 1) return prev;
-      const updated = prev.map((v) => ({ ...v }));
-      const temp = updated[index];
-      updated[index] = updated[index + 1];
-      updated[index + 1] = temp;
-      return updated;
-    });
   }, []);
 
   const updateVariant = React.useCallback(
@@ -316,6 +417,7 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
       await repository.deleteService(pendingDelete.id);
       setPendingDelete(undefined);
       loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete service");
       setPendingDelete(undefined);
@@ -340,11 +442,12 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
         };
         await repository.saveService(copy);
         loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+        onDataChanged?.();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to duplicate service");
       }
     },
-    [repository, loadData],
+    [repository, loadData, onDataChanged],
   );
 
   // ─── Row menu builder ─────────────────────────────────
@@ -376,14 +479,26 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
       items.push({
         key: "delete",
         text: "Delete",
-        iconProps: { iconName: "Delete", style: { color: "#a4262c" } },
-        style: { color: "#a4262c" },
+        iconProps: {
+          iconName: "Delete",
+          style: { color: "var(--errorText, #a4262c)" },
+        },
+        style: { color: "var(--errorText, #a4262c)" },
         onClick: (): void => setPendingDelete(service),
       });
       return items;
     },
     [isAdmin, openEditor, handleDuplicate],
   );
+
+  const handleRowClick = React.useCallback((item: IServiceRow): void => {
+    setExpandedRowKey((prev) => {
+      const isClosing = prev === item.key;
+      const next = isClosing ? undefined : item.key;
+      setExpandedService(isClosing ? undefined : item._service);
+      return next;
+    });
+  }, []);
 
   // ─── Column definitions ───────────────────────────────
 
@@ -396,6 +511,14 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
         minWidth: 150,
         maxWidth: 250,
         isResizable: true,
+        onRender: (item: IServiceRow): JSX.Element => (
+          <ServiceNameCell
+            service={item._service}
+            vendorName={item.vendorName}
+            priceRange={item.priceRange}
+            onToggle={(): void => handleRowClick(item)}
+          />
+        ),
       },
       {
         key: "category",
@@ -474,10 +597,6 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
     return cols;
   }, [isAdmin, getRowMenuItems]);
 
-  const handleRowClick = React.useCallback((item: IServiceRow): void => {
-    setExpandedId((prev) => (prev === item.id ? undefined : item.id));
-  }, []);
-
   /** Resolve vendor display name for a service. */
   const getVendorName = React.useCallback(
     (service: Service): string =>
@@ -485,6 +604,46 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
         ? (vendorMap.get(service.vendorId) ?? "—")
         : "System",
     [vendorMap],
+  );
+
+  const renderServicesList = React.useCallback(
+    (items: IServiceRow[], isHeaderVisible: boolean): React.ReactNode => (
+      <DetailsList
+        items={items}
+        columns={columns}
+        layoutMode={DetailsListLayoutMode.justified}
+        selectionMode={SelectionMode.none}
+        isHeaderVisible={isHeaderVisible}
+        onRenderRow={(rowProps, defaultRender): JSX.Element | null => {
+          if (!rowProps || !defaultRender) return null;
+          const rowItem = rowProps.item as IServiceRow;
+          return (
+            <div
+              style={{ cursor: "pointer" }}
+              onClick={(event): void => {
+                const target = event.target as HTMLElement;
+                if (target.closest("button, a, input, textarea, [role='button'], [data-no-row-toggle='true']")) {
+                  return;
+                }
+                handleRowClick(rowItem);
+              }}
+              onKeyDown={(event): void => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                const target = event.target as HTMLElement;
+                if (target.closest("button, a, input, textarea, [role='button'], [data-no-row-toggle='true']")) {
+                  return;
+                }
+                event.preventDefault();
+                handleRowClick(rowItem);
+              }}
+            >
+              {defaultRender(rowProps)}
+            </div>
+          );
+        }}
+      />
+    ),
+    [columns, handleRowClick],
   );
 
   // ─── Variant editor row ────────────────────────────────
@@ -540,31 +699,16 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
             styles={{ root: { flex: 1 } }}
           />
         )}
-        <div className={styles.lineItemEditorReorder}>
-          <IconButton
-            iconProps={{ iconName: "ChevronUp" }}
-            title="Move up"
-            ariaLabel="Move variant up"
-            disabled={idx === 0}
-            onClick={(): void => moveVariantUp(idx)}
-            styles={{ root: { width: 24, height: 20, marginTop: idx === 0 ? 28 : 0 } }}
-          />
-          <IconButton
-            iconProps={{ iconName: "ChevronDown" }}
-            title="Move down"
-            ariaLabel="Move variant down"
-            disabled={idx === editorVariants.length - 1}
-            onClick={(): void => moveVariantDown(idx)}
-            styles={{ root: { width: 24, height: 20 } }}
-          />
-        </div>
         <IconButton
           iconProps={{ iconName: "Delete" }}
           title="Remove variant"
           ariaLabel={`Remove ${variant.name || "variant"}`}
           onClick={(): void => removeVariant(variant.id)}
           styles={{
-            root: { marginTop: idx === 0 ? 28 : 0, color: "#a4262c" },
+            root: {
+              marginTop: idx === 0 ? 28 : 0,
+              color: "var(--errorText, #a4262c)",
+            },
           }}
         />
       </div>
@@ -624,7 +768,11 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
         <div className={styles.centeredState}>
           <Icon
             iconName="Settings"
-            style={{ fontSize: 48, marginBottom: 16, color: "#001CAD" }}
+            style={{
+              fontSize: 48,
+              marginBottom: 16,
+              color: "var(--hub-accent, #001CAD)",
+            }}
           />
           <Text variant="large">No services found</Text>
           <Text variant="medium" style={{ marginTop: 8, color: "#605e5c" }}>
@@ -632,52 +780,34 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
           </Text>
         </div>
       ) : (
-        <>
-          <DetailsList
-            items={rows}
-            columns={columns}
-            layoutMode={DetailsListLayoutMode.justified}
-            selectionMode={SelectionMode.none}
-            isHeaderVisible={true}
-            onActiveItemChanged={(item): void =>
-              handleRowClick(item as IServiceRow)
+        <div className={styles.listScrollPane}>
+          {((): React.ReactNode => {
+            if (!expandedRowKey || !expandedService) {
+              return renderServicesList(rows, true);
             }
-          />
-          {expandedId !== undefined &&
-            (() => {
-              const service = services.find((s) => s.id === expandedId);
-              return service ? (
-                <>
-                  {isAdmin && (
-                    <div className={styles.detailActionBar} style={{ marginTop: 8 }}>
-                      <DefaultButton
-                        text="Edit"
-                        iconProps={{ iconName: "Edit" }}
-                        onClick={(): void => openEditor(service)}
-                      />
-                      <DefaultButton
-                        text="Duplicate"
-                        iconProps={{ iconName: "Copy" }}
-                        onClick={(): void => {
-                          handleDuplicate(service); // eslint-disable-line @typescript-eslint/no-floating-promises
-                        }}
-                      />
-                      <DefaultButton
-                        text="Delete"
-                        iconProps={{ iconName: "Delete" }}
-                        onClick={(): void => setPendingDelete(service)}
-                        styles={{ root: { color: "#a4262c", borderColor: "#a4262c" } }}
-                      />
-                    </div>
-                  )}
+
+            const expandedIndex = rows.findIndex((row) => row.key === expandedRowKey);
+            if (expandedIndex < 0) {
+              return renderServicesList(rows, true);
+            }
+
+            const topRows = rows.slice(0, expandedIndex + 1);
+            const bottomRows = rows.slice(expandedIndex + 1);
+
+            return (
+              <>
+                {renderServicesList(topRows, true)}
+                <div style={{ maxHeight: 300, overflowY: "auto" }}>
                   <ServiceDetailPanel
-                    service={service}
-                    vendorName={getVendorName(service)}
+                    service={expandedService}
+                    vendorName={getVendorName(expandedService)}
                   />
-                </>
-              ) : undefined;
-            })()}
-        </>
+                </div>
+                {bottomRows.length > 0 && renderServicesList(bottomRows, false)}
+              </>
+            );
+          })()}
+        </div>
       )}
 
       {/* Editor panel — wider to accommodate variant editing */}
@@ -782,7 +912,10 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
             text={isDeleting ? "Deleting…" : "Delete"}
             onClick={handleDeleteConfirm} // eslint-disable-line @typescript-eslint/no-floating-promises
             disabled={isDeleting}
-            style={{ backgroundColor: "#a4262c", borderColor: "#a4262c" }}
+            style={{
+              backgroundColor: "var(--errorText, #a4262c)",
+              borderColor: "var(--errorText, #a4262c)",
+            }}
           />
           <DefaultButton
             text="Cancel"

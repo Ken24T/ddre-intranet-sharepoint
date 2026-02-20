@@ -23,6 +23,7 @@ import { BudgetComparisonView } from "./BudgetComparisonView";
 import { DataManagementView } from "./DataManagementView";
 import { useShellBridge } from "./useShellBridge";
 import { useBudgetNotifications } from "./useBudgetNotifications";
+import { loadDefaultAgentName, saveDefaultAgentName } from "./settings";
 
 // ─────────────────────────────────────────────────────────────
 // App-level navigation definition
@@ -76,13 +77,23 @@ interface DataCounts {
  * mode (Vite dev harness or new tab), it renders its own sidebar.
  */
 const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
-  const { userDisplayName, repository, auditLogger, templateService, shellBridgeOptions, userRole = 'viewer' } = props;
+  const { userDisplayName, repository, shellBridgeOptions, userRole = 'viewer' } = props;
   const [counts, setCounts] = React.useState<DataCounts | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSeeding, setIsSeeding] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [seedComplete, setSeedComplete] = React.useState(false);
   const [activeView, setActiveView] = React.useState<AppViewKey>("dashboard");
+  const [defaultAgentName, setDefaultAgentName] = React.useState<string>(() =>
+    loadDefaultAgentName(),
+  );
+  const isMountedRef = React.useRef(true);
+
+  React.useEffect(() => {
+    return (): void => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // ─── Filtered nav items (role-gated) ───────────────────
   const navItems = React.useMemo(() => getNavItemsForRole(userRole), [userRole]);
@@ -95,6 +106,11 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   // Only admins need approval notifications.
   useBudgetNotifications(repository, userRole === 'admin');
 
+  const handleDefaultAgentNameChange = React.useCallback((value: string): void => {
+    const saved = saveDefaultAgentName(value);
+    setDefaultAgentName(saved);
+  }, []);
+
   // ─── Data loading ────────────────────────────────────────
 
   /** Load counts from the repository. */
@@ -102,7 +118,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     const [vendorList, serviceList, suburbList, scheduleList, budgetList] =
       await Promise.all([
         repository.getVendors(),
-        repository.getServices(),
+        repository.getAllServices(),
         repository.getSuburbs(),
         repository.getSchedules(),
         repository.getBudgets(),
@@ -115,6 +131,20 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
       budgets: budgetList.length,
     };
   }, [repository]);
+
+  const handleDataChanged = React.useCallback((): void => {
+    loadCounts()
+      .then((updatedCounts) => {
+        if (!isMountedRef.current) return;
+        setCounts(updatedCounts);
+      })
+      .catch(() => {
+        if (!isMountedRef.current) return;
+        setError((prev) =>
+          prev ?? "Summary counts may be out of date. Please refresh the page.",
+        );
+      });
+  }, [loadCounts]);
 
   /** Seed reference data and refresh counts. */
   const handleSeed = React.useCallback(async (): Promise<void> => {
@@ -178,7 +208,9 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     };
   }, [repository, loadCounts, userRole]);
 
-  const hasData = counts !== null && counts.services > 0;
+  const hasData =
+    counts !== null &&
+    (counts.vendors + counts.services + counts.suburbs + counts.schedules + counts.budgets > 0);
 
   // ─── View renderer ────────────────────────────────────────
 
@@ -202,17 +234,25 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
       case "dashboard":
         return <DashboardView repository={repository} userRole={userRole} onNavigate={handleNavigate} />;
       case "budgets":
-        return <BudgetListView repository={repository} userRole={userRole} auditLogger={auditLogger} templateService={templateService} />;
+        return (
+          <BudgetListView
+            repository={repository}
+            userRole={userRole}
+            defaultAgentName={defaultAgentName}
+            onDefaultAgentNameChange={handleDefaultAgentNameChange}
+            onDataChanged={handleDataChanged}
+          />
+        );
       case "comparison":
         return <BudgetComparisonView repository={repository} userRole={userRole} />;
       case "schedules":
-        return <SchedulesView repository={repository} userRole={userRole} />;
+        return <SchedulesView repository={repository} userRole={userRole} onDataChanged={handleDataChanged} />;
       case "services":
-        return <ServicesView repository={repository} userRole={userRole} />;
+        return <ServicesView repository={repository} userRole={userRole} onDataChanged={handleDataChanged} />;
       case "vendors":
-        return <VendorsView repository={repository} userRole={userRole} />;
+        return <VendorsView repository={repository} userRole={userRole} onDataChanged={handleDataChanged} />;
       case "suburbs":
-        return <SuburbsView repository={repository} userRole={userRole} />;
+        return <SuburbsView repository={repository} userRole={userRole} onDataChanged={handleDataChanged} />;
       case "dataManagement":
         return <DataManagementView repository={repository} userRole={userRole} />;
       default:

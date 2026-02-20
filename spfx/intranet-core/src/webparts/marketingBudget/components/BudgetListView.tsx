@@ -9,30 +9,28 @@
 import * as React from "react";
 import {
   Callout,
-  CommandBar,
   DefaultButton,
   DetailsList,
   DetailsListLayoutMode,
+  TextField,
   Dialog,
   DialogFooter,
   DialogType,
   DirectionalHint,
   Dropdown,
   IconButton,
-  MarqueeSelection,
   MessageBar,
   MessageBarType,
   PrimaryButton,
   SearchBox,
-  Selection,
   SelectionMode,
   Spinner,
   SpinnerSize,
   Text,
   Icon,
 } from "@fluentui/react";
-import type { IColumn, ICommandBarItemProps, IDropdownOption, IContextualMenuProps, IContextualMenuItem } from "@fluentui/react";
-import type { Budget, BudgetStatus } from "../models/types";
+import type { IColumn, IDropdownOption, IContextualMenuProps, IContextualMenuItem } from "@fluentui/react";
+import type { Budget, BudgetStatus, DataExport } from "../models/types";
 import type { UserRole } from "../models/permissions";
 import {
   canCreateBudget,
@@ -42,21 +40,18 @@ import {
   canTransitionBudget,
 } from "../models/permissions";
 import { calculateBudgetSummary } from "../models/budgetCalculations";
-import { validateTransition } from "../models/budgetValidation";
-import { budgetListToCsv, budgetLineItemsToCsv, downloadCsv } from "../models/exportHelpers";
 import { statusTransitions } from "./budgetEditorConstants";
 import type { IBudgetRepository } from "../services/IBudgetRepository";
-import type { IBudgetAuditLogger } from "../services/IAuditLogger";
-import type { IBudgetTemplateService } from "../services/IBudgetTemplateService";
 import { BudgetEditorPanel } from "./BudgetEditorPanel";
-import { BudgetPrintView } from "./BudgetPrintView";
+import { DEFAULT_AGENT_NAME, normaliseDefaultAgentName } from "./settings";
 import styles from "./MarketingBudget.module.scss";
 
 export interface IBudgetListViewProps {
   repository: IBudgetRepository;
   userRole: UserRole;
-  auditLogger?: IBudgetAuditLogger;
-  templateService?: IBudgetTemplateService;
+  defaultAgentName: string;
+  onDefaultAgentNameChange: (value: string) => void;
+  onDataChanged?: () => void;
 }
 
 /** Column-friendly row shape. */
@@ -70,6 +65,11 @@ interface IBudgetRow {
   createdAt: string;
   /** The original budget for editing. */
   _budget: Budget;
+}
+
+interface ISettingsMessage {
+  type: MessageBarType;
+  text: string;
 }
 
 const statusOptions: IDropdownOption[] = [
@@ -159,6 +159,9 @@ const BudgetAddressCell: React.FC<IBudgetAddressCellProps> = ({ budget }) => {
         className={styles.budgetRowAddress}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onFocus={handleMouseEnter}
+        onBlur={handleMouseLeave}
+        tabIndex={0}
       >
         {budget.propertyAddress}
       </div>
@@ -234,8 +237,9 @@ const BudgetAddressCell: React.FC<IBudgetAddressCellProps> = ({ budget }) => {
 export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   repository,
   userRole,
-  auditLogger,
-  templateService,
+  defaultAgentName,
+  onDefaultAgentNameChange,
+  onDataChanged,
 }) => {
   const [budgets, setBudgets] = React.useState<Budget[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -252,22 +256,49 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   // Delete confirmation state
   const [pendingDeleteBudget, setPendingDeleteBudget] = React.useState<Budget | undefined>(undefined);
   const [isDeleting, setIsDeleting] = React.useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+  const [defaultAgentNameDraft, setDefaultAgentNameDraft] =
+    React.useState(defaultAgentName);
+  const [settingsMessage, setSettingsMessage] =
+    React.useState<ISettingsMessage | null>(null);
+  const [isSettingsBusy, setIsSettingsBusy] = React.useState(false);
+  const importInputRef = React.useRef<HTMLInputElement>(null);
 
-  // Print view state
-  const [printBudget, setPrintBudget] = React.useState<Budget | undefined>(undefined);
+  const isDataExport = React.useCallback((value: unknown): value is DataExport => {
+    if (!value || typeof value !== "object") {
+      return false;
+    }
 
-  // Multi-select state (admin only — for bulk status transitions)
-  const [selectedCount, setSelectedCount] = React.useState(0);
-  const selectionRef = React.useRef<Selection>(
-    new Selection({
-      onSelectionChanged: () => {
-        setSelectedCount(selectionRef.current.getSelectedCount());
-      },
-      getKey: (item: IBudgetRow) => item.key,
-    } as never),  // eslint-disable-line @typescript-eslint/no-explicit-any
-  );
-  const selection = selectionRef.current;
-  const canBulkSelect = canTransitionBudget(userRole);
+    const candidate = value as Partial<DataExport>;
+    return (
+      typeof candidate.exportVersion === "string" &&
+      typeof candidate.exportDate === "string" &&
+      typeof candidate.appVersion === "string" &&
+      Array.isArray(candidate.vendors) &&
+      Array.isArray(candidate.services) &&
+      Array.isArray(candidate.suburbs) &&
+      Array.isArray(candidate.schedules) &&
+      Array.isArray(candidate.budgets)
+    );
+  }, []);
+
+  const readFileAsText = React.useCallback((file: File): Promise<string> => {
+    const fileWithText = file as File & { text?: () => Promise<string> };
+    if (typeof fileWithText.text === "function") {
+      return fileWithText.text();
+    }
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (): void => {
+        resolve(String(reader.result ?? ""));
+      };
+      reader.onerror = (): void => {
+        reject(new Error("Unable to read selected file"));
+      };
+      reader.readAsText(file);
+    });
+  }, []);
 
   const loadBudgets = React.useCallback(
     async (signal: { cancelled: boolean }): Promise<void> => {
@@ -320,30 +351,30 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
       await repository.deleteBudget(pendingDeleteBudget.id);
       setPendingDeleteBudget(undefined);
       loadBudgets({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete budget");
       setPendingDeleteBudget(undefined);
     } finally {
       setIsDeleting(false);
     }
-  }, [pendingDeleteBudget, repository, loadBudgets]);
+  }, [pendingDeleteBudget, repository, loadBudgets, onDataChanged]);
 
   // ─── Duplicate handler ─────────────────────────────────
 
   const handleDuplicate = React.useCallback(
     async (budget: Budget): Promise<void> => {
       try {
-        const now = new Date().toISOString();
         const duplicate: Budget = {
           ...budget,
-          id: undefined as unknown as number,
+          id: undefined,
           propertyAddress: `${budget.propertyAddress} (copy)`,
           status: "draft" as const,
-          lineItems: budget.lineItems.map((li) => ({ ...li })),
-          createdAt: now,
-          updatedAt: now,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         };
         const saved = await repository.saveBudget(duplicate);
+        onDataChanged?.();
         // Open the duplicate in the editor
         setEditBudget(saved);
         setIsEditorOpen(true);
@@ -354,21 +385,13 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
         );
       }
     },
-    [repository, loadBudgets],
+    [repository, loadBudgets, onDataChanged],
   );
 
   // ─── Quick status transition handler ───────────────────
 
   const handleQuickTransition = React.useCallback(
     async (budget: Budget, newStatus: BudgetStatus): Promise<void> => {
-      // Validate the transition (e.g. draft → approved requires completeness)
-      const validation = validateTransition(budget, budget.status, newStatus);
-      if (!validation.isValid) {
-        const messages = validation.errors.map((e) => e.message).join(" ");
-        setError(messages);
-        return;
-      }
-
       try {
         await repository.saveBudget({
           ...budget,
@@ -384,121 +407,6 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
     },
     [repository, loadBudgets],
   );
-
-  // ─── Bulk status transition handler ────────────────────
-
-  const handleBulkTransition = React.useCallback(
-    async (newStatus: BudgetStatus): Promise<void> => {
-      const selected = selection.getSelection() as IBudgetRow[];
-      if (selected.length === 0) return;
-
-      const budgetsToTransition = selected.map((row) => row._budget);
-
-      // Validate all selected budgets
-      const failures: string[] = [];
-      for (const budget of budgetsToTransition) {
-        const allowed = statusTransitions[budget.status] ?? [];
-        if (allowed.indexOf(newStatus) < 0) {
-          failures.push(
-            `"${budget.propertyAddress}" cannot move from ${budget.status} to ${newStatus}.`,
-          );
-          continue;
-        }
-        const validation = validateTransition(budget, budget.status, newStatus);
-        if (!validation.isValid) {
-          const msgs = validation.errors.map((e) => e.message).join(" ");
-          failures.push(`"${budget.propertyAddress}": ${msgs}`);
-        }
-      }
-
-      if (failures.length > 0) {
-        setError(failures.join(" "));
-        return;
-      }
-
-      try {
-        const now = new Date().toISOString();
-        for (const budget of budgetsToTransition) {
-          await repository.saveBudget({
-            ...budget,
-            status: newStatus,
-            updatedAt: now,
-          });
-        }
-        selection.setAllSelected(false);
-        loadBudgets({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to update budgets",
-        );
-      }
-    },
-    [selection, repository, loadBudgets],
-  );
-
-  // ─── Bulk command bar items ────────────────────────────
-
-  const bulkCommandItems: ICommandBarItemProps[] = React.useMemo((): ICommandBarItemProps[] => {
-    if (!canBulkSelect || selectedCount === 0) return [];
-
-    const selected = selection.getSelection() as IBudgetRow[];
-    const selectedBudgets = selected.map((row) => row._budget);
-
-    // Determine which transitions are common to all selected budgets
-    const commonTransitions = selectedBudgets.reduce<BudgetStatus[]>(
-      (acc, budget, idx) => {
-        const allowed = statusTransitions[budget.status] ?? [];
-        return idx === 0 ? allowed : acc.filter((s) => allowed.indexOf(s) >= 0);
-      },
-      [],
-    );
-
-    const items: ICommandBarItemProps[] = [
-      {
-        key: "selection-count",
-        text: `${selectedCount} selected`,
-        disabled: true,
-        iconProps: { iconName: "CheckboxComposite" },
-      },
-    ];
-
-    for (const nextStatus of commonTransitions) {
-      const label =
-        nextStatus === "draft"
-          ? "Revert to Draft"
-          : nextStatus === "archived"
-            ? "Archive"
-            : `Mark as ${nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1)}`;
-      items.push({
-        key: `bulk-${nextStatus}`,
-        text: label,
-        iconProps: {
-          iconName:
-            nextStatus === "approved"
-              ? "CheckMark"
-              : nextStatus === "sent"
-                ? "Mail"
-                : nextStatus === "archived"
-                  ? "Archive"
-                  : "Undo",
-        },
-        onClick: (): void => {
-          handleBulkTransition(nextStatus); // eslint-disable-line @typescript-eslint/no-floating-promises
-        },
-      });
-    }
-
-    items.push({
-      key: "clear-selection",
-      text: "Clear selection",
-      iconProps: { iconName: "Cancel" },
-      onClick: (): void => {
-        selection.setAllSelected(false);
-      },
-    });
-
-    return items;
-  }, [canBulkSelect, selectedCount, selection, handleBulkTransition]);
 
   // ─── Permission flags ──────────────────────────────────
 
@@ -577,36 +485,16 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
         items.push({
           key: "delete",
           text: "Delete",
-          iconProps: { iconName: "Delete", style: { color: "#a4262c" } },
-          style: { color: "#a4262c" },
+          iconProps: {
+            iconName: "Delete",
+            style: { color: "var(--errorText, #a4262c)" },
+          },
+          style: { color: "var(--errorText, #a4262c)" },
           onClick: (): void => {
             handleDeleteClick(budget);
           },
         });
       }
-
-      // Print & Export — available to all roles
-      if (items.length > 0) {
-        items.push({ key: "divider-export", text: "-", itemType: 1 });
-      }
-      items.push({
-        key: "print",
-        text: "Print",
-        iconProps: { iconName: "Print" },
-        onClick: (): void => {
-          setPrintBudget(budget);
-        },
-      });
-      items.push({
-        key: "export-csv",
-        text: "Export line items CSV",
-        iconProps: { iconName: "DownloadDocument" },
-        onClick: (): void => {
-          const csv = budgetLineItemsToCsv(budget);
-          const addr = budget.propertyAddress.replace(/[^a-zA-Z0-9]/g, "_") || "budget";
-          downloadCsv(csv, `${addr}_line_items.csv`);
-        },
-      });
 
       return items;
     },
@@ -731,14 +619,116 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
       setIsEditorOpen(false);
       setEditBudget(undefined);
       loadBudgets({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     },
-    [loadBudgets],
+    [loadBudgets, onDataChanged],
   );
 
   const handleEditorDismiss = React.useCallback((): void => {
     setIsEditorOpen(false);
     setEditBudget(undefined);
   }, []);
+
+  const handleOpenSettings = React.useCallback((): void => {
+    setDefaultAgentNameDraft(defaultAgentName);
+    setSettingsMessage(null);
+    setIsSettingsOpen(true);
+  }, [defaultAgentName]);
+
+  const handleCloseSettings = React.useCallback((): void => {
+    setSettingsMessage(null);
+    setIsSettingsOpen(false);
+  }, []);
+
+  const handleSaveSettings = React.useCallback((): void => {
+    onDefaultAgentNameChange(
+      normaliseDefaultAgentName(defaultAgentNameDraft),
+    );
+    setIsSettingsOpen(false);
+  }, [defaultAgentNameDraft, onDefaultAgentNameChange]);
+
+  const handleExportData = React.useCallback(async (): Promise<void> => {
+    setIsSettingsBusy(true);
+    setSettingsMessage(null);
+    try {
+      const data = await repository.exportAll();
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const objectUrl = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = objectUrl;
+      downloadLink.download = `marketing-budget-export-${timestamp}.json`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(objectUrl);
+
+      setSettingsMessage({
+        type: MessageBarType.success,
+        text: "Export complete. Your MB data backup has been downloaded.",
+      });
+    } catch {
+      setSettingsMessage({
+        type: MessageBarType.error,
+        text: "Export failed. Please try again.",
+      });
+    } finally {
+      setIsSettingsBusy(false);
+    }
+  }, [repository]);
+
+  const handleImportFileChange = React.useCallback(
+    async (
+      event: React.ChangeEvent<HTMLInputElement>,
+    ): Promise<void> => {
+      const selectedFile = event.target.files?.[0];
+      if (!selectedFile) {
+        return;
+      }
+
+      setIsSettingsBusy(true);
+      setSettingsMessage(null);
+
+      try {
+        const fileText = await readFileAsText(selectedFile);
+        const parsed = JSON.parse(fileText) as unknown;
+
+        if (!isDataExport(parsed)) {
+          throw new Error("Invalid export format");
+        }
+
+        await repository.importAll(parsed);
+        await loadBudgets({ cancelled: false });
+        onDataChanged?.();
+
+        setSettingsMessage({
+          type: MessageBarType.success,
+          text: "Import complete. MB data has been replaced from the selected file.",
+        });
+      } catch {
+        setSettingsMessage({
+          type: MessageBarType.error,
+          text: "Import failed. Please use a valid MB export JSON file.",
+        });
+      } finally {
+        setIsSettingsBusy(false);
+        if (importInputRef.current) {
+          importInputRef.current.value = "";
+        }
+      }
+    },
+    [isDataExport, loadBudgets, onDataChanged, readFileAsText, repository],
+  );
+
+  const handleImportData = React.useCallback((): void => {
+    importInputRef.current?.click();
+  }, []);
+
+  const handleExportDataClick = React.useCallback((): void => {
+    handleExportData().catch(() => undefined);
+  }, [handleExportData]);
 
   return (
     <div className={styles.viewContainer}>
@@ -775,22 +765,16 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
           }
           className={styles.filterDropdown}
         />
+        <DefaultButton
+          text="Settings"
+          iconProps={{ iconName: "Settings" }}
+          onClick={handleOpenSettings}
+        />
         {showCreate && (
           <PrimaryButton
             text="New Budget"
             iconProps={{ iconName: "Add" }}
             onClick={handleNewBudget}
-          />
-        )}
-        {rows.length > 0 && (
-          <DefaultButton
-            text="Export CSV"
-            iconProps={{ iconName: "DownloadDocument" }}
-            onClick={(): void => {
-              const filteredBudgets = rows.map((r) => r._budget);
-              const csv = budgetListToCsv(filteredBudgets);
-              downloadCsv(csv, "budgets.csv");
-            }}
           />
         )}
       </div>
@@ -803,7 +787,11 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
         <div className={styles.centeredState}>
           <Icon
             iconName="Financial"
-            style={{ fontSize: 48, marginBottom: 16, color: "#001CAD" }}
+            style={{
+              fontSize: 48,
+              marginBottom: 16,
+              color: "var(--hub-accent, #001CAD)",
+            }}
           />
           <Text variant="large">No budgets yet</Text>
           <Text variant="medium" style={{ marginTop: 8, color: "#605e5c" }}>
@@ -812,51 +800,109 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
           </Text>
         </div>
       ) : (
-        <>
-          {canBulkSelect && (
-            <div
-              style={{
-                minHeight: 44,
-                marginBottom: 8,
-                visibility: bulkCommandItems.length > 0 ? "visible" : "hidden",
-              }}
-            >
-              <CommandBar
-                items={bulkCommandItems.length > 0 ? bulkCommandItems : []}
-                styles={{
-                  root: {
-                    padding: 0,
-                    backgroundColor: "#EEF2F8",
-                    borderRadius: 4,
-                  },
-                }}
-              />
-            </div>
-          )}
-          <MarqueeSelection selection={selection} isEnabled={canBulkSelect}>
-            <DetailsList
-              items={rows}
-              columns={columns}
-              layoutMode={DetailsListLayoutMode.justified}
-              selectionMode={canBulkSelect ? SelectionMode.multiple : SelectionMode.none}
-              selection={canBulkSelect ? selection : undefined}
-              isHeaderVisible={true}
-            />
-          </MarqueeSelection>
-        </>
+        <div className={styles.listScrollPane}>
+          <DetailsList
+            items={rows}
+            columns={columns}
+            layoutMode={DetailsListLayoutMode.justified}
+            selectionMode={SelectionMode.none}
+            isHeaderVisible={true}
+          />
+        </div>
       )}
 
       {/* Budget editor panel */}
       <BudgetEditorPanel
         budget={editBudget}
         repository={repository}
-        auditLogger={auditLogger}
-        templateService={templateService}
         isOpen={isEditorOpen}
         onDismiss={handleEditorDismiss}
         onSaved={handleEditorSaved}
         userRole={userRole}
+        defaultAgentName={defaultAgentName}
       />
+
+      <Dialog
+        hidden={!isSettingsOpen}
+        onDismiss={handleCloseSettings}
+        dialogContentProps={{
+          type: DialogType.normal,
+          title: "Settings",
+          subText:
+            "Manage budget defaults and import/export MB data.",
+        }}
+        modalProps={{ isBlocking: false }}
+      >
+        {settingsMessage && (
+          <MessageBar
+            messageBarType={settingsMessage.type}
+            onDismiss={(): void => setSettingsMessage(null)}
+          >
+            {settingsMessage.text}
+          </MessageBar>
+        )}
+        <TextField
+          label="Default Agent Name"
+          value={defaultAgentNameDraft}
+          onChange={(_, value): void =>
+            setDefaultAgentNameDraft(value ?? "")
+          }
+          placeholder={DEFAULT_AGENT_NAME}
+        />
+        <div style={{ marginTop: 16 }}>
+          <Text variant="mediumPlus" block>
+            Data Import/Export
+          </Text>
+          <Text
+            variant="small"
+            block
+            style={{ color: "#605e5c", marginBottom: 8 }}
+          >
+            Export or import Budgets, Schedules, Services, Vendors, and Suburbs.
+          </Text>
+          <Text
+            variant="small"
+            block
+            style={{ color: "var(--errorText, #a4262c)", marginBottom: 12 }}
+          >
+            Import replaces all existing MB data.
+          </Text>
+          <input
+            ref={importInputRef}
+            type="file"
+            accept="application/json,.json"
+            onChange={handleImportFileChange} // eslint-disable-line @typescript-eslint/no-misused-promises
+            style={{ display: "none" }}
+            aria-label="Import MB data file"
+          />
+          <div style={{ display: "flex", gap: 8 }}>
+            <DefaultButton
+              text={isSettingsBusy ? "Exporting…" : "Export Data"}
+              iconProps={{ iconName: "Download" }}
+              onClick={handleExportDataClick}
+              disabled={isSettingsBusy}
+            />
+            <DefaultButton
+              text={isSettingsBusy ? "Importing…" : "Import Data"}
+              iconProps={{ iconName: "Upload" }}
+              onClick={handleImportData}
+              disabled={isSettingsBusy}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <PrimaryButton
+            text="Save"
+            onClick={handleSaveSettings}
+            disabled={isSettingsBusy}
+          />
+          <DefaultButton
+            text="Cancel"
+            onClick={handleCloseSettings}
+            disabled={isSettingsBusy}
+          />
+        </DialogFooter>
+      </Dialog>
 
       {/* Delete confirmation dialog */}
       <Dialog
@@ -876,7 +922,10 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
             text={isDeleting ? "Deleting…" : "Delete"}
             onClick={handleDeleteConfirm} // eslint-disable-line @typescript-eslint/no-floating-promises
             disabled={isDeleting}
-            style={{ backgroundColor: "#a4262c", borderColor: "#a4262c" }}
+            style={{
+              backgroundColor: "var(--errorText, #a4262c)",
+              borderColor: "var(--errorText, #a4262c)",
+            }}
           />
           <DefaultButton
             text="Cancel"
@@ -885,13 +934,6 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
           />
         </DialogFooter>
       </Dialog>
-
-      {/* Print view overlay */}
-      {printBudget && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "#fff" }}>
-          <BudgetPrintView budget={printBudget} onDismiss={(): void => setPrintBudget(undefined)} />
-        </div>
-      )}
     </div>
   );
 };

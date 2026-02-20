@@ -17,6 +17,10 @@ import { IntranetShellWrapper } from "./components/IntranetShellWrapper";
 import { IIntranetShellProps } from "./components/IIntranetShellProps";
 import { resolveShellAccess, SIDEBAR_HUB_KEYS } from './components/services/ShellGroupResolver';
 import type { HubKey } from './components/services/ShellGroupResolver';
+import MarketingBudget from "../marketingBudget/components/MarketingBudget";
+import type { IBudgetRepository } from "../marketingBudget/services/IBudgetRepository";
+import { DexieBudgetRepository } from "../marketingBudget/services/DexieBudgetRepository";
+import type { UserRole } from "../marketingBudget/models/permissions";
 
 export interface IIntranetShellWebPartProps {
   description: string;
@@ -27,8 +31,24 @@ export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntrane
   private _environmentMessage: string = "";
   private _isAdmin: boolean = false;
   private _visibleHubs: HubKey[] = [...SIDEBAR_HUB_KEYS, 'favourites', 'help'];
+  private _marketingBudgetRepository: IBudgetRepository = new DexieBudgetRepository();
+  private _marketingBudgetUserRole: UserRole = "viewer";
 
   public render(): void {
+    const MarketingBudgetInline: React.FC<{ isAdmin: boolean }> = ({ isAdmin }) =>
+      React.createElement(MarketingBudget, {
+        userDisplayName: this.context.pageContext.user.displayName,
+        isDarkTheme: this._isDarkTheme,
+        isSharePointContext: true,
+        repository: this._marketingBudgetRepository,
+        userRole: isAdmin ? "admin" : this._marketingBudgetUserRole,
+        shellBridgeOptions: { forceActive: true },
+      });
+
+    const cardDetailRenderers: Record<string, React.ComponentType<{ isAdmin: boolean }>> = {
+      "marketing-budgets": MarketingBudgetInline,
+    };
+
     const shellElement: React.ReactElement<IIntranetShellProps> =
       React.createElement(IntranetShellWithTasks, {
         userDisplayName: this.context.pageContext.user.displayName,
@@ -40,6 +60,7 @@ export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntrane
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
         isAdmin: this._isAdmin,
         visibleHubs: this._visibleHubs,
+        cardDetailRenderers,
       });
 
     // Wrap shell with error handling providers (Toast, OfflineBanner)
@@ -64,6 +85,28 @@ export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntrane
         // eslint-disable-next-line no-console
         console.warn('[IntranetShellWebPart] Group resolution failed:', error);
       }
+    }
+
+    try {
+      const [repoFactory, roleResolver] = await Promise.all([
+        import(
+          /* webpackChunkName: 'marketing-budget-repository-factory' */ "../marketingBudget/services/RepositoryFactory"
+        ),
+        import(
+          /* webpackChunkName: 'marketing-budget-role-resolver' */ "../marketingBudget/services/RoleResolver"
+        ),
+      ]);
+
+      const sp = repoFactory.getSPFI(this.context);
+      this._marketingBudgetRepository = repoFactory.createRepository(sp);
+      this._marketingBudgetUserRole = await roleResolver.resolveUserRole(sp);
+    } catch (error) {
+      console.warn(
+        "[IntranetShell] Marketing Budget repository/role init failed, falling back to viewer mode",
+        error,
+      );
+      this._marketingBudgetRepository = new DexieBudgetRepository();
+      this._marketingBudgetUserRole = "viewer";
     }
   }
 

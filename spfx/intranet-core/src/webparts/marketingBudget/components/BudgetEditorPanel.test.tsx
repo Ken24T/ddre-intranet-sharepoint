@@ -224,6 +224,28 @@ describe("BudgetEditorPanel", () => {
     });
   });
 
+  it("prefills Agent Name for a new budget from default settings", async () => {
+    const repo = createMockRepository();
+    render(
+      <BudgetEditorPanel
+        repository={repo}
+        isOpen={true}
+        onDismiss={jest.fn()}
+        onSaved={jest.fn()}
+        userRole="admin"
+        defaultAgentName="Doug Disher Real Estate"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Property Details")).toBeInTheDocument();
+    });
+
+    expect(screen.getByLabelText(/Agent Name/i)).toHaveValue(
+      "Doug Disher Real Estate",
+    );
+  });
+
   it("shows Save Changes button when editing existing budget", async () => {
     const repo = createMockRepository();
     const existingBudget: Budget = {

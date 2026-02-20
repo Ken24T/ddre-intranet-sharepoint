@@ -2,6 +2,24 @@
   padding: 1rem;
   color: "[theme:bodyText, default: #323130]";
 
+  :global(.ms-Button.ms-Button--primary) {
+    background-color: var(--hub-accent, #001CAD);
+    border-color: var(--hub-accent, #001CAD);
+  }
+
+  :global(.ms-Button.ms-Button--primary:hover) {
+    background-color: var(--hub-accent, #001CAD);
+    border-color: var(--hub-accent, #001CAD);
+    filter: brightness(0.92);
+  }
+
+  :global(.ms-Button.ms-Button--primary:focus),
+  :global(.ms-Button.ms-Button--primary:active) {
+    background-color: var(--hub-accent, #001CAD);
+    border-color: var(--hub-accent, #001CAD);
+    filter: brightness(0.86);
+  }
+
   .header {
     display: flex;
     align-items: center;
@@ -112,6 +130,12 @@
   min-height: 200px;
   padding: 2rem;
   text-align: center;
+}
+
+.listScrollPane {
+  height: 420px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Standalone sidebar (when NOT embedded in shell iframe) */
@@ -386,6 +410,13 @@
   font-weight: 600;
   color: "[theme:themePrimary, default: #001CAD]";
   margin-bottom: 8px;
+}
+
+.refDetailActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
 }
 
 .refDetailMeta {

@@ -134,6 +134,9 @@ For SHIP/TCTBP activation, steps, approvals, and versioning rules, see the TCTBP
 - Prefer TypeScript strict typing
 - Use Fluent UI components over custom styling
 - Apply theme tokens from `pkg-theme` for consistent branding
+- For app cards rendered inside `IntranetShell`, honour the active hub colour scheme for primary actions:
+  - Prefer shell-provided CSS variables (for example `--hub-accent`) or an explicit `accentColor` prop from shell context.
+  - Avoid hard-coding `#001CAD` for primary buttons and interactive accents in inline app experiences.
 - Use API clients from `pkg-api-client` for external service calls
 - Handle loading, empty, and error states explicitly
 - Keep files under ~300 lines; split by responsibility

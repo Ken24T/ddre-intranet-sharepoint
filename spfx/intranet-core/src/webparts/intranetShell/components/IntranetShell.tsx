@@ -1060,6 +1060,7 @@ export class IntranetShell extends React.Component<IIntranetShellProps, IIntrane
     const themeCssVars = getThemeCssVars(resolvedTheme);
     const shellStyle = {
       ...themeCssVars,
+      '--hub-accent': hubColor.accent,
       '--hub-surface-bg': hubSurface.background,
       '--hub-surface-border': hubSurface.border,
     } as React.CSSProperties;

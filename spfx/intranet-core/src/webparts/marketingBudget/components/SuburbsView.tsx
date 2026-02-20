@@ -3,25 +3,23 @@
  *
  * Displays suburbs in a DetailsList grouped/filterable by pricing tier.
  * Admin users can add, edit and delete suburbs via the "..." context menu.
- * Bulk tier management allows admins to multi-select suburbs and change
- * pricing tiers in bulk. Postcode validation enforces 4-digit Australian format.
  */
 
 import * as React from "react";
 import {
+  Callout,
   DefaultButton,
   DetailsList,
   DetailsListLayoutMode,
   Dialog,
   DialogFooter,
   DialogType,
+  DirectionalHint,
   Dropdown,
   IconButton,
-  MarqueeSelection,
   Panel,
   PanelType,
   PrimaryButton,
-  Selection,
   SelectionMode,
   Separator,
   Text,
@@ -43,6 +41,7 @@ import styles from "./MarketingBudget.module.scss";
 export interface ISuburbsViewProps {
   repository: IBudgetRepository;
   userRole: UserRole;
+  onDataChanged?: () => void;
 }
 
 interface ISuburbRow {
@@ -54,6 +53,86 @@ interface ISuburbRow {
   state: string;
   _suburb: Suburb;
 }
+
+interface ISuburbNameCellProps {
+  suburb: Suburb;
+}
+
+const SuburbNameCell: React.FC<ISuburbNameCellProps> = ({ suburb }) => {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const cellRef = React.useRef<HTMLDivElement>(null);
+  const timerRef = React.useRef<number | undefined>(undefined);
+
+  const handleMouseEnter = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(true), 350);
+  }, []);
+
+  const handleMouseLeave = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(false), 200);
+  }, []);
+
+  React.useEffect(() => (): void => window.clearTimeout(timerRef.current), []);
+
+  return (
+    <>
+      <div
+        ref={cellRef}
+        className={styles.budgetRowAddress}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onFocus={handleMouseEnter}
+        onBlur={handleMouseLeave}
+        tabIndex={0}
+      >
+        {suburb.name}
+      </div>
+      {isVisible && cellRef.current && (
+        <Callout
+          target={cellRef.current}
+          directionalHint={DirectionalHint.bottomLeftEdge}
+          gapSpace={8}
+          isBeakVisible={true}
+          beakWidth={12}
+          onMouseEnter={(): void => {
+            window.clearTimeout(timerRef.current);
+          }}
+          onMouseLeave={handleMouseLeave}
+          onDismiss={(): void => setIsVisible(false)}
+          setInitialFocus={false}
+          className={styles.budgetCallout}
+        >
+          <div className={styles.budgetCalloutContent}>
+            <div className={`${styles.budgetCalloutHeader} ${styles.statusDraft}`}>
+              <Icon iconName="MapPin" />
+              <span>SUBURB</span>
+            </div>
+            <div className={styles.budgetCalloutBody}>
+              <p className={styles.budgetCalloutAddress}>{suburb.name}</p>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="Tag" className={styles.budgetCalloutMetaIcon} />
+                <span>Tier {suburb.pricingTier}</span>
+              </div>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="POI" className={styles.budgetCalloutMetaIcon} />
+                <span>
+                  {suburb.postcode ?? "—"} · {suburb.state ?? "QLD"}
+                </span>
+              </div>
+            </div>
+            <div className={styles.budgetCalloutTotals}>
+              <span className={styles.budgetCalloutTotalLabel}>Pricing Tier</span>
+              <span className={styles.budgetCalloutTotalValue}>
+                {suburb.pricingTier}
+              </span>
+            </div>
+          </div>
+        </Callout>
+      )}
+    </>
+  );
+};
 
 const tierColours: Record<PricingTier, string> = {
   A: "#107c10",
@@ -77,14 +156,7 @@ const tierEditOptions: IDropdownOption[] = [
   { key: "D", text: "Tier D" },
 ];
 
-/** Validate an Australian postcode (4 digits). Returns error message or undefined. */
-const validatePostcode = (postcode: string): string | undefined => {
-  if (!postcode) return undefined; // optional field
-  if (!/^\d{4}$/.test(postcode)) return "Postcode must be exactly 4 digits";
-  return undefined;
-};
-
-export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole }) => {
+export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole, onDataChanged }) => {
   const [suburbs, setSuburbs] = React.useState<Suburb[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | undefined>(undefined);
@@ -99,26 +171,10 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
   const [editorPostcode, setEditorPostcode] = React.useState("");
   const [editorState, setEditorState] = React.useState("QLD");
   const [isSaving, setIsSaving] = React.useState(false);
-  const [postcodeError, setPostcodeError] = React.useState<string | undefined>(undefined);
-
-  // Bulk tier management state
-  const [selectedCount, setSelectedCount] = React.useState(0);
-  const [isBulkTierOpen, setIsBulkTierOpen] = React.useState(false);
-  const [bulkTier, setBulkTier] = React.useState<PricingTier>("A");
-  const [isBulkSaving, setIsBulkSaving] = React.useState(false);
 
   // Delete confirmation state
   const [pendingDelete, setPendingDelete] = React.useState<Suburb | undefined>(undefined);
   const [isDeleting, setIsDeleting] = React.useState(false);
-
-  // Selection for bulk operations
-  const selectionRef = React.useRef(
-    new Selection({
-      onSelectionChanged: (): void => {
-        setSelectedCount(selectionRef.current.getSelectedCount());
-      },
-    }),
-  );
 
   const isAdmin = canManageReferenceData(userRole);
 
@@ -148,34 +204,43 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
     };
   }, [loadData]);
 
-  const rows: ISuburbRow[] = React.useMemo(() => {
+  const searchFilteredSuburbs = React.useMemo(() => {
     const lowerSearch = searchText.toLowerCase();
-    return suburbs
-      .filter((s) => {
-        if (tierFilter !== "all" && s.pricingTier !== tierFilter) return false;
-        if (searchText && !s.name.toLowerCase().includes(lowerSearch))
-          return false;
-        return true;
-      })
-      .map((s) => ({
-        key: String(s.id ?? 0),
-        id: s.id ?? 0,
-        name: s.name,
-        pricingTier: s.pricingTier,
-        postcode: s.postcode ?? "—",
-        state: s.state ?? "QLD",
-        _suburb: s,
-      }));
-  }, [suburbs, searchText, tierFilter]);
+    return suburbs.filter((s) => {
+      if (searchText && !s.name.toLowerCase().includes(lowerSearch)) {
+        return false;
+      }
+      return true;
+    });
+  }, [suburbs, searchText]);
+
+  const rows: ISuburbRow[] = React.useMemo(
+    () =>
+      searchFilteredSuburbs
+        .filter((s) => {
+          if (tierFilter !== "all" && s.pricingTier !== tierFilter) return false;
+          return true;
+        })
+        .map((s) => ({
+          key: String(s.id ?? 0),
+          id: s.id ?? 0,
+          name: s.name,
+          pricingTier: s.pricingTier,
+          postcode: s.postcode ?? "—",
+          state: s.state ?? "QLD",
+          _suburb: s,
+        })),
+    [searchFilteredSuburbs, tierFilter],
+  );
 
   /** Tier summary counts. */
   const tierCounts = React.useMemo(() => {
     const counts: Record<string, number> = { A: 0, B: 0, C: 0, D: 0 };
-    for (const s of suburbs) {
+    for (const s of searchFilteredSuburbs) {
       counts[s.pricingTier] = (counts[s.pricingTier] ?? 0) + 1;
     }
     return counts;
-  }, [suburbs]);
+  }, [searchFilteredSuburbs]);
 
   // ─── Editor helpers ────────────────────────────────────
 
@@ -194,13 +259,6 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
   }, []);
 
   const handleSave = React.useCallback(async (): Promise<void> => {
-    // Validate postcode
-    const pcError = validatePostcode(editorPostcode.trim());
-    if (pcError) {
-      setPostcodeError(pcError);
-      return;
-    }
-    setPostcodeError(undefined);
     setIsSaving(true);
     try {
       const suburb: Suburb = {
@@ -213,12 +271,13 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
       await repository.saveSuburb(suburb);
       closeEditor();
       loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save suburb");
     } finally {
       setIsSaving(false);
     }
-  }, [editSuburb, editorName, editorTier, editorPostcode, editorState, repository, closeEditor, loadData]);
+  }, [editSuburb, editorName, editorTier, editorPostcode, editorState, repository, closeEditor, loadData, onDataChanged]);
 
   // ─── Delete helpers ────────────────────────────────────
 
@@ -229,34 +288,14 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
       await repository.deleteSuburb(pendingDelete.id);
       setPendingDelete(undefined);
       loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete suburb");
       setPendingDelete(undefined);
     } finally {
       setIsDeleting(false);
     }
-  }, [pendingDelete, repository, loadData]);
-
-  // ─── Bulk tier helpers ─────────────────────────────────
-
-  const handleBulkTierChange = React.useCallback(async (): Promise<void> => {
-    const selected = selectionRef.current.getSelection() as ISuburbRow[];
-    if (selected.length === 0) return;
-    setIsBulkSaving(true);
-    try {
-      for (const row of selected) {
-        const suburb: Suburb = { ...row._suburb, pricingTier: bulkTier };
-        await repository.saveSuburb(suburb);
-      }
-      setIsBulkTierOpen(false);
-      selectionRef.current.setAllSelected(false);
-      loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update tiers");
-    } finally {
-      setIsBulkSaving(false);
-    }
-  }, [bulkTier, repository, loadData]);
+  }, [pendingDelete, repository, loadData, onDataChanged]);
 
   // ─── Row menu builder ─────────────────────────────────
 
@@ -279,8 +318,11 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
       items.push({
         key: "delete",
         text: "Delete",
-        iconProps: { iconName: "Delete", style: { color: "#a4262c" } },
-        style: { color: "#a4262c" },
+        iconProps: {
+          iconName: "Delete",
+          style: { color: "var(--errorText, #a4262c)" },
+        },
+        style: { color: "var(--errorText, #a4262c)" },
         onClick: (): void => setPendingDelete(suburb),
       });
       return items;
@@ -299,6 +341,9 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
         minWidth: 150,
         maxWidth: 250,
         isResizable: true,
+        onRender: (item: ISuburbRow): JSX.Element => (
+          <SuburbNameCell suburb={item._suburb} />
+        ),
       },
       {
         key: "tier",
@@ -353,7 +398,6 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
               menuProps={menuProps}
               title="Actions"
               ariaLabel={`Actions for ${item.name}`}
-              onClick={(ev): void => ev.stopPropagation()}
             />
           );
         },
@@ -431,21 +475,17 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
         )}
       </div>
 
-      {/* Bulk tier action bar — always rendered to prevent layout shift */}
-      {isAdmin && (
-        <div
-          className={styles.bulkActionBar}
-          style={{ visibility: selectedCount > 0 ? "visible" : "hidden" }}
+      {!isLoading && suburbs.length > 0 && (
+        <Text
+          variant="small"
+          style={{
+            display: "block",
+            marginBottom: 8,
+            color: "#605e5c",
+          }}
         >
-          <Text variant="small" style={{ fontWeight: 600 }}>
-            {selectedCount} suburb{selectedCount !== 1 ? "s" : ""} selected
-          </Text>
-          <PrimaryButton
-            text="Change Tier"
-            iconProps={{ iconName: "StackedLineChart" }}
-            onClick={(): void => setIsBulkTierOpen(true)}
-          />
-        </div>
+          Showing {rows.length} of {searchFilteredSuburbs.length} suburbs
+        </Text>
       )}
 
       {isLoading ? (
@@ -456,7 +496,11 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
         <div className={styles.centeredState}>
           <Icon
             iconName="MapPin"
-            style={{ fontSize: 48, marginBottom: 16, color: "#001CAD" }}
+            style={{
+              fontSize: 48,
+              marginBottom: 16,
+              color: "var(--hub-accent, #001CAD)",
+            }}
           />
           <Text variant="large">No suburbs found</Text>
           <Text variant="medium" style={{ marginTop: 8, color: "#605e5c" }}>
@@ -464,18 +508,7 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
           </Text>
         </div>
       ) : (
-        isAdmin ? (
-          <MarqueeSelection selection={selectionRef.current}>
-            <DetailsList
-              items={rows}
-              columns={columns}
-              layoutMode={DetailsListLayoutMode.justified}
-              selectionMode={SelectionMode.multiple}
-              selection={selectionRef.current}
-              isHeaderVisible={true}
-            />
-          </MarqueeSelection>
-        ) : (
+        <div className={styles.listScrollPane}>
           <DetailsList
             items={rows}
             columns={columns}
@@ -483,7 +516,7 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
             selectionMode={SelectionMode.none}
             isHeaderVisible={true}
           />
-        )
+        </div>
       )}
 
       {/* Editor panel */}
@@ -523,13 +556,9 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
           <TextField
             label="Postcode"
             value={editorPostcode}
-            onChange={(_, val): void => {
-              setEditorPostcode(val ?? "");
-              setPostcodeError(undefined);
-            }}
+            onChange={(_, val): void => setEditorPostcode(val ?? "")}
             placeholder="e.g. 4065"
             maxLength={4}
-            errorMessage={postcodeError}
           />
           <TextField
             label="State"
@@ -558,43 +587,15 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
             text={isDeleting ? "Deleting…" : "Delete"}
             onClick={handleDeleteConfirm} // eslint-disable-line @typescript-eslint/no-floating-promises
             disabled={isDeleting}
-            style={{ backgroundColor: "#a4262c", borderColor: "#a4262c" }}
+            style={{
+              backgroundColor: "var(--errorText, #a4262c)",
+              borderColor: "var(--errorText, #a4262c)",
+            }}
           />
           <DefaultButton
             text="Cancel"
             onClick={(): void => setPendingDelete(undefined)}
             disabled={isDeleting}
-          />
-        </DialogFooter>
-      </Dialog>
-
-      {/* Bulk tier change dialog */}
-      <Dialog
-        hidden={!isBulkTierOpen}
-        onDismiss={(): void => setIsBulkTierOpen(false)}
-        dialogContentProps={{
-          type: DialogType.normal,
-          title: "Change pricing tier",
-          subText: `Assign a new pricing tier to ${selectedCount} selected suburb${selectedCount !== 1 ? "s" : ""}.`,
-        }}
-        modalProps={{ isBlocking: true }}
-      >
-        <Dropdown
-          label="New Pricing Tier"
-          options={tierEditOptions}
-          selectedKey={bulkTier}
-          onChange={(_, opt): void => setBulkTier((opt?.key ?? "A") as PricingTier)}
-        />
-        <DialogFooter>
-          <PrimaryButton
-            text={isBulkSaving ? "Updating…" : "Apply"}
-            onClick={handleBulkTierChange} // eslint-disable-line @typescript-eslint/no-floating-promises
-            disabled={isBulkSaving}
-          />
-          <DefaultButton
-            text="Cancel"
-            onClick={(): void => setIsBulkTierOpen(false)}
-            disabled={isBulkSaving}
           />
         </DialogFooter>
       </Dialog>

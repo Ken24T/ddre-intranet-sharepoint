@@ -8,12 +8,14 @@
 
 import * as React from "react";
 import {
+  Callout,
   DefaultButton,
   DetailsList,
   DetailsListLayoutMode,
   Dialog,
   DialogFooter,
   DialogType,
+  DirectionalHint,
   Dropdown,
   IconButton,
   Panel,
@@ -40,6 +42,7 @@ import styles from "./MarketingBudget.module.scss";
 export interface IVendorsViewProps {
   repository: IBudgetRepository;
   userRole: UserRole;
+  onDataChanged?: () => void;
 }
 
 interface IVendorRow {
@@ -53,12 +56,102 @@ interface IVendorRow {
   _vendor: Vendor;
 }
 
+interface IVendorNameCellProps {
+  vendor: Vendor;
+  serviceCount: number;
+}
+
+const VendorNameCell: React.FC<IVendorNameCellProps> = ({
+  vendor,
+  serviceCount,
+}) => {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const cellRef = React.useRef<HTMLDivElement>(null);
+  const timerRef = React.useRef<number | undefined>(undefined);
+
+  const handleMouseEnter = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(true), 350);
+  }, []);
+
+  const handleMouseLeave = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(false), 200);
+  }, []);
+
+  React.useEffect(() => (): void => window.clearTimeout(timerRef.current), []);
+
+  return (
+    <>
+      <div
+        ref={cellRef}
+        className={styles.budgetRowAddress}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onFocus={handleMouseEnter}
+        onBlur={handleMouseLeave}
+        tabIndex={0}
+      >
+        {vendor.name}
+      </div>
+      {isVisible && cellRef.current && (
+        <Callout
+          target={cellRef.current}
+          directionalHint={DirectionalHint.bottomLeftEdge}
+          gapSpace={8}
+          isBeakVisible={true}
+          beakWidth={12}
+          onMouseEnter={(): void => {
+            window.clearTimeout(timerRef.current);
+          }}
+          onMouseLeave={handleMouseLeave}
+          onDismiss={(): void => setIsVisible(false)}
+          setInitialFocus={false}
+          className={styles.budgetCallout}
+        >
+          <div className={styles.budgetCalloutContent}>
+            <div className={`${styles.budgetCalloutHeader} ${styles.statusDraft}`}>
+              <Icon iconName="People" />
+              <span>VENDOR</span>
+            </div>
+            <div className={styles.budgetCalloutBody}>
+              <p className={styles.budgetCalloutAddress}>{vendor.name}</p>
+              {vendor.shortCode && (
+                <div className={styles.budgetCalloutMeta}>
+                  <Icon iconName="Tag" className={styles.budgetCalloutMetaIcon} />
+                  <span>{vendor.shortCode}</span>
+                </div>
+              )}
+              {vendor.contactEmail && (
+                <div className={styles.budgetCalloutMeta}>
+                  <Icon iconName="Mail" className={styles.budgetCalloutMetaIcon} />
+                  <span>{vendor.contactEmail}</span>
+                </div>
+              )}
+              {vendor.contactPhone && (
+                <div className={styles.budgetCalloutMeta}>
+                  <Icon iconName="Phone" className={styles.budgetCalloutMetaIcon} />
+                  <span>{vendor.contactPhone}</span>
+                </div>
+              )}
+            </div>
+            <div className={styles.budgetCalloutTotals}>
+              <span className={styles.budgetCalloutTotalLabel}>Services</span>
+              <span className={styles.budgetCalloutTotalValue}>{serviceCount}</span>
+            </div>
+          </div>
+        </Callout>
+      )}
+    </>
+  );
+};
+
 const activeStatusOptions: IDropdownOption[] = [
   { key: 1, text: "Active" },
   { key: 0, text: "Inactive" },
 ];
 
-export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole }) => {
+export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole, onDataChanged }) => {
   const [vendors, setVendors] = React.useState<Vendor[]>([]);
   const [services, setServices] = React.useState<Service[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -176,12 +269,13 @@ export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole 
       await repository.saveVendor(vendor);
       closeEditor();
       loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save vendor");
     } finally {
       setIsSaving(false);
     }
-  }, [editVendor, editorName, editorShortCode, editorEmail, editorPhone, editorIsActive, repository, closeEditor, loadData]);
+  }, [editVendor, editorName, editorShortCode, editorEmail, editorPhone, editorIsActive, repository, closeEditor, loadData, onDataChanged]);
 
   // ─── Delete helpers ────────────────────────────────────
 
@@ -192,13 +286,14 @@ export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole 
       await repository.deleteVendor(pendingDelete.id);
       setPendingDelete(undefined);
       loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete vendor");
       setPendingDelete(undefined);
     } finally {
       setIsDeleting(false);
     }
-  }, [pendingDelete, repository, loadData]);
+  }, [pendingDelete, repository, loadData, onDataChanged]);
 
   // ─── Row menu builder ─────────────────────────────────
 
@@ -221,8 +316,11 @@ export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole 
       items.push({
         key: "delete",
         text: "Delete",
-        iconProps: { iconName: "Delete", style: { color: "#a4262c" } },
-        style: { color: "#a4262c" },
+        iconProps: {
+          iconName: "Delete",
+          style: { color: "var(--errorText, #a4262c)" },
+        },
+        style: { color: "var(--errorText, #a4262c)" },
         onClick: (): void => setPendingDelete(vendor),
       });
       return items;
@@ -241,6 +339,12 @@ export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole 
         minWidth: 150,
         maxWidth: 250,
         isResizable: true,
+        onRender: (item: IVendorRow): JSX.Element => (
+          <VendorNameCell
+            vendor={item._vendor}
+            serviceCount={item.serviceCount}
+          />
+        ),
       },
       {
         key: "code",
@@ -363,7 +467,11 @@ export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole 
               <div key={svc.id} className={styles.refItemRow}>
                 <Icon
                   iconName="Settings"
-                  style={{ color: "#001CAD", fontSize: 14, flexShrink: 0 }}
+                  style={{
+                    color: "var(--hub-accent, #001CAD)",
+                    fontSize: 14,
+                    flexShrink: 0,
+                  }}
                 />
                 <span className={styles.refItemName}>{svc.name}</span>
                 <span
@@ -428,7 +536,11 @@ export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole 
         <div className={styles.centeredState}>
           <Icon
             iconName="People"
-            style={{ fontSize: 48, marginBottom: 16, color: "#001CAD" }}
+            style={{
+              fontSize: 48,
+              marginBottom: 16,
+              color: "var(--hub-accent, #001CAD)",
+            }}
           />
           <Text variant="large">No vendors found</Text>
           <Text variant="medium" style={{ marginTop: 8, color: "#605e5c" }}>
@@ -436,13 +548,17 @@ export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole 
           </Text>
         </div>
       ) : (
-        <>
+        <div className={styles.listScrollPane}>
           <DetailsList
             items={rows}
             columns={columns}
             layoutMode={DetailsListLayoutMode.justified}
             selectionMode={SelectionMode.none}
             isHeaderVisible={true}
+            onRenderRow={(rowProps, defaultRender): JSX.Element | null => {
+              if (!rowProps || !defaultRender) return null;
+              return <div style={{ cursor: "pointer" }}>{defaultRender(rowProps)}</div>;
+            }}
             onActiveItemChanged={(item): void =>
               handleRowClick(item as IVendorRow)
             }
@@ -452,7 +568,7 @@ export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole 
               const vendor = vendors.find((v) => v.id === expandedId);
               return vendor ? renderExpandedDetail(vendor) : undefined;
             })()}
-        </>
+        </div>
       )}
 
       {/* Editor panel */}
@@ -530,7 +646,10 @@ export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole 
             text={isDeleting ? "Deleting…" : "Delete"}
             onClick={handleDeleteConfirm} // eslint-disable-line @typescript-eslint/no-floating-promises
             disabled={isDeleting}
-            style={{ backgroundColor: "#a4262c", borderColor: "#a4262c" }}
+            style={{
+              backgroundColor: "var(--errorText, #a4262c)",
+              borderColor: "var(--errorText, #a4262c)",
+            }}
           />
           <DefaultButton
             text="Cancel"

@@ -97,6 +97,7 @@ describe("SuburbsView", () => {
       // "1 suburb" for Tier C and D
       expect(screen.getAllByText("1 suburb").length).toBeGreaterThanOrEqual(2);
     });
+    expect(screen.getByText("Showing 4 of 4 suburbs")).toBeInTheDocument();
   });
 
   it("shows postcodes", async () => {
@@ -130,6 +131,28 @@ describe("SuburbsView", () => {
     await waitFor(() => {
       expect(screen.getByText("Ipswich")).toBeInTheDocument();
       expect(screen.queryByText("Bardon")).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Showing 1 of 1 suburbs")).toBeInTheDocument();
+  });
+
+  it("updates tier summary badges with search filtering", async () => {
+    const repo = createMockRepo();
+    render(<SuburbsView repository={repo} userRole="admin" />);
+
+    await waitFor(() => {
+      expect(screen.getByText("2 suburbs")).toBeInTheDocument();
+    });
+
+    const searchInput = screen.getByPlaceholderText("Search suburbs…");
+    fireEvent.change(searchInput, { target: { value: "Ipswich" } });
+
+    await waitFor(() => {
+      expect(screen.getByText("Ipswich")).toBeInTheDocument();
+      expect(screen.queryByText("Bardon")).not.toBeInTheDocument();
+      expect(screen.getAllByText("Tier C").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("0 suburbs").length).toBeGreaterThanOrEqual(3);
+      expect(screen.getByText("1 suburb")).toBeInTheDocument();
     });
   });
 

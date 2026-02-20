@@ -31,6 +31,7 @@ import { getServiceVariant } from "../models/variantHelpers";
 import { validateTransition } from "../models/budgetValidation";
 import type { ValidationResult } from "../models/budgetValidation";
 import { statusTransitions } from "./budgetEditorConstants";
+import { DEFAULT_AGENT_NAME, normaliseDefaultAgentName } from "./settings";
 
 export interface IBudgetEditorState {
   // Reference data
@@ -90,6 +91,7 @@ export function useBudgetEditorState(
   repository: IBudgetRepository,
   isOpen: boolean,
   onSaved: (budget: Budget) => void,
+  defaultAgentName: string = DEFAULT_AGENT_NAME,
 ): IBudgetEditorState {
   const isNew = !editBudget?.id;
 
@@ -199,11 +201,11 @@ export function useBudgetEditorState(
       setLineItems(defaults.lineItems);
       setNotes("");
       setClientName("");
-      setAgentName("");
+      setAgentName(normaliseDefaultAgentName(defaultAgentName));
       setStatus(defaults.status);
     }
     setError(null);
-  }, [isOpen, editBudget]);
+  }, [isOpen, editBudget, defaultAgentName]);
 
   // ─── Re-resolve line items when context changes ────────
   React.useEffect(() => {
