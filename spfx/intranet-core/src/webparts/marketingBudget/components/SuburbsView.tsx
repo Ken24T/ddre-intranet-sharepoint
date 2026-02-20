@@ -7,12 +7,14 @@
 
 import * as React from "react";
 import {
+  Callout,
   DefaultButton,
   DetailsList,
   DetailsListLayoutMode,
   Dialog,
   DialogFooter,
   DialogType,
+  DirectionalHint,
   Dropdown,
   IconButton,
   Panel,
@@ -50,6 +52,83 @@ interface ISuburbRow {
   state: string;
   _suburb: Suburb;
 }
+
+interface ISuburbNameCellProps {
+  suburb: Suburb;
+}
+
+const SuburbNameCell: React.FC<ISuburbNameCellProps> = ({ suburb }) => {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const cellRef = React.useRef<HTMLDivElement>(null);
+  const timerRef = React.useRef<number | undefined>(undefined);
+
+  const handleMouseEnter = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(true), 350);
+  }, []);
+
+  const handleMouseLeave = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(false), 200);
+  }, []);
+
+  React.useEffect(() => (): void => window.clearTimeout(timerRef.current), []);
+
+  return (
+    <>
+      <div
+        ref={cellRef}
+        className={styles.budgetRowAddress}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {suburb.name}
+      </div>
+      {isVisible && cellRef.current && (
+        <Callout
+          target={cellRef.current}
+          directionalHint={DirectionalHint.bottomLeftEdge}
+          gapSpace={8}
+          isBeakVisible={true}
+          beakWidth={12}
+          onMouseEnter={(): void => {
+            window.clearTimeout(timerRef.current);
+          }}
+          onMouseLeave={handleMouseLeave}
+          onDismiss={(): void => setIsVisible(false)}
+          setInitialFocus={false}
+          className={styles.budgetCallout}
+        >
+          <div className={styles.budgetCalloutContent}>
+            <div className={`${styles.budgetCalloutHeader} ${styles.statusDraft}`}>
+              <Icon iconName="MapPin" />
+              <span>SUBURB</span>
+            </div>
+            <div className={styles.budgetCalloutBody}>
+              <p className={styles.budgetCalloutAddress}>{suburb.name}</p>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="Tag" className={styles.budgetCalloutMetaIcon} />
+                <span>Tier {suburb.pricingTier}</span>
+              </div>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="POI" className={styles.budgetCalloutMetaIcon} />
+                <span>
+                  {suburb.postcode ?? "—"} · {suburb.state ?? "QLD"}
+                </span>
+              </div>
+            </div>
+            <div className={styles.budgetCalloutTotals}>
+              <span className={styles.budgetCalloutTotalLabel}>Pricing Tier</span>
+              <span className={styles.budgetCalloutTotalValue}>
+                {suburb.pricingTier}
+              </span>
+            </div>
+          </div>
+        </Callout>
+      )}
+    </>
+  );
+};
 
 const tierColours: Record<PricingTier, string> = {
   A: "#107c10",
@@ -244,6 +323,9 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
         minWidth: 150,
         maxWidth: 250,
         isResizable: true,
+        onRender: (item: ISuburbRow): JSX.Element => (
+          <SuburbNameCell suburb={item._suburb} />
+        ),
       },
       {
         key: "tier",
