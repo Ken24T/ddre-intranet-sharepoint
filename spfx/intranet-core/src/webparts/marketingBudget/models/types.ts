@@ -194,44 +194,6 @@ export interface Budget {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Budget Template (user-saved)
-// ─────────────────────────────────────────────────────────────
-
-/** A line item snapshot within a saved budget template. */
-export interface BudgetTemplateLineItem {
-  serviceId: number;
-  serviceName?: string;
-  variantId: string | null;
-  variantName?: string | null;
-  isSelected: boolean;
-  /** Price at time of template creation (informational). */
-  savedPrice?: number;
-  overridePrice: number | null;
-  isOverridden: boolean;
-}
-
-/**
- * A user-saved budget template.
- * Created from an existing budget's configuration for quick reuse.
- */
-export interface BudgetTemplate {
-  id?: number;
-  name: string;
-  description?: string;
-  /** Default property type when applying template. */
-  propertyType?: PropertyType;
-  /** Default property size when applying template. */
-  propertySize?: PropertySize;
-  /** Default tier when applying template. */
-  tier?: BudgetTier;
-  /** Schedule the template was derived from. */
-  sourceScheduleId?: number;
-  lineItems: BudgetTemplateLineItem[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-// ─────────────────────────────────────────────────────────────
 // Export Data Envelope
 // ─────────────────────────────────────────────────────────────
 

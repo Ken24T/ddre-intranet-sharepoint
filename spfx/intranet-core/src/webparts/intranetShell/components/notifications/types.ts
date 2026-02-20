@@ -13,10 +13,9 @@ export type NotificationCategory =
   | 'due-tomorrow'
   | 'due-this-week'
   | 'assigned'
-  | 'mentioned'
-  | 'budget-approval';
+  | 'mentioned';
 
-export type NotificationSource = 'task' | 'system' | 'budget';
+export type NotificationSource = 'task' | 'system';
 
 /**
  * A single notification item.
@@ -80,5 +79,4 @@ export const CATEGORY_CONFIG: Record<
   'due-this-week': { label: 'Due This Week', icon: 'CalendarWeek', sortOrder: 4 },
   assigned: { label: 'Newly Assigned', icon: 'AddFriend', sortOrder: 5 },
   mentioned: { label: 'Mentions', icon: 'Message', sortOrder: 6 },
-  'budget-approval': { label: 'Budgets Awaiting Approval', icon: 'Financial', sortOrder: 7 },
 };

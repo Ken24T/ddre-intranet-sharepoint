@@ -17,11 +17,11 @@ info:
     **Capabilities:** Read-only (no create, update, delete)
 
 servers:
-  - url: https://api-dev.disher.com.au
+  - url: https://api-dev.dougdisher.com.au
     description: Development
-  - url: https://api-test.disher.com.au
+  - url: https://api-test.dougdisher.com.au
     description: Test
-  - url: https://api.disher.com.au
+  - url: https://api.dougdisher.com.au
     description: Production
 
 paths:

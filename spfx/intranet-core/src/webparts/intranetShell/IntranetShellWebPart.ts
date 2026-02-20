@@ -7,16 +7,11 @@ import {
 } from "@microsoft/sp-property-pane";
 import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
 import { IReadonlyTheme } from "@microsoft/sp-component-base";
-import { spfi, SPFx } from '@pnp/sp';
-import type { SPFI } from '@pnp/sp';
-import '@pnp/sp/webs';
 
 import * as strings from "IntranetShellWebPartStrings";
 import { IntranetShellWithTasks } from "./components/IntranetShellWithTasks";
 import { IntranetShellWrapper } from "./components/IntranetShellWrapper";
 import { IIntranetShellProps } from "./components/IIntranetShellProps";
-import { resolveShellAccess, SIDEBAR_HUB_KEYS } from './components/services/ShellGroupResolver';
-import type { HubKey } from './components/services/ShellGroupResolver';
 import MarketingBudget from "../marketingBudget/components/MarketingBudget";
 import type { IBudgetRepository } from "../marketingBudget/services/IBudgetRepository";
 import { DexieBudgetRepository } from "../marketingBudget/services/DexieBudgetRepository";
@@ -29,23 +24,21 @@ export interface IIntranetShellWebPartProps {
 export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntranetShellWebPartProps> {
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = "";
-  private _isAdmin: boolean = false;
-  private _visibleHubs: HubKey[] = [...SIDEBAR_HUB_KEYS, 'favourites', 'help'];
   private _marketingBudgetRepository: IBudgetRepository = new DexieBudgetRepository();
   private _marketingBudgetUserRole: UserRole = "viewer";
 
   public render(): void {
-    const MarketingBudgetInline: React.FC<{ isAdmin: boolean }> = ({ isAdmin }) =>
+    const MarketingBudgetInline: React.FC = () =>
       React.createElement(MarketingBudget, {
         userDisplayName: this.context.pageContext.user.displayName,
         isDarkTheme: this._isDarkTheme,
         isSharePointContext: true,
         repository: this._marketingBudgetRepository,
-        userRole: isAdmin ? "admin" : this._marketingBudgetUserRole,
+        userRole: this._marketingBudgetUserRole,
         shellBridgeOptions: { forceActive: true },
       });
 
-    const cardDetailRenderers: Record<string, React.ComponentType<{ isAdmin: boolean }>> = {
+    const cardDetailRenderers: Record<string, React.ComponentType> = {
       "marketing-budgets": MarketingBudgetInline,
     };
 
@@ -54,12 +47,9 @@ export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntrane
         userDisplayName: this.context.pageContext.user.displayName,
         userEmail: this.context.pageContext.user.email || '',
         siteTitle: this.context.pageContext.web.title,
-        siteUrl: this.context.pageContext.web.absoluteUrl,
         appVersion: this.manifest.version,
         isDarkTheme: this._isDarkTheme,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
-        isAdmin: this._isAdmin,
-        visibleHubs: this._visibleHubs,
         cardDetailRenderers,
       });
 
@@ -71,21 +61,6 @@ export default class IntranetShellWebPart extends BaseClientSideWebPart<IIntrane
 
   protected async onInit(): Promise<void> {
     this._environmentMessage = await this._getEnvironmentMessage();
-
-    // Resolve shell access from SP group membership
-    // Only runs in SharePoint context (not local workbench)
-    if (!this.context.isServedFromLocalhost) {
-      try {
-        const sp: SPFI = spfi().using(SPFx(this.context));
-        const access = await resolveShellAccess(sp);
-        this._isAdmin = access.isAdmin;
-        this._visibleHubs = access.visibleHubs;
-      } catch (error) {
-        // Fail open — show all hubs if group resolution fails
-        // eslint-disable-next-line no-console
-        console.warn('[IntranetShellWebPart] Group resolution failed:', error);
-      }
-    }
 
     try {
       const [repoFactory, roleResolver] = await Promise.all([

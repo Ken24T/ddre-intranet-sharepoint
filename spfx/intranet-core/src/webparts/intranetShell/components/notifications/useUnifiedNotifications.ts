@@ -78,7 +78,6 @@ function groupNotifications(notifications: Notification[]): NotificationGroup[] 
     'due-this-week': [],
     assigned: [],
     mentioned: [],
-    'budget-approval': [],
   };
 
   // Group notifications
@@ -144,20 +143,11 @@ export interface UseUnifiedNotificationsResult {
   getBannerNotifications: () => Notification[];
 }
 
-export interface UseUnifiedNotificationsOptions {
-  /** Additional notifications from external sources (e.g. app bridge). */
-  additionalNotifications?: Notification[];
-}
-
-export function useUnifiedNotifications(
-  options?: UseUnifiedNotificationsOptions,
-): UseUnifiedNotificationsResult {
+export function useUnifiedNotifications(): UseUnifiedNotificationsResult {
   const { state: tasksState, refreshTasks } = useTasks();
   const [readIds, setReadIds] = React.useState<Set<string>>(new Set());
 
-  const additionalNotifications = options?.additionalNotifications;
-
-  // Compute notifications from tasks + external sources
+  // Compute notifications from tasks
   const state = React.useMemo<NotificationState>(() => {
     const notifications: Notification[] = [];
 
@@ -179,17 +169,6 @@ export function useUnifiedNotifications(
       }
     }
 
-    // Merge additional notifications from external sources (e.g. budget app)
-    if (additionalNotifications) {
-      for (const n of additionalNotifications) {
-        const merged: Notification = {
-          ...n,
-          isRead: readIds.has(n.id),
-        };
-        notifications.push(merged);
-      }
-    }
-
     const groups = groupNotifications(notifications);
     const unreadCount = notifications.filter((n) => !n.isRead).length;
 
@@ -205,7 +184,7 @@ export function useUnifiedNotifications(
       error: errorMessage,
       lastRefresh: new Date().toISOString(),
     };
-  }, [tasksState.tasks, tasksState.isLoading, tasksState.error, readIds, additionalNotifications]);
+  }, [tasksState.tasks, tasksState.isLoading, tasksState.error, readIds]);
 
   const refresh = React.useCallback(async () => {
     await refreshTasks();

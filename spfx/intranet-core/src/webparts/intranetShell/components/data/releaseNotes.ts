@@ -84,63 +84,6 @@ export const categoryColors: Record<ReleaseCategory, { bg: string; text: string 
 
 export const minorReleases: IMinorRelease[] = [
   {
-    id: 'release-0.7',
-    version: '0.7',
-    title: 'v0.7 — February 2026',
-    summary: 'App–Shell communication framework, budget tool enhancements, and infrastructure improvements.',
-    patches: [
-      {
-        version: '0.7.0',
-        date: '2026-02-12',
-        title: 'Shared AppBridge & Budget Enhancements',
-        items: [
-          {
-            id: 'item-0.7.0-1',
-            title: 'Drag-and-drop reordering for budget line items',
-            category: 'feature',
-            description:
-              'You can now reorder line items within a budget by dragging and dropping them into your preferred order.',
-          },
-          {
-            id: 'item-0.7.0-2',
-            title: 'Budget templates — save and load presets',
-            category: 'feature',
-            description:
-              'Save your current line items as a reusable template, or start a new budget from a saved template.',
-          },
-          {
-            id: 'item-0.7.0-3',
-            title: 'Budget approval notifications',
-            category: 'feature',
-            description:
-              'Receive toast notifications when a budget is submitted for approval or when approval status changes.',
-          },
-          {
-            id: 'item-0.7.0-4',
-            title: 'Shared App–Shell communication protocol',
-            category: 'improvement',
-            description:
-              'Extracted the PostMessage-based communication between web parts and the shell into a shared library for consistency.',
-          },
-          {
-            id: 'item-0.7.0-5',
-            title: 'Audit trail consistency improvements',
-            category: 'improvement',
-            description:
-              'Standardised audit logging across all budget operations including service, suburb, and schedule changes.',
-          },
-          {
-            id: 'item-0.7.0-6',
-            title: 'Updated tenant configuration',
-            category: 'improvement',
-            description:
-              'Environment URLs updated to the new disher.sharepoint.com single-tenant structure.',
-          },
-        ],
-      },
-    ],
-  },
-  {
     id: 'release-0.5',
     version: '0.5',
     title: 'v0.5 — January 2026',

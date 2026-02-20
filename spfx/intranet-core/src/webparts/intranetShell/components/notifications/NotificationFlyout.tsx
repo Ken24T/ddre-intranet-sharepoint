@@ -194,9 +194,6 @@ export const NotificationFlyout: React.FC<INotificationFlyoutProps> = ({
   if (!isVisible) return null;
 
   const hasNotifications = state.groups.length > 0;
-  const hasTaskNotifications = state.groups.some(
-    (g: NotificationGroup) => g.category !== 'budget-approval'
-  );
 
   // Build dynamic style with hub accent color
   const flyoutStyle: React.CSSProperties = hubAccentColor
@@ -241,7 +238,7 @@ export const NotificationFlyout: React.FC<INotificationFlyoutProps> = ({
           )}
         </div>
 
-        {hasTaskNotifications && onViewAllTasks && (
+        {hasNotifications && onViewAllTasks && (
           <div className={styles.footer}>
             <button
               className={styles.viewAllLink}

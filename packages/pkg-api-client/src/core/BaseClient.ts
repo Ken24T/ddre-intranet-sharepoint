@@ -23,12 +23,13 @@ export abstract class BaseClient {
   protected detectBaseUrl(): string {
     const siteUrl = this.context.pageContext.web.absoluteUrl.toLowerCase();
 
-    if (siteUrl.includes("/sites/dev-intranet")) {
-      return "https://api-dev.disher.com.au";
-    } else if (siteUrl.includes("/sites/test-intranet")) {
-      return "https://api-test.disher.com.au";
+    // TODO: Update these patterns when tenant is provisioned
+    if (siteUrl.includes("ddredev")) {
+      return "https://api-dev.dougdisher.com.au";
+    } else if (siteUrl.includes("ddretest")) {
+      return "https://api-test.dougdisher.com.au";
     } else {
-      return "https://api.disher.com.au";
+      return "https://api.dougdisher.com.au";
     }
   }
 

@@ -1,12 +1,3 @@
-// Mock PnPjs modules (ESM that Jest can't parse)
-jest.mock("@pnp/sp", () => ({
-  spfi: jest.fn(() => ({})),
-  SPFx: jest.fn(),
-}));
-jest.mock("@pnp/sp/webs", () => ({}));
-jest.mock("@pnp/sp/site-users/web", () => ({}));
-jest.mock("@pnp/sp/site-groups", () => ({}));
-
 import * as React from "react";
 import { render, screen, within } from "@testing-library/react";
 import IntranetShell from "./IntranetShell";

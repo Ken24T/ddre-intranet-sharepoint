@@ -1,7 +1,6 @@
 # DDRE Intranet (SharePoint Monorepo)
 
-This repository contains the **DDRE Intranet** built on **SharePoint Online** using
-**SharePoint Framework (SPFx)** with **TypeScript + React**.
+This repository contains the **DDRE Intranet** built on **SharePoint Online** using **SharePoint Framework (SPFx)** with **TypeScript + React**.
 
 The intranet is:
 
@@ -18,7 +17,7 @@ Primary developer: **Ken Boyle**
 
 This is a **monorepo**: one Git history, one set of repo standards, multiple deliverables.
 
-```text
+```
 .
 |-- spfx/         # SPFx solution (intranet-core — single .sppkg with all web parts)
 |-- apps/         # User-facing tool definitions (business context, no code)
@@ -49,18 +48,7 @@ Every business app is delivered as a **web part inside `intranet-core`**:
 - `spfx/intranet-core/src/webparts/<camelCaseName>/` contains the implementation
 - `config/config.json` registers each web part's bundle and localised resources
 
-| App | Hub | Web Part | Status |
-|-----|-----|----------|--------|
-| Marketing Budget | Administration | `marketingBudget` | Active |
-| Cognito Forms | Administration | `cognitoForms` | Planning |
-| Dante Library | Office | `danteLibrary` | Planning |
-| PM Dashboard | Property Management | `pmDashboard` | Planning |
-| QR Coder | Office | `qrCoder` | Planning |
-| Surveys | Administration | `surveys` | Planning |
-| Vault Batcher | Sales | `vaultBatcher` | Planning |
-
 To add a new app:
-
 1. Define requirements in `apps/app-<name>/`
 2. Create web part at `spfx/intranet-core/src/webparts/<camelCaseName>/`
 3. Register in `config/config.json`

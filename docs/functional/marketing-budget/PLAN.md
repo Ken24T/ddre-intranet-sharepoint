@@ -205,24 +205,24 @@ Deliverables: `SPListBudgetRepository`, group-based permissions, list provisioni
 
 Improve day-to-day usability for editors and admins.
 
-- [x] **Budget validation** — Enforce completeness rules before
+- [ ] **Budget validation** — Enforce completeness rules before
   `draft → approved` transition (address required, at least one
   line item, schedule selected).
-- [x] **Bulk status transitions** — Multi-select budgets in
+- [ ] **Bulk status transitions** — Multi-select budgets in
   `BudgetListView` and apply a status change to all selected.
-- [x] **Budget duplication** — Deep-copy an existing budget (already
+- [ ] **Budget duplication** — Deep-copy an existing budget (already
   permitted by `canDuplicateBudget`) with option to change property
   address and schedule.
-- [x] **Inline editing on reference data** — Replace
+- [ ] **Inline editing on reference data** — Replace
   context-menu-only CRUD on Vendors, Services, Suburbs, Schedules
   with edit panels (similar to `BudgetEditorPanel`).
-- [x] **Service variant management UI** — Dedicated panel for
+- [ ] **Service variant management UI** — Dedicated panel for
   adding/editing/reordering `ServiceVariant[]` within a service,
   improving on the current read-only `ServiceDetailPanel`.
-- [x] **Schedule builder** — Visual editor for composing
+- [ ] **Schedule builder** — Visual editor for composing
   `ScheduleLineItem[]` within a schedule (drag-to-reorder,
   toggle services).
-- [x] **Suburb tier management** — Bulk assign/reassign pricing tiers to suburbs with postcode validation.
+- [ ] **Suburb tier management** — Bulk assign/reassign pricing tiers to suburbs with postcode validation.
 
 Deliverables: Validation rules, multi-select UX, full CRUD panels for all reference entities.
 
@@ -230,61 +230,44 @@ Deliverables: Validation rules, multi-select UX, full CRUD panels for all refere
 
 Surface insights and support external workflows.
 
-- [x] **Dashboard view** — New default landing view showing:
+- [ ] **Dashboard view** — New top-level view showing:
   - Budget count by status (draft/approved/sent/archived).
   - Total spend by `ServiceCategory`.
   - Spend by `BudgetTier` and `PricingTier`.
   - Monthly trend if budget dates are captured.
-  - Quick-action links to Budgets and Compare views.
-- [x] **Print / PDF export** — Browser-print layout using an
-  iframe-copy technique (no external dependencies). Print button
-  on budget row context menu and in BudgetEditorPanel footer.
-- [x] **CSV export** — Export filtered budget list as CSV from
-  BudgetListView toolbar, and export individual budget line items
-  from row context menu.
-- [x] **Budget comparison** — Side-by-side view of two budgets
+- [ ] **Print / PDF export** — Generate a printable budget summary
+  (property details, line items, totals with GST) using a
+  print-friendly layout or a library like `jsPDF`/`react-to-print`.
+- [ ] **CSV export** — Export budget list and line items as CSV for
+  spreadsheet workflows.
+- [ ] **Budget comparison** — Side-by-side view of two budgets
   highlighting price differences (useful for re-quoting or tier
-  changes) with diff colouring (green = cheaper, red = more
-  expensive, grey = missing).
-- [x] **Selective data export/import** — Entity-type-level
-  export/import (budgets, services, vendors, suburbs, schedules)
-  with additive merge for cross-environment data transfer and
-  backup/restore. Admin-only access.
+  changes).
 
-Deliverables: Dashboard component, print layout, CSV download,
-comparison view, selective data management panel.
-New files: `dashboardAggregations.ts`, `exportHelpers.ts`,
-`DashboardView.tsx`, `BudgetPrintView.tsx`,
-`BudgetComparisonView.tsx`, `DataManagementView.tsx` + tests.
-Modified: `MarketingBudget.tsx` (8 nav items, dashboard default),
-`useShellBridge.ts`, `BudgetListView.tsx` (CSV/Print integration),
-`BudgetEditorPanel.tsx` (Print button), `MarketingBudget.module.scss`.
+Deliverables: Dashboard component, PDF/print layout, CSV download, comparison view.
 
 ### 2D) Integration & Advanced Features
 
 Connect to the wider DDRE ecosystem and add power-user capabilities.
 
-- [ ] ~~**PropertyMe integration**~~ *(deferred until SharePoint deployment)* — Pull property address and type
+- [ ] **PropertyMe integration** — Pull property address and type
   from PropertyMe API (via `pkg-api-client` `PropertyMeClient`)
   to auto-fill `BudgetPropertyForm` fields.
-- [x] **Audit trail** — `AuditedBudgetRepository` decorator logs all
-  write operations with field-level diffs (`diffChanges`,
-  `diffLineItems`). `AuditTimeline` in the budget editor panel.
-  Shell bridge via `onAuditEvent` callback. 12+ tests.
-- [x] **Budget templates** — Save a budget configuration
+- [ ] **Audit trail** — Record
+  `{ user, action, timestamp, before, after }` on every budget
+  and reference data change. Display as a timeline in the editor
+  panel.
+- [ ] **Budget templates** — Save a budget configuration
   (schedule + overrides) as a reusable template for common
-  property types. BudgetTemplate types, Dexie DB v3, IBudgetTemplateService,
-  SaveTemplateDialog, TemplatePickerDialog, wired through component tree.
-- [x] **Notifications** — Budget approval notifications surfaced in the
-  intranet shell notification bell via AppBridge `NOTIFICATION_UPDATE`
-  protocol. `useBudgetNotifications` hook polls repository for draft
-  budgets and pushes to shell. Admin-only.
-- [x] **Shared appBridge package** — Extracted PostMessage protocol
-  types into `packages/pkg-app-bridge` with full type guards and
-  `NOTIFICATION_UPDATE` message support. Shell re-exports via
-  thin barrel in `appBridge.ts`.
-- [x] **Drag-and-drop line item reordering** — Implemented with
-  `@dnd-kit/sortable`, `SortableLineItem` wrapper.
+  property types.
+- [ ] **Notifications** — Surface budgets awaiting approval in
+  the intranet shell status bar or Jasper prompts.
+- [ ] **Shared appBridge package** — Extract the PostMessage
+  protocol types from `appBridge.ts` into
+  `packages/pkg-app-bridge` so both `intranet-core` and
+  `marketing-budget` import from the same source
+  (noted in code as a TODO).
+- [ ] **Drag-and-drop line item reordering** — Leverage the existing `@dnd-kit` aliases already configured in the dev harness.
 
 Deliverables: PropertyMe auto-fill, audit log, templates, shell notifications, shared bridge package.
 
@@ -292,11 +275,11 @@ Deliverables: PropertyMe auto-fill, audit log, templates, shell notifications, s
 
 1. 🟢 SharePoint List backend operational (2A) — core implementation complete, list provisioning remaining.
 2. 🟢 Entra ID group-based roles live (2A) — `RoleResolver` implemented.
-3. 🟢 Validation and bulk operations shipped (2B).
-4. 🟢 Reference data edit panels complete (2B).
-5. 🟢 Dashboard and export features live (2C) — 356 tests passing.
+3. ⬜ Validation and bulk operations shipped (2B).
+4. ⬜ Reference data edit panels complete (2B).
+5. ⬜ Dashboard and export features live (2C).
 6. ⬜ PropertyMe integration functional (2D).
-7. 🟢 Audit trail and templates shipped (2D).
+7. ⬜ Audit trail and templates shipped (2D).
 
 ### Phase 2 Acceptance Criteria
 

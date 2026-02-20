@@ -2,10 +2,8 @@ import * as React from 'react';
 import {
   DetailsList,
   DetailsListLayoutMode,
-  DetailsRow,
   SelectionMode,
   IColumn,
-  IDetailsRowProps,
   Dropdown,
   IDropdownOption,
   DatePicker,
@@ -18,15 +16,12 @@ import {
   Icon,
   TooltipHost,
   DirectionalHint,
-  HoverCard,
-  HoverCardType,
   Modal,
   IconButton,
   Selection,
 } from '@fluentui/react';
 import { useAudit } from '../AuditContext';
 import type { EventType } from '../AuditContext';
-import { useAuditQuery } from '../AuditQueryContext';
 import { HelpTooltip } from '../HelpTooltip';
 import { adminTooltips } from '../data/helpTooltips';
 import styles from './AuditLogViewer.module.scss';
@@ -76,7 +71,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'navigation',
     action: 'hub_changed',
     timestamp: '2026-01-20T09:15:00.000Z',
-    userId: 'ken.boyle@disher.com.au',
+    userId: 'ken.boyle@dougdisher.com.au',
     userDisplayName: 'Ken Boyle',
     sessionId: 'sess-001',
     appVersion: '0.4.1',
@@ -88,7 +83,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'card_action',
     action: 'card_opened',
     timestamp: '2026-01-20T09:16:30.000Z',
-    userId: 'ken.boyle@disher.com.au',
+    userId: 'ken.boyle@dougdisher.com.au',
     userDisplayName: 'Ken Boyle',
     sessionId: 'sess-001',
     appVersion: '0.4.1',
@@ -101,7 +96,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'search',
     action: 'search_executed',
     timestamp: '2026-01-20T09:18:00.000Z',
-    userId: 'sophie.nguyen@disher.com.au',
+    userId: 'sophie.nguyen@dougdisher.com.au',
     userDisplayName: 'Sophie Nguyen',
     sessionId: 'sess-002',
     appVersion: '0.4.1',
@@ -113,7 +108,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'settings',
     action: 'theme_changed',
     timestamp: '2026-01-20T09:20:00.000Z',
-    userId: 'liam.harris@disher.com.au',
+    userId: 'liam.harris@dougdisher.com.au',
     userDisplayName: 'Liam Harris',
     sessionId: 'sess-003',
     appVersion: '0.4.1',
@@ -124,7 +119,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'card_action',
     action: 'card_favourited',
     timestamp: '2026-01-20T09:22:00.000Z',
-    userId: 'amelia.jones@disher.com.au',
+    userId: 'amelia.jones@dougdisher.com.au',
     userDisplayName: 'Amelia Jones',
     sessionId: 'sess-004',
     appVersion: '0.4.1',
@@ -136,7 +131,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'system',
     action: 'app_loaded',
     timestamp: '2026-01-20T09:25:00.000Z',
-    userId: 'ken.boyle@disher.com.au',
+    userId: 'ken.boyle@dougdisher.com.au',
     userDisplayName: 'Ken Boyle',
     sessionId: 'sess-005',
     appVersion: '0.4.1',
@@ -146,7 +141,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'error',
     action: 'api_error',
     timestamp: '2026-01-20T09:30:00.000Z',
-    userId: 'sophie.nguyen@disher.com.au',
+    userId: 'sophie.nguyen@dougdisher.com.au',
     userDisplayName: 'Sophie Nguyen',
     sessionId: 'sess-002',
     appVersion: '0.4.1',
@@ -159,7 +154,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'navigation',
     action: 'hub_changed',
     timestamp: '2026-01-20T09:32:00.000Z',
-    userId: 'liam.harris@disher.com.au',
+    userId: 'liam.harris@dougdisher.com.au',
     userDisplayName: 'Liam Harris',
     sessionId: 'sess-003',
     appVersion: '0.4.1',
@@ -171,7 +166,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'content_view',
     action: 'document_opened',
     timestamp: '2026-01-20T09:35:00.000Z',
-    userId: 'amelia.jones@disher.com.au',
+    userId: 'amelia.jones@dougdisher.com.au',
     userDisplayName: 'Amelia Jones',
     sessionId: 'sess-004',
     appVersion: '0.4.1',
@@ -183,7 +178,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'user_interaction',
     action: 'ai_query_submitted',
     timestamp: '2026-01-20T09:40:00.000Z',
-    userId: 'ken.boyle@disher.com.au',
+    userId: 'ken.boyle@dougdisher.com.au',
     userDisplayName: 'Ken Boyle',
     sessionId: 'sess-005',
     appVersion: '0.4.1',
@@ -196,7 +191,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'help_search',
     action: 'search_executed',
     timestamp: '2026-01-20T09:45:00.000Z',
-    userId: 'ken.boyle@disher.com.au',
+    userId: 'ken.boyle@dougdisher.com.au',
     userDisplayName: 'Ken Boyle',
     sessionId: 'sess-005',
     appVersion: '0.4.1',
@@ -207,7 +202,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'help_search',
     action: 'search_no_results',
     timestamp: '2026-01-20T09:46:00.000Z',
-    userId: 'amelia.jones@disher.com.au',
+    userId: 'amelia.jones@dougdisher.com.au',
     userDisplayName: 'Amelia Jones',
     sessionId: 'sess-004',
     appVersion: '0.4.1',
@@ -218,7 +213,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'help_search',
     action: 'article_opened',
     timestamp: '2026-01-20T09:47:00.000Z',
-    userId: 'ken.boyle@disher.com.au',
+    userId: 'ken.boyle@dougdisher.com.au',
     userDisplayName: 'Ken Boyle',
     sessionId: 'sess-005',
     appVersion: '0.4.1',
@@ -229,7 +224,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'help_search',
     action: 'feedback_submitted',
     timestamp: '2026-01-20T09:48:00.000Z',
-    userId: 'ken.boyle@disher.com.au',
+    userId: 'ken.boyle@dougdisher.com.au',
     userDisplayName: 'Ken Boyle',
     sessionId: 'sess-005',
     appVersion: '0.4.1',
@@ -240,7 +235,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'help_search',
     action: 'search_no_results',
     timestamp: '2026-01-20T10:15:00.000Z',
-    userId: 'john.smith@disher.com.au',
+    userId: 'john.smith@dougdisher.com.au',
     userDisplayName: 'John Smith',
     sessionId: 'sess-006',
     appVersion: '0.4.1',
@@ -251,7 +246,7 @@ const mockLogEntries: IAuditLogEntry[] = [
     eventType: 'help_search',
     action: 'search_no_results',
     timestamp: '2026-01-20T11:22:00.000Z',
-    userId: 'sarah.lee@disher.com.au',
+    userId: 'sarah.lee@dougdisher.com.au',
     userDisplayName: 'Sarah Lee',
     sessionId: 'sess-007',
     appVersion: '0.4.1',
@@ -462,58 +457,6 @@ const SummaryWidgets: React.FC<{ stats: ISummaryStats }> = ({ stats }) => {
 };
 
 // =============================================================================
-// HOVER FLYOUT COMPONENT
-// =============================================================================
-
-const EventFlyout: React.FC<{ entry: IAuditLogEntry }> = ({ entry }) => {
-  const fields = [
-    { label: 'Event ID', value: entry.eventId },
-    { label: 'Timestamp', value: formatTimestamp(entry.timestamp) },
-    { label: 'User', value: entry.userDisplayName || entry.userId },
-    { label: 'Email', value: entry.userId },
-    { label: 'Session', value: entry.sessionId },
-    { label: 'Event Type', value: entry.eventType },
-    { label: 'Action', value: entry.action.replace(/_/g, ' ') },
-    { label: 'Hub', value: entry.hub || '—' },
-    { label: 'Tool', value: entry.tool || '—' },
-    { label: 'App Version', value: entry.appVersion },
-  ];
-
-  return (
-    <div className={styles.flyout}>
-      <div className={styles.flyoutHeader}>
-        <Icon
-          iconName={getEventTypeIcon(entry.eventType)}
-          style={{ color: getEventTypeColor(entry.eventType), fontSize: 18 }}
-        />
-        <span className={styles.flyoutTitle}>
-          {entry.action.replace(/_/g, ' ')}
-        </span>
-        <span className={styles.flyoutTimestamp}>
-          {formatTimestamp(entry.timestamp)}
-        </span>
-      </div>
-      <div className={styles.flyoutFields}>
-        {fields.map((f) => (
-          <div key={f.label} className={styles.flyoutField}>
-            <span className={styles.flyoutLabel}>{f.label}</span>
-            <span className={styles.flyoutValue}>{f.value}</span>
-          </div>
-        ))}
-      </div>
-      {entry.metadata && Object.keys(entry.metadata).length > 0 && (
-        <div className={styles.flyoutMeta}>
-          <span className={styles.flyoutLabel}>Metadata</span>
-          <pre className={styles.flyoutJson}>
-            {JSON.stringify(entry.metadata, null, 2)}
-          </pre>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// =============================================================================
 // DETAIL MODAL COMPONENT
 // =============================================================================
 
@@ -591,7 +534,6 @@ const DetailModal: React.FC<IDetailModalProps> = ({ entry, onDismiss }) => {
  */
 export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
   const audit = useAudit();
-  const queryService = useAuditQuery();
 
   // State
   const [logs, setLogs] = React.useState<IAuditLogEntry[]>([]);
@@ -631,60 +573,24 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
     });
   }, [audit]);
 
-  // Load logs from query service (real data) or fall back to mock data
+  // Simulate loading logs (mock data for now)
   React.useEffect(() => {
-    let cancelled = false;
     setIsLoading(true);
     setError(undefined);
 
-    if (queryService) {
-      queryService
-        .query(undefined, 500)
-        .then((entries) => {
-          if (!cancelled) {
-            // Map query service entries to the local IAuditLogEntry shape
-            setLogs(
-              entries.map((e) => ({
-                eventId: e.eventId,
-                eventType: e.eventType,
-                action: e.action,
-                timestamp: e.timestamp,
-                userId: e.userId,
-                userDisplayName: e.userDisplayName,
-                sessionId: e.sessionId,
-                appVersion: e.appVersion,
-                hub: e.hub,
-                tool: e.tool,
-                metadata: e.metadata,
-              })),
-            );
-            setIsLoading(false);
-          }
-        })
-        .catch(() => {
-          if (!cancelled) {
-            setError('Failed to load audit logs. Please try again.');
-            setIsLoading(false);
-          }
-        });
-    } else {
-      // No query service — fall back to mock data (legacy/tests)
-      const timer = setTimeout(() => {
-        if (!cancelled) {
-          setLogs(mockLogEntries);
-          setIsLoading(false);
-        }
-      }, 500);
-      return () => {
-        cancelled = true;
-        clearTimeout(timer);
-      };
-    }
+    // Simulate API call
+    const timer = setTimeout(() => {
+      try {
+        setLogs(mockLogEntries);
+        setIsLoading(false);
+      } catch {
+        setError('Failed to load audit logs. Please try again.');
+        setIsLoading(false);
+      }
+    }, 500);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [queryService]);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Calculate effective date range from preset or custom dates
   const effectiveDates = React.useMemo(() => {
@@ -1112,26 +1018,6 @@ export const AuditLogViewer: React.FC<IAuditLogViewerProps> = ({ onClose }) => {
             selection={selection}
             isHeaderVisible={true}
             compact={true}
-            onRenderRow={(rowProps?: IDetailsRowProps) => {
-              if (!rowProps) return <></>;
-              const entry = rowProps.item as IAuditLogEntry;
-              return (
-                <HoverCard
-                  type={HoverCardType.plain}
-                  plainCardProps={{
-                    onRenderPlainCard: () => <EventFlyout entry={entry} />,
-                    directionalHint: DirectionalHint.rightTopEdge,
-                    gapSpace: 8,
-                    calloutProps: { isBeakVisible: false },
-                  }}
-                  instantOpenOnClick={false}
-                  cardDismissDelay={200}
-                  cardOpenDelay={400}
-                >
-                  <DetailsRow {...rowProps} />
-                </HoverCard>
-              );
-            }}
           />
         </div>
       )}

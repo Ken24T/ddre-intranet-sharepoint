@@ -28,8 +28,6 @@ import {
   resolveLineItems,
 } from "../models/budgetCalculations";
 import { getServiceVariant } from "../models/variantHelpers";
-import { validateTransition } from "../models/budgetValidation";
-import type { ValidationResult } from "../models/budgetValidation";
 import { statusTransitions } from "./budgetEditorConstants";
 import { DEFAULT_AGENT_NAME, normaliseDefaultAgentName } from "./settings";
 
@@ -59,9 +57,6 @@ export interface IBudgetEditorState {
   scheduleOptions: IDropdownOption[];
   allowedTransitions: BudgetStatus[];
   isNew: boolean;
-
-  // Validation
-  lastValidation: ValidationResult | null;
 
   // UI state
   isSaving: boolean;
@@ -116,10 +111,6 @@ export function useBudgetEditorState(
   const [clientName, setClientName] = React.useState("");
   const [agentName, setAgentName] = React.useState("");
   const [status, setStatus] = React.useState<BudgetStatus>("draft");
-
-  // ─── Validation state ──────────────────────────────────
-  const [lastValidation, setLastValidation] =
-    React.useState<ValidationResult | null>(null);
 
   // ─── UI state ──────────────────────────────────────────
   const [isSaving, setIsSaving] = React.useState(false);
@@ -373,33 +364,6 @@ export function useBudgetEditorState(
 
   const handleStatusChange = React.useCallback(
     async (newStatus: BudgetStatus): Promise<void> => {
-      // Build a snapshot of the current form state for validation
-      const snapshot: Budget = {
-        id: editBudget?.id,
-        propertyAddress: address.trim(),
-        propertyType,
-        propertySize,
-        tier,
-        suburbId,
-        vendorId,
-        scheduleId,
-        lineItems,
-        notes: notes.trim() || undefined,
-        clientName: clientName.trim() || undefined,
-        agentName: agentName.trim() || undefined,
-        status,
-        createdAt: editBudget?.createdAt ?? new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      const validation = validateTransition(snapshot, status, newStatus);
-      setLastValidation(validation);
-      if (!validation.isValid) {
-        const messages = validation.errors.map((e) => e.message).join(" ");
-        setError(messages);
-        return;
-      }
-
       setStatus(newStatus);
       if (editBudget?.id) {
         setIsSaving(true);
@@ -472,7 +436,6 @@ export function useBudgetEditorState(
     scheduleOptions,
     allowedTransitions,
     isNew,
-    lastValidation,
     isSaving,
     error,
     setAddress,

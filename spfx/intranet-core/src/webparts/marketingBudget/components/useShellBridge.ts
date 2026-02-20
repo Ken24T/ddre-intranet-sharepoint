@@ -15,6 +15,7 @@ import * as React from "react";
 import type { IAppNavItem, AppToShellMessage } from "../../intranetShell/components/appBridge";
 import { isShellToAppMessage } from "../../intranetShell/components/appBridge";
 import type { AppViewKey } from "./MarketingBudget";
+import { APP_NAV_ITEMS } from "./MarketingBudget";
 
 interface IShellBridge {
   /** Whether the bridge is active (embedded in iframe or forced). */
@@ -38,7 +39,6 @@ interface IShellBridgeOptions {
 export function useShellBridge(
   activeView: AppViewKey,
   setActiveView: (view: AppViewKey) => void,
-  navItems: IAppNavItem[],
   options?: IShellBridgeOptions,
 ): IShellBridge {
   /** Detect whether we are running inside an iframe (embedded in shell). */
@@ -58,10 +58,10 @@ export function useShellBridge(
     (msg: AppToShellMessage): void => {
       if (!isActive) return;
       if (isIframe && window.parent) {
-        window.parent.postMessage(msg, window.location.origin);
+        window.parent.postMessage(msg, "*");
       } else {
         // Inline mode: post to same window (shell listens on window)
-        window.postMessage(msg, window.location.origin);
+        window.postMessage(msg, "*");
       }
     },
     [isActive, isIframe],
@@ -73,8 +73,8 @@ export function useShellBridge(
 
     postToShell({
       type: "SIDEBAR_SET_ITEMS",
-      items: navItems,
-      activeKey: activeView,
+      items: APP_NAV_ITEMS as IAppNavItem[],
+      activeKey: "budgets",
     });
 
     const handleMessage = (event: MessageEvent): void => {
@@ -90,7 +90,7 @@ export function useShellBridge(
       window.removeEventListener("message", handleMessage);
       postToShell({ type: "SIDEBAR_RESTORE" });
     };
-  }, [isActive, navItems, postToShell, setActiveView]);
+  }, [isActive, postToShell, setActiveView]);
 
   /** When activeView changes, notify shell to update active indicator. */
   React.useEffect(() => {

@@ -2,9 +2,7 @@
 
 This folder contains **user-facing intranet tools** ("apps") for the DDRE Intranet.
 
-Apps represent **business capabilities**, not deployment units. They describe
-*what the tool is*, *who it is for*, and *how it behaves* from a business
-and UX perspective.
+Apps represent **business capabilities**, not deployment units. They describe *what the tool is*, *who it is for*, and *how it behaves* from a business and UX perspective.
 
 Actual deployment is handled separately via SPFx solutions under `/spfx`.
 
@@ -33,7 +31,7 @@ There must be **no `.git` folders** inside `/apps`.
 
 Each app lives in its own folder:
 
-```text
+```
 /apps
   /app-<name>
     README.md
@@ -112,17 +110,13 @@ Lightweight metadata, for example:
 
 Each app maps to **one web part folder** inside `spfx/intranet-core/src/webparts/`.
 
-Current apps:
+For example:
 
-| App | Hub | Web Part | Status |
-|-----|-----|----------|--------|
-| `app-cognito-forms` | Administration | `cognitoForms` | Planning |
-| `app-dante-library` | Office | `danteLibrary` | Planning |
-| `app-marketing-budget` | Administration | `marketingBudget` | Active |
-| `app-pm-dashboard` | Property Management | `pmDashboard` | Planning |
-| `app-qrcoder` | Office | `qrCoder` | Planning |
-| `app-surveys` | Administration | `surveys` | Planning |
-| `app-vault-batcher` | Sales | `vaultBatcher` | Planning |
+| App | Web Part Location |
+|-----|--------------------|
+| `app-marketing-budget` | `spfx/intranet-core/src/webparts/marketingBudget/` |
+| `app-qrcoder` | `spfx/intranet-core/src/webparts/qrCoder/` |
+| `app-vault-batcher` | `spfx/intranet-core/src/webparts/vaultBatcher/` |
 
 ---
 

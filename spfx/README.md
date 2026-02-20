@@ -2,10 +2,7 @@
 
 This folder contains **all SharePoint Framework (SPFx) solutions** for the DDRE Intranet.
 
-SPFx is used as the **delivery mechanism** for interactive intranet features
-(web parts and extensions). SharePoint Online remains the **experience layer**;
-any backend compute or secrets-based integrations are handled via approved
-platform services (Power Platform / Azure).
+SPFx is used as the **delivery mechanism** for interactive intranet features (web parts and extensions). SharePoint Online remains the **experience layer**; any backend compute or secrets-based integrations are handled via approved platform services (Power Platform / Azure).
 
 ---
 
