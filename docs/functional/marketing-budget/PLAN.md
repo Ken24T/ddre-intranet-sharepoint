@@ -289,3 +289,81 @@ Deliverables: PropertyMe auto-fill, audit log, templates, shell notifications, s
 - At least one export format (PDF or CSV) available.
 - Dashboard provides at-a-glance spend visibility.
 - Existing 130+ tests remain green; new features add proportional coverage.
+
+## Phase 2E: Modularity & File Size Hardening (\~300-line target)
+
+### Status: 🟡 Planned
+
+Goal: reduce maintenance risk by splitting oversized MB files into focused modules,
+without changing end-user behaviour.
+
+### Oversized Files (Current Candidates)
+
+- `components/BudgetListView.tsx` (\~940)
+- `components/ServicesView.tsx` (\~930)
+- `components/SchedulesView.tsx` (\~767)
+- `components/VendorsView.tsx` (\~649)
+- `components/SuburbsView.tsx` (\~605)
+- `services/SPListBudgetRepository.ts` (\~529)
+- `components/useBudgetEditorState.ts` (\~457)
+- `models/seedData.ts` (\~420)
+- `components/MarketingBudget.tsx` (\~384)
+- `services/listSchemas.ts` (\~314)
+
+### Delivery Strategy (Low-Risk, Small PRs)
+
+#### PR-1: List View Decomposition (readability-first)
+
+- Extract callout/row cell components from list views:
+  - `BudgetAddressCell.tsx`
+  - `ServiceNameCell.tsx`
+  - `ScheduleNameCell.tsx`
+  - `VendorNameCell.tsx`
+  - `SuburbNameCell.tsx`
+- Extract list column factories to `*Columns.ts` per view.
+- Keep behaviour identical; no API or schema changes.
+
+#### PR-2: View State Hooks (logic isolation)
+
+- Extract fetch/filter/action state into hooks:
+  - `useBudgetListState.ts`
+  - `useServicesState.ts`
+  - `useSchedulesState.ts`
+  - `useVendorsState.ts`
+  - `useSuburbsState.ts`
+- Keep UI files as composition layers and under \~300 lines where practical.
+
+#### PR-3: Repository Split (service modularity)
+
+- Split `SPListBudgetRepository.ts` by entity, retaining `IBudgetRepository` contract:
+  - `sp/VendorSpRepository.ts`
+  - `sp/ServiceSpRepository.ts`
+  - `sp/SuburbSpRepository.ts`
+  - `sp/ScheduleSpRepository.ts`
+  - `sp/BudgetSpRepository.ts`
+- Keep a thin façade `SPListBudgetRepository.ts` for compatibility.
+
+#### PR-4: Editor Hook and Seed Data Split
+
+- Split `useBudgetEditorState.ts` into:
+  - `useBudgetEditorReferenceData.ts`
+  - `useBudgetEditorForm.ts`
+  - `useBudgetLineItemResolution.ts`
+  - `useBudgetEditorPersistence.ts`
+- Split `models/seedData.ts` into `seed/vendors.ts`, `seed/services.ts`,
+  `seed/suburbs.ts`, `seed/schedules.ts` with a small assembler entrypoint.
+
+### Guardrails
+
+- Preserve all existing UX and permissions behaviour.
+- No schema changes in this phase.
+- No changes to import/export payload shape.
+- Maintain or improve test coverage for touched modules.
+- Prefer one responsibility per new file; avoid introducing new shared abstractions unless reused in at least two views.
+
+### Exit Criteria
+
+- Top 5 MB component files reduced to roughly \~300 lines each.
+- Service layer split by entity with no behavioural regressions.
+- All MB tests pass.
+- Build/lint remain green.
