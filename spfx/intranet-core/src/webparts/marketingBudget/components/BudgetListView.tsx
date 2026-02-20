@@ -30,7 +30,7 @@ import {
   Icon,
 } from "@fluentui/react";
 import type { IColumn, IDropdownOption, IContextualMenuProps, IContextualMenuItem } from "@fluentui/react";
-import type { Budget, BudgetStatus } from "../models/types";
+import type { Budget, BudgetStatus, DataExport } from "../models/types";
 import type { UserRole } from "../models/permissions";
 import {
   canCreateBudget,
@@ -65,6 +65,11 @@ interface IBudgetRow {
   createdAt: string;
   /** The original budget for editing. */
   _budget: Budget;
+}
+
+interface ISettingsMessage {
+  type: MessageBarType;
+  text: string;
 }
 
 const statusOptions: IDropdownOption[] = [
@@ -254,6 +259,46 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
   const [defaultAgentNameDraft, setDefaultAgentNameDraft] =
     React.useState(defaultAgentName);
+  const [settingsMessage, setSettingsMessage] =
+    React.useState<ISettingsMessage | null>(null);
+  const [isSettingsBusy, setIsSettingsBusy] = React.useState(false);
+  const importInputRef = React.useRef<HTMLInputElement>(null);
+
+  const isDataExport = React.useCallback((value: unknown): value is DataExport => {
+    if (!value || typeof value !== "object") {
+      return false;
+    }
+
+    const candidate = value as Partial<DataExport>;
+    return (
+      typeof candidate.exportVersion === "string" &&
+      typeof candidate.exportDate === "string" &&
+      typeof candidate.appVersion === "string" &&
+      Array.isArray(candidate.vendors) &&
+      Array.isArray(candidate.services) &&
+      Array.isArray(candidate.suburbs) &&
+      Array.isArray(candidate.schedules) &&
+      Array.isArray(candidate.budgets)
+    );
+  }, []);
+
+  const readFileAsText = React.useCallback((file: File): Promise<string> => {
+    const fileWithText = file as File & { text?: () => Promise<string> };
+    if (typeof fileWithText.text === "function") {
+      return fileWithText.text();
+    }
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (): void => {
+        resolve(String(reader.result ?? ""));
+      };
+      reader.onerror = (): void => {
+        reject(new Error("Unable to read selected file"));
+      };
+      reader.readAsText(file);
+    });
+  }, []);
 
   const loadBudgets = React.useCallback(
     async (signal: { cancelled: boolean }): Promise<void> => {
@@ -586,10 +631,12 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
 
   const handleOpenSettings = React.useCallback((): void => {
     setDefaultAgentNameDraft(defaultAgentName);
+    setSettingsMessage(null);
     setIsSettingsOpen(true);
   }, [defaultAgentName]);
 
   const handleCloseSettings = React.useCallback((): void => {
+    setSettingsMessage(null);
     setIsSettingsOpen(false);
   }, []);
 
@@ -599,6 +646,89 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
     );
     setIsSettingsOpen(false);
   }, [defaultAgentNameDraft, onDefaultAgentNameChange]);
+
+  const handleExportData = React.useCallback(async (): Promise<void> => {
+    setIsSettingsBusy(true);
+    setSettingsMessage(null);
+    try {
+      const data = await repository.exportAll();
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const objectUrl = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = objectUrl;
+      downloadLink.download = `marketing-budget-export-${timestamp}.json`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(objectUrl);
+
+      setSettingsMessage({
+        type: MessageBarType.success,
+        text: "Export complete. Your MB data backup has been downloaded.",
+      });
+    } catch {
+      setSettingsMessage({
+        type: MessageBarType.error,
+        text: "Export failed. Please try again.",
+      });
+    } finally {
+      setIsSettingsBusy(false);
+    }
+  }, [repository]);
+
+  const handleImportFileChange = React.useCallback(
+    async (
+      event: React.ChangeEvent<HTMLInputElement>,
+    ): Promise<void> => {
+      const selectedFile = event.target.files?.[0];
+      if (!selectedFile) {
+        return;
+      }
+
+      setIsSettingsBusy(true);
+      setSettingsMessage(null);
+
+      try {
+        const fileText = await readFileAsText(selectedFile);
+        const parsed = JSON.parse(fileText) as unknown;
+
+        if (!isDataExport(parsed)) {
+          throw new Error("Invalid export format");
+        }
+
+        await repository.importAll(parsed);
+        await loadBudgets({ cancelled: false });
+        onDataChanged?.();
+
+        setSettingsMessage({
+          type: MessageBarType.success,
+          text: "Import complete. MB data has been replaced from the selected file.",
+        });
+      } catch {
+        setSettingsMessage({
+          type: MessageBarType.error,
+          text: "Import failed. Please use a valid MB export JSON file.",
+        });
+      } finally {
+        setIsSettingsBusy(false);
+        if (importInputRef.current) {
+          importInputRef.current.value = "";
+        }
+      }
+    },
+    [isDataExport, loadBudgets, onDataChanged, readFileAsText, repository],
+  );
+
+  const handleImportData = React.useCallback((): void => {
+    importInputRef.current?.click();
+  }, []);
+
+  const handleExportDataClick = React.useCallback((): void => {
+    handleExportData().catch(() => undefined);
+  }, [handleExportData]);
 
   return (
     <div className={styles.viewContainer}>
@@ -670,13 +800,15 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
           </Text>
         </div>
       ) : (
-        <DetailsList
-          items={rows}
-          columns={columns}
-          layoutMode={DetailsListLayoutMode.justified}
-          selectionMode={SelectionMode.none}
-          isHeaderVisible={true}
-        />
+        <div style={{ height: "420px", overflowY: "auto", overflowX: "hidden" }}>
+          <DetailsList
+            items={rows}
+            columns={columns}
+            layoutMode={DetailsListLayoutMode.justified}
+            selectionMode={SelectionMode.none}
+            isHeaderVisible={true}
+          />
+        </div>
       )}
 
       {/* Budget editor panel */}
@@ -697,10 +829,18 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
           type: DialogType.normal,
           title: "Settings",
           subText:
-            "Set the default Agent Name used when creating a new budget.",
+            "Manage budget defaults and import/export MB data.",
         }}
         modalProps={{ isBlocking: false }}
       >
+        {settingsMessage && (
+          <MessageBar
+            messageBarType={settingsMessage.type}
+            onDismiss={(): void => setSettingsMessage(null)}
+          >
+            {settingsMessage.text}
+          </MessageBar>
+        )}
         <TextField
           label="Default Agent Name"
           value={defaultAgentNameDraft}
@@ -709,9 +849,58 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
           }
           placeholder={DEFAULT_AGENT_NAME}
         />
+        <div style={{ marginTop: 16 }}>
+          <Text variant="mediumPlus" block>
+            Data Import/Export
+          </Text>
+          <Text
+            variant="small"
+            block
+            style={{ color: "#605e5c", marginBottom: 8 }}
+          >
+            Export or import Budgets, Schedules, Services, Vendors, and Suburbs.
+          </Text>
+          <Text
+            variant="small"
+            block
+            style={{ color: "var(--errorText, #a4262c)", marginBottom: 12 }}
+          >
+            Import replaces all existing MB data.
+          </Text>
+          <input
+            ref={importInputRef}
+            type="file"
+            accept="application/json,.json"
+            onChange={handleImportFileChange} // eslint-disable-line @typescript-eslint/no-misused-promises
+            style={{ display: "none" }}
+            aria-label="Import MB data file"
+          />
+          <div style={{ display: "flex", gap: 8 }}>
+            <DefaultButton
+              text={isSettingsBusy ? "Exporting…" : "Export Data"}
+              iconProps={{ iconName: "Download" }}
+              onClick={handleExportDataClick}
+              disabled={isSettingsBusy}
+            />
+            <DefaultButton
+              text={isSettingsBusy ? "Importing…" : "Import Data"}
+              iconProps={{ iconName: "Upload" }}
+              onClick={handleImportData}
+              disabled={isSettingsBusy}
+            />
+          </div>
+        </div>
         <DialogFooter>
-          <PrimaryButton text="Save" onClick={handleSaveSettings} />
-          <DefaultButton text="Cancel" onClick={handleCloseSettings} />
+          <PrimaryButton
+            text="Save"
+            onClick={handleSaveSettings}
+            disabled={isSettingsBusy}
+          />
+          <DefaultButton
+            text="Cancel"
+            onClick={handleCloseSettings}
+            disabled={isSettingsBusy}
+          />
         </DialogFooter>
       </Dialog>
 

@@ -204,34 +204,43 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole,
     };
   }, [loadData]);
 
-  const rows: ISuburbRow[] = React.useMemo(() => {
+  const searchFilteredSuburbs = React.useMemo(() => {
     const lowerSearch = searchText.toLowerCase();
-    return suburbs
-      .filter((s) => {
-        if (tierFilter !== "all" && s.pricingTier !== tierFilter) return false;
-        if (searchText && !s.name.toLowerCase().includes(lowerSearch))
-          return false;
-        return true;
-      })
-      .map((s) => ({
-        key: String(s.id ?? 0),
-        id: s.id ?? 0,
-        name: s.name,
-        pricingTier: s.pricingTier,
-        postcode: s.postcode ?? "—",
-        state: s.state ?? "QLD",
-        _suburb: s,
-      }));
-  }, [suburbs, searchText, tierFilter]);
+    return suburbs.filter((s) => {
+      if (searchText && !s.name.toLowerCase().includes(lowerSearch)) {
+        return false;
+      }
+      return true;
+    });
+  }, [suburbs, searchText]);
+
+  const rows: ISuburbRow[] = React.useMemo(
+    () =>
+      searchFilteredSuburbs
+        .filter((s) => {
+          if (tierFilter !== "all" && s.pricingTier !== tierFilter) return false;
+          return true;
+        })
+        .map((s) => ({
+          key: String(s.id ?? 0),
+          id: s.id ?? 0,
+          name: s.name,
+          pricingTier: s.pricingTier,
+          postcode: s.postcode ?? "—",
+          state: s.state ?? "QLD",
+          _suburb: s,
+        })),
+    [searchFilteredSuburbs, tierFilter],
+  );
 
   /** Tier summary counts. */
   const tierCounts = React.useMemo(() => {
     const counts: Record<string, number> = { A: 0, B: 0, C: 0, D: 0 };
-    for (const s of suburbs) {
+    for (const s of searchFilteredSuburbs) {
       counts[s.pricingTier] = (counts[s.pricingTier] ?? 0) + 1;
     }
     return counts;
-  }, [suburbs]);
+  }, [searchFilteredSuburbs]);
 
   // ─── Editor helpers ────────────────────────────────────
 
@@ -466,6 +475,19 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole,
         )}
       </div>
 
+      {!isLoading && suburbs.length > 0 && (
+        <Text
+          variant="small"
+          style={{
+            display: "block",
+            marginBottom: 8,
+            color: "#605e5c",
+          }}
+        >
+          Showing {rows.length} of {searchFilteredSuburbs.length} suburbs
+        </Text>
+      )}
+
       {isLoading ? (
         <div className={styles.centeredState}>
           <Spinner size={SpinnerSize.large} label="Loading suburbs…" />
@@ -486,13 +508,21 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole,
           </Text>
         </div>
       ) : (
-        <DetailsList
-          items={rows}
-          columns={columns}
-          layoutMode={DetailsListLayoutMode.justified}
-          selectionMode={SelectionMode.none}
-          isHeaderVisible={true}
-        />
+        <div
+          style={{
+            height: "420px",
+            overflowY: "auto",
+            overflowX: "hidden",
+          }}
+        >
+          <DetailsList
+            items={rows}
+            columns={columns}
+            layoutMode={DetailsListLayoutMode.justified}
+            selectionMode={SelectionMode.none}
+            isHeaderVisible={true}
+          />
+        </div>
       )}
 
       {/* Editor panel */}

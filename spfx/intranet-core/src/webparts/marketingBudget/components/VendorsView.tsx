@@ -533,7 +533,7 @@ export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole,
           </Text>
         </div>
       ) : (
-        <div style={{ maxHeight: "65vh", overflowY: "auto" }}>
+        <div style={{ height: "420px", overflowY: "auto", overflowX: "hidden" }}>
           <DetailsList
             items={rows}
             columns={columns}

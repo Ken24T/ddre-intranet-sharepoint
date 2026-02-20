@@ -780,7 +780,7 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
           </Text>
         </div>
       ) : (
-        <div style={{ maxHeight: "65vh", overflowY: "auto" }}>
+        <div style={{ height: "420px", overflowY: "auto", overflowX: "hidden" }}>
           {((): React.ReactNode => {
             if (!expandedRowKey || !expandedService) {
               return renderServicesList(rows, true);
