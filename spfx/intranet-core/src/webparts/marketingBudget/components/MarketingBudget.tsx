@@ -97,6 +97,14 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     };
   }, [repository]);
 
+  const handleDataChanged = React.useCallback((): void => {
+    loadCounts()
+      .then((updatedCounts) => setCounts(updatedCounts))
+      .catch(() => {
+        // Ignore transient refresh errors to avoid interrupting the current view workflow.
+      });
+  }, [loadCounts]);
+
   /** Seed reference data and refresh counts. */
   const handleSeed = React.useCallback(async (): Promise<void> => {
     setIsSeeding(true);
@@ -169,16 +177,41 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
             userRole={userRole}
             defaultAgentName={defaultAgentName}
             onDefaultAgentNameChange={handleDefaultAgentNameChange}
+            onDataChanged={handleDataChanged}
           />
         );
       case "schedules":
-        return <SchedulesView repository={repository} userRole={userRole} />;
+        return (
+          <SchedulesView
+            repository={repository}
+            userRole={userRole}
+            onDataChanged={handleDataChanged}
+          />
+        );
       case "services":
-        return <ServicesView repository={repository} userRole={userRole} />;
+        return (
+          <ServicesView
+            repository={repository}
+            userRole={userRole}
+            onDataChanged={handleDataChanged}
+          />
+        );
       case "vendors":
-        return <VendorsView repository={repository} userRole={userRole} />;
+        return (
+          <VendorsView
+            repository={repository}
+            userRole={userRole}
+            onDataChanged={handleDataChanged}
+          />
+        );
       case "suburbs":
-        return <SuburbsView repository={repository} userRole={userRole} />;
+        return (
+          <SuburbsView
+            repository={repository}
+            userRole={userRole}
+            onDataChanged={handleDataChanged}
+          />
+        );
       default:
         return (
           <BudgetListView
@@ -186,6 +219,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
             userRole={userRole}
             defaultAgentName={defaultAgentName}
             onDefaultAgentNameChange={handleDefaultAgentNameChange}
+            onDataChanged={handleDataChanged}
           />
         );
     }

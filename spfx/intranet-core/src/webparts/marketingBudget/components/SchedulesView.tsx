@@ -8,12 +8,14 @@
 
 import * as React from "react";
 import {
+  Callout,
   DefaultButton,
   DetailsList,
   DetailsListLayoutMode,
   Dialog,
   DialogFooter,
   DialogType,
+  DirectionalHint,
   Dropdown,
   IconButton,
   Panel,
@@ -40,6 +42,7 @@ import styles from "./MarketingBudget.module.scss";
 export interface ISchedulesViewProps {
   repository: IBudgetRepository;
   userRole: UserRole;
+  onDataChanged?: () => void;
 }
 
 interface IScheduleRow {
@@ -52,6 +55,99 @@ interface IScheduleRow {
   lineItemCount: number;
   _schedule: Schedule;
 }
+
+interface IScheduleNameCellProps {
+  schedule: Schedule;
+  vendorName: string;
+}
+
+const ScheduleNameCell: React.FC<IScheduleNameCellProps> = ({
+  schedule,
+  vendorName,
+}) => {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const cellRef = React.useRef<HTMLDivElement>(null);
+  const timerRef = React.useRef<number | undefined>(undefined);
+
+  const handleMouseEnter = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(true), 350);
+  }, []);
+
+  const handleMouseLeave = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(false), 200);
+  }, []);
+
+  React.useEffect(() => (): void => window.clearTimeout(timerRef.current), []);
+
+  const selectedCount = schedule.lineItems.filter((li) => li.isSelected).length;
+  const createdDate = new Date(schedule.createdAt);
+  const formattedDate = createdDate.toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  return (
+    <>
+      <div
+        ref={cellRef}
+        className={styles.budgetRowAddress}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {schedule.name}
+      </div>
+      {isVisible && cellRef.current && (
+        <Callout
+          target={cellRef.current}
+          directionalHint={DirectionalHint.bottomLeftEdge}
+          gapSpace={8}
+          isBeakVisible={true}
+          beakWidth={12}
+          onMouseEnter={(): void => {
+            window.clearTimeout(timerRef.current);
+          }}
+          onMouseLeave={handleMouseLeave}
+          onDismiss={(): void => setIsVisible(false)}
+          setInitialFocus={false}
+          className={styles.budgetCallout}
+        >
+          <div className={styles.budgetCalloutContent}>
+            <div className={`${styles.budgetCalloutHeader} ${styles.statusDraft}`}>
+              <Icon iconName="CalendarWeek" />
+              <span>SCHEDULE</span>
+            </div>
+            <div className={styles.budgetCalloutBody}>
+              <p className={styles.budgetCalloutAddress}>{schedule.name}</p>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="Home" className={styles.budgetCalloutMetaIcon} />
+                <span style={{ textTransform: "capitalize" }}>
+                  {schedule.propertyType} · {schedule.propertySize} · {schedule.tier}
+                </span>
+              </div>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="NumberedList" className={styles.budgetCalloutMetaIcon} />
+                <span>
+                  {selectedCount} of {schedule.lineItems.length} line items selected
+                </span>
+              </div>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="People" className={styles.budgetCalloutMetaIcon} />
+                <span>{vendorName}</span>
+              </div>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="Calendar" className={styles.budgetCalloutMetaIcon} />
+                <span>Created {formattedDate}</span>
+              </div>
+            </div>
+          </div>
+        </Callout>
+      )}
+    </>
+  );
+};
 
 const propertyTypeOptions: IDropdownOption[] = [
   { key: "house", text: "House" },
@@ -82,6 +178,7 @@ const activeStatusOptions: IDropdownOption[] = [
 export const SchedulesView: React.FC<ISchedulesViewProps> = ({
   repository,
   userRole,
+  onDataChanged,
 }) => {
   const [schedules, setSchedules] = React.useState<Schedule[]>([]);
   const [services, setServices] = React.useState<Service[]>([]);
@@ -162,6 +259,16 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
     return opts;
   }, [vendors]);
 
+  const vendorNameMap = React.useMemo(() => {
+    const map = new Map<number, string>();
+    for (const v of vendors) {
+      if (v.id !== undefined) {
+        map.set(v.id, v.name);
+      }
+    }
+    return map;
+  }, [vendors]);
+
   /** Filter and map to rows. */
   const rows: IScheduleRow[] = React.useMemo(() => {
     const lowerSearch = searchText.toLowerCase();
@@ -218,6 +325,7 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
       await repository.saveSchedule(schedule);
       closeEditor();
       loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save schedule");
     } finally {
@@ -234,6 +342,7 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
       await repository.deleteSchedule(pendingDelete.id);
       setPendingDelete(undefined);
       loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete schedule");
       setPendingDelete(undefined);
@@ -258,11 +367,12 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
         };
         await repository.saveSchedule(copy);
         loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+        onDataChanged?.();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to duplicate schedule");
       }
     },
-    [repository, loadData],
+    [repository, loadData, onDataChanged],
   );
 
   // ─── Row menu builder ─────────────────────────────────
@@ -314,6 +424,16 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
         minWidth: 180,
         maxWidth: 300,
         isResizable: true,
+        onRender: (item: IScheduleRow): JSX.Element => (
+          <ScheduleNameCell
+            schedule={item._schedule}
+            vendorName={
+              item._schedule.defaultVendorId !== undefined
+                ? (vendorNameMap.get(item._schedule.defaultVendorId) ?? "No default vendor")
+                : "No default vendor"
+            }
+          />
+        ),
       },
       {
         key: "type",
@@ -387,7 +507,7 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
     }
 
     return cols;
-  }, [isAdmin, getRowMenuItems]);
+  }, [isAdmin, getRowMenuItems, vendorNameMap]);
 
   const handleRowClick = React.useCallback((item: IScheduleRow): void => {
     setExpandedId((prev) => (prev === item.id ? undefined : item.id));

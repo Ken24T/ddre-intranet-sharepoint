@@ -51,6 +51,7 @@ export interface IBudgetListViewProps {
   userRole: UserRole;
   defaultAgentName: string;
   onDefaultAgentNameChange: (value: string) => void;
+  onDataChanged?: () => void;
 }
 
 /** Column-friendly row shape. */
@@ -230,6 +231,7 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
   userRole,
   defaultAgentName,
   onDefaultAgentNameChange,
+  onDataChanged,
 }) => {
   const [budgets, setBudgets] = React.useState<Budget[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -301,13 +303,14 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
       await repository.deleteBudget(pendingDeleteBudget.id);
       setPendingDeleteBudget(undefined);
       loadBudgets({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete budget");
       setPendingDeleteBudget(undefined);
     } finally {
       setIsDeleting(false);
     }
-  }, [pendingDeleteBudget, repository, loadBudgets]);
+  }, [pendingDeleteBudget, repository, loadBudgets, onDataChanged]);
 
   // ─── Duplicate handler ─────────────────────────────────
 
@@ -323,6 +326,7 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
           updatedAt: new Date().toISOString(),
         };
         const saved = await repository.saveBudget(duplicate);
+        onDataChanged?.();
         // Open the duplicate in the editor
         setEditBudget(saved);
         setIsEditorOpen(true);
@@ -333,7 +337,7 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
         );
       }
     },
-    [repository, loadBudgets],
+    [repository, loadBudgets, onDataChanged],
   );
 
   // ─── Quick status transition handler ───────────────────
@@ -564,8 +568,9 @@ export const BudgetListView: React.FC<IBudgetListViewProps> = ({
       setIsEditorOpen(false);
       setEditBudget(undefined);
       loadBudgets({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     },
-    [loadBudgets],
+    [loadBudgets, onDataChanged],
   );
 
   const handleEditorDismiss = React.useCallback((): void => {

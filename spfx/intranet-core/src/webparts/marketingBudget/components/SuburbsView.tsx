@@ -41,6 +41,7 @@ import styles from "./MarketingBudget.module.scss";
 export interface ISuburbsViewProps {
   repository: IBudgetRepository;
   userRole: UserRole;
+  onDataChanged?: () => void;
 }
 
 interface ISuburbRow {
@@ -152,7 +153,7 @@ const tierEditOptions: IDropdownOption[] = [
   { key: "D", text: "Tier D" },
 ];
 
-export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole }) => {
+export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole, onDataChanged }) => {
   const [suburbs, setSuburbs] = React.useState<Suburb[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | undefined>(undefined);
@@ -258,12 +259,13 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
       await repository.saveSuburb(suburb);
       closeEditor();
       loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save suburb");
     } finally {
       setIsSaving(false);
     }
-  }, [editSuburb, editorName, editorTier, editorPostcode, editorState, repository, closeEditor, loadData]);
+  }, [editSuburb, editorName, editorTier, editorPostcode, editorState, repository, closeEditor, loadData, onDataChanged]);
 
   // ─── Delete helpers ────────────────────────────────────
 
@@ -274,13 +276,14 @@ export const SuburbsView: React.FC<ISuburbsViewProps> = ({ repository, userRole 
       await repository.deleteSuburb(pendingDelete.id);
       setPendingDelete(undefined);
       loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete suburb");
       setPendingDelete(undefined);
     } finally {
       setIsDeleting(false);
     }
-  }, [pendingDelete, repository, loadData]);
+  }, [pendingDelete, repository, loadData, onDataChanged]);
 
   // ─── Row menu builder ─────────────────────────────────
 

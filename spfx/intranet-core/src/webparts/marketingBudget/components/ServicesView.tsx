@@ -10,6 +10,7 @@
 
 import * as React from "react";
 import {
+  Callout,
   Checkbox,
   DefaultButton,
   DetailsList,
@@ -17,6 +18,7 @@ import {
   Dialog,
   DialogFooter,
   DialogType,
+  DirectionalHint,
   Dropdown,
   IconButton,
   Panel,
@@ -51,6 +53,7 @@ import styles from "./MarketingBudget.module.scss";
 export interface IServicesViewProps {
   repository: IBudgetRepository;
   userRole: UserRole;
+  onDataChanged?: () => void;
 }
 
 interface IServiceRow {
@@ -64,6 +67,113 @@ interface IServiceRow {
   priceRange: string;
   _service: Service;
 }
+
+interface IServiceNameCellProps {
+  service: Service;
+  vendorName: string;
+  priceRange: string;
+  onToggle: () => void;
+}
+
+const ServiceNameCell: React.FC<IServiceNameCellProps> = ({
+  service,
+  vendorName,
+  priceRange,
+  onToggle,
+}) => {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const cellRef = React.useRef<HTMLDivElement>(null);
+  const timerRef = React.useRef<number | undefined>(undefined);
+
+  const handleMouseEnter = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(true), 350);
+  }, []);
+
+  const handleMouseLeave = React.useCallback((): void => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => setIsVisible(false), 200);
+  }, []);
+
+  React.useEffect(() => (): void => window.clearTimeout(timerRef.current), []);
+
+  return (
+    <>
+      <div
+        ref={cellRef}
+        className={styles.budgetRowAddress}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <button
+          type="button"
+          onClick={(event): void => {
+            event.preventDefault();
+            event.stopPropagation();
+            onToggle();
+          }}
+          data-no-row-toggle="true"
+          style={{
+            border: "none",
+            background: "none",
+            padding: 0,
+            margin: 0,
+            cursor: "pointer",
+            textAlign: "left",
+            color: "inherit",
+            font: "inherit",
+          }}
+        >
+          {service.name}
+        </button>
+      </div>
+      {isVisible && cellRef.current && (
+        <Callout
+          target={cellRef.current}
+          directionalHint={DirectionalHint.bottomLeftEdge}
+          gapSpace={8}
+          isBeakVisible={true}
+          beakWidth={12}
+          onMouseEnter={(): void => {
+            window.clearTimeout(timerRef.current);
+          }}
+          onMouseLeave={handleMouseLeave}
+          onDismiss={(): void => setIsVisible(false)}
+          setInitialFocus={false}
+          className={styles.budgetCallout}
+        >
+          <div className={styles.budgetCalloutContent}>
+            <div className={`${styles.budgetCalloutHeader} ${styles.statusDraft}`}>
+              <Icon iconName="Settings" />
+              <span>SERVICE</span>
+            </div>
+            <div className={styles.budgetCalloutBody}>
+              <p className={styles.budgetCalloutAddress}>{service.name}</p>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="Tag" className={styles.budgetCalloutMetaIcon} />
+                <span style={{ textTransform: "capitalize" }}>{service.category}</span>
+              </div>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="People" className={styles.budgetCalloutMetaIcon} />
+                <span>{vendorName}</span>
+              </div>
+              <div className={styles.budgetCalloutMeta}>
+                <Icon iconName="NumberedList" className={styles.budgetCalloutMetaIcon} />
+                <span>
+                  {service.variants.length} variant{service.variants.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+            </div>
+            <div className={styles.budgetCalloutTotals}>
+              <span className={styles.budgetCalloutTotalLabel}>Price range</span>
+              <span className={styles.budgetCalloutTotalValue}>{priceRange}</span>
+            </div>
+          </div>
+        </Callout>
+      )}
+    </>
+  );
+};
 
 /** Format a price range string from a set of variants. */
 const formatPriceRange = (service: Service): string => {
@@ -100,7 +210,7 @@ const activeStatusOptions: IDropdownOption[] = [
   { key: 0, text: "Inactive" },
 ];
 
-export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRole }) => {
+export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRole, onDataChanged }) => {
   const [services, setServices] = React.useState<Service[]>([]);
   const [vendors, setVendors] = React.useState<Vendor[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -263,6 +373,7 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
       await repository.saveService(service);
       closeEditor();
       loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save service");
     } finally {
@@ -304,6 +415,7 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
       await repository.deleteService(pendingDelete.id);
       setPendingDelete(undefined);
       loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+      onDataChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete service");
       setPendingDelete(undefined);
@@ -328,11 +440,12 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
         };
         await repository.saveService(copy);
         loadData({ cancelled: false }); // eslint-disable-line @typescript-eslint/no-floating-promises
+        onDataChanged?.();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to duplicate service");
       }
     },
-    [repository, loadData],
+    [repository, loadData, onDataChanged],
   );
 
   // ─── Row menu builder ─────────────────────────────────
@@ -394,27 +507,12 @@ export const ServicesView: React.FC<IServicesViewProps> = ({ repository, userRol
         maxWidth: 250,
         isResizable: true,
         onRender: (item: IServiceRow): JSX.Element => (
-          <button
-            type="button"
-            onClick={(event): void => {
-              event.preventDefault();
-              event.stopPropagation();
-              handleRowClick(item);
-            }}
-            data-no-row-toggle="true"
-            style={{
-              border: "none",
-              background: "none",
-              padding: 0,
-              margin: 0,
-              cursor: "pointer",
-              textAlign: "left",
-              color: "inherit",
-              font: "inherit",
-            }}
-          >
-            {item.name}
-          </button>
+          <ServiceNameCell
+            service={item._service}
+            vendorName={item.vendorName}
+            priceRange={item.priceRange}
+            onToggle={(): void => handleRowClick(item)}
+          />
         ),
       },
       {
