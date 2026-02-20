@@ -533,7 +533,7 @@ export const VendorsView: React.FC<IVendorsViewProps> = ({ repository, userRole,
           </Text>
         </div>
       ) : (
-        <div style={{ height: "420px", overflowY: "auto", overflowX: "hidden" }}>
+        <div className={styles.listScrollPane}>
           <DetailsList
             items={rows}
             columns={columns}

@@ -643,7 +643,7 @@ export const SchedulesView: React.FC<ISchedulesViewProps> = ({
           </Text>
         </div>
       ) : (
-        <div style={{ height: "420px", overflowY: "auto", overflowX: "hidden" }}>
+        <div className={styles.listScrollPane}>
           <DetailsList
             items={rows}
             columns={columns}

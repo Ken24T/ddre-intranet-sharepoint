@@ -132,6 +132,12 @@
   text-align: center;
 }
 
+.listScrollPane {
+  height: 420px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 /* Standalone sidebar (when NOT embedded in shell iframe) */
 .standaloneSidebar {
   width: 220px;
