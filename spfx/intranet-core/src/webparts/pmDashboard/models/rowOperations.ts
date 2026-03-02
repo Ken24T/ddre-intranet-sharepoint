@@ -362,7 +362,6 @@ export function validateAndCleanData(data: IDashboardData): IDashboardData {
   return {
     vacates: cleanSection(data.vacates),
     entries: cleanSection(data.entries),
-    lost: cleanSection(data.lost),
   };
 }
 

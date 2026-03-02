@@ -36,13 +36,16 @@ interface FieldDef {
 
 /**
  * PMD_Data stores JSON blobs for each section.
- * Note fields support large text (vacates/entries/lost can have
+ * Note fields support large text (vacates/entries can have
  * many rows with many columns).
+ * The Lost field is retained for backward compatibility with
+ * existing SP lists but is no longer read or written.
  */
 const DATA_FIELDS: FieldDef[] = [
   { name: "Vacates", type: "note" },
   { name: "Entries", type: "note" },
-  { name: "Lost", type: "note" },
+  { name: "Lost", type: "note" },  // Retained for backward compat
+  { name: "ColWidths", type: "note" },
 ];
 
 /**
@@ -54,6 +57,18 @@ const PM_FIELDS: FieldDef[] = [
   { name: "LastName", type: "text" },
   { name: "PreferredName", type: "text" },
   { name: "Colour", type: "text" },
+];
+
+/**
+ * PMD_Presence stores one item per connected user.
+ * Title = user email (unique key).
+ */
+const PRESENCE_FIELDS: FieldDef[] = [
+  { name: "DisplayName", type: "text" },
+  { name: "LastSeen", type: "text" },
+  { name: "SelectedPm", type: "text" },
+  { name: "Colour", type: "text" },
+  { name: "LastChanged", type: "text" },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -126,4 +141,5 @@ export async function ensurePmDashboardLists(
 ): Promise<void> {
   await ensureListWithFields(sp, SP_LISTS.data, DATA_FIELDS);
   await ensureListWithFields(sp, SP_LISTS.propertyManagers, PM_FIELDS);
+  await ensureListWithFields(sp, SP_LISTS.presence, PRESENCE_FIELDS);
 }

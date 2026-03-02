@@ -1,6 +1,6 @@
 /**
- * SectionTable – Renders one of the three dashboard sections
- * (Vacates, Entries, or Lost) as a coloured card with a table.
+ * SectionTable – Renders one of the two dashboard sections
+ * (Vacates or Entries) as a coloured card with a table.
  *
  * Includes the section header, column headers, and all rows.
  * Rows are sortable via @dnd-kit drag-and-drop reordering.
@@ -25,10 +25,14 @@ import type {
   IPropertyRow,
   IPropertyManager,
   DashboardSection,
+  SectionColumnWidths,
 } from "../models/types";
+import type { IPropertyMeDropResult } from "../models/propertyMeDragHelpers";
 import { SECTION_COLUMNS } from "../models/columnSchemas";
 import { PropertyRowComponent } from "./Rows/PropertyRow";
 import { BlankRow } from "./Rows/BlankRow";
+import { useColumnResize } from "./useColumnResize";
+import { usePropertyMeDrop } from "./usePropertyMeDrop";
 import styles from "./PmDashboard.module.scss";
 
 export interface ISectionTableProps {
@@ -63,6 +67,19 @@ export interface ISectionTableProps {
     activeId: string,
     overId: string,
   ) => void;
+  /** Current column widths for this section (from PM preferences). */
+  columnWidths?: SectionColumnWidths;
+  /** Called when the user finishes resizing a column. */
+  onColumnResize?: (
+    section: DashboardSection,
+    colIndex: number,
+    width: number,
+  ) => void;
+  /** Called when a PropertyMe property is dropped onto this section. */
+  onPropertyMeDrop?: (
+    section: DashboardSection,
+    result: IPropertyMeDropResult,
+  ) => void;
   /** When true, all editing is disabled (no PM selected). */
   readOnly?: boolean;
 }
@@ -70,7 +87,6 @@ export interface ISectionTableProps {
 const SECTION_HEADER_STYLES: Record<DashboardSection, string> = {
   vacates: styles.sectionHeaderVacates,
   entries: styles.sectionHeaderEntries,
-  lost: styles.sectionHeaderLost,
 };
 
 export const SectionTable: React.FC<ISectionTableProps> = ({
@@ -84,9 +100,40 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
   onContextMenu,
   onAddRow,
   onReorder,
+  columnWidths,
+  onColumnResize,
+  onPropertyMeDrop,
   readOnly = false,
 }) => {
   const columns = SECTION_COLUMNS[section];
+
+  // ─── Column resize ───────────────────────────────────
+  const handleResize = React.useCallback(
+    (colIndex: number, width: number): void => {
+      if (onColumnResize) {
+        onColumnResize(section, colIndex, width);
+      }
+    },
+    [section, onColumnResize],
+  );
+
+  const { getHeaderStyle, onResizeStart } = useColumnResize({
+    columnCount: columns.length,
+    widths: columnWidths || {},
+    onChange: handleResize,
+  });
+
+  // ─── PropertyMe drag-and-drop ────────────────────────
+  const noopDrop = React.useCallback(
+    () => { /* noop — onPropertyMeDrop not provided */ },
+    [],
+  );
+
+  const { state: dropState, handlers: dropHandlers } = usePropertyMeDrop({
+    section,
+    onDrop: onPropertyMeDrop || noopDrop,
+    disabled: readOnly || !onPropertyMeDrop,
+  });
 
   // ─── DnD sensors ──────────────────────────────────────
   const sensors = useSensors(
@@ -139,7 +186,20 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
   const rowCount = rows.filter((r) => !r.blank).length;
 
   return (
-    <div className={styles.sectionCard}>
+    <div
+      className={styles.sectionCard}
+      onDragOver={dropHandlers.onDragOver}
+      onDragEnter={dropHandlers.onDragEnter}
+      onDragLeave={dropHandlers.onDragLeave}
+      onDrop={dropHandlers.onDrop}
+    >
+      {dropState.isDragOver && (
+        <div className={styles.dropZoneOverlay}>
+          <span className={styles.dropZoneLabel}>
+            Drop PropertyMe property here
+          </span>
+        </div>
+      )}
       <div className={SECTION_HEADER_STYLES[section]}>
         <span>
           {title} ({rowCount})
@@ -169,8 +229,23 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
               <thead>
                 <tr>
                   <th style={{ width: 20 }} />
-                  {columns.map((col) => (
-                    <th key={col}>{col}</th>
+                  {columns.map((col, idx) => (
+                    <th key={col} style={getHeaderStyle(idx)}>
+                      <div className={styles.thInner}>
+                        <span>{col}</span>
+                        <div
+                          className={styles.resizeHandle}
+                          onPointerDown={(e) => {
+                            e.preventDefault();
+                            const th = (e.target as HTMLElement).closest("th");
+                            const startWidth = th
+                              ? th.getBoundingClientRect().width
+                              : 80;
+                            onResizeStart(idx, e.clientX, startWidth);
+                          }}
+                        />
+                      </div>
+                    </th>
                   ))}
                 </tr>
               </thead>

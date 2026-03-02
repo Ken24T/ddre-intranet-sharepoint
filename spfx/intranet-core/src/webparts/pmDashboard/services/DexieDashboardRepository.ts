@@ -9,7 +9,7 @@
  */
 
 import type { IDashboardRepository } from "./IDashboardRepository";
-import type { IDashboardData, IPropertyManager } from "../models/types";
+import type { IDashboardData, IPropertyManager, IColumnWidthPreferences } from "../models/types";
 import { db } from "./db";
 import {
   SEED_PROPERTY_MANAGERS,
@@ -49,7 +49,7 @@ export class DexieDashboardRepository implements IDashboardRepository {
 
     const record = await db.dashboardData.get(DASHBOARD_KEY);
     if (!record) {
-      return { vacates: [], entries: [], lost: [] };
+      return { vacates: [], entries: [] };
     }
     return record.data;
   }
@@ -71,5 +71,25 @@ export class DexieDashboardRepository implements IDashboardRepository {
       await db.propertyManagers.clear();
       await db.propertyManagers.bulkPut(pms);
     });
+  }
+
+  async loadColumnWidths(): Promise<IColumnWidthPreferences> {
+    const record = await db.columnWidths.get(DASHBOARD_KEY);
+    if (!record) {
+      return {};
+    }
+    return record.widths;
+  }
+
+  async saveColumnWidths(widths: IColumnWidthPreferences): Promise<void> {
+    await db.columnWidths.put({
+      key: DASHBOARD_KEY,
+      widths,
+    });
+  }
+
+  async getDataVersion(): Promise<string> {
+    // Dexie (dev harness) doesn't support versioning — return empty string
+    return "";
   }
 }

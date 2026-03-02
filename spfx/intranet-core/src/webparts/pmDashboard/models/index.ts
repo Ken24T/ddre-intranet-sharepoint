@@ -6,7 +6,8 @@ export type {
   IColumnIndex,
   IVacatesColumnIndex,
   IEntriesColumnIndex,
-  ILostColumnIndex,
+  SectionColumnWidths,
+  IColumnWidthPreferences,
 } from "./types";
 
 export {
@@ -14,7 +15,6 @@ export {
   SECTION_COLUMN_COUNTS,
   VACATES_COLS,
   ENTRIES_COLS,
-  LOST_COLS,
   getDateColumnIndex,
   getPmColumnIndex,
   getPropertyColumnIndex,

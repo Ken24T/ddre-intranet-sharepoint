@@ -6,8 +6,8 @@
  * layout (legacy ST/Sign/KEY/ECR columns removed).
  */
 
-/** The three table sections in the dashboard */
-export type DashboardSection = "vacates" | "entries" | "lost";
+/** The two table sections in the dashboard */
+export type DashboardSection = "vacates" | "entries";
 
 /** A single property row in any section */
 export interface IPropertyRow {
@@ -27,7 +27,6 @@ export interface IPropertyRow {
 export interface IDashboardData {
   vacates: IPropertyRow[];
   entries: IPropertyRow[];
-  lost: IPropertyRow[];
 }
 
 /** A property manager user */
@@ -64,7 +63,21 @@ export interface IEntriesColumnIndex extends IColumnIndex {
   readonly comments: number;
 }
 
-/** Lost-specific column indices */
-export interface ILostColumnIndex extends IColumnIndex {
-  readonly reason: number;
+// ─────────────────────────────────────────────────────────────
+// Column Width Preferences
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Column widths for a single section (column index → pixel width).
+ * Only columns with explicit widths are stored; absent entries
+ * use the CSS default.
+ */
+export type SectionColumnWidths = Record<number, number>;
+
+/**
+ * All column width preferences keyed by PM id then section.
+ * Stored as a single JSON blob in the data repository.
+ */
+export interface IColumnWidthPreferences {
+  [pmId: string]: Partial<Record<DashboardSection, SectionColumnWidths>>;
 }

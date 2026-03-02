@@ -475,6 +475,7 @@ export class PropertyMeService {
 | PropertyMe drag-and-drop from browser extension | Update extension to post to SPFx iframe |
 | User dot blinking | SignalR events |
 | Per-PM column widths in SP List | Move from localStorage |
+| Remove Lost Managements section | **Done (v0.12.0)** — Removed `"lost"` from `DashboardSection` union, `IDashboardData`, column schemas, seed data, component rendering, mappers, and tests. SP List `Lost` field retained for backward compat. |
 
 ### Phase 3 – Advanced Features
 

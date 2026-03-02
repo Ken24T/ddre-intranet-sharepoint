@@ -8,15 +8,15 @@
  * site content.
  *
  * Design:
- *  - PMD_Data: Single-document store. The three section arrays
- *    (vacates, entries, lost) are JSON-serialised into Note fields.
+ *  - PMD_Data: Single-document store. The two section arrays
+ *    (vacates, entries) are JSON-serialised into Note fields.
  *    This mirrors the Dexie approach (one "main" record) and avoids
  *    complex relational mapping for a small-scale dataset.
  *  - PMD_PropertyManagers: One item per property manager, with
  *    simple text/colour fields.
  */
 
-import type { IDashboardData, IPropertyManager, IPropertyRow } from "../models/types";
+import type { IDashboardData, IPropertyManager, IPropertyRow, IColumnWidthPreferences } from "../models/types";
 
 // ─────────────────────────────────────────────────────────────
 // List Names
@@ -25,6 +25,7 @@ import type { IDashboardData, IPropertyManager, IPropertyRow } from "../models/t
 export const SP_LISTS = {
   data: "PMD_Data",
   propertyManagers: "PMD_PropertyManagers",
+  presence: "PMD_Presence",
 } as const;
 
 // ─────────────────────────────────────────────────────────────
@@ -32,7 +33,7 @@ export const SP_LISTS = {
 // ─────────────────────────────────────────────────────────────
 
 export const DATA_SELECT = [
-  "Id", "Title", "Vacates", "Entries", "Lost",
+  "Id", "Title", "Vacates", "Entries", "ColWidths",
 ] as const;
 
 export const PM_SELECT = [
@@ -51,8 +52,8 @@ export interface SPDataItem {
   Vacates: string;
   /** JSON-serialised IPropertyRow[] for entries */
   Entries: string;
-  /** JSON-serialised IPropertyRow[] for lost */
-  Lost: string;
+  /** JSON-serialised IColumnWidthPreferences */
+  ColWidths?: string;
 }
 
 export interface SPPropertyManagerItem {
@@ -92,8 +93,14 @@ export function mapDataFromSP(item: SPDataItem): IDashboardData {
   return {
     vacates: parseJson<IPropertyRow[]>(item.Vacates, []),
     entries: parseJson<IPropertyRow[]>(item.Entries, []),
-    lost: parseJson<IPropertyRow[]>(item.Lost, []),
   };
+}
+
+/** Extract column width preferences from a SP data item. */
+export function mapColWidthsFromSP(
+  item: SPDataItem,
+): IColumnWidthPreferences {
+  return parseJson<IColumnWidthPreferences>(item.ColWidths, {});
 }
 
 export function mapPmFromSP(item: SPPropertyManagerItem): IPropertyManager {
@@ -117,7 +124,15 @@ export function mapDataToSP(
     Title: "main",
     Vacates: JSON.stringify(data.vacates),
     Entries: JSON.stringify(data.entries),
-    Lost: JSON.stringify(data.lost),
+  };
+}
+
+/** Convert column width preferences to SP update payload. */
+export function mapColWidthsToSP(
+  widths: IColumnWidthPreferences,
+): Record<string, unknown> {
+  return {
+    ColWidths: JSON.stringify(widths),
   };
 }
 
@@ -130,5 +145,57 @@ export function mapPmToSP(
     LastName: pm.lastName,
     PreferredName: pm.preferredName,
     Colour: pm.color,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// PMD_Presence – User presence records
+// ─────────────────────────────────────────────────────────────
+
+export const PRESENCE_SELECT = [
+  "Id", "Title", "DisplayName", "LastSeen", "SelectedPm", "Colour", "LastChanged",
+] as const;
+
+export interface SPPresenceItem {
+  Id: number;
+  /** Title = user email (unique per user). */
+  Title: string;
+  DisplayName?: string;
+  LastSeen?: string;
+  SelectedPm?: string;
+  Colour?: string;
+  LastChanged?: string;
+}
+
+export interface PresenceRecord {
+  userId: string;
+  displayName: string;
+  lastSeen: string;
+  selectedPm: string;
+  colour: string;
+  lastChanged: string;
+}
+
+export function mapPresenceFromSP(item: SPPresenceItem): PresenceRecord {
+  return {
+    userId: item.Title || "",
+    displayName: item.DisplayName || "",
+    lastSeen: item.LastSeen || "",
+    selectedPm: item.SelectedPm || "",
+    colour: item.Colour || "",
+    lastChanged: item.LastChanged || "",
+  };
+}
+
+export function mapPresenceToSP(
+  record: PresenceRecord,
+): Record<string, unknown> {
+  return {
+    Title: record.userId,
+    DisplayName: record.displayName,
+    LastSeen: record.lastSeen,
+    SelectedPm: record.selectedPm,
+    Colour: record.colour,
+    LastChanged: record.lastChanged,
   };
 }

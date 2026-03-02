@@ -53,12 +53,6 @@ describe("rowOperations", () => {
       expect(row.columns).toHaveLength(8);
     });
 
-    it("creates a lost row", () => {
-      const row = createPropertyRow("lost", "AW", "10/04");
-      expect(row.columns).toHaveLength(4);
-      expect(row.columns[3]).toBe("AW"); // PM column
-    });
-
     it("uses today's date when no date is provided", () => {
       const row = createPropertyRow("vacates", "KB");
       expect(row.columns[0]).toMatch(/^\d{2}\/\d{2}$/);
@@ -267,19 +261,16 @@ describe("rowOperations", () => {
       const data: IDashboardData = {
         vacates: [makeRow("a", "01/03"), null as unknown as IPropertyRow, makeRow("b", "02/03")],
         entries: [undefined as unknown as IPropertyRow],
-        lost: [],
       };
       const result = validateAndCleanData(data);
       expect(result.vacates).toHaveLength(2);
       expect(result.entries).toHaveLength(0);
-      expect(result.lost).toHaveLength(0);
     });
 
     it("removes rows without an ID", () => {
       const data: IDashboardData = {
         vacates: [{ id: "", pm: "KB", columns: ["01/03"] } as IPropertyRow],
         entries: [],
-        lost: [],
       };
       const result = validateAndCleanData(data);
       expect(result.vacates).toHaveLength(0);

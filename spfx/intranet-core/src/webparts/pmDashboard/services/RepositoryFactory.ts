@@ -21,8 +21,11 @@ import "@pnp/sp/webs";
 
 import type { WebPartContext } from "@microsoft/sp-webpart-base";
 import type { IDashboardRepository } from "./IDashboardRepository";
+import type { IPresenceRepository } from "./IPresenceRepository";
 import { DexieDashboardRepository } from "./DexieDashboardRepository";
 import { SPListDashboardRepository } from "./SPListDashboardRepository";
+import { DexiePresenceRepository } from "./DexiePresenceRepository";
+import { SPPresenceRepository } from "./SPPresenceRepository";
 
 /**
  * Initialise PnPjs with an SPFx web part context.
@@ -43,4 +46,17 @@ export function createDashboardRepository(sp?: SPFI): IDashboardRepository {
     return new SPListDashboardRepository(sp);
   }
   return new DexieDashboardRepository();
+}
+
+/**
+ * Create a presence repository instance.
+ *
+ * @param sp - A configured PnPjs SPFI instance (from `getSPFI()`).
+ *             Omit for development/workbench to use in-memory store.
+ */
+export function createPresenceRepository(sp?: SPFI): IPresenceRepository {
+  if (sp) {
+    return new SPPresenceRepository(sp);
+  }
+  return new DexiePresenceRepository();
 }

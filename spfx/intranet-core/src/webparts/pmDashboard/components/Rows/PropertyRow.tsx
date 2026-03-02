@@ -2,7 +2,7 @@
  * PropertyRow – A single data row in a dashboard section table.
  *
  * Renders the drag handle, PM badge, and all column cells
- * appropriate to the section type (vacates, entries, or lost).
+ * appropriate to the section type (vacates or entries).
  */
 
 import * as React from "react";
@@ -14,7 +14,6 @@ import type {
 import {
   VACATES_COLS,
   ENTRIES_COLS,
-  LOST_COLS,
 } from "../../models/columnSchemas";
 import { getDayOfWeek } from "../../models/dateHelpers";
 import { getPmColor } from "../../models/pmHelpers";
@@ -201,50 +200,12 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
     </>
   );
 
-  const renderLostCells = (): React.ReactNode => (
-    <>
-      <td className={styles.colDate}>
-        <DateCell
-          value={row.columns[LOST_COLS.date] || ""}
-          onChange={handleDateChange}
-          readOnly={readOnly}
-        />
-      </td>
-      <td className={styles.colProperty}>
-        <PropertyCell
-          value={row.columns[LOST_COLS.property] || ""}
-          propertyUrl={row.propertyUrl}
-          onChange={handleCellChange(LOST_COLS.property)}
-          readOnly={readOnly}
-        />
-      </td>
-      <td className={styles.colReason}>
-        <TextCell
-          value={row.columns[LOST_COLS.reason] || ""}
-          onChange={handleCellChange(LOST_COLS.reason)}
-          placeholder="Reason"
-          readOnly={readOnly}
-        />
-      </td>
-      <td className={styles.colPm}>
-        <PmCell
-          value={row.columns[LOST_COLS.pm] || ""}
-          propertyManagers={propertyManagers}
-          onChange={handlePmChange}
-          readOnly={readOnly}
-        />
-      </td>
-    </>
-  );
-
   const renderCells = (): React.ReactNode => {
     switch (section) {
       case "vacates":
         return renderVacatesCells();
       case "entries":
         return renderEntriesCells();
-      case "lost":
-        return renderLostCells();
     }
   };
 

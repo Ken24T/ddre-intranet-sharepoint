@@ -13,9 +13,11 @@
 import React from 'react';
 import { PmDashboard } from '@pmd-components/PmDashboard';
 import { DexieDashboardRepository } from '@pmd-services/DexieDashboardRepository';
+import { DexiePresenceRepository } from '@pmd-services/DexiePresenceRepository';
 
-// Single instance, reused across renders
+// Single instances, reused across renders
 const repository = new DexieDashboardRepository();
+const presenceRepository = new DexiePresenceRepository();
 
 interface PmDashboardDevViewProps {
   isAdmin: boolean;
@@ -25,8 +27,10 @@ export const PmDashboardDevView: React.FC<PmDashboardDevViewProps> = () => {
   return (
     <PmDashboard
       userDisplayName="Ken Boyle"
+      userEmail="ken@disher.com.au"
       isDarkTheme={false}
       repository={repository}
+      presenceRepository={presenceRepository}
     />
   );
 };

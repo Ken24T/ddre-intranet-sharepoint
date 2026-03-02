@@ -102,16 +102,4 @@ export const SEED_DASHBOARD_DATA: IDashboardData = {
       columns: ["21/03", "Sat", "", "", "", "67 Carlisle Street, Balaclava", "HS", ""],
     },
   ],
-  lost: [
-    {
-      id: "seed-l1",
-      pm: "KB",
-      columns: ["01/03", "33 Punt Road, Windsor", "Owner selling - vacant possession", "KB"],
-    },
-    {
-      id: "seed-l2",
-      pm: "CW",
-      columns: ["05/03", "14 Domain Road, South Yarra", "Moved to competitor agency", "CW"],
-    },
-  ],
 };

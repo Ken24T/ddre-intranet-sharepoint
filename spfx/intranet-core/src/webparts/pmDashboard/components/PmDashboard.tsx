@@ -2,8 +2,8 @@
  * PmDashboard – Root component for the Property Manager Dashboard.
  *
  * Manages all state via useReducer; loads/saves data through the
- * injected repository. Renders three section tables (Vacates,
- * Entries, Lost) side-by-side with a PM selector and settings panel.
+ * injected repository. Renders two section tables (Vacates,
+ * Entries) side-by-side with a PM selector and settings panel.
  */
 
 import * as React from "react";
@@ -14,6 +14,8 @@ import type {
   IPropertyManager,
   IPropertyRow,
   DashboardSection,
+  IColumnWidthPreferences,
+  SectionColumnWidths,
 } from "../models/types";
 import {
   createPropertyRow,
@@ -35,6 +37,11 @@ import { PmSelector } from "./PmSelector";
 import { SettingsPanel } from "./SettingsPanel";
 import { PropertyMeInput } from "./PropertyMeInput";
 import type { IPropertyMeInputResult } from "./PropertyMeInput";
+import type { IPropertyMeDropResult } from "../models/propertyMeDragHelpers";
+import { usePropertyMeExtension } from "./usePropertyMeExtension";
+import { useRealtimeSync } from "./useRealtimeSync";
+import { PresenceBar } from "./PresenceBar";
+import { PollingRealtimeService } from "../services/PollingRealtimeService";
 import { useShellBridge } from "./useShellBridge";
 import type { PmDashboardView } from "./useShellBridge";
 import styles from "./PmDashboard.module.scss";
@@ -50,6 +57,8 @@ interface DashboardState {
   loading: boolean;
   error: string | undefined;
   dirty: boolean;
+  columnWidths: IColumnWidthPreferences;
+  columnWidthsDirty: boolean;
 }
 
 type DashboardAction =
@@ -58,16 +67,26 @@ type DashboardAction =
       type: "LOAD_SUCCESS";
       data: IDashboardData;
       propertyManagers: IPropertyManager[];
+      columnWidths: IColumnWidthPreferences;
     }
   | { type: "LOAD_ERROR"; error: string }
   | { type: "SET_DATA"; data: IDashboardData }
+  | { type: "EXTERNAL_DATA_REFRESH"; data: IDashboardData }
   | { type: "SET_PROPERTY_MANAGERS"; pms: IPropertyManager[] }
   | { type: "SELECT_PM"; initials: string }
   | { type: "MARK_CLEAN" }
+  | { type: "MARK_COL_WIDTHS_CLEAN" }
   | {
       type: "UPDATE_SECTION";
       section: DashboardSection;
       rows: IPropertyRow[];
+    }
+  | {
+      type: "SET_COLUMN_WIDTH";
+      pmId: string;
+      section: DashboardSection;
+      colIndex: number;
+      width: number;
     };
 
 function dashboardReducer(
@@ -84,7 +103,9 @@ function dashboardReducer(
         loading: false,
         data: action.data,
         propertyManagers: action.propertyManagers,
+        columnWidths: action.columnWidths,
         dirty: false,
+        columnWidthsDirty: false,
       };
 
     case "LOAD_ERROR":
@@ -92,6 +113,10 @@ function dashboardReducer(
 
     case "SET_DATA":
       return { ...state, data: action.data, dirty: true };
+
+    case "EXTERNAL_DATA_REFRESH":
+      // External reload — set data WITHOUT marking dirty
+      return { ...state, data: action.data, dirty: false };
 
     case "SET_PROPERTY_MANAGERS":
       return { ...state, propertyManagers: action.pms, dirty: true };
@@ -102,6 +127,9 @@ function dashboardReducer(
     case "MARK_CLEAN":
       return { ...state, dirty: false };
 
+    case "MARK_COL_WIDTHS_CLEAN":
+      return { ...state, columnWidthsDirty: false };
+
     case "UPDATE_SECTION":
       return {
         ...state,
@@ -109,18 +137,36 @@ function dashboardReducer(
         dirty: true,
       };
 
+    case "SET_COLUMN_WIDTH": {
+      const pmPrefs = state.columnWidths[action.pmId] || {};
+      const sectionPrefs = pmPrefs[action.section] || {};
+      const updated: IColumnWidthPreferences = {
+        ...state.columnWidths,
+        [action.pmId]: {
+          ...pmPrefs,
+          [action.section]: {
+            ...sectionPrefs,
+            [action.colIndex]: action.width,
+          },
+        },
+      };
+      return { ...state, columnWidths: updated, columnWidthsDirty: true };
+    }
+
     default:
       return state;
   }
 }
 
 const INITIAL_STATE: DashboardState = {
-  data: { vacates: [], entries: [], lost: [] },
+  data: { vacates: [], entries: [] },
   propertyManagers: [],
   selectedPm: "",
   loading: true,
   error: undefined,
   dirty: false,
+  columnWidths: {},
+  columnWidthsDirty: false,
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -149,6 +195,9 @@ const INITIAL_CONTEXT_MENU: ContextMenuState = {
 
 export const PmDashboard: React.FC<IPmDashboardProps> = ({
   repository,
+  presenceRepository,
+  userDisplayName,
+  userEmail,
 }) => {
   const [state, dispatch] = React.useReducer(dashboardReducer, INITIAL_STATE);
   const [contextMenu, setContextMenu] =
@@ -172,6 +221,38 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
 
   useShellBridge(activeView, handleViewChange);
 
+  // ─── Real-time sync ────────────────────────────────────
+  const realtimeService = React.useMemo(
+    () => new PollingRealtimeService(repository, presenceRepository),
+    [repository, presenceRepository],
+  );
+
+  const handleExternalDataChange = React.useCallback((): void => {
+    // Reload data from repository when another user saves
+    repository
+      .loadData()
+      .then((data) => {
+        if (mountedRef.current) {
+          dispatch({ type: "EXTERNAL_DATA_REFRESH", data: validateAndCleanData(data) });
+        }
+      })
+      .catch((err) => {
+        console.error("[PmDashboard] External data reload failed:", err);
+      });
+  }, [repository]);
+
+  const { isConnected: realtimeConnected, onlineUsers } = useRealtimeSync({
+    service: realtimeService,
+    currentUserId: userEmail,
+    displayName: userDisplayName,
+    onDataChanged: handleExternalDataChange,
+    enabled: !state.loading,
+  });
+
+  // Suppress unused var warning — reserved for future status bar integration
+  // eslint-disable-next-line no-void
+  void realtimeConnected;
+
   // ─── Load data ─────────────────────────────────────────
   React.useEffect(() => {
     mountedRef.current = true;
@@ -179,15 +260,17 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
     const load = async (): Promise<void> => {
       dispatch({ type: "LOAD_START" });
       try {
-        const [data, pms] = await Promise.all([
+        const [data, pms, colWidths] = await Promise.all([
           repository.loadData(),
           repository.loadPropertyManagers(),
+          repository.loadColumnWidths(),
         ]);
         if (mountedRef.current) {
           dispatch({
             type: "LOAD_SUCCESS",
             data: validateAndCleanData(data),
             propertyManagers: pms,
+            columnWidths: colWidths,
           });
         }
       } catch (err) {
@@ -218,6 +301,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
         .saveData(state.data)
         .then(() => {
           if (mountedRef.current) dispatch({ type: "MARK_CLEAN" });
+          realtimeService.notifyDataChanged();
         })
         .catch((err) => {
           console.error("Auto-save failed:", err);
@@ -228,6 +312,63 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
   }, [state.dirty, state.data, repository]);
+
+  // ─── Auto-save column widths with debounce ─────────────
+  const colWidthTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(() => {
+    if (!state.columnWidthsDirty) return;
+
+    if (colWidthTimerRef.current) clearTimeout(colWidthTimerRef.current);
+
+    colWidthTimerRef.current = setTimeout(() => {
+      repository
+        .saveColumnWidths(state.columnWidths)
+        .then(() => {
+          if (mountedRef.current) dispatch({ type: "MARK_COL_WIDTHS_CLEAN" });
+        })
+        .catch((err) => {
+          console.error("Column width save failed:", err);
+        });
+    }, 500);
+
+    return () => {
+      if (colWidthTimerRef.current) clearTimeout(colWidthTimerRef.current);
+    };
+  }, [state.columnWidthsDirty, state.columnWidths, repository]);
+
+  // ─── Column resize handler ─────────────────────────────
+  const handleColumnResize = React.useCallback(
+    (section: DashboardSection, colIndex: number, width: number): void => {
+      // Find PM id from selectedPm initials
+      const pm = state.propertyManagers.find(
+        (p) => `${p.firstName[0] || ""}${p.lastName[0] || ""}`.toUpperCase() === state.selectedPm,
+      );
+      if (!pm) return; // No PM selected — can't save preferences
+      dispatch({
+        type: "SET_COLUMN_WIDTH",
+        pmId: pm.id,
+        section,
+        colIndex,
+        width,
+      });
+    },
+    [state.selectedPm, state.propertyManagers],
+  );
+
+  // ─── Get column widths for current PM ──────────────────
+  const getColumnWidths = React.useCallback(
+    (section: DashboardSection): SectionColumnWidths => {
+      const pm = state.propertyManagers.find(
+        (p) => `${p.firstName[0] || ""}${p.lastName[0] || ""}`.toUpperCase() === state.selectedPm,
+      );
+      if (!pm) return {};
+      const pmPrefs = state.columnWidths[pm.id];
+      if (!pmPrefs) return {};
+      return pmPrefs[section] || {};
+    },
+    [state.selectedPm, state.propertyManagers, state.columnWidths],
+  );
 
   // ─── Cell change handler ───────────────────────────────
   const handleCellChange = React.useCallback(
@@ -322,6 +463,40 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
     },
     [state.data, state.selectedPm, state.propertyManagers],
   );
+
+  // ─── PropertyMe drag-and-drop handler ─────────────────
+  const handlePropertyMeDrop = React.useCallback(
+    (section: DashboardSection, result: IPropertyMeDropResult): void => {
+      if (!state.selectedPm) return; // PM gating
+
+      const activePm = state.selectedPm;
+      const newRow = createPropertyRow(section, activePm);
+
+      // Set property address from extraction
+      if (result.address) {
+        newRow.columns[1] = result.address;
+      }
+      newRow.propertyUrl = result.url;
+
+      const rows = [...state.data[section], newRow];
+      dispatch({ type: "UPDATE_SECTION", section, rows });
+    },
+    [state.data, state.selectedPm],
+  );
+
+  // ─── PropertyMe extension listener ────────────────────
+  const handleExtensionDrop = React.useCallback(
+    (result: IPropertyMeDropResult): void => {
+      // Extension drops default to vacates section
+      handlePropertyMeDrop("vacates", result);
+    },
+    [handlePropertyMeDrop],
+  );
+
+  usePropertyMeExtension({
+    onReceive: handleExtensionDrop,
+    disabled: !state.selectedPm,
+  });
 
   // ─── Add row handler ──────────────────────────────────
   const handleAddRow = React.useCallback(
@@ -422,7 +597,12 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
   // ─── PM Selector handler ──────────────────────────────
   const handleSelectPm = React.useCallback((initials: string): void => {
     dispatch({ type: "SELECT_PM", initials });
-  }, []);
+    // Look up the PM's assigned colour
+    const pm = state.propertyManagers.find(
+      (p) => `${p.firstName[0] || ""}${p.lastName[0] || ""}`.toUpperCase() === initials,
+    );
+    realtimeService.setSelectedPm(initials, pm?.color || "");
+  }, [realtimeService, state.propertyManagers]);
 
   // ─── Settings handlers ────────────────────────────────
   const handleOpenSettings = React.useCallback((): void => {
@@ -468,6 +648,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       <div className={styles.header}>
         <div className={styles.titleArea}>
           <h2 className={styles.title}>Property Manager Dashboard</h2>
+          <PresenceBar users={onlineUsers} currentUserId={userEmail} />
         </div>
         <div className={styles.headerActions}>
           <PmSelector
@@ -503,6 +684,9 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           onAddRow={handleAddRow}
           onReorder={handleReorder}
           readOnly={!state.selectedPm}
+          columnWidths={getColumnWidths("vacates")}
+          onColumnResize={handleColumnResize}
+          onPropertyMeDrop={handlePropertyMeDrop}
         />
         <SectionTable
           section="entries"
@@ -516,19 +700,9 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           onAddRow={handleAddRow}
           onReorder={handleReorder}
           readOnly={!state.selectedPm}
-        />
-        <SectionTable
-          section="lost"
-          title="Lost Managements"
-          rows={state.data.lost}
-          propertyManagers={state.propertyManagers}
-          onCellChange={handleCellChange}
-          onPmChange={handlePmChange}
-          onDateChange={handleDateChange}
-          onContextMenu={handleContextMenu}
-          onAddRow={handleAddRow}
-          onReorder={handleReorder}
-          readOnly={!state.selectedPm}
+          columnWidths={getColumnWidths("entries")}
+          onColumnResize={handleColumnResize}
+          onPropertyMeDrop={handlePropertyMeDrop}
         />
       </div>
 

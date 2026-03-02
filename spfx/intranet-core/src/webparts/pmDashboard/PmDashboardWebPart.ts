@@ -12,7 +12,8 @@ import * as strings from "PmDashboardWebPartStrings";
 import { PmDashboard } from "./components/PmDashboard";
 import type { IPmDashboardProps } from "./components/IPmDashboardProps";
 import type { IDashboardRepository } from "./services/IDashboardRepository";
-import { getSPFI, createDashboardRepository } from "./services/RepositoryFactory";
+import type { IPresenceRepository } from "./services/IPresenceRepository";
+import { getSPFI, createDashboardRepository, createPresenceRepository } from "./services/RepositoryFactory";
 
 export interface IPmDashboardWebPartProps {
   description: string;
@@ -21,6 +22,7 @@ export interface IPmDashboardWebPartProps {
 export default class PmDashboardWebPart extends BaseClientSideWebPart<IPmDashboardWebPartProps> {
   private _isDarkTheme: boolean = false;
   private _repository!: IDashboardRepository;
+  private _presenceRepository!: IPresenceRepository;
 
   protected async onInit(): Promise<void> {
     await super.onInit();
@@ -28,6 +30,7 @@ export default class PmDashboardWebPart extends BaseClientSideWebPart<IPmDashboa
     // Use SP Lists when running in SharePoint, Dexie (IndexedDB) in workbench/dev
     const sp = getSPFI(this.context);
     this._repository = createDashboardRepository(sp);
+    this._presenceRepository = createPresenceRepository(sp);
   }
 
   public render(): void {
@@ -35,8 +38,10 @@ export default class PmDashboardWebPart extends BaseClientSideWebPart<IPmDashboa
       PmDashboard,
       {
         userDisplayName: this.context.pageContext.user.displayName,
+        userEmail: this.context.pageContext.user.email || this.context.pageContext.user.loginName,
         isDarkTheme: this._isDarkTheme,
         repository: this._repository,
+        presenceRepository: this._presenceRepository,
       },
     );
 
