@@ -227,4 +227,20 @@ export class SPListDashboardRepository implements IDashboardRepository {
       await this.dataList.items.add({ Title: DATA_KEY, ...spData });
     }
   }
+
+  // ─── Data Version ──────────────────────────────────────
+
+  async getDataVersion(): Promise<string> {
+    await this.ensureLists();
+
+    const items = await this.dataList.items
+      .select("Modified")
+      .filter(`Title eq '${DATA_KEY}'`)
+      .top(1)
+      ();
+
+    if (items.length === 0) return "";
+
+    return (items[0] as { Modified?: string }).Modified || "";
+  }
 }

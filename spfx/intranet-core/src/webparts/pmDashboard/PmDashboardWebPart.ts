@@ -35,6 +35,7 @@ export default class PmDashboardWebPart extends BaseClientSideWebPart<IPmDashboa
       PmDashboard,
       {
         userDisplayName: this.context.pageContext.user.displayName,
+        userEmail: this.context.pageContext.user.email || this.context.pageContext.user.loginName,
         isDarkTheme: this._isDarkTheme,
         repository: this._repository,
       },

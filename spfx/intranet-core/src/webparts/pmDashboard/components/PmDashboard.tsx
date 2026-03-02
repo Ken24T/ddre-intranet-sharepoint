@@ -39,6 +39,8 @@ import { PropertyMeInput } from "./PropertyMeInput";
 import type { IPropertyMeInputResult } from "./PropertyMeInput";
 import type { IPropertyMeDropResult } from "../models/propertyMeDragHelpers";
 import { usePropertyMeExtension } from "./usePropertyMeExtension";
+import { useRealtimeSync } from "./useRealtimeSync";
+import { PollingRealtimeService } from "../services/PollingRealtimeService";
 import { useShellBridge } from "./useShellBridge";
 import type { PmDashboardView } from "./useShellBridge";
 import styles from "./PmDashboard.module.scss";
@@ -68,6 +70,7 @@ type DashboardAction =
     }
   | { type: "LOAD_ERROR"; error: string }
   | { type: "SET_DATA"; data: IDashboardData }
+  | { type: "EXTERNAL_DATA_REFRESH"; data: IDashboardData }
   | { type: "SET_PROPERTY_MANAGERS"; pms: IPropertyManager[] }
   | { type: "SELECT_PM"; initials: string }
   | { type: "MARK_CLEAN" }
@@ -109,6 +112,10 @@ function dashboardReducer(
 
     case "SET_DATA":
       return { ...state, data: action.data, dirty: true };
+
+    case "EXTERNAL_DATA_REFRESH":
+      // External reload — set data WITHOUT marking dirty
+      return { ...state, data: action.data, dirty: false };
 
     case "SET_PROPERTY_MANAGERS":
       return { ...state, propertyManagers: action.pms, dirty: true };
@@ -187,6 +194,8 @@ const INITIAL_CONTEXT_MENU: ContextMenuState = {
 
 export const PmDashboard: React.FC<IPmDashboardProps> = ({
   repository,
+  userDisplayName,
+  userEmail,
 }) => {
   const [state, dispatch] = React.useReducer(dashboardReducer, INITIAL_STATE);
   const [contextMenu, setContextMenu] =
@@ -209,6 +218,38 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
   );
 
   useShellBridge(activeView, handleViewChange);
+
+  // ─── Real-time sync ────────────────────────────────────
+  const realtimeService = React.useMemo(
+    () => new PollingRealtimeService(repository),
+    [repository],
+  );
+
+  const handleExternalDataChange = React.useCallback((): void => {
+    // Reload data from repository when another user saves
+    repository
+      .loadData()
+      .then((data) => {
+        if (mountedRef.current) {
+          dispatch({ type: "EXTERNAL_DATA_REFRESH", data: validateAndCleanData(data) });
+        }
+      })
+      .catch((err) => {
+        console.error("[PmDashboard] External data reload failed:", err);
+      });
+  }, [repository]);
+
+  const { isConnected: realtimeConnected } = useRealtimeSync({
+    service: realtimeService,
+    currentUserId: userEmail,
+    displayName: userDisplayName,
+    onDataChanged: handleExternalDataChange,
+    enabled: !state.loading,
+  });
+
+  // Suppress unused var warning — reserved for future status bar integration
+  // eslint-disable-next-line no-void
+  void realtimeConnected;
 
   // ─── Load data ─────────────────────────────────────────
   React.useEffect(() => {
@@ -258,6 +299,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
         .saveData(state.data)
         .then(() => {
           if (mountedRef.current) dispatch({ type: "MARK_CLEAN" });
+          realtimeService.notifyDataChanged();
         })
         .catch((err) => {
           console.error("Auto-save failed:", err);
@@ -553,7 +595,8 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
   // ─── PM Selector handler ──────────────────────────────
   const handleSelectPm = React.useCallback((initials: string): void => {
     dispatch({ type: "SELECT_PM", initials });
-  }, []);
+    realtimeService.setSelectedPm(initials);
+  }, [realtimeService]);
 
   // ─── Settings handlers ────────────────────────────────
   const handleOpenSettings = React.useCallback((): void => {

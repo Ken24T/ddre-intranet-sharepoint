@@ -26,4 +26,15 @@ export interface IDashboardRepository {
 
   /** Persist per-PM column width preferences. */
   saveColumnWidths(widths: IColumnWidthPreferences): Promise<void>;
+
+  /**
+   * Return a version token for the dashboard data.
+   *
+   * Used by polling-based real-time sync to detect external changes.
+   * Returns a string that changes whenever the underlying data is modified
+   * (e.g. the SharePoint list item's Modified timestamp).
+   *
+   * Implementations that don't support versioning may return an empty string.
+   */
+  getDataVersion(): Promise<string>;
 }

@@ -87,4 +87,9 @@ export class DexieDashboardRepository implements IDashboardRepository {
       widths,
     });
   }
+
+  async getDataVersion(): Promise<string> {
+    // Dexie (dev harness) doesn't support versioning — return empty string
+    return "";
+  }
 }
