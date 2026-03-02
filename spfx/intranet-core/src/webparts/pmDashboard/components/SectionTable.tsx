@@ -27,10 +27,12 @@ import type {
   DashboardSection,
   SectionColumnWidths,
 } from "../models/types";
+import type { IPropertyMeDropResult } from "../models/propertyMeDragHelpers";
 import { SECTION_COLUMNS } from "../models/columnSchemas";
 import { PropertyRowComponent } from "./Rows/PropertyRow";
 import { BlankRow } from "./Rows/BlankRow";
 import { useColumnResize } from "./useColumnResize";
+import { usePropertyMeDrop } from "./usePropertyMeDrop";
 import styles from "./PmDashboard.module.scss";
 
 export interface ISectionTableProps {
@@ -73,6 +75,11 @@ export interface ISectionTableProps {
     colIndex: number,
     width: number,
   ) => void;
+  /** Called when a PropertyMe property is dropped onto this section. */
+  onPropertyMeDrop?: (
+    section: DashboardSection,
+    result: IPropertyMeDropResult,
+  ) => void;
   /** When true, all editing is disabled (no PM selected). */
   readOnly?: boolean;
 }
@@ -96,6 +103,7 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
   onReorder,
   columnWidths,
   onColumnResize,
+  onPropertyMeDrop,
   readOnly = false,
 }) => {
   const columns = SECTION_COLUMNS[section];
@@ -114,6 +122,18 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
     columnCount: columns.length,
     widths: columnWidths || {},
     onChange: handleResize,
+  });
+
+  // ─── PropertyMe drag-and-drop ────────────────────────
+  const noopDrop = React.useCallback(
+    () => { /* noop — onPropertyMeDrop not provided */ },
+    [],
+  );
+
+  const { state: dropState, handlers: dropHandlers } = usePropertyMeDrop({
+    section,
+    onDrop: onPropertyMeDrop || noopDrop,
+    disabled: readOnly || !onPropertyMeDrop,
   });
 
   // ─── DnD sensors ──────────────────────────────────────
@@ -167,7 +187,20 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
   const rowCount = rows.filter((r) => !r.blank).length;
 
   return (
-    <div className={styles.sectionCard}>
+    <div
+      className={styles.sectionCard}
+      onDragOver={dropHandlers.onDragOver}
+      onDragEnter={dropHandlers.onDragEnter}
+      onDragLeave={dropHandlers.onDragLeave}
+      onDrop={dropHandlers.onDrop}
+    >
+      {dropState.isDragOver && (
+        <div className={styles.dropZoneOverlay}>
+          <span className={styles.dropZoneLabel}>
+            Drop PropertyMe property here
+          </span>
+        </div>
+      )}
       <div className={SECTION_HEADER_STYLES[section]}>
         <span>
           {title} ({rowCount})

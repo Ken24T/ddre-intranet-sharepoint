@@ -37,6 +37,8 @@ import { PmSelector } from "./PmSelector";
 import { SettingsPanel } from "./SettingsPanel";
 import { PropertyMeInput } from "./PropertyMeInput";
 import type { IPropertyMeInputResult } from "./PropertyMeInput";
+import type { IPropertyMeDropResult } from "../models/propertyMeDragHelpers";
+import { usePropertyMeExtension } from "./usePropertyMeExtension";
 import { useShellBridge } from "./useShellBridge";
 import type { PmDashboardView } from "./useShellBridge";
 import styles from "./PmDashboard.module.scss";
@@ -418,6 +420,40 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
     [state.data, state.selectedPm, state.propertyManagers],
   );
 
+  // ─── PropertyMe drag-and-drop handler ─────────────────
+  const handlePropertyMeDrop = React.useCallback(
+    (section: DashboardSection, result: IPropertyMeDropResult): void => {
+      if (!state.selectedPm) return; // PM gating
+
+      const activePm = state.selectedPm;
+      const newRow = createPropertyRow(section, activePm);
+
+      // Set property address from extraction
+      if (result.address) {
+        newRow.columns[1] = result.address;
+      }
+      newRow.propertyUrl = result.url;
+
+      const rows = [...state.data[section], newRow];
+      dispatch({ type: "UPDATE_SECTION", section, rows });
+    },
+    [state.data, state.selectedPm],
+  );
+
+  // ─── PropertyMe extension listener ────────────────────
+  const handleExtensionDrop = React.useCallback(
+    (result: IPropertyMeDropResult): void => {
+      // Extension drops default to vacates section
+      handlePropertyMeDrop("vacates", result);
+    },
+    [handlePropertyMeDrop],
+  );
+
+  usePropertyMeExtension({
+    onReceive: handleExtensionDrop,
+    disabled: !state.selectedPm,
+  });
+
   // ─── Add row handler ──────────────────────────────────
   const handleAddRow = React.useCallback(
     (section: DashboardSection): void => {
@@ -600,6 +636,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           readOnly={!state.selectedPm}
           columnWidths={getColumnWidths("vacates")}
           onColumnResize={handleColumnResize}
+          onPropertyMeDrop={handlePropertyMeDrop}
         />
         <SectionTable
           section="entries"
@@ -615,6 +652,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           readOnly={!state.selectedPm}
           columnWidths={getColumnWidths("entries")}
           onColumnResize={handleColumnResize}
+          onPropertyMeDrop={handlePropertyMeDrop}
         />
         <SectionTable
           section="lost"
@@ -630,6 +668,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           readOnly={!state.selectedPm}
           columnWidths={getColumnWidths("lost")}
           onColumnResize={handleColumnResize}
+          onPropertyMeDrop={handlePropertyMeDrop}
         />
       </div>
 

@@ -62,6 +62,41 @@
   border-radius: 6px;
   overflow: hidden;
   background: "[theme:white, default: #ffffff]";
+  position: relative;
+}
+
+/* Drop zone overlay for PropertyMe drag-and-drop */
+.dropZoneOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 28, 173, 0.08);
+  border: 2px dashed #001cad;
+  border-radius: 6px;
+  pointer-events: none;
+  animation: dropZoneFadeIn 150ms ease-out;
+}
+
+.dropZoneLabel {
+  padding: 8px 16px;
+  border-radius: 4px;
+  background: #001cad;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes dropZoneFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .sectionHeader {
