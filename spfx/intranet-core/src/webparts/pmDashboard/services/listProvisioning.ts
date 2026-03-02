@@ -36,13 +36,15 @@ interface FieldDef {
 
 /**
  * PMD_Data stores JSON blobs for each section.
- * Note fields support large text (vacates/entries/lost can have
+ * Note fields support large text (vacates/entries can have
  * many rows with many columns).
+ * The Lost field is retained for backward compatibility with
+ * existing SP lists but is no longer read or written.
  */
 const DATA_FIELDS: FieldDef[] = [
   { name: "Vacates", type: "note" },
   { name: "Entries", type: "note" },
-  { name: "Lost", type: "note" },
+  { name: "Lost", type: "note" },  // Retained for backward compat
   { name: "ColWidths", type: "note" },
 ];
 

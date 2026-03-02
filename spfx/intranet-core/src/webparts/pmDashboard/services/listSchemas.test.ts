@@ -45,14 +45,12 @@ describe("mapDataFromSP", () => {
       Title: "main",
       Vacates: JSON.stringify([{ id: "v1", pm: "KB", columns: ["15/03", "42 Smith St"], blank: false }]),
       Entries: JSON.stringify([{ id: "e1", pm: "CW", columns: ["10/03"] }]),
-      Lost: "[]",
     };
 
     const result = mapDataFromSP(spItem);
     expect(result.vacates).toHaveLength(1);
     expect(result.vacates[0].id).toBe("v1");
     expect(result.entries).toHaveLength(1);
-    expect(result.lost).toEqual([]);
   });
 
   it("handles missing/undefined JSON fields gracefully", () => {
@@ -61,13 +59,11 @@ describe("mapDataFromSP", () => {
       Title: "main",
       Vacates: undefined as unknown as string,
       Entries: "",
-      Lost: "{invalid",
     };
 
     const result = mapDataFromSP(spItem);
     expect(result.vacates).toEqual([]);
     expect(result.entries).toEqual([]);
-    expect(result.lost).toEqual([]);
   });
 });
 
@@ -76,14 +72,12 @@ describe("mapDataToSP", () => {
     const data: IDashboardData = {
       vacates: [{ id: "v1", pm: "KB", columns: ["15/03"] }],
       entries: [],
-      lost: [{ id: "l1", pm: "CW", columns: ["20/03"] }],
     };
 
     const result = mapDataToSP(data);
     expect(result.Title).toBe("main");
     expect(JSON.parse(result.Vacates as string)).toEqual(data.vacates);
     expect(result.Entries).toBe("[]");
-    expect(JSON.parse(result.Lost as string)).toEqual(data.lost);
   });
 });
 

@@ -49,7 +49,7 @@ export class DexieDashboardRepository implements IDashboardRepository {
 
     const record = await db.dashboardData.get(DASHBOARD_KEY);
     if (!record) {
-      return { vacates: [], entries: [], lost: [] };
+      return { vacates: [], entries: [] };
     }
     return record.data;
   }

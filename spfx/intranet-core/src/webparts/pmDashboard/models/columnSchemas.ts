@@ -9,21 +9,18 @@ import type {
   DashboardSection,
   IVacatesColumnIndex,
   IEntriesColumnIndex,
-  ILostColumnIndex,
 } from "./types";
 
 /** Ordered column header labels for each section */
 export const SECTION_COLUMNS: Record<DashboardSection, readonly string[]> = {
   vacates: ["Date", "Property", "PM", "VAC", "Reason"] as const,
   entries: ["Date", "Day", "Signed", "BOND", "2WKS", "Property", "PM", "Comments"] as const,
-  lost: ["Date", "Property", "Reason", "PM"] as const,
 };
 
 /** Column count per section (for creating empty rows) */
 export const SECTION_COLUMN_COUNTS: Record<DashboardSection, number> = {
   vacates: SECTION_COLUMNS.vacates.length,
   entries: SECTION_COLUMNS.entries.length,
-  lost: SECTION_COLUMNS.lost.length,
 };
 
 /** Named column indices for the Vacates section */
@@ -47,14 +44,6 @@ export const ENTRIES_COLS: IEntriesColumnIndex = {
   comments: 7,
 };
 
-/** Named column indices for the Lost section */
-export const LOST_COLS: ILostColumnIndex = {
-  date: 0,
-  property: 1,
-  reason: 2,
-  pm: 3,
-};
-
 /**
  * Return the index of the Date column for a given section.
  * All sections have Date at index 0.
@@ -72,8 +61,6 @@ export function getPmColumnIndex(section: DashboardSection): number {
       return VACATES_COLS.pm;
     case "entries":
       return ENTRIES_COLS.pm;
-    case "lost":
-      return LOST_COLS.pm;
   }
 }
 
@@ -86,8 +73,6 @@ export function getPropertyColumnIndex(section: DashboardSection): number {
       return VACATES_COLS.property;
     case "entries":
       return ENTRIES_COLS.property;
-    case "lost":
-      return LOST_COLS.property;
   }
 }
 

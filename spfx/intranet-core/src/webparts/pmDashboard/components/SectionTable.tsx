@@ -1,6 +1,6 @@
 /**
- * SectionTable – Renders one of the three dashboard sections
- * (Vacates, Entries, or Lost) as a coloured card with a table.
+ * SectionTable – Renders one of the two dashboard sections
+ * (Vacates or Entries) as a coloured card with a table.
  *
  * Includes the section header, column headers, and all rows.
  * Rows are sortable via @dnd-kit drag-and-drop reordering.
@@ -87,7 +87,6 @@ export interface ISectionTableProps {
 const SECTION_HEADER_STYLES: Record<DashboardSection, string> = {
   vacates: styles.sectionHeaderVacates,
   entries: styles.sectionHeaderEntries,
-  lost: styles.sectionHeaderLost,
 };
 
 export const SectionTable: React.FC<ISectionTableProps> = ({

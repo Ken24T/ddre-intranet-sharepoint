@@ -9,7 +9,7 @@
 import type { IDashboardData, IPropertyManager, IColumnWidthPreferences } from "../models/types";
 
 export interface IDashboardRepository {
-  /** Load all dashboard data (vacates, entries, lost sections). */
+  /** Load all dashboard data (vacates, entries sections). */
   loadData(): Promise<IDashboardData>;
 
   /** Persist the full dashboard data set. */

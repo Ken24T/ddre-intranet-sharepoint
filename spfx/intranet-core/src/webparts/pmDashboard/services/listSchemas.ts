@@ -8,8 +8,8 @@
  * site content.
  *
  * Design:
- *  - PMD_Data: Single-document store. The three section arrays
- *    (vacates, entries, lost) are JSON-serialised into Note fields.
+ *  - PMD_Data: Single-document store. The two section arrays
+ *    (vacates, entries) are JSON-serialised into Note fields.
  *    This mirrors the Dexie approach (one "main" record) and avoids
  *    complex relational mapping for a small-scale dataset.
  *  - PMD_PropertyManagers: One item per property manager, with
@@ -33,7 +33,7 @@ export const SP_LISTS = {
 // ─────────────────────────────────────────────────────────────
 
 export const DATA_SELECT = [
-  "Id", "Title", "Vacates", "Entries", "Lost", "ColWidths",
+  "Id", "Title", "Vacates", "Entries", "ColWidths",
 ] as const;
 
 export const PM_SELECT = [
@@ -52,8 +52,6 @@ export interface SPDataItem {
   Vacates: string;
   /** JSON-serialised IPropertyRow[] for entries */
   Entries: string;
-  /** JSON-serialised IPropertyRow[] for lost */
-  Lost: string;
   /** JSON-serialised IColumnWidthPreferences */
   ColWidths?: string;
 }
@@ -95,7 +93,6 @@ export function mapDataFromSP(item: SPDataItem): IDashboardData {
   return {
     vacates: parseJson<IPropertyRow[]>(item.Vacates, []),
     entries: parseJson<IPropertyRow[]>(item.Entries, []),
-    lost: parseJson<IPropertyRow[]>(item.Lost, []),
   };
 }
 
@@ -127,7 +124,6 @@ export function mapDataToSP(
     Title: "main",
     Vacates: JSON.stringify(data.vacates),
     Entries: JSON.stringify(data.entries),
-    Lost: JSON.stringify(data.lost),
   };
 }
 

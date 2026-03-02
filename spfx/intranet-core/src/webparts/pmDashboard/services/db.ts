@@ -1,7 +1,7 @@
 /**
  * Dexie database schema for the PM Dashboard.
  *
- * Stores dashboard data (vacates/entries/lost rows) and
+ * Stores dashboard data (vacates/entries rows) and
  * property manager definitions. Uses a `-spfx` suffix to
  * avoid collisions with the standalone PWA.
  *

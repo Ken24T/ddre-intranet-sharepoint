@@ -2,8 +2,8 @@
  * PmDashboard – Root component for the Property Manager Dashboard.
  *
  * Manages all state via useReducer; loads/saves data through the
- * injected repository. Renders three section tables (Vacates,
- * Entries, Lost) side-by-side with a PM selector and settings panel.
+ * injected repository. Renders two section tables (Vacates,
+ * Entries) side-by-side with a PM selector and settings panel.
  */
 
 import * as React from "react";
@@ -159,7 +159,7 @@ function dashboardReducer(
 }
 
 const INITIAL_STATE: DashboardState = {
-  data: { vacates: [], entries: [], lost: [] },
+  data: { vacates: [], entries: [] },
   propertyManagers: [],
   selectedPm: "",
   loading: true,
@@ -701,22 +701,6 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           onReorder={handleReorder}
           readOnly={!state.selectedPm}
           columnWidths={getColumnWidths("entries")}
-          onColumnResize={handleColumnResize}
-          onPropertyMeDrop={handlePropertyMeDrop}
-        />
-        <SectionTable
-          section="lost"
-          title="Lost Managements"
-          rows={state.data.lost}
-          propertyManagers={state.propertyManagers}
-          onCellChange={handleCellChange}
-          onPmChange={handlePmChange}
-          onDateChange={handleDateChange}
-          onContextMenu={handleContextMenu}
-          onAddRow={handleAddRow}
-          onReorder={handleReorder}
-          readOnly={!state.selectedPm}
-          columnWidths={getColumnWidths("lost")}
           onColumnResize={handleColumnResize}
           onPropertyMeDrop={handlePropertyMeDrop}
         />

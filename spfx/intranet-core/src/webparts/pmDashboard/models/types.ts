@@ -6,8 +6,8 @@
  * layout (legacy ST/Sign/KEY/ECR columns removed).
  */
 
-/** The three table sections in the dashboard */
-export type DashboardSection = "vacates" | "entries" | "lost";
+/** The two table sections in the dashboard */
+export type DashboardSection = "vacates" | "entries";
 
 /** A single property row in any section */
 export interface IPropertyRow {
@@ -27,7 +27,6 @@ export interface IPropertyRow {
 export interface IDashboardData {
   vacates: IPropertyRow[];
   entries: IPropertyRow[];
-  lost: IPropertyRow[];
 }
 
 /** A property manager user */
@@ -62,11 +61,6 @@ export interface IEntriesColumnIndex extends IColumnIndex {
   readonly bond: number;
   readonly twoWks: number;
   readonly comments: number;
-}
-
-/** Lost-specific column indices */
-export interface ILostColumnIndex extends IColumnIndex {
-  readonly reason: number;
 }
 
 // ─────────────────────────────────────────────────────────────

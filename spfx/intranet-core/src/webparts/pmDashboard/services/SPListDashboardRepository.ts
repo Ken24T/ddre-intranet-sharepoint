@@ -118,7 +118,7 @@ export class SPListDashboardRepository implements IDashboardRepository {
       ();
 
     if (items.length === 0) {
-      return { vacates: [], entries: [], lost: [] };
+      return { vacates: [], entries: [] };
     }
 
     return mapDataFromSP(items[0]);

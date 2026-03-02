@@ -16,11 +16,10 @@ test.describe("PM Dashboard", () => {
 
   // ─── Page load ──────────────────────────────────────────
 
-  test("dashboard loads with three section tables", async ({ page }) => {
-    // All three sections should be visible
+  test("dashboard loads with two section tables", async ({ page }) => {
+    // Both sections should be visible
     await expect(page.getByText("Vacates")).toBeVisible();
     await expect(page.getByText("Entries")).toBeVisible();
-    await expect(page.getByText("Lost")).toBeVisible();
   });
 
   // ─── PM Selector ────────────────────────────────────────
