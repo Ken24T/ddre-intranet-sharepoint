@@ -779,18 +779,27 @@ Marketing budget tracking and reporting for sales & marketing teams.
 
 ### app-pm-dashboard
 
-> **Status:** ⚪ Planning
+> **Status:** 🟡 In Progress (Phase 1)
 >
 > **Hub:** Property Management
 
 PropertyMe data visualisation dashboard.
 
 - [x] Define requirements in `apps/app-pm-dashboard/`
-- [ ] Create web part at `spfx/intranet-core/src/webparts/pmDashboard/`
-- [ ] Register in `config/config.json`
-- [ ] Design dashboard layout and widgets
-- [ ] Integrate with `pkg-api-client` PropertyMeClient
-- [ ] Implement property list, tenant info, maintenance views
+- [x] Create web part at `spfx/intranet-core/src/webparts/pmDashboard/`
+- [x] Register in `config/config.json`
+- [x] Models layer (types, columnSchemas, dateHelpers, pmHelpers, rowOperations + tests)
+- [x] Dexie repository + seed data
+- [x] Cell editors (Text, Date, Day, PM, Checkbox, Property)
+- [x] PropertyRow, BlankRow, SectionTable, ContextMenu, PmSelector, SettingsPanel
+- [x] Root PmDashboard component with useReducer
+- [x] Row drag-and-drop with @dnd-kit/sortable
+- [x] PropertyMeInput (URL paste → address extraction)
+- [x] Editing gating (disabled when no PM selected)
+- [x] AppBridge integration (useShellBridge for sidebar nav)
+- [ ] SPListDashboardRepository (SharePoint List implementation)
+- [ ] SharePoint List provisioning
+- [ ] Playwright E2E tests
 
 ### app-qrcoder
 

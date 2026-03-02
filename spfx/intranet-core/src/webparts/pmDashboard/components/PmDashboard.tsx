@@ -23,6 +23,8 @@ import {
   updateCell,
   updateRowPm,
   reorderByDate,
+  reorderRows,
+  updateDateFromDragPosition,
   validateAndCleanData,
 } from "../models/rowOperations";
 import { getDayOfWeek } from "../models/dateHelpers";
@@ -31,6 +33,10 @@ import { SectionTable } from "./SectionTable";
 import { ContextMenu, type IContextMenuAction } from "./ContextMenu";
 import { PmSelector } from "./PmSelector";
 import { SettingsPanel } from "./SettingsPanel";
+import { PropertyMeInput } from "./PropertyMeInput";
+import type { IPropertyMeInputResult } from "./PropertyMeInput";
+import { useShellBridge } from "./useShellBridge";
+import type { PmDashboardView } from "./useShellBridge";
 import styles from "./PmDashboard.module.scss";
 
 // ─────────────────────────────────────────────────────────────
@@ -151,6 +157,21 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
   const saveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const mountedRef = React.useRef(true);
 
+  // ─── AppBridge (sidebar navigation) ────────────────────
+  const [activeView, setActiveView] = React.useState<PmDashboardView>("dashboard");
+
+  const handleViewChange = React.useCallback(
+    (view: PmDashboardView): void => {
+      setActiveView(view);
+      if (view === "settings") {
+        setSettingsOpen(true);
+      }
+    },
+    [],
+  );
+
+  useShellBridge(activeView, handleViewChange);
+
   // ─── Load data ─────────────────────────────────────────
   React.useEffect(() => {
     mountedRef.current = true;
@@ -255,6 +276,51 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       dispatch({ type: "UPDATE_SECTION", section, rows });
     },
     [state.data],
+  );
+
+  // ─── Drag-and-drop reorder handler ────────────────────
+  const handleReorder = React.useCallback(
+    (section: DashboardSection, activeId: string, overId: string): void => {
+      const currentRows = state.data[section];
+      const oldIndex = currentRows.findIndex((r) => r.id === activeId);
+      const newIndex = currentRows.findIndex((r) => r.id === overId);
+      if (oldIndex === -1 || newIndex === -1) return;
+
+      // Build new ID order
+      const ids = currentRows.map((r) => r.id);
+      const [moved] = ids.splice(oldIndex, 1);
+      ids.splice(newIndex, 0, moved);
+
+      let rows = reorderRows(currentRows, ids);
+      rows = updateDateFromDragPosition(rows, activeId, section);
+
+      dispatch({ type: "UPDATE_SECTION", section, rows });
+    },
+    [state.data],
+  );
+
+  // ─── PropertyMe URL handler ───────────────────────────
+  const handlePropertyMeAdd = React.useCallback(
+    (result: IPropertyMeInputResult): void => {
+      // Default to vacates section for new PropertyMe imports
+      const section: DashboardSection = "vacates";
+      const activePm =
+        state.selectedPm ||
+        (state.propertyManagers.length > 0
+          ? getInitials(state.propertyManagers[0])
+          : "");
+
+      const newRow = createPropertyRow(section, activePm);
+      // Set property address from extraction
+      if (result.address) {
+        newRow.columns[1] = result.address; // Property column (index 1 for vacates)
+      }
+      newRow.propertyUrl = result.url;
+
+      const rows = [...state.data[section], newRow];
+      dispatch({ type: "UPDATE_SECTION", section, rows });
+    },
+    [state.data, state.selectedPm, state.propertyManagers],
   );
 
   // ─── Add row handler ──────────────────────────────────
@@ -365,6 +431,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
 
   const handleCloseSettings = React.useCallback((): void => {
     setSettingsOpen(false);
+    setActiveView("dashboard");
   }, []);
 
   const handleSavePropertyManagers = React.useCallback(
@@ -416,6 +483,12 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
         </div>
       </div>
 
+      {/* PropertyMe URL Input */}
+      <PropertyMeInput
+        onAdd={handlePropertyMeAdd}
+        disabled={!state.selectedPm}
+      />
+
       {/* Section Tables */}
       <div className={styles.sectionsContainer}>
         <SectionTable
@@ -428,6 +501,8 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           onDateChange={handleDateChange}
           onContextMenu={handleContextMenu}
           onAddRow={handleAddRow}
+          onReorder={handleReorder}
+          readOnly={!state.selectedPm}
         />
         <SectionTable
           section="entries"
@@ -439,6 +514,8 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           onDateChange={handleDateChange}
           onContextMenu={handleContextMenu}
           onAddRow={handleAddRow}
+          onReorder={handleReorder}
+          readOnly={!state.selectedPm}
         />
         <SectionTable
           section="lost"
@@ -450,6 +527,8 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           onDateChange={handleDateChange}
           onContextMenu={handleContextMenu}
           onAddRow={handleAddRow}
+          onReorder={handleReorder}
+          readOnly={!state.selectedPm}
         />
       </div>
 

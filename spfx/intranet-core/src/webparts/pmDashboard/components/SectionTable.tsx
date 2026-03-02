@@ -3,11 +3,24 @@
  * (Vacates, Entries, or Lost) as a coloured card with a table.
  *
  * Includes the section header, column headers, and all rows.
- * Drag-and-drop reordering is handled via @dnd-kit in Phase 2;
- * for Phase 1, rows can be added/removed via context menu.
+ * Rows are sortable via @dnd-kit drag-and-drop reordering.
  */
 
 import * as React from "react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import type {
   IPropertyRow,
   IPropertyManager,
@@ -45,6 +58,13 @@ export interface ISectionTableProps {
     rowId: string,
   ) => void;
   onAddRow: (section: DashboardSection) => void;
+  onReorder: (
+    section: DashboardSection,
+    activeId: string,
+    overId: string,
+  ) => void;
+  /** When true, all editing is disabled (no PM selected). */
+  readOnly?: boolean;
 }
 
 const SECTION_HEADER_STYLES: Record<DashboardSection, string> = {
@@ -63,8 +83,31 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
   onDateChange,
   onContextMenu,
   onAddRow,
+  onReorder,
+  readOnly = false,
 }) => {
   const columns = SECTION_COLUMNS[section];
+
+  // ─── DnD sensors ──────────────────────────────────────
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const rowIds = React.useMemo(() => rows.map((r) => r.id), [rows]);
+
+  const handleDragEnd = React.useCallback(
+    (event: DragEndEvent): void => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      onReorder(section, active.id as string, over.id as string);
+    },
+    [section, onReorder],
+  );
 
   const handleCellChange = React.useCallback(
     (rowId: string, colIndex: number, value: string) =>
@@ -107,54 +150,67 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
           onClick={handleAddRow}
           title={`Add row to ${title}`}
           style={{ color: "inherit" }}
+          disabled={readOnly}
         >
           + Add row
         </button>
       </div>
       <div className={styles.sectionBody}>
-        <table className={styles.dashboardTable}>
-          <thead>
-            <tr>
-              <th style={{ width: 20 }} />
-              {columns.map((col) => (
-                <th key={col}>{col}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={columns.length + 1}>
-                  <div className={styles.emptyState}>
-                    <p>No {title.toLowerCase()} to show</p>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              rows.map((row) =>
-                row.blank ? (
-                  <BlankRow
-                    key={row.id}
-                    rowId={row.id}
-                    section={section}
-                    onContextMenu={handleContextMenu}
-                  />
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={rowIds}
+            strategy={verticalListSortingStrategy}
+          >
+            <table className={styles.dashboardTable}>
+              <thead>
+                <tr>
+                  <th style={{ width: 20 }} />
+                  {columns.map((col) => (
+                    <th key={col}>{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={columns.length + 1}>
+                      <div className={styles.emptyState}>
+                        <p>No {title.toLowerCase()} to show</p>
+                      </div>
+                    </td>
+                  </tr>
                 ) : (
-                  <PropertyRowComponent
-                    key={row.id}
-                    row={row}
-                    section={section}
-                    propertyManagers={propertyManagers}
-                    onCellChange={handleCellChange}
-                    onPmChange={handlePmChange}
-                    onDateChange={handleDateChange}
-                    onContextMenu={handleContextMenu}
-                  />
-                ),
-              )
-            )}
-          </tbody>
-        </table>
+                  rows.map((row) =>
+                    row.blank ? (
+                      <BlankRow
+                        key={row.id}
+                        rowId={row.id}
+                        section={section}
+                        onContextMenu={handleContextMenu}
+                      />
+                    ) : (
+                      <PropertyRowComponent
+                        key={row.id}
+                        row={row}
+                        section={section}
+                        propertyManagers={propertyManagers}
+                        onCellChange={handleCellChange}
+                        onPmChange={handlePmChange}
+                        onDateChange={handleDateChange}
+                        onContextMenu={handleContextMenu}
+                        readOnly={readOnly}
+                      />
+                    ),
+                  )
+                )}
+              </tbody>
+            </table>
+          </SortableContext>
+        </DndContext>
       </div>
     </div>
   );

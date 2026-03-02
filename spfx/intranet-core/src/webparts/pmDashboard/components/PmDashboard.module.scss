@@ -422,3 +422,15 @@
   background-color: "[theme:neutralLighter, default: #f3f2f1]";
   color: "[theme:bodyText, default: #323130]";
 }
+
+/* ─── PropertyMe Input ────────────────────────────────── */
+
+.propertyMeInput {
+  margin-bottom: 12px;
+}
+
+.propertyMeInputRow {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
