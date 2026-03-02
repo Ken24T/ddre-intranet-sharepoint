@@ -1,10 +1,8 @@
-# SHIP Agent (formerly TCTBP)
+# OpenCode TCTBP Agent – Generic
 
 ## Purpose
 
-This agent governs **milestone and shipping actions** for any repository. It exists to safely execute the **SHIP workflow** (Preflight → Test → Problems → Bump → Commit → Tag → Push) with strong guard rails, auditability, and human approval at irreversible steps.
-
-> **Naming:** "TCTBP" is a legacy acronym (Test, Commit, Tag, Bump, Push) kept for backward compatibility. The canonical term is **SHIP**. The execution order is documented in the SHIP Workflow section below.
+This agent governs **milestone and shipping actions** for any repository. It exists to safely execute an agreed **TCTBP / SHIP workflow** with strong guard rails, auditability, and human approval at irreversible steps.
 
 This agent is **not** for exploratory coding or refactoring. It is activated only when the user signals a milestone (e.g. “ship”, “prepare release”, “tctbp”).
 
@@ -37,7 +35,7 @@ A Project Profile defines:
 ## Core Invariants (Never Break)
 
 1. **Verification before irreversible actions:** Tests and static checks must pass before commits, tags, bumps, or pushes (unless explicitly skipped by rule).
-2. **Problems count must be zero** before any commit (interpreted as: build/lint/test diagnostics are clean). For **docs/infra-only changesets**, this means editor/IDE diagnostics only — see `docsInfraPolicy` in `TCTBP.json`.
+2. **Problems count must be zero** before any commit (interpreted as: build/lint/test diagnostics are clean).
 3. **All non-destructive actions are allowed by default.**
 4. **Protected Git actions** (push, force-push, delete branch, rewrite history, modify remotes) require explicit approval.
 5. **Pull Requests are not required.** This workflow assumes a **single-developer model** with direct merges.
@@ -191,7 +189,7 @@ Behaviour (local-first, remote-safe):
    - Ensure working tree is clean.
    - Checkout the default branch (e.g. `main`, read from `TCTBP.json`).
    - **Create a safety snapshot tag** (see Code-Loss Prevention).
-   - Merge using `git merge --no-ff` (creates a merge commit even if fast-forward is possible; no rebase).
+   - Merge using a non-destructive merge (no rebase).
    - Stop on conflicts.
    - **Run Merge Deletion Audit** (see Code-Loss Prevention). Stop if thresholds are exceeded and wait for confirmation.
 
@@ -234,15 +232,14 @@ Behaviour (safe, deterministic):
    - If staged changes exist, commit them automatically with a clear message.
 
 5. **Ship if needed**
-   - If there are commits since the last `vX.Y.Z` tag on this branch, run the full SHIP workflow.
-   - If tests already passed at step 3 in this handoff, the SHIP test step may be skipped.
+   - If release policy says SHIP is required (or versions are out of sync), run the full SHIP/TCTBP workflow.
    - If changes are **docs-only or infrastructure-only** (plans, runbooks, internal guidance), skip bump/tag and continue.
-   - Otherwise continue without bump/tag when no new commits since last tag.
+   - Otherwise continue without bump/tag when SHIP is not required.
 
 6. **Merge to default branch**
    - Checkout the default branch (e.g. `main`).
    - **Create a safety snapshot tag** (see Code-Loss Prevention).
-   - Merge the current branch using `git merge --no-ff` (creates a merge commit; no rebase).
+   - Merge the current branch using a non-destructive merge (no rebase).
    - Stop on conflicts.
    - **Run Merge Deletion Audit** (see Code-Loss Prevention). Stop if thresholds are exceeded and wait for confirmation.
 
@@ -345,7 +342,7 @@ Behaviour:
 
 3. **Recommend next step(s)**
    - Provide 1–3 actionable recommendations with a one-line reason for each.
-   - Use this priority order when multiple are valid (highest priority first): `abort` → `handback` → `ship` → `handoff` → `none`.
+   - Use this priority order when multiple are valid: `abort` → `handback` → `ship` → `handoff` → `none`.
    - Recommendation rules:
      - `abort`: partial workflow state detected (e.g. merge in progress, bump/tag mismatch, previous workflow failed mid-way).
      - `handback`: local/remote branch SHA mismatch or default branch not synced with origin.
@@ -388,11 +385,9 @@ Approval rules:
 
 ---
 
-## SHIP Workflow
+## SHIP / TCTBP Workflow
 
-> **SHIP** = Preflight → Test → Problems → Bump → Commit → Tag → Push
->
-> The agent may proceed through **Bump → Commit → Tag** without pausing unless a core invariant fails.
+> SHIP = Preflight → Test → Problems → Bump → Commit → Tag → Push
 
 ### 1. Preflight
 
@@ -437,10 +432,19 @@ The bump must be applied to all files listed in `versionFiles` in `TCTBP.json` *
 - Stage relevant changes
 - Propose a conventional commit message
 
+During SHIP, the agent may proceed through **Bump → Commit → Tag** without pausing unless a core invariant fails.
+
 ---
 
-**Release Notes (if applicable):**
-This repo does not use `CHANGELOG.md`. User-facing release notes go in `releaseNotes.ts` (see `spfx/intranet-core/src/webparts/intranetShell/components/data/releaseNotes.ts`). Use `scripts/add-release-note.ps1 -Title "..." -Category feature|improvement|bugfix|security` to add entries. Skip for docs/infra-only changesets.
+### 5a. Release Notes (Optional)
+
+This repo does not use a `CHANGELOG.md`. Instead, user-facing release notes are maintained in `releaseNotes.ts` (see `spfx/intranet-core/src/webparts/intranetShell/components/data/releaseNotes.ts`) and displayed in the app's "What's New" panel.
+
+- Use `scripts/add-release-note.ps1 -Title "..." -Category feature|improvement|bugfix|security` to add placeholder entries.
+- Update the placeholder with specific changes before shipping.
+- Release notes are grouped by minor version (v0.5, v0.6, etc.).
+
+If the changeset is **docs-only or infrastructure-only**, skip this step.
 
 ---
 
@@ -452,6 +456,14 @@ This repo does not use `CHANGELOG.md`. User-facing release notes go in `releaseN
 
 ---
 
+### Build Profile
+
+Builds performed during or after a SHIP use the **dev profile** by default (`npm run build` via Heft). A **production build** (`heft test --clean --production && heft package-solution --production`, which bundles and produces the `.sppkg`) is only performed when the user explicitly requests it (e.g. "production build", "build for deployment").
+
+This keeps iteration fast during development and avoids unnecessary long build times.
+
+---
+
 ### 7. Push (Approval Required)
 
 - **Run Pre-Push Deletion Audit** (see Code-Loss Prevention). Warn if the push is net-negative.
@@ -459,14 +471,6 @@ This repo does not use `CHANGELOG.md`. User-facing release notes go in `releaseN
 - Never push to protected branches
 
 **SHIP within handoff:** When SHIP runs as part of a handoff workflow, the handoff's push rules override this step. The handoff pushes all three (feature branch, main, tags) as a single operation — see Handoff Workflow step 7.
-
----
-
-## Build Profile
-
-Builds performed during or after a SHIP use the **dev profile** by default (`npm run build` via Heft). A **production build** (`heft test --clean --production && heft package-solution --production`, which bundles and produces the `.sppkg`) is only performed when the user explicitly requests it (e.g. "production build", "build for deployment").
-
-This keeps iteration fast during development and avoids unnecessary long build times.
 
 ---
 
@@ -507,13 +511,75 @@ On any failure:
 
 ---
 
-## Appendix: `TCTBP.json`
+## Appendix: `TCTBP.json` (Canonical Reference)
 
-The authoritative JSON configuration is in `.github/TCTBP.json`. That file is the **single source of truth** for all workflow parameters — do not duplicate its contents here.
+The authoritative JSON configuration is in `TCTBP.json` at the repo root's `.github/` folder. The template below is kept in sync for reference:
 
-To view the current config:
-
-```powershell
-Get-Content .github/TCTBP.json | ConvertFrom-Json | ConvertTo-Json -Depth 5
+```json
+{
+  "schemaVersion": 3,
+  "governance": {
+    "sourceOfTruth": "TCTBP.json",
+    "fallbackDocument": "TCTBP Agent.md"
+  },
+  "project": {
+    "defaultBranch": "main",
+    "packageManager": "npm",
+    "versionFiles": ["spfx/intranet-core/package.json", "spfx/intranet-core/config/package-solution.json"],
+    "versionNotes": "package-solution.json uses 4-part format X.Y.Z.0; see scripts/release.ps1 for bump logic"
+  },
+  "activation": {
+    "triggers": ["ship", "ship please", "shipping", "tctbp", "prepare release", "handoff", "handoff please", "handback", "handback please", "status", "status please", "abort"],
+    "caseInsensitive": true,
+    "branchCommand": {
+      "enabled": true,
+      "pattern": "^branch\\s+(.+)$"
+    }
+  },
+  "workflow": {
+    "shipOrder": ["preflight", "test", "problems", "bump", "commit", "tag", "push"],
+    "handoffOrder": ["preflight", "stage", "test-gate", "commit", "ship-if-needed", "merge", "push", "verify-sync", "checkout-branch", "summary"],
+    "handbackOrder": ["preflight", "fetch", "detect-branch", "pull", "verify-sync", "verification-gate", "summary"],
+    "statusOrder": ["fetch", "report", "recommend"],
+    "abortOrder": ["inspect", "propose", "execute"],
+    "requireApproval": ["push"]
+  },
+  "statusRecommendations": {
+    "enabled": true,
+    "suggestions": ["handback", "handoff", "ship", "abort", "none"],
+    "rules": {
+      "handback": "Suggest when local branch SHA does not match origin or default branch is behind remote.",
+      "handoff": "Suggest when working tree has local changes or current branch is ahead of origin and user is moving machines.",
+      "ship": "Suggest when there are unshipped commits since last tag or version/tag drift exists.",
+      "abort": "Suggest when a partial workflow state is detected (e.g. merge in progress, bump/tag mismatch, failed prior workflow).",
+      "none": "Suggest when branch is clean, synced, and no SHIP is needed."
+    }
+  },
+  "docsInfraPolicy": {
+    "skipSteps": ["test"],
+    "keepSteps": ["preflight", "problems-editor", "commit", "push"],
+    "filePatterns": ["*.md", "*.json", "*.yaml", "*.yml", "*.ps1", "docs/**", ".github/**", "apps/**", "contracts/**", "scripts/**", "LICENSE*", "CONTRIBUTING*"],
+    "excludeWhenCodePresent": ["*.ts", "*.tsx"],
+    "comment": "For docs/infra-only changes: skip npm test (Heft/Jest), keep editor diagnostics (e.g. markdown lint, ESLint)"
+  },
+  "build": {
+    "defaultProfile": "dev",
+    "releaseOnlyWhenRequested": true,
+    "comment": "Default to dev builds (npm run build uses Heft). Production builds bundle and package .sppkg."
+  },
+  "versioning": {
+    "scheme": "semver",
+    "patchEveryShip": true,
+    "skipForChangeTypes": ["docs-only", "infrastructure-only"],
+    "minorOnFirstShipOfBranch": true,
+    "minorBranchPrefixes": ["feature/", "app/"],
+    "majorExplicitOnly": true
+  },
+  "tagging": {
+    "policy": "everyCommit",
+    "skipWhenNoBump": true,
+    "format": "v{version}"
+  }
+}
 ```
 
