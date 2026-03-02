@@ -12,7 +12,7 @@ import * as strings from "PmDashboardWebPartStrings";
 import { PmDashboard } from "./components/PmDashboard";
 import type { IPmDashboardProps } from "./components/IPmDashboardProps";
 import type { IDashboardRepository } from "./services/IDashboardRepository";
-import { DexieDashboardRepository } from "./services/DexieDashboardRepository";
+import { getSPFI, createDashboardRepository } from "./services/RepositoryFactory";
 
 export interface IPmDashboardWebPartProps {
   description: string;
@@ -25,9 +25,9 @@ export default class PmDashboardWebPart extends BaseClientSideWebPart<IPmDashboa
   protected async onInit(): Promise<void> {
     await super.onInit();
 
-    // Phase 1: Dexie for both dev harness and SP context.
-    // Phase 2: SPListDashboardRepository when SP context is available.
-    this._repository = new DexieDashboardRepository();
+    // Use SP Lists when running in SharePoint, Dexie (IndexedDB) in workbench/dev
+    const sp = getSPFI(this.context);
+    this._repository = createDashboardRepository(sp);
   }
 
   public render(): void {

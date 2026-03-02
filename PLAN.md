@@ -779,7 +779,7 @@ Marketing budget tracking and reporting for sales & marketing teams.
 
 ### app-pm-dashboard
 
-> **Status:** 🟡 In Progress (Phase 1)
+> **Status:** � Phase 1 Complete
 >
 > **Hub:** Property Management
 
@@ -797,9 +797,9 @@ PropertyMe data visualisation dashboard.
 - [x] PropertyMeInput (URL paste → address extraction)
 - [x] Editing gating (disabled when no PM selected)
 - [x] AppBridge integration (useShellBridge for sidebar nav)
-- [ ] SPListDashboardRepository (SharePoint List implementation)
-- [ ] SharePoint List provisioning
-- [ ] Playwright E2E tests
+- [x] SPListDashboardRepository (SharePoint List implementation)
+- [x] SharePoint List provisioning (listProvisioning + RepositoryFactory)
+- [x] Playwright E2E tests
 
 ### app-qrcoder
 
