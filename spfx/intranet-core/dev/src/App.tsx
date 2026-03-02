@@ -10,7 +10,7 @@ const mockContext = {
   userDisplayName: 'Ken Boyle',
   userEmail: 'ken@disher.com.au',
   siteTitle: 'DDRE Intranet',
-  isAdmin: false, // Set to true to test admin features (e.g., Hide Card)
+  isAdmin: true, // Set to true to test admin features (e.g., Hide Card)
 };
 
 const appVersion = packageJson.version || '0.0.0';
