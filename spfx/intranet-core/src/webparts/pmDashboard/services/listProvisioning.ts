@@ -57,6 +57,17 @@ const PM_FIELDS: FieldDef[] = [
   { name: "Colour", type: "text" },
 ];
 
+/**
+ * PMD_Presence stores one item per connected user.
+ * Title = user email (unique key).
+ */
+const PRESENCE_FIELDS: FieldDef[] = [
+  { name: "DisplayName", type: "text" },
+  { name: "LastSeen", type: "text" },
+  { name: "SelectedPm", type: "text" },
+  { name: "Colour", type: "text" },
+];
+
 // ─────────────────────────────────────────────────────────────
 // Field creation helper
 // ─────────────────────────────────────────────────────────────
@@ -127,4 +138,5 @@ export async function ensurePmDashboardLists(
 ): Promise<void> {
   await ensureListWithFields(sp, SP_LISTS.data, DATA_FIELDS);
   await ensureListWithFields(sp, SP_LISTS.propertyManagers, PM_FIELDS);
+  await ensureListWithFields(sp, SP_LISTS.presence, PRESENCE_FIELDS);
 }

@@ -25,6 +25,7 @@ import type { IDashboardData, IPropertyManager, IPropertyRow, IColumnWidthPrefer
 export const SP_LISTS = {
   data: "PMD_Data",
   propertyManagers: "PMD_PropertyManagers",
+  presence: "PMD_Presence",
 } as const;
 
 // ─────────────────────────────────────────────────────────────
@@ -148,5 +149,53 @@ export function mapPmToSP(
     LastName: pm.lastName,
     PreferredName: pm.preferredName,
     Colour: pm.color,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// PMD_Presence – User presence records
+// ─────────────────────────────────────────────────────────────
+
+export const PRESENCE_SELECT = [
+  "Id", "Title", "DisplayName", "LastSeen", "SelectedPm", "Colour",
+] as const;
+
+export interface SPPresenceItem {
+  Id: number;
+  /** Title = user email (unique per user). */
+  Title: string;
+  DisplayName?: string;
+  LastSeen?: string;
+  SelectedPm?: string;
+  Colour?: string;
+}
+
+export interface PresenceRecord {
+  userId: string;
+  displayName: string;
+  lastSeen: string;
+  selectedPm: string;
+  colour: string;
+}
+
+export function mapPresenceFromSP(item: SPPresenceItem): PresenceRecord {
+  return {
+    userId: item.Title || "",
+    displayName: item.DisplayName || "",
+    lastSeen: item.LastSeen || "",
+    selectedPm: item.SelectedPm || "",
+    colour: item.Colour || "",
+  };
+}
+
+export function mapPresenceToSP(
+  record: PresenceRecord,
+): Record<string, unknown> {
+  return {
+    Title: record.userId,
+    DisplayName: record.displayName,
+    LastSeen: record.lastSeen,
+    SelectedPm: record.selectedPm,
+    Colour: record.colour,
   };
 }

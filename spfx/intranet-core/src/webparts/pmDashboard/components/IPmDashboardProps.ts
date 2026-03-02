@@ -1,4 +1,5 @@
 import type { IDashboardRepository } from "../services/IDashboardRepository";
+import type { IPresenceRepository } from "../services/IPresenceRepository";
 
 export interface IPmDashboardProps {
   /** Current user's display name */
@@ -9,4 +10,6 @@ export interface IPmDashboardProps {
   isDarkTheme: boolean;
   /** Data access layer */
   repository: IDashboardRepository;
+  /** Presence storage layer */
+  presenceRepository: IPresenceRepository;
 }

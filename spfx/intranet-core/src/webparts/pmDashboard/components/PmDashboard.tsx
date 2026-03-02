@@ -40,6 +40,7 @@ import type { IPropertyMeInputResult } from "./PropertyMeInput";
 import type { IPropertyMeDropResult } from "../models/propertyMeDragHelpers";
 import { usePropertyMeExtension } from "./usePropertyMeExtension";
 import { useRealtimeSync } from "./useRealtimeSync";
+import { PresenceBar } from "./PresenceBar";
 import { PollingRealtimeService } from "../services/PollingRealtimeService";
 import { useShellBridge } from "./useShellBridge";
 import type { PmDashboardView } from "./useShellBridge";
@@ -194,6 +195,7 @@ const INITIAL_CONTEXT_MENU: ContextMenuState = {
 
 export const PmDashboard: React.FC<IPmDashboardProps> = ({
   repository,
+  presenceRepository,
   userDisplayName,
   userEmail,
 }) => {
@@ -221,8 +223,8 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
 
   // ─── Real-time sync ────────────────────────────────────
   const realtimeService = React.useMemo(
-    () => new PollingRealtimeService(repository),
-    [repository],
+    () => new PollingRealtimeService(repository, presenceRepository),
+    [repository, presenceRepository],
   );
 
   const handleExternalDataChange = React.useCallback((): void => {
@@ -239,7 +241,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       });
   }, [repository]);
 
-  const { isConnected: realtimeConnected } = useRealtimeSync({
+  const { isConnected: realtimeConnected, onlineUsers } = useRealtimeSync({
     service: realtimeService,
     currentUserId: userEmail,
     displayName: userDisplayName,
@@ -642,6 +644,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       <div className={styles.header}>
         <div className={styles.titleArea}>
           <h2 className={styles.title}>Property Manager Dashboard</h2>
+          <PresenceBar users={onlineUsers} currentUserId={userEmail} />
         </div>
         <div className={styles.headerActions}>
           <PmSelector

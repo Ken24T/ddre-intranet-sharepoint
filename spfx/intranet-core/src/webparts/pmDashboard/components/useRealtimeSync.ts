@@ -2,12 +2,19 @@
  * useRealtimeSync – Hook for real-time data synchronisation.
  *
  * Connects to an IRealtimeService and triggers a data reload
- * callback when external changes are detected. Manages the
- * service lifecycle (start/stop) tied to the component mount.
+ * callback when external changes are detected. Also tracks
+ * online user presence for the PresenceBar component.
+ * Manages the service lifecycle (start/stop) tied to the component mount.
  */
 
 import * as React from "react";
-import type { IRealtimeService, IRealtimeEvent, IDataChangedEvent } from "../services/IRealtimeService";
+import type {
+  IRealtimeService,
+  IRealtimeEvent,
+  IDataChangedEvent,
+  IPresenceChangedEvent,
+  IPresenceUser,
+} from "../services/IRealtimeService";
 
 export interface IUseRealtimeSyncOptions {
   /** The real-time service instance. */
@@ -27,6 +34,8 @@ export interface IRealtimeSyncState {
   isConnected: boolean;
   /** The last data version token received. */
   lastVersion: string;
+  /** Currently online users. */
+  onlineUsers: IPresenceUser[];
 }
 
 /**
@@ -34,7 +43,7 @@ export interface IRealtimeSyncState {
  *
  * Starts the service on mount, stops on unmount, and
  * triggers `onDataChanged` when external modifications
- * are detected.
+ * are detected. Tracks online users via presence events.
  */
 export function useRealtimeSync(
   options: IUseRealtimeSyncOptions,
@@ -49,6 +58,7 @@ export function useRealtimeSync(
 
   const [isConnected, setIsConnected] = React.useState(false);
   const [lastVersion, setLastVersion] = React.useState("");
+  const [onlineUsers, setOnlineUsers] = React.useState<IPresenceUser[]>([]);
 
   // Keep onDataChanged stable via ref to avoid re-subscribing
   const onDataChangedRef = React.useRef(onDataChanged);
@@ -64,6 +74,10 @@ export function useRealtimeSync(
           (event as IDataChangedEvent).version,
         );
         onDataChangedRef.current();
+      } else if (event.type === "presence-changed") {
+        setOnlineUsers(
+          (event as IPresenceChangedEvent).users,
+        );
       }
     });
 
@@ -75,8 +89,9 @@ export function useRealtimeSync(
       unsubscribe();
       service.stop();
       setIsConnected(false);
+      setOnlineUsers([]);
     };
   }, [service, currentUserId, displayName, enabled]);
 
-  return { isConnected, lastVersion };
+  return { isConnected, lastVersion, onlineUsers };
 }

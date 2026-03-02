@@ -99,6 +99,30 @@
   }
 }
 
+/* ─── Presence Bar ────────────────────────────────────── */
+
+.presenceBar {
+  margin-left: 12px;
+}
+
+.presenceDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  cursor: default;
+  flex-shrink: 0;
+  transition: transform 120ms ease;
+}
+
+.presenceDot:hover {
+  transform: scale(1.3);
+}
+
+.presenceDotSelf {
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 3.5px currentColor;
+}
+
 .sectionHeader {
   display: flex;
   align-items: center;
