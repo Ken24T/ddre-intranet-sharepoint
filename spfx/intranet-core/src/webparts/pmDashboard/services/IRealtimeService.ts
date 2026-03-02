@@ -36,6 +36,8 @@ export interface IPresenceUser {
   selectedPm: string;
   /** Assigned colour for the presence dot. */
   colour: string;
+  /** ISO timestamp of the user's last data change (for blink animation). */
+  lastChanged: string;
 }
 
 export interface IPresenceChangedEvent extends IRealtimeEvent {

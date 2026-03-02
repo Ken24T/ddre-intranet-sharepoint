@@ -11,6 +11,8 @@ export interface IPresenceRecord {
   lastSeen: string;
   selectedPm: string;
   colour: string;
+  /** ISO timestamp of the user's last data change (save). */
+  lastChanged: string;
 }
 
 export interface IPresenceRepository {

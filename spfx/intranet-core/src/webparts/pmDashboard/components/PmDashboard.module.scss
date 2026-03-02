@@ -123,6 +123,22 @@
   box-shadow: 0 0 0 2px #ffffff, 0 0 0 3.5px currentColor;
 }
 
+.presenceDotBlink {
+  animation: presencePulse 600ms ease-in-out 3;
+}
+
+@keyframes presencePulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.6;
+  }
+}
+
 .sectionHeader {
   display: flex;
   align-items: center;

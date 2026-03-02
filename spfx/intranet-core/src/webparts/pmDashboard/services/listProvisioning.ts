@@ -66,6 +66,7 @@ const PRESENCE_FIELDS: FieldDef[] = [
   { name: "LastSeen", type: "text" },
   { name: "SelectedPm", type: "text" },
   { name: "Colour", type: "text" },
+  { name: "LastChanged", type: "text" },
 ];
 
 // ─────────────────────────────────────────────────────────────

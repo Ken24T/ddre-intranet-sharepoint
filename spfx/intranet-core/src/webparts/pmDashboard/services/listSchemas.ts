@@ -157,7 +157,7 @@ export function mapPmToSP(
 // ─────────────────────────────────────────────────────────────
 
 export const PRESENCE_SELECT = [
-  "Id", "Title", "DisplayName", "LastSeen", "SelectedPm", "Colour",
+  "Id", "Title", "DisplayName", "LastSeen", "SelectedPm", "Colour", "LastChanged",
 ] as const;
 
 export interface SPPresenceItem {
@@ -168,6 +168,7 @@ export interface SPPresenceItem {
   LastSeen?: string;
   SelectedPm?: string;
   Colour?: string;
+  LastChanged?: string;
 }
 
 export interface PresenceRecord {
@@ -176,6 +177,7 @@ export interface PresenceRecord {
   lastSeen: string;
   selectedPm: string;
   colour: string;
+  lastChanged: string;
 }
 
 export function mapPresenceFromSP(item: SPPresenceItem): PresenceRecord {
@@ -185,6 +187,7 @@ export function mapPresenceFromSP(item: SPPresenceItem): PresenceRecord {
     lastSeen: item.LastSeen || "",
     selectedPm: item.SelectedPm || "",
     colour: item.Colour || "",
+    lastChanged: item.LastChanged || "",
   };
 }
 
@@ -197,5 +200,6 @@ export function mapPresenceToSP(
     LastSeen: record.lastSeen,
     SelectedPm: record.selectedPm,
     Colour: record.colour,
+    LastChanged: record.lastChanged,
   };
 }

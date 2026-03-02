@@ -45,6 +45,7 @@ export class PollingRealtimeService implements IRealtimeService {
   private _currentUserId = "";
   private _displayName = "";
   private _colour = "";
+  private _lastChanged = "";
   private readonly _handlers: Set<RealtimeEventHandler> = new Set();
   private readonly _pollInterval: number;
 
@@ -112,9 +113,10 @@ export class PollingRealtimeService implements IRealtimeService {
   }
 
   notifyDataChanged(): void {
+    // Record the change timestamp for blink animation
+    this._lastChanged = new Date().toISOString();
+
     // Update local version to avoid self-triggering a reload.
-    // The next poll will fetch the new version from the server,
-    // which will match our local copy (no event emitted).
     this.repository
       .getDataVersion()
       .then((v) => {
@@ -123,6 +125,13 @@ export class PollingRealtimeService implements IRealtimeService {
       .catch(() => {
         // Ignore — next poll will detect the change
       });
+
+    // Send an immediate heartbeat with the lastChanged timestamp
+    if (this.presenceRepository && this._currentUserId) {
+      this._sendHeartbeat().catch((err) => {
+        console.error("[PollingRealtimeService] Heartbeat after change failed:", err);
+      });
+    }
   }
 
   // ─── Private ────────────────────────────────────────────
@@ -159,6 +168,7 @@ export class PollingRealtimeService implements IRealtimeService {
       lastSeen: new Date().toISOString(),
       selectedPm: this._selectedPm,
       colour: this._colour,
+      lastChanged: this._lastChanged,
     };
 
     await this.presenceRepository.heartbeat(record);
@@ -185,6 +195,7 @@ export class PollingRealtimeService implements IRealtimeService {
           lastSeen: rec.lastSeen,
           selectedPm: rec.selectedPm,
           colour: rec.colour,
+          lastChanged: rec.lastChanged,
         });
       }
     }
