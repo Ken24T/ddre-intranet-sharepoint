@@ -6,7 +6,7 @@
  * - SPListDashboardRepository (SharePoint Lists for production)
  */
 
-import type { IDashboardData, IPropertyManager } from "../models/types";
+import type { IDashboardData, IPropertyManager, IColumnWidthPreferences } from "../models/types";
 
 export interface IDashboardRepository {
   /** Load all dashboard data (vacates, entries, lost sections). */
@@ -20,4 +20,10 @@ export interface IDashboardRepository {
 
   /** Persist the full list of property managers. */
   savePropertyManagers(pms: IPropertyManager[]): Promise<void>;
+
+  /** Load per-PM column width preferences. */
+  loadColumnWidths(): Promise<IColumnWidthPreferences>;
+
+  /** Persist per-PM column width preferences. */
+  saveColumnWidths(widths: IColumnWidthPreferences): Promise<void>;
 }

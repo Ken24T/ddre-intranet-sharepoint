@@ -25,10 +25,12 @@ import type {
   IPropertyRow,
   IPropertyManager,
   DashboardSection,
+  SectionColumnWidths,
 } from "../models/types";
 import { SECTION_COLUMNS } from "../models/columnSchemas";
 import { PropertyRowComponent } from "./Rows/PropertyRow";
 import { BlankRow } from "./Rows/BlankRow";
+import { useColumnResize } from "./useColumnResize";
 import styles from "./PmDashboard.module.scss";
 
 export interface ISectionTableProps {
@@ -63,6 +65,14 @@ export interface ISectionTableProps {
     activeId: string,
     overId: string,
   ) => void;
+  /** Current column widths for this section (from PM preferences). */
+  columnWidths?: SectionColumnWidths;
+  /** Called when the user finishes resizing a column. */
+  onColumnResize?: (
+    section: DashboardSection,
+    colIndex: number,
+    width: number,
+  ) => void;
   /** When true, all editing is disabled (no PM selected). */
   readOnly?: boolean;
 }
@@ -84,9 +94,27 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
   onContextMenu,
   onAddRow,
   onReorder,
+  columnWidths,
+  onColumnResize,
   readOnly = false,
 }) => {
   const columns = SECTION_COLUMNS[section];
+
+  // ─── Column resize ───────────────────────────────────
+  const handleResize = React.useCallback(
+    (colIndex: number, width: number): void => {
+      if (onColumnResize) {
+        onColumnResize(section, colIndex, width);
+      }
+    },
+    [section, onColumnResize],
+  );
+
+  const { getHeaderStyle, onResizeStart } = useColumnResize({
+    columnCount: columns.length,
+    widths: columnWidths || {},
+    onChange: handleResize,
+  });
 
   // ─── DnD sensors ──────────────────────────────────────
   const sensors = useSensors(
@@ -169,8 +197,23 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
               <thead>
                 <tr>
                   <th style={{ width: 20 }} />
-                  {columns.map((col) => (
-                    <th key={col}>{col}</th>
+                  {columns.map((col, idx) => (
+                    <th key={col} style={getHeaderStyle(idx)}>
+                      <div className={styles.thInner}>
+                        <span>{col}</span>
+                        <div
+                          className={styles.resizeHandle}
+                          onPointerDown={(e) => {
+                            e.preventDefault();
+                            const th = (e.target as HTMLElement).closest("th");
+                            const startWidth = th
+                              ? th.getBoundingClientRect().width
+                              : 80;
+                            onResizeStart(idx, e.clientX, startWidth);
+                          }}
+                        />
+                      </div>
+                    </th>
                   ))}
                 </tr>
               </thead>

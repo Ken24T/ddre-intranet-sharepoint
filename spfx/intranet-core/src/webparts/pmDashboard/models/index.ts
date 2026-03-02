@@ -7,6 +7,8 @@ export type {
   IVacatesColumnIndex,
   IEntriesColumnIndex,
   ILostColumnIndex,
+  SectionColumnWidths,
+  IColumnWidthPreferences,
 } from "./types";
 
 export {

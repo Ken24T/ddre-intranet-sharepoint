@@ -106,6 +106,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
+  table-layout: fixed;
 }
 
 .dashboardTable th {
@@ -121,6 +122,36 @@
   position: sticky;
   top: 0;
   z-index: 5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Column resize handle */
+.resizeHandle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  cursor: col-resize;
+  background: transparent;
+  touch-action: none;
+  user-select: none;
+  z-index: 6;
+}
+
+.resizeHandle:hover,
+.resizeHandle:active {
+  background-color: "[theme:themePrimary, default: #0078d4]";
+  opacity: 0.4;
+}
+
+/* Wrapper to enable absolute positioning of resize handle */
+.thInner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .dashboardTable td {
@@ -128,6 +159,8 @@
   border-bottom: 1px solid "[theme:neutralLighter, default: #f3f2f1]";
   vertical-align: middle;
   min-width: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Column-specific widths */

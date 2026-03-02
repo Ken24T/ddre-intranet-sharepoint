@@ -16,7 +16,7 @@
  *    simple text/colour fields.
  */
 
-import type { IDashboardData, IPropertyManager, IPropertyRow } from "../models/types";
+import type { IDashboardData, IPropertyManager, IPropertyRow, IColumnWidthPreferences } from "../models/types";
 
 // ─────────────────────────────────────────────────────────────
 // List Names
@@ -32,7 +32,7 @@ export const SP_LISTS = {
 // ─────────────────────────────────────────────────────────────
 
 export const DATA_SELECT = [
-  "Id", "Title", "Vacates", "Entries", "Lost",
+  "Id", "Title", "Vacates", "Entries", "Lost", "ColWidths",
 ] as const;
 
 export const PM_SELECT = [
@@ -53,6 +53,8 @@ export interface SPDataItem {
   Entries: string;
   /** JSON-serialised IPropertyRow[] for lost */
   Lost: string;
+  /** JSON-serialised IColumnWidthPreferences */
+  ColWidths?: string;
 }
 
 export interface SPPropertyManagerItem {
@@ -96,6 +98,13 @@ export function mapDataFromSP(item: SPDataItem): IDashboardData {
   };
 }
 
+/** Extract column width preferences from a SP data item. */
+export function mapColWidthsFromSP(
+  item: SPDataItem,
+): IColumnWidthPreferences {
+  return parseJson<IColumnWidthPreferences>(item.ColWidths, {});
+}
+
 export function mapPmFromSP(item: SPPropertyManagerItem): IPropertyManager {
   return {
     id: item.PmId,
@@ -118,6 +127,15 @@ export function mapDataToSP(
     Vacates: JSON.stringify(data.vacates),
     Entries: JSON.stringify(data.entries),
     Lost: JSON.stringify(data.lost),
+  };
+}
+
+/** Convert column width preferences to SP update payload. */
+export function mapColWidthsToSP(
+  widths: IColumnWidthPreferences,
+): Record<string, unknown> {
+  return {
+    ColWidths: JSON.stringify(widths),
   };
 }
 

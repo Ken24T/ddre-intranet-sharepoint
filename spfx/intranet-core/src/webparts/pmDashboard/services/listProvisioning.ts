@@ -43,6 +43,7 @@ const DATA_FIELDS: FieldDef[] = [
   { name: "Vacates", type: "note" },
   { name: "Entries", type: "note" },
   { name: "Lost", type: "note" },
+  { name: "ColWidths", type: "note" },
 ];
 
 /**

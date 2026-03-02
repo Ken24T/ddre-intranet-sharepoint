@@ -24,7 +24,7 @@ import "@pnp/sp/lists";
 import "@pnp/sp/items";
 
 import type { IDashboardRepository } from "./IDashboardRepository";
-import type { IDashboardData, IPropertyManager } from "../models/types";
+import type { IDashboardData, IPropertyManager, IColumnWidthPreferences } from "../models/types";
 import { ensurePmDashboardLists } from "./listProvisioning";
 import {
   SP_LISTS,
@@ -34,6 +34,8 @@ import {
   mapDataToSP,
   mapPmFromSP,
   mapPmToSP,
+  mapColWidthsFromSP,
+  mapColWidthsToSP,
 } from "./listSchemas";
 import type { SPDataItem, SPPropertyManagerItem } from "./listSchemas";
 import {
@@ -187,6 +189,42 @@ export class SPListDashboardRepository implements IDashboardRepository {
       } else {
         await this.pmList.items.add(spData);
       }
+    }
+  }
+
+  // ─── Column Widths ─────────────────────────────────────
+
+  async loadColumnWidths(): Promise<IColumnWidthPreferences> {
+    await this.ensureLists();
+
+    const items: SPDataItem[] = await this.dataList.items
+      .select(...DATA_SELECT)
+      .filter(`Title eq '${DATA_KEY}'`)
+      .top(1)
+      ();
+
+    if (items.length === 0) {
+      return {};
+    }
+
+    return mapColWidthsFromSP(items[0]);
+  }
+
+  async saveColumnWidths(widths: IColumnWidthPreferences): Promise<void> {
+    await this.ensureLists();
+
+    const items = await this.dataList.items
+      .select("Id", "Title")
+      .filter(`Title eq '${DATA_KEY}'`)
+      .top(1)
+      ();
+
+    const spData = mapColWidthsToSP(widths);
+
+    if (items.length > 0) {
+      await this.dataList.items.getById(items[0].Id).update(spData);
+    } else {
+      await this.dataList.items.add({ Title: DATA_KEY, ...spData });
     }
   }
 }

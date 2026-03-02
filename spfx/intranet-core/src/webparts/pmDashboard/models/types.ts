@@ -68,3 +68,22 @@ export interface IEntriesColumnIndex extends IColumnIndex {
 export interface ILostColumnIndex extends IColumnIndex {
   readonly reason: number;
 }
+
+// ─────────────────────────────────────────────────────────────
+// Column Width Preferences
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Column widths for a single section (column index → pixel width).
+ * Only columns with explicit widths are stored; absent entries
+ * use the CSS default.
+ */
+export type SectionColumnWidths = Record<number, number>;
+
+/**
+ * All column width preferences keyed by PM id then section.
+ * Stored as a single JSON blob in the data repository.
+ */
+export interface IColumnWidthPreferences {
+  [pmId: string]: Partial<Record<DashboardSection, SectionColumnWidths>>;
+}

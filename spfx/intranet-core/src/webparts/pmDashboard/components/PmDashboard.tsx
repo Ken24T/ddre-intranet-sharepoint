@@ -14,6 +14,8 @@ import type {
   IPropertyManager,
   IPropertyRow,
   DashboardSection,
+  IColumnWidthPreferences,
+  SectionColumnWidths,
 } from "../models/types";
 import {
   createPropertyRow,
@@ -50,6 +52,8 @@ interface DashboardState {
   loading: boolean;
   error: string | undefined;
   dirty: boolean;
+  columnWidths: IColumnWidthPreferences;
+  columnWidthsDirty: boolean;
 }
 
 type DashboardAction =
@@ -58,16 +62,25 @@ type DashboardAction =
       type: "LOAD_SUCCESS";
       data: IDashboardData;
       propertyManagers: IPropertyManager[];
+      columnWidths: IColumnWidthPreferences;
     }
   | { type: "LOAD_ERROR"; error: string }
   | { type: "SET_DATA"; data: IDashboardData }
   | { type: "SET_PROPERTY_MANAGERS"; pms: IPropertyManager[] }
   | { type: "SELECT_PM"; initials: string }
   | { type: "MARK_CLEAN" }
+  | { type: "MARK_COL_WIDTHS_CLEAN" }
   | {
       type: "UPDATE_SECTION";
       section: DashboardSection;
       rows: IPropertyRow[];
+    }
+  | {
+      type: "SET_COLUMN_WIDTH";
+      pmId: string;
+      section: DashboardSection;
+      colIndex: number;
+      width: number;
     };
 
 function dashboardReducer(
@@ -84,7 +97,9 @@ function dashboardReducer(
         loading: false,
         data: action.data,
         propertyManagers: action.propertyManagers,
+        columnWidths: action.columnWidths,
         dirty: false,
+        columnWidthsDirty: false,
       };
 
     case "LOAD_ERROR":
@@ -102,12 +117,31 @@ function dashboardReducer(
     case "MARK_CLEAN":
       return { ...state, dirty: false };
 
+    case "MARK_COL_WIDTHS_CLEAN":
+      return { ...state, columnWidthsDirty: false };
+
     case "UPDATE_SECTION":
       return {
         ...state,
         data: { ...state.data, [action.section]: action.rows },
         dirty: true,
       };
+
+    case "SET_COLUMN_WIDTH": {
+      const pmPrefs = state.columnWidths[action.pmId] || {};
+      const sectionPrefs = pmPrefs[action.section] || {};
+      const updated: IColumnWidthPreferences = {
+        ...state.columnWidths,
+        [action.pmId]: {
+          ...pmPrefs,
+          [action.section]: {
+            ...sectionPrefs,
+            [action.colIndex]: action.width,
+          },
+        },
+      };
+      return { ...state, columnWidths: updated, columnWidthsDirty: true };
+    }
 
     default:
       return state;
@@ -121,6 +155,8 @@ const INITIAL_STATE: DashboardState = {
   loading: true,
   error: undefined,
   dirty: false,
+  columnWidths: {},
+  columnWidthsDirty: false,
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -179,15 +215,17 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
     const load = async (): Promise<void> => {
       dispatch({ type: "LOAD_START" });
       try {
-        const [data, pms] = await Promise.all([
+        const [data, pms, colWidths] = await Promise.all([
           repository.loadData(),
           repository.loadPropertyManagers(),
+          repository.loadColumnWidths(),
         ]);
         if (mountedRef.current) {
           dispatch({
             type: "LOAD_SUCCESS",
             data: validateAndCleanData(data),
             propertyManagers: pms,
+            columnWidths: colWidths,
           });
         }
       } catch (err) {
@@ -228,6 +266,63 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
   }, [state.dirty, state.data, repository]);
+
+  // ─── Auto-save column widths with debounce ─────────────
+  const colWidthTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(() => {
+    if (!state.columnWidthsDirty) return;
+
+    if (colWidthTimerRef.current) clearTimeout(colWidthTimerRef.current);
+
+    colWidthTimerRef.current = setTimeout(() => {
+      repository
+        .saveColumnWidths(state.columnWidths)
+        .then(() => {
+          if (mountedRef.current) dispatch({ type: "MARK_COL_WIDTHS_CLEAN" });
+        })
+        .catch((err) => {
+          console.error("Column width save failed:", err);
+        });
+    }, 500);
+
+    return () => {
+      if (colWidthTimerRef.current) clearTimeout(colWidthTimerRef.current);
+    };
+  }, [state.columnWidthsDirty, state.columnWidths, repository]);
+
+  // ─── Column resize handler ─────────────────────────────
+  const handleColumnResize = React.useCallback(
+    (section: DashboardSection, colIndex: number, width: number): void => {
+      // Find PM id from selectedPm initials
+      const pm = state.propertyManagers.find(
+        (p) => `${p.firstName[0] || ""}${p.lastName[0] || ""}`.toUpperCase() === state.selectedPm,
+      );
+      if (!pm) return; // No PM selected — can't save preferences
+      dispatch({
+        type: "SET_COLUMN_WIDTH",
+        pmId: pm.id,
+        section,
+        colIndex,
+        width,
+      });
+    },
+    [state.selectedPm, state.propertyManagers],
+  );
+
+  // ─── Get column widths for current PM ──────────────────
+  const getColumnWidths = React.useCallback(
+    (section: DashboardSection): SectionColumnWidths => {
+      const pm = state.propertyManagers.find(
+        (p) => `${p.firstName[0] || ""}${p.lastName[0] || ""}`.toUpperCase() === state.selectedPm,
+      );
+      if (!pm) return {};
+      const pmPrefs = state.columnWidths[pm.id];
+      if (!pmPrefs) return {};
+      return pmPrefs[section] || {};
+    },
+    [state.selectedPm, state.propertyManagers, state.columnWidths],
+  );
 
   // ─── Cell change handler ───────────────────────────────
   const handleCellChange = React.useCallback(
@@ -503,6 +598,8 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           onAddRow={handleAddRow}
           onReorder={handleReorder}
           readOnly={!state.selectedPm}
+          columnWidths={getColumnWidths("vacates")}
+          onColumnResize={handleColumnResize}
         />
         <SectionTable
           section="entries"
@@ -516,6 +613,8 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           onAddRow={handleAddRow}
           onReorder={handleReorder}
           readOnly={!state.selectedPm}
+          columnWidths={getColumnWidths("entries")}
+          onColumnResize={handleColumnResize}
         />
         <SectionTable
           section="lost"
@@ -529,6 +628,8 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           onAddRow={handleAddRow}
           onReorder={handleReorder}
           readOnly={!state.selectedPm}
+          columnWidths={getColumnWidths("lost")}
+          onColumnResize={handleColumnResize}
         />
       </div>
 
