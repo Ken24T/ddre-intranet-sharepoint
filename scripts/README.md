@@ -59,6 +59,16 @@ Examples:
 
 ---
 
+## Available Scripts
+
+| Script | Purpose | Safe? |
+|--------|---------|-------|
+| `add-release-note.ps1` | Add a placeholder release note entry to `releaseNotes.ts` | Yes (additive) |
+| `release.ps1` | Bump version across `package.json` and `package-solution.json` | Yes (local only) |
+| `safety-check.ps1` | Detect accidental code loss by comparing HEAD against a baseline tag | Yes (read-only) |
+
+---
+
 ## Safety Rules
 
 - Scripts must default to **dry-run / read-only** where possible

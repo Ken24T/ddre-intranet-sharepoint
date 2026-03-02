@@ -48,6 +48,87 @@ If any invariant fails, the agent must **stop immediately**, explain the failure
 
 ---
 
+## Code-Loss Prevention
+
+These safeguards exist because a single destructive sync (`83f8404`) once silently deleted 71 files and 13,313 lines of code. Any workflow that merges into the default branch or pushes to a remote **must** run these checks.
+
+### Safety Snapshot (before every merge to default branch)
+
+Before merging **any** branch into the default branch, create a lightweight safety tag:
+
+```
+git tag safety/<branch-name>-<YYYYMMDD> <default-branch>
+```
+
+This ensures the pre-merge state of `main` is always recoverable with a single `git checkout`.
+
+- Safety tags are local-only by default (not pushed unless the user requests it).
+- Safety tags are never deleted automatically.
+- If a safety tag for today already exists, append a counter: `safety/<branch>-<date>-2`.
+
+### Merge Deletion Audit (mandatory gate)
+
+After the merge completes but **before committing or pushing**, run a deletion audit:
+
+```powershell
+# Count files that would be deleted
+$deleted = git diff <default-branch>@{1}..<default-branch> --name-only --diff-filter=D
+$deletedCount = ($deleted | Measure-Object).Count
+
+# Count lines removed
+$stats = git diff <default-branch>@{1}..<default-branch> --stat | Select-Object -Last 1
+```
+
+**Thresholds (configurable in `TCTBP.json` under `codeLossPrevention`):**
+
+| Condition | Action |
+|---|---|
+| 0 files deleted | Proceed silently |
+| 1–5 files deleted, <500 lines removed | Log the list, proceed with a note |
+| >5 files deleted **or** >500 lines removed | **STOP.** Display the full list of deleted files. Require explicit user confirmation: *"This merge deletes N files (M lines). Type 'confirm deletions' to proceed."* |
+| >20 files deleted **or** >2000 lines removed | **HARD STOP.** Display the list AND a warning: *"This looks like a destructive tree reset, not a normal merge. Review carefully before proceeding."* Always require confirmation. |
+
+This gate applies to:
+- Branch workflow step 3 (merge to default branch)
+- Handoff workflow step 6 (merge to default branch)
+- Any manual merge the agent performs
+
+### Pre-Push Deletion Audit
+
+Before any `git push`, compare the local branch against the remote:
+
+```powershell
+$stats = git diff origin/<branch>..<branch> --shortstat
+```
+
+If the push would result in a **net deletion** (more lines removed than added across all files), warn the user:
+
+> "This push has a net deletion of N lines (X added, Y removed). Confirm this is intentional."
+
+This is a **soft warning** (not a hard stop) — the user can proceed with normal push approval.
+
+### Recovery Guidance
+
+If code loss is detected after the fact:
+
+1. Find the safety tag: `git tag -l 'safety/*' --sort=-creatordate`
+2. Compare: `git diff <safety-tag>..HEAD --stat --diff-filter=D`
+3. Restore individual files: `git checkout <safety-tag> -- <file-path>`
+4. Restore everything: `git checkout <safety-tag> -- .` (use with caution)
+
+### Manual Safety Check
+
+The script `scripts/safety-check.ps1` can be run at any time to scan for anomalies:
+
+```powershell
+./scripts/safety-check.ps1                    # Compare HEAD vs last tag
+./scripts/safety-check.ps1 -Baseline v0.10.0   # Compare against specific version
+```
+
+The `status` workflow automatically runs a lightweight version of this check.
+
+---
+
 ## Activation Signal
 
 Activate this agent only when the user explicitly uses a clear cue (case-insensitive), for example:
@@ -107,8 +188,10 @@ Behaviour (local-first, remote-safe):
 3. **Merge current branch into the default branch.**
    - Ensure working tree is clean.
    - Checkout the default branch (e.g. `main`, read from `TCTBP.json`).
+   - **Create a safety snapshot tag** (see Code-Loss Prevention).
    - Merge using a non-destructive merge (no rebase).
    - Stop on conflicts.
+   - **Run Merge Deletion Audit** (see Code-Loss Prevention). Stop if thresholds are exceeded and wait for confirmation.
 
 4. **Create and switch to the new branch** from the updated default branch.
 
@@ -154,8 +237,11 @@ Behaviour (safe, deterministic):
    - Otherwise continue without bump/tag when SHIP is not required.
 
 6. **Merge to default branch**
-   - Checkout the default branch (e.g. `main`) and merge the current branch using a non-destructive merge (no rebase).
+   - Checkout the default branch (e.g. `main`).
+   - **Create a safety snapshot tag** (see Code-Loss Prevention).
+   - Merge the current branch using a non-destructive merge (no rebase).
    - Stop on conflicts.
+   - **Run Merge Deletion Audit** (see Code-Loss Prevention). Stop if thresholds are exceeded and wait for confirmation.
 
 7. **Push (all three: feature branch, default branch, tags)**
    - Push the **current feature branch** to origin.
@@ -252,6 +338,7 @@ Behaviour:
    - Sync state: local vs remote SHA for current branch and the default branch.
    - Commits ahead/behind for both branches.
    - Whether a SHIP is needed (uncommitted changes or unshipped commits since last tag).
+   - **Code health snapshot:** Compare file count on current branch against the last safety tag or shipped tag. Flag if >5 source files (`.ts`/`.tsx`) are missing.
 
 3. **Recommend next step(s)**
    - Provide 1–3 actionable recommendations with a one-line reason for each.
@@ -379,6 +466,7 @@ This keeps iteration fast during development and avoids unnecessary long build t
 
 ### 7. Push (Approval Required)
 
+- **Run Pre-Push Deletion Audit** (see Code-Loss Prevention). Warn if the push is net-negative.
 - Push current branch only
 - Never push to protected branches
 

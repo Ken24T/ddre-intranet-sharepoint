@@ -61,5 +61,21 @@
     "policy": "everyCommit",
     "skipWhenNoBump": true,
     "format": "v{version}"
+  },
+  "codeLossPrevention": {
+    "enabled": true,
+    "safetySnapshotBeforeMerge": true,
+    "safetyTagPrefix": "safety/",
+    "mergeDeleteAudit": {
+      "warnThresholdFiles": 5,
+      "warnThresholdLines": 500,
+      "hardStopThresholdFiles": 20,
+      "hardStopThresholdLines": 2000
+    },
+    "prePushNetDeletionWarning": true,
+    "statusHealthCheck": true,
+    "statusHealthCheckThreshold": 5,
+    "safetyCheckScript": "scripts/safety-check.ps1",
+    "comment": "Added after 83f8404 silently deleted 71 files (13,313 lines). These gates ensure destructive merges are caught before they reach the remote."
   }
 }
