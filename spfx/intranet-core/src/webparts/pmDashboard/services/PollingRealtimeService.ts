@@ -102,8 +102,11 @@ export class PollingRealtimeService implements IRealtimeService {
     };
   }
 
-  setSelectedPm(initials: string): void {
+  setSelectedPm(initials: string, colour: string): void {
     this._selectedPm = initials;
+    if (colour) {
+      this._colour = colour;
+    }
     // Immediately heartbeat with new PM selection
     if (this.presenceRepository && this._currentUserId) {
       this._sendHeartbeat().catch((err) => {

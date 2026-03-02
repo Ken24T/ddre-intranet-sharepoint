@@ -71,8 +71,10 @@ export interface IRealtimeService {
   /**
    * Update the current user's selected PM.
    * This is broadcast to other users for presence display.
+   * @param initials PM initials (e.g. "KB")
+   * @param colour The PM's assigned row colour (e.g. "#90EE90")
    */
-  setSelectedPm(initials: string): void;
+  setSelectedPm(initials: string, colour: string): void;
 
   /**
    * Signal that the current user just made a data change.

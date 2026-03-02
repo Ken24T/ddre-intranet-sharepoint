@@ -597,8 +597,12 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
   // ─── PM Selector handler ──────────────────────────────
   const handleSelectPm = React.useCallback((initials: string): void => {
     dispatch({ type: "SELECT_PM", initials });
-    realtimeService.setSelectedPm(initials);
-  }, [realtimeService]);
+    // Look up the PM's assigned colour
+    const pm = state.propertyManagers.find(
+      (p) => `${p.firstName[0] || ""}${p.lastName[0] || ""}`.toUpperCase() === initials,
+    );
+    realtimeService.setSelectedPm(initials, pm?.color || "");
+  }, [realtimeService, state.propertyManagers]);
 
   // ─── Settings handlers ────────────────────────────────
   const handleOpenSettings = React.useCallback((): void => {
