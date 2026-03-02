@@ -184,8 +184,9 @@ export const sampleCards: IFunctionCard[] = [
     title: 'Marketing Budgets',
     description: 'Track and manage marketing spend and campaigns',
     icon: 'Financial',
-    // In production this will be a SharePoint page URL.
-    // In the Vite dev harness: inline via cardDetailRenderer, tab/window via this URL.
+    // SharePoint: resolved at runtime via siteUrl + sitePagePath.
+    // Vite dev harness: inline via cardDetailRenderer, tab/window via url.
+    sitePagePath: 'SitePages/marketing-budgets.aspx',
     url: '/marketing-budgets.html',
     providesSidebar: true,
   },

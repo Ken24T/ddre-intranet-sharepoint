@@ -19,11 +19,11 @@ info:
     **Retention:** Indefinite (policy to be refined later)
 
 servers:
-  - url: https://api-dev.dougdisher.com.au
+  - url: https://api-dev.disher.com.au
     description: Development
-  - url: https://api-test.dougdisher.com.au
+  - url: https://api-test.disher.com.au
     description: Test
-  - url: https://api.dougdisher.com.au
+  - url: https://api.disher.com.au
     description: Production
 
 tags:

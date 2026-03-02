@@ -23,6 +23,8 @@ import '@pnp/sp/lists';
 import '@pnp/sp/items';
 import '@pnp/sp/batching';
 
+import { ensureMarketingBudgetLists } from './listProvisioning';
+
 import type { IBudgetRepository, BudgetFilters } from './IBudgetRepository';
 import type {
   Vendor,
@@ -65,7 +67,20 @@ const VALID_STATUSES = new Set([
 // ─────────────────────────────────────────────────────────────
 
 export class SPListBudgetRepository implements IBudgetRepository {
+  private _listsEnsured: Promise<void> | undefined;
+
   constructor(private readonly sp: SPFI) {}
+
+  /**
+   * Ensure all MB_* lists and their custom fields exist.
+   * Runs once per repository instance; subsequent calls are no-ops.
+   */
+  private ensureLists(): Promise<void> {
+    if (!this._listsEnsured) {
+      this._listsEnsured = ensureMarketingBudgetLists(this.sp);
+    }
+    return this._listsEnsured;
+  }
 
   // ─── List helpers ───────────────────────────────────────
 
@@ -92,6 +107,7 @@ export class SPListBudgetRepository implements IBudgetRepository {
   // ─── Vendors ────────────────────────────────────────────
 
   async getVendors(): Promise<Vendor[]> {
+    await this.ensureLists();
     const items: SPVendorItem[] = await this.vendorList.items
       .select(...VENDOR_SELECT)
       ();
@@ -368,6 +384,9 @@ export class SPListBudgetRepository implements IBudgetRepository {
    * each entity batch is inserted.
    */
   async seedData(data: Partial<DataExport>): Promise<void> {
+    // Ensure lists and fields exist before inserting items
+    await this.ensureLists();
+
     const vendorIdMap = new Map<number, number>();
     const serviceIdMap = new Map<number, number>();
 

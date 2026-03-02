@@ -2,8 +2,8 @@
   "$schema": "./environment.schema.json",
   "name": "dev",
   "displayName": "Development",
-  "tenantDomain": "ddredev.sharepoint.com",
-  "siteUrl": "https://ddredev.sharepoint.com/sites/intranet",
-  "workbenchUrl": "https://ddredev.sharepoint.com/_layouts/workbench.aspx",
-  "apiProxyBaseUrl": "https://api-dev.dougdisher.com.au"
+  "tenantDomain": "disher.sharepoint.com",
+  "siteUrl": "https://disher.sharepoint.com/sites/dev-intranet",
+  "workbenchUrl": "https://disher.sharepoint.com/_layouts/workbench.aspx",
+  "apiProxyBaseUrl": "https://api-dev.disher.com.au"
 }

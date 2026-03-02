@@ -1,0 +1,10 @@
+{
+  "name": "app-surveys",
+  "displayName": "Surveys",
+  "owner": "Administration",
+  "status": "planning",
+  "hub": "Administration",
+  "webPart": "surveys",
+  "introduced": null,
+  "description": "Internal survey creation and management."
+}

@@ -1,6 +1,7 @@
 import * as React from "react";
 import styles from "./MarketingBudget.module.scss";
 import type { IMarketingBudgetProps } from "./IMarketingBudgetProps";
+import type { UserRole } from "../models/permissions";
 import {
   Icon,
   MessageBar,
@@ -17,7 +18,11 @@ import { SchedulesView } from "./SchedulesView";
 import { ServicesView } from "./ServicesView";
 import { VendorsView } from "./VendorsView";
 import { SuburbsView } from "./SuburbsView";
+import { DashboardView } from "./DashboardView";
+import { BudgetComparisonView } from "./BudgetComparisonView";
+import { DataManagementView } from "./DataManagementView";
 import { useShellBridge } from "./useShellBridge";
+import { useBudgetNotifications } from "./useBudgetNotifications";
 import { loadDefaultAgentName, saveDefaultAgentName } from "./settings";
 
 // ─────────────────────────────────────────────────────────────
@@ -25,19 +30,34 @@ import { loadDefaultAgentName, saveDefaultAgentName } from "./settings";
 // ─────────────────────────────────────────────────────────────
 
 export type AppViewKey =
+  | "dashboard"
   | "budgets"
+  | "comparison"
   | "schedules"
   | "services"
   | "vendors"
-  | "suburbs";
+  | "suburbs"
+  | "dataManagement";
 
 export const APP_NAV_ITEMS: IAppNavItem[] = [
+  { key: "dashboard", label: "Dashboard", icon: "ViewDashboard" },
   { key: "budgets", label: "Budgets", icon: "Financial" },
+  { key: "comparison", label: "Compare", icon: "BranchCompare" },
   { key: "schedules", label: "Schedules", icon: "CalendarWeek" },
   { key: "services", label: "Services", icon: "Settings" },
   { key: "vendors", label: "Vendors", icon: "People" },
   { key: "suburbs", label: "Suburbs", icon: "MapPin" },
+  { key: "dataManagement", label: "Data Mgmt", icon: "DatabaseSync" },
 ];
+
+/** Keys visible to all roles. Admin-only items are filtered out for editor/viewer. */
+const PUBLIC_NAV_KEYS: ReadonlyArray<string> = ["dashboard", "budgets", "comparison"];
+
+/** Return the nav items appropriate for the given role. */
+export function getNavItemsForRole(role: UserRole): IAppNavItem[] {
+  if (role === "admin") return APP_NAV_ITEMS;
+  return APP_NAV_ITEMS.filter((item) => PUBLIC_NAV_KEYS.indexOf(item.key) >= 0);
+}
 
 /** Counts returned after loading reference data. */
 interface DataCounts {
@@ -63,7 +83,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
   const [isSeeding, setIsSeeding] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [seedComplete, setSeedComplete] = React.useState(false);
-  const [activeView, setActiveView] = React.useState<AppViewKey>("budgets");
+  const [activeView, setActiveView] = React.useState<AppViewKey>("dashboard");
   const [defaultAgentName, setDefaultAgentName] = React.useState<string>(() =>
     loadDefaultAgentName(),
   );
@@ -75,8 +95,16 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     };
   }, []);
 
+  // ─── Filtered nav items (role-gated) ───────────────────
+  const navItems = React.useMemo(() => getNavItemsForRole(userRole), [userRole]);
+
   // ─── Shell sidebar bridge ────────────────────────────────
-  const { isEmbedded } = useShellBridge(activeView, setActiveView, shellBridgeOptions);
+  const { isEmbedded } = useShellBridge(activeView, setActiveView, navItems, shellBridgeOptions);
+
+  // ─── Budget notifications → shell ───────────────────────
+  // Push draft-budget notifications to the shell's notification bell.
+  // Only admins need approval notifications.
+  useBudgetNotifications(repository, userRole === 'admin');
 
   const handleDefaultAgentNameChange = React.useCallback((value: string): void => {
     const saved = saveDefaultAgentName(value);
@@ -134,9 +162,10 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     }
   }, [repository, loadCounts]);
 
-  // Auto-seed on first load if the database is empty
+  // Auto-seed on first load if the database is empty (admin/editor only)
   React.useEffect(() => {
     let cancelled = false;
+    const canSeed = userRole === 'admin' || userRole === 'editor';
 
     const init = async (): Promise<void> => {
       try {
@@ -144,7 +173,9 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
         if (cancelled) return;
 
         // Auto-seed when the database has no reference data at all
+        // Only admin/editor roles are allowed to write seed data
         if (
+          canSeed &&
           loaded.vendors === 0 &&
           loaded.services === 0 &&
           loaded.suburbs === 0
@@ -175,7 +206,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
     return (): void => {
       cancelled = true;
     };
-  }, [repository, loadCounts]);
+  }, [repository, loadCounts, userRole]);
 
   const hasData =
     counts !== null &&
@@ -183,8 +214,25 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
 
   // ─── View renderer ────────────────────────────────────────
 
+  const handleNavigate = React.useCallback((view: string): void => {
+    setActiveView(view as AppViewKey);
+  }, []);
+
+  /** Check whether the current role is allowed to see the active view. */
+  const isViewAllowed = React.useMemo(
+    () => navItems.some((item) => item.key === activeView),
+    [navItems, activeView],
+  );
+
   const renderActiveView = (): React.ReactNode => {
+    // Guard: redirect non-admin users away from admin-only views
+    if (!isViewAllowed) {
+      return <DashboardView repository={repository} userRole={userRole} onNavigate={handleNavigate} />;
+    }
+
     switch (activeView) {
+      case "dashboard":
+        return <DashboardView repository={repository} userRole={userRole} onNavigate={handleNavigate} />;
       case "budgets":
         return (
           <BudgetListView
@@ -195,48 +243,20 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
             onDataChanged={handleDataChanged}
           />
         );
+      case "comparison":
+        return <BudgetComparisonView repository={repository} userRole={userRole} />;
       case "schedules":
-        return (
-          <SchedulesView
-            repository={repository}
-            userRole={userRole}
-            onDataChanged={handleDataChanged}
-          />
-        );
+        return <SchedulesView repository={repository} userRole={userRole} onDataChanged={handleDataChanged} />;
       case "services":
-        return (
-          <ServicesView
-            repository={repository}
-            userRole={userRole}
-            onDataChanged={handleDataChanged}
-          />
-        );
+        return <ServicesView repository={repository} userRole={userRole} onDataChanged={handleDataChanged} />;
       case "vendors":
-        return (
-          <VendorsView
-            repository={repository}
-            userRole={userRole}
-            onDataChanged={handleDataChanged}
-          />
-        );
+        return <VendorsView repository={repository} userRole={userRole} onDataChanged={handleDataChanged} />;
       case "suburbs":
-        return (
-          <SuburbsView
-            repository={repository}
-            userRole={userRole}
-            onDataChanged={handleDataChanged}
-          />
-        );
+        return <SuburbsView repository={repository} userRole={userRole} onDataChanged={handleDataChanged} />;
+      case "dataManagement":
+        return <DataManagementView repository={repository} userRole={userRole} />;
       default:
-        return (
-          <BudgetListView
-            repository={repository}
-            userRole={userRole}
-            defaultAgentName={defaultAgentName}
-            onDefaultAgentNameChange={handleDefaultAgentNameChange}
-            onDataChanged={handleDataChanged}
-          />
-        );
+        return <DashboardView repository={repository} userRole={userRole} onNavigate={handleNavigate} />;
     }
   };
 
@@ -244,7 +264,7 @@ const MarketingBudget: React.FC<IMarketingBudgetProps> = (props) => {
 
   const renderStandaloneSidebar = (): React.ReactNode => (
     <nav className={styles.standaloneSidebar}>
-      {APP_NAV_ITEMS.map((item) => (
+      {navItems.map((item) => (
         <button
           key={item.key}
           className={`${styles.navItem} ${activeView === item.key ? styles.navItemActive : ""}`}

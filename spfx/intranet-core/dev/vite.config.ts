@@ -7,6 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@components': path.resolve(__dirname, '../src/webparts/intranetShell/components'),
+      // Shared packages (source, not compiled — for HMR)
+      '@ddre/pkg-app-bridge': path.resolve(__dirname, '../../../packages/pkg-app-bridge/src'),
       // Marketing Budget app sources (consolidated into intranet-core)
       '@mb-components': path.resolve(__dirname, '../src/webparts/marketingBudget/components'),
       '@mb-services': path.resolve(__dirname, '../src/webparts/marketingBudget/services'),

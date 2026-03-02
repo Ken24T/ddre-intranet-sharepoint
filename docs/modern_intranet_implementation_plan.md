@@ -24,11 +24,11 @@ Deliver a modern, cloud-based intranet that supports staff communication, self-s
   - Entra ID / SharePoint configuration support
   - CI/CD assistance where required
 
-**Intranet URL (Target):** [https://intranet.dougdisher.com.au](https://intranet.dougdisher.com.au)
+**Intranet URL (Target):** [https://intranet.disher.com.au](https://intranet.disher.com.au)
 
 ### URL Implementation Notes (to confirm with IT)
 
-- DNS: `intranet.dougdisher.com.au` CNAME/alias to the SharePoint Online intranet landing page
+- DNS: `intranet.disher.com.au` CNAME/alias to the SharePoint Online intranet landing page
 - Decide whether the vanity URL is:
   - A friendly redirect to the SharePoint URL, or
   - The primary user-facing URL (where supported)
@@ -749,7 +749,7 @@ This model ensures a secure, supportable intranet without introducing unmanaged 
 - Network or compliance considerations
 - Integration boundaries and API access
 - Long-term ownership and support model
-- Confirm approach for intranet.dougdisher.com.au vanity URL (redirect vs primary) and ownership (DNS, any certificate responsibilities)
+- Confirm approach for intranet.disher.com.au vanity URL (redirect vs primary) and ownership (DNS, any certificate responsibilities)
 - Confirm CORS policy for SharePoint Online and Teams/Viva surfaces, and whether all Vault API calls will be routed through an Azure proxy
 - Confirm AI assistant hosting and governance: Azure subscription/location for the AI proxy, indexing approach (e.g., Azure AI Search / vector store choice), permission-trimming method, and logging/privacy requirements
 

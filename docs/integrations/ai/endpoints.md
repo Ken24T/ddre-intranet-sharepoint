@@ -44,12 +44,12 @@ Ask a question against the Dante Library knowledge base.
   "citations": [
     {
       "title": "Leave Policy Handbook",
-      "url": "https://dougdisher.sharepoint.com/sites/hr/leave-policy.pdf",
+      "url": "https://disher.sharepoint.com/sites/hr/leave-policy.pdf",
       "snippet": "Annual leave requests must be submitted a minimum of 14 days prior to the intended leave date..."
     },
     {
       "title": "HR Portal User Guide",
-      "url": "https://dougdisher.sharepoint.com/sites/hr/portal-guide.pdf",
+      "url": "https://disher.sharepoint.com/sites/hr/portal-guide.pdf",
       "snippet": "Navigate to My Leave > Request Leave to submit a new leave application..."
     }
   ],

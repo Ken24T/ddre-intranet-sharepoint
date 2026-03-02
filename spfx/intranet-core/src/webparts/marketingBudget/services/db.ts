@@ -16,7 +16,9 @@ import type {
   Suburb,
   Schedule,
   Budget,
+  BudgetTemplate,
 } from "../models/types";
+import type { AuditEntry } from "../models/auditTypes";
 
 export class MarketingBudgetDb extends Dexie {
   vendors!: Table<Vendor, number>;
@@ -24,6 +26,8 @@ export class MarketingBudgetDb extends Dexie {
   suburbs!: Table<Suburb, number>;
   schedules!: Table<Schedule, number>;
   budgets!: Table<Budget, number>;
+  auditLog!: Table<AuditEntry, number>;
+  budgetTemplates!: Table<BudgetTemplate, number>;
 
   constructor() {
     super("salesmarketing-spfx");
@@ -37,6 +41,31 @@ export class MarketingBudgetDb extends Dexie {
       schedules: "++id, name, propertyType, propertySize, tier, isActive",
       budgets:
         "++id, createdAt, updatedAt, propertyAddress, scheduleId, status",
+    });
+
+    // Version 2 — add audit log table
+    this.version(2).stores({
+      vendors: "++id, name, shortCode, isActive",
+      services: "++id, name, category, vendorId, variantSelector, isActive",
+      suburbs: "++id, name, pricingTier",
+      schedules: "++id, name, propertyType, propertySize, tier, isActive",
+      budgets:
+        "++id, createdAt, updatedAt, propertyAddress, scheduleId, status",
+      auditLog:
+        "++id, timestamp, entityType, entityId, action, [entityType+entityId]",
+    });
+
+    // Version 3 — add budget templates table
+    this.version(3).stores({
+      vendors: "++id, name, shortCode, isActive",
+      services: "++id, name, category, vendorId, variantSelector, isActive",
+      suburbs: "++id, name, pricingTier",
+      schedules: "++id, name, propertyType, propertySize, tier, isActive",
+      budgets:
+        "++id, createdAt, updatedAt, propertyAddress, scheduleId, status",
+      auditLog:
+        "++id, timestamp, entityType, entityId, action, [entityType+entityId]",
+      budgetTemplates: "++id, name, createdAt",
     });
   }
 }

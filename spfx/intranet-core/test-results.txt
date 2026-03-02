@@ -1,0 +1,572 @@
+ ---- build started ---- 
+[build:clean] Deleted 0 files and 5 folders
+[build:set-browserslist-ignore-old-data-env-var] Setting environment variable BROWSERSLIST_IGNORE_OLD_DATA=1
+[build:sass] Generating sass typings...
+[build:copy-javascript] Copied 6 files and linked 0 files
+[build:sass] Generated sass typings
+[build:typescript] Using TypeScript version 5.8.3
+[build:typescript] Copied 30 files and linked 0 files
+[build:lint] Using ESLint version 8.57.1
+[build:webpack] Using Webpack version 5.95.0
+[build:webpack] Running Webpack compilation
+ ---- build finished (49.523s) ---- 
+ ---- test started ---- 
+[test:clean] Deleted 0 files and 1 folder
+[test:jest] Using Jest version 29.5.0
+[test:jest] 
+[test:jest] Run start. 42 test suites
+[test:jest] START lib-commonjs\webparts\marketingBudget\services\AuditedBudgetRepository.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\MarketingBudget.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\BudgetEditorPanel.test.js
+[test:jest] START lib-commonjs\webparts\intranetShell\components\AuditLogViewer\AuditLogViewer.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\ServicesView.test.js
+[test:jest] START lib-commonjs\webparts\intranetShell\components\SearchBox\SearchBox.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\useBudgetNotifications.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\SuburbsView.test.js
+[test:jest] START lib-commonjs\webparts\intranetShell\components\utils\retry.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\VendorsView.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\SchedulesView.test.js
+[test:jest] START lib-commonjs\webparts\pmDashboard\models\rowOperations.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\DashboardView.test.js
+[test:jest] START lib-commonjs\webparts\intranetShell\components\hooks\useRetry.test.js
+[test:jest] START lib-commonjs\webparts\intranetShell\components\Toast\Toast.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\TemplatePickerDialog.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\LineItemEditor.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\models\budgetValidation.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\models\budgetCalculations.test.js
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\SaveTemplateDialog.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\models\budgetCalculations.test.js (duration: 25.647s, 18 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\BudgetComparisonView.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\models\budgetValidation.test.js (duration: 26.056s, 22 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\ScheduleLineItemEditor.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\services\AuditedBudgetRepository.test.js (duration: 25.774s, 25 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\models\variantHelpers.test.js
+[test:jest] PASS lib-commonjs\webparts\intranetShell\components\utils\retry.test.js (duration: 26.459s, 12 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\services\DexieBudgetTemplateService.test.js
+[test:jest] PASS lib-commonjs\webparts\pmDashboard\models\rowOperations.test.js (duration: 25.807s, 29 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\intranetShell\IntranetShellWebPart.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\useBudgetNotifications.test.js (duration: 26.908s, 8 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\models\seedData.test.js
+[test:jest] PASS lib-commonjs\webparts\intranetShell\components\hooks\useRetry.test.js (duration: 26.981s, 10 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\AuditTimeline.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\models\variantHelpers.test.js (duration: 3.379s, 19 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\models\dashboardAggregations.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\services\DexieBudgetTemplateService.test.js (duration: 3.292s, 7 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\BudgetListView.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\models\seedData.test.js (duration: 3.195s, 24 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\models\diffChanges.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\models\dashboardAggregations.test.js (duration: 2.320s, 12 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\intranetShell\components\hooks\useOnlineStatus.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\models\diffChanges.test.js (duration: 2.394s, 18 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\models\exportHelpers.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\BudgetEditorPanel.test.js (duration: 37.240s, 20 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\models\permissions.test.js
+[test:jest] | console.warn| [IntranetShell] Marketing Budget repository/role init failed, falling back to viewer mode Jest encountered an unexpected token
+[test:jest] | console.warn| 
+[test:jest] | console.warn| Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+[test:jest] | console.warn| 
+[test:jest] | console.warn| Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+[test:jest] | console.warn| 
+[test:jest] | console.warn| By default "node_modules" folder is ignored by transformers.
+[test:jest] | console.warn| 
+[test:jest] | console.warn| Here's what you can do:
+[test:jest] | console.warn|  ΓÇó If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+[test:jest] | console.warn|  ΓÇó If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+[test:jest] | console.warn|  ΓÇó To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+[test:jest] | console.warn|  ΓÇó If you need a custom transformation specify a "transform" option in your config.
+[test:jest] | console.warn|  ΓÇó If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+[test:jest] | console.warn| 
+[test:jest] | console.warn| You'll find more details and examples of these config options in the docs:
+[test:jest] | console.warn| https://jestjs.io/docs/configuration
+[test:jest] | console.warn| For information about custom transformations, see:
+[test:jest] | console.warn| https://jestjs.io/docs/code-transformation
+[test:jest] | console.warn| 
+[test:jest] | console.warn| Details:
+[test:jest] | console.warn| 
+[test:jest] | console.warn| D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\@pnp\sp\lists\index.js:1
+[test:jest] | console.warn| ({"Object.<anonymous>":function(module,exports,require,__dirname,__filename,jest){import "./web.js";
+[test:jest] | console.warn|                                                                                   ^^^^^^
+[test:jest] | console.warn| 
+[test:jest] | console.warn| SyntaxError: Cannot use import statement outside a module
+[test:jest] | console.warn|     at new Script (node:vm:117:7)
+[test:jest] | console.warn|     at Runtime.createScriptFromCode (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1505:14)
+[test:jest] | console.warn|     at Runtime._execModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1399:25)
+[test:jest] | console.warn|     at Runtime._loadModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1022:12)
+[test:jest] | console.warn|     at Runtime.requireModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:882:12)
+[test:jest] | console.warn|     at Runtime.requireModuleOrMock (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1048:21)
+[test:jest] | console.warn|     at Object.<anonymous> (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\marketingBudget\services\SPListBudgetRepository.ts:22:1)
+[test:jest] | console.warn|     at Runtime._execModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1439:24)
+[test:jest] | console.warn|     at Runtime._loadModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1022:12)
+[test:jest] | console.warn|     at Runtime.requireModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:882:12)
+[test:jest] | console.warn|     at Runtime.requireModuleOrMock (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1048:21)
+[test:jest] | console.warn|     at Object.<anonymous> (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\marketingBudget\services\RepositoryFactory.ts:25:1)
+[test:jest] | console.warn|     at Runtime._execModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1439:24)
+[test:jest] | console.warn|     at Runtime._loadModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1022:12)
+[test:jest] | console.warn|     at Runtime.requireModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:882:12)
+[test:jest] | console.warn|     at Runtime.requireModuleOrMock (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1048:21)
+[test:jest] | console.warn|     at D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\lib-commonjs\webparts\intranetShell\IntranetShellWebPart.js:91:98
+[test:jest] | console.warn|     at processTicksAndRejections (node:internal/process/task_queues:105:5)
+[test:jest] | console.warn|     at async Promise.all (index 0)
+[test:jest] | console.warn| [IntranetShellWebPart] Group resolution failed: TypeError: (0 , sp_1.spfi)(...).using is not a function
+[test:jest] | console.warn|     at IntranetShellWebPart.<anonymous> (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\intranetShell\IntranetShellWebPart.ts:79:33)
+[test:jest] | console.warn|     at step (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\tslib\tslib.js:143:27)
+[test:jest] | console.warn|     at Object.next (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\tslib\tslib.js:124:57)
+[test:jest] | console.warn|     at fulfilled (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\tslib\tslib.js:114:62)
+[test:jest] | console.warn|     at processTicksAndRejections (node:internal/process/task_queues:105:5)
+[test:jest] | console.warn| [IntranetShell] Marketing Budget repository/role init failed, falling back to viewer mode Jest encountered an unexpected token
+[test:jest] | console.warn| 
+[test:jest] | console.warn| Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+[test:jest] | console.warn| 
+[test:jest] | console.warn| Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+[test:jest] | console.warn| 
+[test:jest] | console.warn| By default "node_modules" folder is ignored by transformers.
+[test:jest] | console.warn| 
+[test:jest] | console.warn| Here's what you can do:
+[test:jest] | console.warn|  ΓÇó If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+[test:jest] | console.warn|  ΓÇó If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+[test:jest] | console.warn|  ΓÇó To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+[test:jest] | console.warn|  ΓÇó If you need a custom transformation specify a "transform" option in your config.
+[test:jest] | console.warn|  ΓÇó If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+[test:jest] | console.warn| 
+[test:jest] | console.warn| You'll find more details and examples of these config options in the docs:
+[test:jest] | console.warn| https://jestjs.io/docs/configuration
+[test:jest] | console.warn| For information about custom transformations, see:
+[test:jest] | console.warn| https://jestjs.io/docs/code-transformation
+[test:jest] | console.warn| 
+[test:jest] | console.warn| Details:
+[test:jest] | console.warn| 
+[test:jest] | console.warn| D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\@pnp\sp\lists\index.js:1
+[test:jest] | console.warn| ({"Object.<anonymous>":function(module,exports,require,__dirname,__filename,jest){import "./web.js";
+[test:jest] | console.warn|                                                                                   ^^^^^^
+[test:jest] | console.warn| 
+[test:jest] | console.warn| SyntaxError: Cannot use import statement outside a module
+[test:jest] | console.warn|     at new Script (node:vm:117:7)
+[test:jest] | console.warn|     at Runtime.createScriptFromCode (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1505:14)
+[test:jest] | console.warn|     at Runtime._execModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1399:25)
+[test:jest] | console.warn|     at Runtime._loadModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1022:12)
+[test:jest] | console.warn|     at Runtime.requireModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:882:12)
+[test:jest] | console.warn|     at Runtime.requireModuleOrMock (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1048:21)
+[test:jest] | console.warn|     at Object.<anonymous> (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\marketingBudget\services\SPListBudgetRepository.ts:22:1)
+[test:jest] | console.warn|     at Runtime._execModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1439:24)
+[test:jest] | console.warn|     at Runtime._loadModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1022:12)
+[test:jest] | console.warn|     at Runtime.requireModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:882:12)
+[test:jest] | console.warn|     at Runtime.requireModuleOrMock (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1048:21)
+[test:jest] | console.warn|     at Object.<anonymous> (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\marketingBudget\services\RepositoryFactory.ts:25:1)
+[test:jest] | console.warn|     at Runtime._execModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1439:24)
+[test:jest] | console.warn|     at Runtime._loadModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1022:12)
+[test:jest] | console.warn|     at Runtime.requireModule (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:882:12)
+[test:jest] | console.warn|     at Runtime.requireModuleOrMock (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\node_modules\jest-runtime\build\index.js:1048:21)
+[test:jest] | console.warn|     at D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\lib-commonjs\webparts\intranetShell\IntranetShellWebPart.js:91:98
+[test:jest] | console.warn|     at processTicksAndRejections (node:internal/process/task_queues:105:5)
+[test:jest] | console.warn|     at async Promise.all (index 0)
+[test:jest] PASS lib-commonjs\webparts\intranetShell\IntranetShellWebPart.test.js (duration: 9.716s, 5 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\BudgetPrintView.test.js
+[test:jest] PASS lib-commonjs\webparts\intranetShell\components\Toast\Toast.test.js (duration: 38.127s, 14 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\pmDashboard\models\dateHelpers.test.js
+[test:jest] |console.error| Warning: An update to DashboardView inside a test was not wrapped in act(...).
+[test:jest] |console.error| 
+[test:jest] |console.error| When testing, code that causes React state updates should be wrapped into act(...):
+[test:jest] |console.error| 
+[test:jest] |console.error| act(() => {
+[test:jest] |console.error|   /* fire events that update state */
+[test:jest] |console.error| });
+[test:jest] |console.error| /* assert on the output */
+[test:jest] |console.error| 
+[test:jest] |console.error| This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+[test:jest] |console.error|     at DashboardView (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\marketingBudget\components\DashboardView.tsx:83:13)
+[test:jest] |console.error| Warning: An update to DashboardView inside a test was not wrapped in act(...).
+[test:jest] |console.error| 
+[test:jest] |console.error| When testing, code that causes React state updates should be wrapped into act(...):
+[test:jest] |console.error| 
+[test:jest] |console.error| act(() => {
+[test:jest] |console.error|   /* fire events that update state */
+[test:jest] |console.error| });
+[test:jest] |console.error| /* assert on the output */
+[test:jest] |console.error| 
+[test:jest] |console.error| This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+[test:jest] |console.error|     at DashboardView (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\marketingBudget\components\DashboardView.tsx:83:13)
+[test:jest] |console.error| Warning: An update to DashboardView inside a test was not wrapped in act(...).
+[test:jest] |console.error| 
+[test:jest] |console.error| When testing, code that causes React state updates should be wrapped into act(...):
+[test:jest] |console.error| 
+[test:jest] |console.error| act(() => {
+[test:jest] |console.error|   /* fire events that update state */
+[test:jest] |console.error| });
+[test:jest] |console.error| /* assert on the output */
+[test:jest] |console.error| 
+[test:jest] |console.error| This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+[test:jest] |console.error|     at DashboardView (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\marketingBudget\components\DashboardView.tsx:83:13)
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\DashboardView.test.js (duration: 39.121s, 10 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\intranetShell\components\services\DexieShellAuditLogger.test.js
+[test:jest] PASS lib-commonjs\webparts\intranetShell\components\hooks\useOnlineStatus.test.js (duration: 4.952s, 10 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\pmDashboard\services\listSchemas.test.js
+[test:jest] |console.error| Warning: An update to BudgetComparisonView inside a test was not wrapped in act(...).
+[test:jest] |console.error| 
+[test:jest] |console.error| When testing, code that causes React state updates should be wrapped into act(...):
+[test:jest] |console.error| 
+[test:jest] |console.error| act(() => {
+[test:jest] |console.error|   /* fire events that update state */
+[test:jest] |console.error| });
+[test:jest] |console.error| /* assert on the output */
+[test:jest] |console.error| 
+[test:jest] |console.error| This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+[test:jest] |console.error|     at BudgetComparisonView (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\marketingBudget\components\BudgetComparisonView.tsx:109:13)
+[test:jest] |console.error| Warning: An update to BudgetComparisonView inside a test was not wrapped in act(...).
+[test:jest] |console.error| 
+[test:jest] |console.error| When testing, code that causes React state updates should be wrapped into act(...):
+[test:jest] |console.error| 
+[test:jest] |console.error| act(() => {
+[test:jest] |console.error|   /* fire events that update state */
+[test:jest] |console.error| });
+[test:jest] |console.error| /* assert on the output */
+[test:jest] |console.error| 
+[test:jest] |console.error| This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+[test:jest] |console.error|     at BudgetComparisonView (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\marketingBudget\components\BudgetComparisonView.tsx:109:13)
+[test:jest] | console.warn| The icon "comparesingle" was used but not registered. See https://github.com/microsoft/fluentui/wiki/Using-icons for more information.
+[test:jest] | console.warn| The icon "comparesingle" was used but not registered. See https://github.com/microsoft/fluentui/wiki/Using-icons for more information.
+[test:jest] | console.warn| The icon "comparesingle" was used but not registered. See https://github.com/microsoft/fluentui/wiki/Using-icons for more information.
+[test:jest] | console.warn| The icon "comparesingle" was used but not registered. See https://github.com/microsoft/fluentui/wiki/Using-icons for more information.
+[test:jest] | console.warn| The icon "comparesingle" was used but not registered. See https://github.com/microsoft/fluentui/wiki/Using-icons for more information.
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\BudgetComparisonView.test.js (duration: 15.608s, 6 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\DataManagementView.test.js
+[test:jest] |console.error| Warning: An update to SearchBox inside a test was not wrapped in act(...).
+[test:jest] |console.error| 
+[test:jest] |console.error| When testing, code that causes React state updates should be wrapped into act(...):
+[test:jest] |console.error| 
+[test:jest] |console.error| act(() => {
+[test:jest] |console.error|   /* fire events that update state */
+[test:jest] |console.error| });
+[test:jest] |console.error| /* assert on the output */
+[test:jest] |console.error| 
+[test:jest] |console.error| This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+[test:jest] |console.error|     at SearchBox (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\intranetShell\components\SearchBox\SearchBox.tsx:121:3)
+[test:jest] |console.error| Warning: An update to SearchBox inside a test was not wrapped in act(...).
+[test:jest] |console.error| 
+[test:jest] |console.error| When testing, code that causes React state updates should be wrapped into act(...):
+[test:jest] |console.error| 
+[test:jest] |console.error| act(() => {
+[test:jest] |console.error|   /* fire events that update state */
+[test:jest] |console.error| });
+[test:jest] |console.error| /* assert on the output */
+[test:jest] |console.error| 
+[test:jest] |console.error| This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+[test:jest] |console.error|     at SearchBox (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\intranetShell\components\SearchBox\SearchBox.tsx:121:3)
+[test:jest] |console.error| Warning: An update to SearchBox inside a test was not wrapped in act(...).
+[test:jest] |console.error| 
+[test:jest] |console.error| When testing, code that causes React state updates should be wrapped into act(...):
+[test:jest] |console.error| 
+[test:jest] |console.error| act(() => {
+[test:jest] |console.error|   /* fire events that update state */
+[test:jest] |console.error| });
+[test:jest] |console.error| /* assert on the output */
+[test:jest] |console.error| 
+[test:jest] |console.error| This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+[test:jest] |console.error|     at SearchBox (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\intranetShell\components\SearchBox\SearchBox.tsx:121:3)
+[test:jest] |console.error| Warning: An update to SearchBox inside a test was not wrapped in act(...).
+[test:jest] |console.error| 
+[test:jest] |console.error| When testing, code that causes React state updates should be wrapped into act(...):
+[test:jest] |console.error| 
+[test:jest] |console.error| act(() => {
+[test:jest] |console.error|   /* fire events that update state */
+[test:jest] |console.error| });
+[test:jest] |console.error| /* assert on the output */
+[test:jest] |console.error| 
+[test:jest] |console.error| This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+[test:jest] |console.error|     at SearchBox (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\intranetShell\components\SearchBox\SearchBox.tsx:121:3)
+[test:jest] |console.error| Warning: An update to SearchBox inside a test was not wrapped in act(...).
+[test:jest] |console.error| 
+[test:jest] |console.error| When testing, code that causes React state updates should be wrapped into act(...):
+[test:jest] |console.error| 
+[test:jest] |console.error| act(() => {
+[test:jest] |console.error|   /* fire events that update state */
+[test:jest] |console.error| });
+[test:jest] |console.error| /* assert on the output */
+[test:jest] |console.error| 
+[test:jest] |console.error| This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+[test:jest] |console.error|     at SearchBox (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\intranetShell\components\SearchBox\SearchBox.tsx:121:3)
+[test:jest] PASS lib-commonjs\webparts\intranetShell\components\SearchBox\SearchBox.test.js (duration: 41.393s, 13 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\intranetShell\components\IntranetShell.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\AuditTimeline.test.js (duration: 12.308s, 6 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\pmDashboard\models\propertyMeHelpers.test.js
+[test:jest] |console.error| Warning: An update to TemplatePickerDialog inside a test was not wrapped in act(...).
+[test:jest] |console.error| 
+[test:jest] |console.error| When testing, code that causes React state updates should be wrapped into act(...):
+[test:jest] |console.error| 
+[test:jest] |console.error| act(() => {
+[test:jest] |console.error|   /* fire events that update state */
+[test:jest] |console.error| });
+[test:jest] |console.error| /* assert on the output */
+[test:jest] |console.error| 
+[test:jest] |console.error| This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+[test:jest] |console.error|     at TemplatePickerDialog (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\marketingBudget\components\TemplatePickerDialog.tsx:55:9)
+[test:jest] |console.error| Warning: An update to TemplatePickerDialog inside a test was not wrapped in act(...).
+[test:jest] |console.error| 
+[test:jest] |console.error| When testing, code that causes React state updates should be wrapped into act(...):
+[test:jest] |console.error| 
+[test:jest] |console.error| act(() => {
+[test:jest] |console.error|   /* fire events that update state */
+[test:jest] |console.error| });
+[test:jest] |console.error| /* assert on the output */
+[test:jest] |console.error| 
+[test:jest] |console.error| This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+[test:jest] |console.error|     at TemplatePickerDialog (D:\Development\Repos\DDRE Intranet\ddre-intranet-sharepoint\spfx\intranet-core\src\webparts\marketingBudget\components\TemplatePickerDialog.tsx:55:9)
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\TemplatePickerDialog.test.js (duration: 42.026s, 9 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\pmDashboard\models\pmHelpers.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\LineItemEditor.test.js (duration: 42.212s, 14 passed, 0 failed)
+[test:jest] START lib-commonjs\webparts\marketingBudget\components\BudgetTotals.test.js
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\models\exportHelpers.test.js (duration: 6.842s, 9 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\SaveTemplateDialog.test.js (duration: 18.194s, 9 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\ScheduleLineItemEditor.test.js (duration: 18.241s, 12 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\models\permissions.test.js (duration: 7.711s, 23 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\VendorsView.test.js (duration: 45.642s, 12 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\SchedulesView.test.js (duration: 46.583s, 11 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\intranetShell\components\services\DexieShellAuditLogger.test.js (duration: 7.406s, 11 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\pmDashboard\models\dateHelpers.test.js (duration: 8.030s, 20 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\pmDashboard\services\listSchemas.test.js (duration: 6.584s, 10 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\BudgetPrintView.test.js (duration: 10.498s, 12 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\SuburbsView.test.js (duration: 48.270s, 13 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\pmDashboard\models\pmHelpers.test.js (duration: 6.563s, 12 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\pmDashboard\models\propertyMeHelpers.test.js (duration: 6.930s, 18 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\BudgetTotals.test.js (duration: 7.194s, 6 passed, 0 failed)
+[test:jest] FAIL lib-commonjs\webparts\marketingBudget\components\BudgetListView.test.js (duration: 18.919s, 0 passed, 2 failed)
+[test:jest]   ΓùÅ BudgetListView import/export settings ΓÇ║ exports data from Settings
+[test:jest] 
+[test:jest]     thrown: "Exceeded timeout of 5000 ms for a test.
+[test:jest]     Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+[test:jest] 
+[test:jest]        95 |   });
+[test:jest]        96 |
+[test:jest]     >  97 |   it("exports data from Settings", async () => {
+[test:jest]           |   ^
+[test:jest]        98 |     const repository = createMockRepository();
+[test:jest]        99 |
+[test:jest]       100 |     render(
+[test:jest] 
+[test:jest]       at src/webparts/marketingBudget/components/BudgetListView.test.tsx:97:3
+[test:jest]       at Object.<anonymous> (src/webparts/marketingBudget/components/BudgetListView.test.tsx:70:1)
+[test:jest] 
+[test:jest]   ΓùÅ BudgetListView import/export settings ΓÇ║ imports data from Settings and triggers parent refresh
+[test:jest] 
+[test:jest]     TestingLibraryElementError: Unable to find a label with the text of: Import MB data file
+[test:jest] 
+[test:jest]     Ignored nodes: comments, script, style
+[test:jest]     <body
+[test:jest]       class=""
+[test:jest]     >
+[test:jest]       <div
+[test:jest]         id="fluent-default-layer-host"
+[test:jest]         style="position: fixed; z-index: 1000000;"
+[test:jest]       />
+[test:jest]       <div>
+[test:jest]         <div
+[test:jest]           class="viewContainer"
+[test:jest]         >
+[test:jest]           <div
+[test:jest]             class="viewHeader"
+[test:jest]           >
+[test:jest]             <span
+[test:jest]               class="viewTitle css-109"
+[test:jest]             >
+[test:jest]               Budgets
+[test:jest]             </span>
+[test:jest]             <span
+[test:jest]               class="viewSubtitle css-109"
+[test:jest]             >
+[test:jest]               Property marketing budgets ΓÇö create, edit, and track approvals.
+[test:jest]             </span>
+[test:jest]           </div>
+[test:jest]           <div
+[test:jest]             class="filterBar"
+[test:jest]           >
+[test:jest]             <div
+[test:jest]               class="ms-SearchBox filterSearch root-110"
+[test:jest]             >
+[test:jest]               <div
+[test:jest]                 aria-hidden="true"
+[test:jest]                 class="ms-SearchBox-iconContainer iconContainer-111"
+[test:jest]               >
+[test:jest]                 <i
+[test:jest]                   aria-hidden="true"
+[test:jest]                   class="ms-SearchBox-icon icon-117"
+[test:jest]                   data-icon-name="Search"
+[test:jest]                 >
+[test:jest]                   ε£í
+[test:jest]                 </i>
+[test:jest]               </div>
+[test:jest]               <input
+[test:jest]                 class="ms-SearchBox-field field-114"
+[test:jest]                 id="SearchBox48"
+[test:jest]                 placeholder="Search by addressΓÇª"
+[test:jest]                 role="searchbox"
+[test:jest]                 value=""
+[test:jest]               />
+[test:jest]             </div>
+[test:jest]             <div
+[test:jest]               class="ms-Dropdown-container filterDropdown"
+[test:jest]             >
+[test:jest]               <div
+[test:jest]                 aria-expanded="false"
+[test:jest]                 aria-haspopup="listbox"
+[test:jest]                 aria-invalid="false"
+[test:jest]                 class="ms-Dropdown dropdown-118"
+[test:jest]                 data-is-focusable="true"
+[test:jest]                 data-ktp-target="true"
+[test:jest]                 id="Dropdown49"
+[test:jest]                 role="combobox"
+[test:jest]                 tabindex="0"
+[test:jest]               >
+[test:jest]                 <span
+[test:jest]                   class="ms-Dropdown-title title-157"
+[test:jest]                   id="Dropdown49-option"
+[test:jest]                 >
+[test:jest]                   All statuses
+[test:jest]                 </span>
+[test:jest]                 <span
+[test:jest]                   class="ms-Dropdown-caretDownWrapper caretDownWrapper-120"
+[test:jest]                 >
+[test:jest]                   <i
+[test:jest]                     aria-hidden="true"
+[test:jest]                     class="ms-Dropdown-caretDown caretDown-136"
+[test:jest]                     data-icon-name="ChevronDown"
+[test:jest]                   >
+[test:jest]                     ε£ì
+[test:jest]                   </i>
+[test:jest]                 </span>
+[test:jest]               </div>
+[test:jest]             </div>
+[test:jest]             <button
+[test:jest]               class="ms-Button ms-Button--default root-137"
+[test:jest]               data-is-focusable="true"
+[test:jest]               type="button"
+[test:jest]             >
+[test:jest]               <span
+[test:jest]                 class="ms-Button-flexContainer flexContainer-138"
+[test:jest]                 data-automationid="splitbuttonprimary"
+[test:jest]               >
+[test:jest]                 <i
+[test:jest]                   aria-hidden="true"
+[test:jest]                   class="ms-Icon root-105 css-116 ms-Button-icon icon-140"
+[test:jest]                   data-icon-name="Settings"
+[test:jest]                   style="font-family: \"FabricMDL2Icons\";"
+[test:jest]                 >
+[test:jest]                   ε£ô
+[test:jest]                 </i>
+[test:jest]                 <span
+[test:jest]                   class="ms-Button-textContainer textContainer-139"
+[test:jest]                 >
+[test:jest]                   <span
+[test:jest]                     class="ms-Button-label label-141"
+[test:jest]                     id="id__50"
+[test:jest]                   >
+[test:jest]                     Settings
+[test:jest]                   </span>
+[test:jest]                 </span>
+[test:jest]               </span>
+[test:jest]             </button>
+[test:jest]             <button
+[test:jest]               class="ms-Button ms-Button--primary root-145"
+[test:jest]               data-is-focusable="true"
+[test:jest]               type="button"
+[test:jest]             >
+[test:jest]               <span
+[test:jest]                 class="ms-Button-flexContainer flexContainer-138"
+[test:jest]                 data-automationid="splitbuttonprimary"
+[test:jest]               >
+[test:jest]                 <i
+[test:jest]                   aria-hidden="true"
+[test:jest]                   class="ms-Icon root-105 css-116 ms-Button-icon icon-140"
+[test:jest]                   data-icon-name="Add"
+[test:jest]                   style="font-family: \"FabricMDL2Icons\";"
+[test:jest]                 >
+[test:jest]                   ε£É
+[test:jest]                 </i>
+[test:jest]                 <span
+[test:jest]                   class="ms-Button-textContainer textContainer-139"
+[test:jest]                 >
+[test:jest]                   <span
+[test:jest]                     class="ms-Button-label label-141"
+[test:jest]                     id="id__53"
+[test:jest]                   >
+[test:jest]                     New Budget
+[test:jest]                   </span>
+[test:jest]                 </span>
+[test:jest]               </span>
+[test:jest]             </button>
+[test:jest]           </div>
+[test:jest]           <div
+[test:jest]             class="listScrollPane"
+[test:jest]           >
+[test:jest]             <div
+[test:jest]               class="ms-Viewport"
+[test:jest]               style="min-width: 1px; min-height: 1px;"
+[test:jest]             >
+[test:jest]               <div
+[test:jest]                 class="ms-DetailsList is-horizontalConstrained root-158"
+[test:jest]                 data-automationid="DetailsList"
+[test:jest]                 data-is-scrollable="false"
+[test:jest]               >
+[test:jest]                 <div
+[test:jest]                   aria-colcount="6"
+[test:jest]                   aria-rowcount="2"
+[test:jest]                   role="grid"
+[test:jest]                 >
+[test:jest]                   <div
+[test:jest]                     class="ms-DetailsList-headerWrapper"
+[test:jest]                     role="presentation"
+[test:jest]                   >
+[test:jest]                     <div
+[test:jest]                       class="ms-FocusZone css-176 ms-DetailsHeader root-160"
+[test:jest]                       data-automationid="DetailsHeader"
+[test:jest]                       data-focuszone-id="FocusZone63"
+[test:jest]                       data-tabster=...
+[test:jest] 
+[test:jest]       142 |     fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+[test:jest]       143 |
+[test:jest]     > 144 |     const input = screen.getByLabelText("Import MB data file");
+[test:jest]           |                          ^
+[test:jest]       145 |     const file = new File(
+[test:jest]       146 |       [
+[test:jest]       147 |         JSON.stringify({
+[test:jest] 
+[test:jest]       at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+[test:jest]       at getAllByLabelText (node_modules/@testing-library/dom/dist/queries/label-text.js:103:38)
+[test:jest]       at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+[test:jest]       at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+[test:jest]       at src/webparts/marketingBudget/components/BudgetListView.test.tsx:144:26
+[test:jest]       at step (node_modules/tslib/tslib.js:143:27)
+[test:jest]       at Object.next (node_modules/tslib/tslib.js:124:57)
+[test:jest]       at fulfilled (node_modules/tslib/tslib.js:114:62)
+[test:jest] 
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\DataManagementView.test.js (duration: 8.081s, 6 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\ServicesView.test.js (duration: 50.037s, 15 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\intranetShell\components\IntranetShell.test.js (duration: 9.264s, 5 passed, 0 failed)
+[test:jest] |  console.log| [AuditLogger] Dev mode - logging to console. Session: d5ba2107-eee7-4b79-b157-83227ba5bf11
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] |  console.log| [Audit] content_view:dashboard_viewed { hub: 'administration', tool: 'audit-logs' }
+[test:jest] PASS lib-commonjs\webparts\intranetShell\components\AuditLogViewer\AuditLogViewer.test.js (duration: 52.939s, 17 passed, 0 failed)
+[test:jest] PASS lib-commonjs\webparts\marketingBudget\components\MarketingBudget.test.js (duration: 53.409s, 19 passed, 0 failed)
+[test:jest] 
+[test:jest] Tests finished:
+[test:jest]   Successes: 551
+[test:jest]   Failures: 2
+[test:jest]   Total: 553
+[test:jest] Error: 2 Jest tests failed
+ ---- test encountered an error (58.708s) ---- 
+-------------------- Failed (108.243s) --------------------
+Encountered 1 error
+  [test:jest] 2 Jest tests failed

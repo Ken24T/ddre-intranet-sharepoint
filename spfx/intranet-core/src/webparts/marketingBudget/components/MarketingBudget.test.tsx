@@ -188,7 +188,7 @@ describe("MarketingBudget component", () => {
 
   it("auto-seeds when the database is empty", async () => {
     const repo = createMockRepository({ preSeeded: false });
-    render(<MarketingBudget {...defaultProps} repository={repo} />);
+    render(<MarketingBudget {...defaultProps} userRole="admin" repository={repo} />);
 
     await waitFor(() => {
       expect(repo.seedData).toHaveBeenCalledTimes(1);
@@ -201,6 +201,17 @@ describe("MarketingBudget component", () => {
 
     await waitFor(() => {
       expect(screen.getByText("2 vendors")).toBeInTheDocument();
+    });
+    expect(repo.seedData).not.toHaveBeenCalled();
+  });
+
+  it("does not auto-seed for viewer role even when database is empty", async () => {
+    const repo = createMockRepository({ preSeeded: false });
+    render(<MarketingBudget {...defaultProps} userRole="viewer" repository={repo} />);
+
+    // Viewer sees the "No reference data found" placeholder but seed is NOT triggered
+    await waitFor(() => {
+      expect(screen.getByText(/No reference data found/)).toBeInTheDocument();
     });
     expect(repo.seedData).not.toHaveBeenCalled();
   });
@@ -220,7 +231,7 @@ describe("MarketingBudget component", () => {
 
   it("shows seed complete notification after auto-seed", async () => {
     const repo = createMockRepository({ preSeeded: false });
-    render(<MarketingBudget {...defaultProps} repository={repo} />);
+    render(<MarketingBudget {...defaultProps} userRole="admin" repository={repo} />);
 
     await waitFor(() => {
       expect(screen.getByText(/Reference data seeded/)).toBeInTheDocument();
@@ -246,31 +257,30 @@ describe("MarketingBudget component", () => {
   // ─── View Routing (Stage 3) ─────────────────────────────
 
   describe("view routing", () => {
-    it("shows BudgetListView by default when data is loaded", async () => {
+    it("shows DashboardView by default when data is loaded", async () => {
       const repo = createMockRepository({ preSeeded: true });
       render(<MarketingBudget {...defaultProps} repository={repo} />);
 
       await waitFor(() => {
-        // BudgetListView renders its own "Budgets" header
-        expect(screen.getByText("Budgets")).toBeInTheDocument();
+        // DashboardView renders its own "Dashboard" header
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
       });
     });
 
-    it('shows "No budgets yet" when no budgets exist', async () => {
-      const repo = createMockRepository({ preSeeded: true, budgets: [] });
-      render(<MarketingBudget {...defaultProps} repository={repo} />);
-
-      await waitFor(() => {
-        expect(screen.getByText("No budgets yet")).toBeInTheDocument();
-      });
-    });
-
-    it("renders budget rows in BudgetListView when budgets exist", async () => {
+    it("switches to BudgetListView and shows budgets", async () => {
       const repo = createMockRepository({
         preSeeded: true,
         budgets: mockBudgets,
       });
       render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
+      });
+
+      // Click Budgets nav item to switch views
+      const budgetsBtn = screen.getByRole("button", { name: /Budgets/i });
+      fireEvent.click(budgetsBtn);
 
       await waitFor(() => {
         expect(screen.getByText("123 Test St")).toBeInTheDocument();
@@ -280,10 +290,10 @@ describe("MarketingBudget component", () => {
 
     it("switches to Schedules view when nav item clicked", async () => {
       const repo = createMockRepository({ preSeeded: true });
-      render(<MarketingBudget {...defaultProps} repository={repo} />);
+      render(<MarketingBudget {...defaultProps} userRole="admin" repository={repo} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Budgets")).toBeInTheDocument();
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
       });
 
       // In standalone mode, sidebar nav items are rendered as buttons
@@ -299,10 +309,10 @@ describe("MarketingBudget component", () => {
 
     it("switches to Services view when nav item clicked", async () => {
       const repo = createMockRepository({ preSeeded: true });
-      render(<MarketingBudget {...defaultProps} repository={repo} />);
+      render(<MarketingBudget {...defaultProps} userRole="admin" repository={repo} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Budgets")).toBeInTheDocument();
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
       });
 
       const servicesBtn = screen.getByRole("button", { name: /Services/i });
@@ -317,10 +327,10 @@ describe("MarketingBudget component", () => {
 
     it("switches to Vendors view when nav item clicked", async () => {
       const repo = createMockRepository({ preSeeded: true });
-      render(<MarketingBudget {...defaultProps} repository={repo} />);
+      render(<MarketingBudget {...defaultProps} userRole="admin" repository={repo} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Budgets")).toBeInTheDocument();
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
       });
 
       const vendorsBtn = screen.getByRole("button", { name: /Vendors/i });
@@ -335,10 +345,10 @@ describe("MarketingBudget component", () => {
 
     it("switches to Suburbs view when nav item clicked", async () => {
       const repo = createMockRepository({ preSeeded: true });
-      render(<MarketingBudget {...defaultProps} repository={repo} />);
+      render(<MarketingBudget {...defaultProps} userRole="admin" repository={repo} />);
 
       await waitFor(() => {
-        expect(screen.getByText("Budgets")).toBeInTheDocument();
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
       });
 
       const suburbsBtn = screen.getByRole("button", { name: /Suburbs/i });
@@ -355,30 +365,76 @@ describe("MarketingBudget component", () => {
   // ─── Standalone Sidebar (Stage 3) ───────────────────────
 
   describe("standalone sidebar", () => {
-    it("renders sidebar nav items in standalone mode", async () => {
+    it("renders all sidebar nav items for admin role", async () => {
       const repo = createMockRepository({ preSeeded: true });
-      render(<MarketingBudget {...defaultProps} repository={repo} />);
+      render(<MarketingBudget {...defaultProps} userRole="admin" repository={repo} />);
 
       await waitFor(() => {
         expect(screen.getByText("Budgets")).toBeInTheDocument();
       });
 
-      // All five nav items should be visible as buttons
+      // All eight nav items should be visible as buttons for admin
+      expect(
+        screen.getByRole("button", { name: /^Dashboard$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /^Budgets$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /^Compare$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /^Schedules$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /^Services$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /^Vendors$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /^Suburbs$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /^Data Mgmt$/i }),
+      ).toBeInTheDocument();
+    });
+
+    it("only renders public nav items for viewer role", async () => {
+      const repo = createMockRepository({ preSeeded: true });
+      render(<MarketingBudget {...defaultProps} repository={repo} />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Dashboard")).toBeInTheDocument();
+      });
+
+      // Public items visible
+      expect(
+        screen.getByRole("button", { name: /Dashboard/i }),
+      ).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /Budgets/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: /Schedules/i }),
+        screen.getByRole("button", { name: /Compare/i }),
       ).toBeInTheDocument();
+
+      // Admin-only items hidden
       expect(
-        screen.getByRole("button", { name: /Services/i }),
-      ).toBeInTheDocument();
+        screen.queryByRole("button", { name: /Schedules/i }),
+      ).not.toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: /Vendors/i }),
-      ).toBeInTheDocument();
+        screen.queryByRole("button", { name: /Services/i }),
+      ).not.toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: /Suburbs/i }),
-      ).toBeInTheDocument();
+        screen.queryByRole("button", { name: /Vendors/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /Suburbs/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /Data Mgmt/i }),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -415,9 +471,9 @@ describe("MarketingBudget component", () => {
             items: expect.arrayContaining([
               expect.objectContaining({ key: "budgets", label: "Budgets" }),
             ]),
-            activeKey: "budgets",
+            activeKey: "dashboard",
           }),
-          "*",
+          window.location.origin,
         );
       });
 
@@ -441,7 +497,7 @@ describe("MarketingBudget component", () => {
 
     it("navigates to a view when SIDEBAR_NAVIGATE message received", async () => {
       const repo = createMockRepository({ preSeeded: true });
-      render(<MarketingBudget {...defaultProps} repository={repo} />);
+      render(<MarketingBudget {...defaultProps} userRole="admin" repository={repo} />);
 
       // Header is hidden in embedded mode; wait for data status bar instead
       await waitFor(() => {

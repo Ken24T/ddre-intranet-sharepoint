@@ -3,6 +3,8 @@
  */
 
 import type { IBudgetRepository } from "../services/IBudgetRepository";
+import type { IBudgetAuditLogger } from "../services/IAuditLogger";
+import type { IBudgetTemplateService } from "../services/IBudgetTemplateService";
 import type { UserRole } from "../models/permissions";
 
 export interface IMarketingBudgetProps {
@@ -14,6 +16,10 @@ export interface IMarketingBudgetProps {
   isSharePointContext: boolean;
   /** Repository instance for data operations. */
   repository: IBudgetRepository;
+  /** Optional audit logger for displaying change history. */
+  auditLogger?: IBudgetAuditLogger;
+  /** Optional template service for saving/loading budget templates. */
+  templateService?: IBudgetTemplateService;
   /** User's role — determines what actions are available. Defaults to 'viewer'. */
   userRole?: UserRole;
   /**

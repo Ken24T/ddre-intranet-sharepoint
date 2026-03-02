@@ -3,6 +3,7 @@ import { Icon } from '@fluentui/react';
 import styles from '../IntranetShell.module.scss';
 import { useAudit } from '../AuditContext';
 import type { IAppNavItem } from '../appBridge';
+import type { HubKey } from '../services/ShellGroupResolver';
 
 export interface ISidebarProps {
   isCollapsed: boolean;
@@ -10,6 +11,8 @@ export interface ISidebarProps {
   hasFavourites?: boolean;
   /** Whether the current user has admin privileges */
   isAdmin?: boolean;
+  /** Hub keys the user is allowed to see (from ShellGroupResolver) */
+  visibleHubs?: HubKey[];
   /** Whether there are unread release notes */
   hasUnreadReleases?: boolean;
   /** App-provided nav items that replace the hub nav (except Home). */
@@ -47,6 +50,7 @@ export const Sidebar: React.FC<ISidebarProps> = ({
   activeHubKey = 'home',
   hasFavourites = false,
   isAdmin = false,
+  visibleHubs,
   hasUnreadReleases = false,
   appNavItems,
   appActiveKey,
@@ -75,10 +79,12 @@ export const Sidebar: React.FC<ISidebarProps> = ({
   };
 
   const orderedItems = React.useMemo(() => {
-    // Filter out Administration hub for non-admin users
-    let items = isAdmin
-      ? navItems
-      : navItems.filter((item) => item.key !== 'administration');
+    // Filter hubs by user's group-based access
+    let items = visibleHubs
+      ? navItems.filter((item) => visibleHubs.indexOf(item.key as HubKey) !== -1)
+      : isAdmin
+        ? navItems
+        : navItems.filter((item) => item.key !== 'administration');
 
     if (hasFavourites) {
       const favouriteItem: INavItem = { key: 'favourites', label: 'Favourites', icon: 'Heart' };
@@ -90,7 +96,7 @@ export const Sidebar: React.FC<ISidebarProps> = ({
     }
 
     return items;
-  }, [hasFavourites, isAdmin]);
+  }, [hasFavourites, isAdmin, visibleHubs]);
 
   return (
     <aside

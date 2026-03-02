@@ -40,7 +40,8 @@ Output:
 
 Notes:
 
-- `skipFeatureDeployment` is enabled in `config/package-solution.json`, which supports tenant-wide deployment (still requires governance approval).
+- `skipFeatureDeployment` is enabled in `config/package-solution.json`,
+  which supports tenant-wide deployment (still requires governance approval).
 - `includeClientSideAssets` is enabled, so assets are packaged with the solution rather than requiring a separate CDN.
 
 ## Add the web part to a site/page
@@ -54,13 +55,17 @@ Notes:
 - **Home page** — IntranetShell web part (full-width, provides navbar/sidebar/cards)
 - **App-specific pages** — Individual web parts (e.g. Marketing Budget) on dedicated pages,
   navigated to from the shell's cards or sidebar
+
 ## Environment configuration
 
 - Authentication is Microsoft Entra ID SSO; there are no deployment-time secrets for the SPFx package.
-- Any external integrations (Vault API, AI/RAG) must be served via Azure proxy services; the SPFx web parts should only call those proxies.
+- Any external integrations (Vault API, AI/RAG) must be served via Azure proxy
+  services; the SPFx web parts should only call those proxies.
 
 ## Troubleshooting
 
-- **Workbench URL doesn?t load**: `config/serve.json` uses `https://{tenantDomain}/_layouts/workbench.aspx`; replace `{tenantDomain}` with your tenant domain during local dev, or use a tenant-based workbench.
+- **Workbench URL doesn’t load**: `config/serve.json` uses
+  `https://{tenantDomain}/_layouts/workbench.aspx`; replace `{tenantDomain}`
+  with your tenant domain during local dev, or use a tenant-based workbench.
 - **Web part not available**: confirm the `.sppkg` is deployed, the app is added to the site, and the user has permissions.
 - **Build fails on Node version**: ensure you are using the Node version pinned by `.nvmrc`.

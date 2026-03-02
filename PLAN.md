@@ -698,6 +698,7 @@ All apps are delivered as **web parts inside the single `intranet-core` solution
 One `npm install`, one build, one `.sppkg`, one deployment.
 
 To add a new app:
+
 1. Define requirements in `apps/app-<name>/`
 2. Create web part at `spfx/intranet-core/src/webparts/<camelCaseName>/`
 3. Register bundle + localised resources in `config/config.json`
@@ -711,7 +712,7 @@ To add a new app:
 
 Embedded Cognito Forms for internal requests.
 
-- [ ] Define requirements in `apps/app-cognito-forms/`
+- [x] Define requirements in `apps/app-cognito-forms/`
 - [ ] Create web part at `spfx/intranet-core/src/webparts/cognitoForms/`
 - [ ] Register in `config/config.json`
 - [ ] Implement form embedding component
@@ -725,7 +726,7 @@ Embedded Cognito Forms for internal requests.
 
 AI-powered document library search using Dante AI.
 
-- [ ] Define requirements in `apps/app-dante-library/`
+- [x] Define requirements in `apps/app-dante-library/`
 - [ ] Create web part at `spfx/intranet-core/src/webparts/danteLibrary/`
 - [ ] Register in `config/config.json`
 - [ ] Implement Dante AI chat integration
@@ -762,13 +763,17 @@ Marketing budget tracking and reporting for sales & marketing teams.
 
 **Phase 2B–D — Enhancement & Production Readiness (Planned):**
 
-- [ ] Budget validation and bulk status transitions
+- [x] Budget validation and bulk status transitions
+- [x] Budget duplication (deep-copy with address/schedule edit)
 - [ ] Reference data edit panels (vendors, services, suburbs, schedules)
 - [ ] Dashboard view (spend by category, status breakdown, tier analysis)
 - [ ] Print/PDF and CSV export
 - [ ] PropertyMe API integration for property auto-fill
-- [ ] Audit trail and budget templates
-- [ ] Shared appBridge package extraction
+- [x] Audit trail (budget-specific + unified shell audit + hover flyout + field-level change tracking)
+- [x] Budget templates (BudgetTemplate types, Dexie DB v3, IBudgetTemplateService + DexieBudgetTemplateService, SaveTemplateDialog, TemplatePickerDialog)
+- [x] Drag-and-drop line item reordering (@dnd-kit/sortable, SortableLineItem)
+- [x] Shared appBridge package extraction (`@ddre/pkg-app-bridge`)
+- [x] Notifications — Budget approval notifications via AppBridge NOTIFICATION_UPDATE protocol
 
 > **Detailed plan:** `docs/functional/marketing-budget/PLAN.md`
 
@@ -804,7 +809,7 @@ PropertyMe data visualisation dashboard.
 
 QR code generation utility for business use.
 
-- [ ] Define requirements in `apps/app-qrcoder/`
+- [x] Define requirements in `apps/app-qrcoder/`
 - [ ] Create web part at `spfx/intranet-core/src/webparts/qrCoder/`
 - [ ] Register in `config/config.json`
 - [ ] Select QR code generation library
@@ -819,7 +824,7 @@ QR code generation utility for business use.
 
 Internal survey creation and management.
 
-- [ ] Define requirements in `apps/app-surveys/`
+- [x] Define requirements in `apps/app-surveys/`
 - [ ] Create web part at `spfx/intranet-core/src/webparts/surveys/`
 - [ ] Register in `config/config.json`
 - [ ] Design survey builder UI
@@ -834,7 +839,7 @@ Internal survey creation and management.
 
 Batch operations for Vault CRM data.
 
-- [ ] Define requirements in `apps/app-vault-batcher/`
+- [x] Define requirements in `apps/app-vault-batcher/`
 - [ ] Create web part at `spfx/intranet-core/src/webparts/vaultBatcher/`
 - [ ] Register in `config/config.json`
 - [ ] Define batch operation types

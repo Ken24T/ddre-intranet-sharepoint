@@ -1,0 +1,10 @@
+{
+  "name": "app-qrcoder",
+  "displayName": "QR Coder",
+  "owner": "Office",
+  "status": "planning",
+  "hub": "Office",
+  "webPart": "qrCoder",
+  "introduced": null,
+  "description": "QR code generation utility for business use."
+}
