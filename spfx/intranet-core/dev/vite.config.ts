@@ -11,6 +11,10 @@ export default defineConfig({
       '@mb-components': path.resolve(__dirname, '../src/webparts/marketingBudget/components'),
       '@mb-services': path.resolve(__dirname, '../src/webparts/marketingBudget/services'),
       '@mb-models': path.resolve(__dirname, '../src/webparts/marketingBudget/models'),
+      // PM Dashboard app sources
+      '@pmd-components': path.resolve(__dirname, '../src/webparts/pmDashboard/components'),
+      '@pmd-services': path.resolve(__dirname, '../src/webparts/pmDashboard/services'),
+      '@pmd-models': path.resolve(__dirname, '../src/webparts/pmDashboard/models'),
       // Resolve dnd-kit from dev/node_modules
       '@dnd-kit/core': path.resolve(__dirname, 'node_modules/@dnd-kit/core'),
       '@dnd-kit/sortable': path.resolve(__dirname, 'node_modules/@dnd-kit/sortable'),
