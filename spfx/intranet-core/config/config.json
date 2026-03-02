@@ -17,11 +17,20 @@
           "manifest": "./src/webparts/marketingBudget/MarketingBudgetWebPart.manifest.json"
         }
       ]
+    },
+    "pm-dashboard-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/pmDashboard/PmDashboardWebPart.js",
+          "manifest": "./src/webparts/pmDashboard/PmDashboardWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
   "localizedResources": {
     "IntranetShellWebPartStrings": "lib/webparts/intranetShell/loc/{locale}.js",
-    "MarketingBudgetWebPartStrings": "lib/webparts/marketingBudget/loc/{locale}.js"
+    "MarketingBudgetWebPartStrings": "lib/webparts/marketingBudget/loc/{locale}.js",
+    "PmDashboardWebPartStrings": "lib/webparts/pmDashboard/loc/{locale}.js"
   }
 }

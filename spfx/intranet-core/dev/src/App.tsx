@@ -3,6 +3,7 @@ import { ThemeProvider, createTheme } from '@fluentui/react';
 import { IntranetShell } from '@components/IntranetShell';
 import { IntranetShellWrapper } from '@components/IntranetShellWrapper';
 import { MarketingBudgetDevView } from './MarketingBudgetDevView';
+import { PmDashboardDevView } from './PmDashboardDevView';
 import packageJson from '../../package.json';
 
 // Mock SharePoint context for dev
@@ -20,8 +21,9 @@ const appVersion = packageJson.version || '0.0.0';
  * normally require a separate Vite dev server or SharePoint page.
  * Dev-only: keeps everything on a single port (3027).
  */
-const cardDetailRenderers: Record<string, React.ComponentType> = {
+const cardDetailRenderers: Record<string, React.ComponentType<{ isAdmin: boolean }>> = {
   'marketing-budgets': MarketingBudgetDevView,
+  'pm-dashboard': PmDashboardDevView,
 };
 
 const lightTheme = createTheme({

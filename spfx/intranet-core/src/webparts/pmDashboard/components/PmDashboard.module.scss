@@ -1,0 +1,424 @@
+/* PM Dashboard – Main stylesheet */
+
+.pmDashboard {
+  padding: 1rem;
+  color: "[theme:bodyText, default: #323130]";
+  font-family: "Segoe UI", "Segoe UI Web (West European)", -apple-system,
+    BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+
+  :global(.ms-Button.ms-Button--primary) {
+    background-color: var(--hub-accent, #001cad);
+    border-color: var(--hub-accent, #001cad);
+  }
+
+  :global(.ms-Button.ms-Button--primary:hover) {
+    background-color: var(--hub-accent, #001cad);
+    border-color: var(--hub-accent, #001cad);
+    filter: brightness(0.92);
+  }
+}
+
+/* ─── Header ──────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.titleArea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: "[theme:themePrimary, default: #001CAD]";
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ─── Section Cards ───────────────────────────────────── */
+
+.sectionsContainer {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  align-items: flex-start;
+}
+
+.sectionCard {
+  flex: 1 1 0;
+  min-width: 360px;
+  border: 1px solid "[theme:neutralLight, default: #edebe9]";
+  border-radius: 6px;
+  overflow: hidden;
+  background: "[theme:white, default: #ffffff]";
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.sectionHeaderVacates {
+  composes: sectionHeader;
+  background-color: #eab308;
+  color: #000000;
+}
+
+.sectionHeaderEntries {
+  composes: sectionHeader;
+  background-color: #22c55e;
+  color: #000000;
+}
+
+.sectionHeaderLost {
+  composes: sectionHeader;
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+.sectionBody {
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+/* ─── Table ───────────────────────────────────────────── */
+
+.dashboardTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.dashboardTable th {
+  padding: 4px 6px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: "[theme:bodySubtext, default: #605e5c]";
+  background-color: "[theme:neutralLighterAlt, default: #faf9f8]";
+  border-bottom: 1px solid "[theme:neutralLight, default: #edebe9]";
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.dashboardTable td {
+  padding: 2px 4px;
+  border-bottom: 1px solid "[theme:neutralLighter, default: #f3f2f1]";
+  vertical-align: middle;
+  min-width: 40px;
+}
+
+/* Column-specific widths */
+.colDate {
+  width: 55px;
+  min-width: 55px;
+}
+
+.colDay {
+  width: 36px;
+  min-width: 36px;
+}
+
+.colProperty {
+  min-width: 160px;
+}
+
+.colPm {
+  width: 36px;
+  min-width: 36px;
+  text-align: center;
+}
+
+.colCheckbox {
+  width: 36px;
+  min-width: 36px;
+  text-align: center;
+}
+
+.colReason,
+.colComments {
+  min-width: 100px;
+}
+
+/* ─── Rows ────────────────────────────────────────────── */
+
+.propertyRow {
+  transition: background-color 0.15s ease;
+}
+
+.propertyRow:hover {
+  filter: brightness(0.96);
+}
+
+.blankRow {
+  height: 8px;
+  background-color: "[theme:neutralLighterAlt, default: #faf9f8]";
+}
+
+.blankRow td {
+  padding: 0;
+  border-bottom: 1px solid "[theme:neutralLight, default: #edebe9]";
+}
+
+.dragHandle {
+  width: 20px;
+  min-width: 20px;
+  cursor: grab;
+  color: "[theme:neutralTertiary, default: #a19f9d]";
+  text-align: center;
+  font-size: 10px;
+  user-select: none;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.dragging {
+  opacity: 0.5;
+  background-color: "[theme:neutralLight, default: #edebe9]" !important;
+}
+
+/* ─── Cells ───────────────────────────────────────────── */
+
+.cell {
+  cursor: text;
+  position: relative;
+  outline: none;
+}
+
+.cell:focus-within {
+  box-shadow: inset 0 0 0 1px var(--hub-accent, #001cad);
+}
+
+.cellInput {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-family: inherit;
+  padding: 2px 0;
+  outline: none;
+  color: inherit;
+}
+
+.cellInput:focus {
+  outline: none;
+}
+
+.dateInput {
+  composes: cellInput;
+  width: 55px;
+}
+
+.dayCell {
+  color: "[theme:bodySubtext, default: #605e5c]";
+  font-size: 11px;
+  text-align: center;
+}
+
+.checkboxCell {
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxCell:hover {
+  background-color: "[theme:neutralLighter, default: #f3f2f1]";
+}
+
+.pmBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.propertyLink {
+  color: "[theme:themePrimary, default: #001CAD]";
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.propertyLink:hover {
+  text-decoration: underline;
+}
+
+/* ─── Context Menu ────────────────────────────────────── */
+
+.contextMenu {
+  position: fixed;
+  min-width: 180px;
+  background: "[theme:white, default: #ffffff]";
+  border: 1px solid "[theme:neutralLight, default: #edebe9]";
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  padding: 4px 0;
+}
+
+.contextMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: "[theme:bodyText, default: #323130]";
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.contextMenuItem:hover {
+  background-color: "[theme:neutralLighter, default: #f3f2f1]";
+}
+
+.contextMenuDivider {
+  height: 1px;
+  background-color: "[theme:neutralLight, default: #edebe9]";
+  margin: 4px 0;
+}
+
+.contextMenuDanger {
+  composes: contextMenuItem;
+  color: #d13438;
+}
+
+/* ─── PM Selector ─────────────────────────────────────── */
+
+.pmSelector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+}
+
+.pmOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.pmOption:hover {
+  filter: brightness(0.92);
+}
+
+.pmOptionSelected {
+  composes: pmOption;
+  border-color: "[theme:themePrimary, default: #001CAD]";
+}
+
+/* ─── Settings Panel ──────────────────────────────────── */
+
+.settingsPanel {
+  padding: 16px;
+}
+
+.pmList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pmListItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid "[theme:neutralLight, default: #edebe9]";
+  border-radius: 4px;
+}
+
+.pmColorSwatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid "[theme:neutralQuaternary, default: #d2d0ce]";
+  flex-shrink: 0;
+}
+
+.pmListItemName {
+  flex: 1;
+  font-size: 13px;
+}
+
+/* ─── Loading / Error States ──────────────────────────── */
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.errorContainer {
+  padding: 16px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 32px 16px;
+  color: "[theme:bodySubtext, default: #605e5c]";
+}
+
+.emptyState p {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+/* ─── Add Row Button ──────────────────────────────────── */
+
+.addRowButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: "[theme:bodySubtext, default: #605e5c]";
+  border-radius: 4px;
+}
+
+.addRowButton:hover {
+  background-color: "[theme:neutralLighter, default: #f3f2f1]";
+  color: "[theme:bodyText, default: #323130]";
+}

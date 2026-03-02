@@ -19,13 +19,17 @@
       "@components/*": ["../src/webparts/intranetShell/components/*"],
       "@mb-components/*": ["../src/webparts/marketingBudget/components/*"],
       "@mb-services/*": ["../src/webparts/marketingBudget/services/*"],
-      "@mb-models/*": ["../src/webparts/marketingBudget/models/*"]
+      "@mb-models/*": ["../src/webparts/marketingBudget/models/*"],
+      "@pmd-components/*": ["../src/webparts/pmDashboard/components/*"],
+      "@pmd-services/*": ["../src/webparts/pmDashboard/services/*"],
+      "@pmd-models/*": ["../src/webparts/pmDashboard/models/*"]
     },
     "baseUrl": "."
   },
   "include": [
     "src",
     "../src/webparts/intranetShell/components",
-    "../src/webparts/marketingBudget"
+    "../src/webparts/marketingBudget",
+    "../src/webparts/pmDashboard"
   ]
 }
