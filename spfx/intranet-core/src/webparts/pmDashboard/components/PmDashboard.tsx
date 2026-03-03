@@ -31,7 +31,7 @@ import {
 } from "../models/rowOperations";
 import { getDayOfWeek } from "../models/dateHelpers";
 import { getInitials } from "../models/pmHelpers";
-import { getPropertyColumnIndex } from "../models/columnSchemas";
+import { getPropertyColumnIndex, SECTION_COLUMNS } from "../models/columnSchemas";
 import { SectionTable } from "./SectionTable";
 import { ContextMenu, type IContextMenuAction } from "./ContextMenu";
 import { PmSelector } from "./PmSelector";
@@ -45,6 +45,7 @@ import { PresenceBar } from "./PresenceBar";
 import { PollingRealtimeService } from "../services/PollingRealtimeService";
 import { useShellBridge } from "./useShellBridge";
 import type { PmDashboardView } from "./useShellBridge";
+import { usePmDashboardAudit } from "./usePmDashboardAudit";
 import { SummaryBar } from "./Widgets/SummaryBar";
 import { PortfolioView } from "./Widgets/PortfolioView";
 import { MaintenanceView } from "./Widgets/MaintenanceView";
@@ -211,6 +212,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const saveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const mountedRef = React.useRef(true);
+  const audit = usePmDashboardAudit();
 
   // ─── Pivot tab state ───────────────────────────────────
   const [activeTab, setActiveTab] = React.useState<string>("tables");
@@ -278,12 +280,13 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       .then((data) => {
         if (mountedRef.current) {
           dispatch({ type: "EXTERNAL_DATA_REFRESH", data: validateAndCleanData(data) });
+          audit.logDataSynced("polling");
         }
       })
       .catch((err) => {
         console.error("[PmDashboard] External data reload failed:", err);
       });
-  }, [repository]);
+  }, [repository, audit]);
 
   const { isConnected: realtimeConnected, onlineUsers } = useRealtimeSync({
     service: realtimeService,
@@ -316,6 +319,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
             propertyManagers: pms,
             columnWidths: colWidths,
           });
+          audit.logDashboardOpened();
         }
       } catch (err) {
         if (mountedRef.current) {
@@ -422,6 +426,10 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       colIndex: number,
       value: string,
     ): void => {
+      const oldRow = state.data[section].find((r) => r.id === rowId);
+      const oldValue = oldRow?.columns[colIndex] || "";
+      const columnName = SECTION_COLUMNS[section][colIndex] || `col${colIndex}`;
+
       let rows = updateCell(state.data[section], rowId, colIndex, value);
 
       // If Date column changed, recalculate Day column for entries
@@ -431,22 +439,38 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       }
 
       dispatch({ type: "UPDATE_SECTION", section, rows });
+
+      // Audit: determine event type from column
+      if (oldValue !== value) {
+        const CHECKBOX_COLUMNS = ["STS", "Sign", "KEY", "Signed", "BOND", "2WKS", "ECR"];
+        const isCheckbox = CHECKBOX_COLUMNS.indexOf(columnName) >= 0;
+        if (isCheckbox) {
+          audit.logCheckboxToggled(section, rowId, columnName, value === "✓");
+        } else {
+          audit.logCellEdited(section, rowId, columnName, oldValue, value);
+        }
+      }
     },
-    [state.data],
+    [state.data, audit],
   );
 
   // ─── PM change handler ────────────────────────────────
   const handlePmChange = React.useCallback(
     (section: DashboardSection, rowId: string, initials: string): void => {
+      const oldRow = state.data[section].find((r) => r.id === rowId);
+      const oldPm = oldRow?.pm || "";
       const rows = updateRowPm(state.data[section], rowId, section, initials);
       dispatch({ type: "UPDATE_SECTION", section, rows });
+      audit.logPmAssigned(section, rowId, oldPm, initials);
     },
-    [state.data],
+    [state.data, audit],
   );
 
   // ─── Date change handler (reorders by date) ───────────
   const handleDateChange = React.useCallback(
     (section: DashboardSection, rowId: string, value: string): void => {
+      const oldRow = state.data[section].find((r) => r.id === rowId);
+      const oldDate = oldRow?.columns[0] || "";
       let rows = updateCell(state.data[section], rowId, 0, value);
 
       // Recalculate Day for entries
@@ -459,8 +483,11 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       rows = reorderByDate(rows, rowId, value);
 
       dispatch({ type: "UPDATE_SECTION", section, rows });
+      if (oldDate !== value) {
+        audit.logDateChanged(section, rowId, oldDate, value);
+      }
     },
-    [state.data],
+    [state.data, audit],
   );
 
   // ─── Drag-and-drop reorder handler ────────────────────
@@ -480,8 +507,9 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       rows = updateDateFromDragPosition(rows, activeId, section);
 
       dispatch({ type: "UPDATE_SECTION", section, rows });
+      audit.logRowReordered(section, activeId, oldIndex, newIndex);
     },
-    [state.data],
+    [state.data, audit],
   );
 
   // ─── PropertyMe URL handler ───────────────────────────
@@ -504,8 +532,10 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
 
       const rows = [...state.data[section], newRow];
       dispatch({ type: "UPDATE_SECTION", section, rows });
+      audit.logPropertyMeUrlAdded(result.url, result.address);
+      audit.logRowAdded(section, newRow.id, "propertyme");
     },
-    [state.data, state.selectedPm, state.propertyManagers],
+    [state.data, state.selectedPm, state.propertyManagers, audit],
   );
 
   // ─── PropertyMe drag-and-drop handler ─────────────────
@@ -524,8 +554,10 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
 
       const rows = [...state.data[section], newRow];
       dispatch({ type: "UPDATE_SECTION", section, rows });
+      audit.logPropertyMeDrop(section, result.url, result.address);
+      audit.logRowAdded(section, newRow.id, "propertyme");
     },
-    [state.data, state.selectedPm],
+    [state.data, state.selectedPm, audit],
   );
 
   // ─── PropertyMe extension listener ────────────────────
@@ -554,8 +586,9 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       const newRow = createPropertyRow(section, activePm);
       const rows = [...state.data[section], newRow];
       dispatch({ type: "UPDATE_SECTION", section, rows });
+      audit.logRowAdded(section, newRow.id, "button");
     },
-    [state.data, state.selectedPm, state.propertyManagers],
+    [state.data, state.selectedPm, state.propertyManagers, audit],
   );
 
   // ─── Context menu handlers ────────────────────────────
@@ -597,6 +630,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           const newRow = createPropertyRow(section, activePm, inheritedDate);
           const rows = insertRow(state.data[section], newRow, rowId);
           dispatch({ type: "UPDATE_SECTION", section, rows });
+          audit.logRowAdded(section, newRow.id, "context-menu");
         },
       },
       {
@@ -606,6 +640,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
           const newRow = createBlankRow();
           const rows = insertRow(state.data[section], newRow, rowId);
           dispatch({ type: "UPDATE_SECTION", section, rows });
+          audit.logRowAdded(section, newRow.id, "context-menu");
         },
       },
       {
@@ -621,6 +656,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
                   r.id === rowId ? { ...r, propertyUrl: text.trim() } : r,
                 );
                 dispatch({ type: "UPDATE_SECTION", section, rows: updatedRows });
+                audit.logPropertyLinked(section, rowId, text.trim());
               }
             })
             .catch(console.error);
@@ -631,39 +667,63 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
         icon: "🗑️",
         danger: true,
         onClick: () => {
+          const row = state.data[section].find((r) => r.id === rowId);
+          const property = row?.columns[getPropertyColumnIndex(section)] || undefined;
           const rows = removeRow(state.data[section], rowId);
           dispatch({ type: "UPDATE_SECTION", section, rows });
+          audit.logRowDeleted(section, rowId, property);
         },
       },
     ];
-  }, [contextMenu, state.data, state.selectedPm, state.propertyManagers]);
+  }, [contextMenu, state.data, state.selectedPm, state.propertyManagers, audit]);
 
   // ─── PM Selector handler ──────────────────────────────
   const handleSelectPm = React.useCallback((initials: string): void => {
+    const previousPm = state.selectedPm;
     dispatch({ type: "SELECT_PM", initials });
     // Look up the PM's assigned colour
     const pm = state.propertyManagers.find(
       (p) => `${p.firstName[0] || ""}${p.lastName[0] || ""}`.toUpperCase() === initials,
     );
     realtimeService.setSelectedPm(initials, pm?.color || "");
-  }, [realtimeService, state.propertyManagers]);
+    audit.logPmSelected(initials, previousPm);
+  }, [realtimeService, state.propertyManagers, state.selectedPm, audit]);
 
   // ─── Settings handlers ────────────────────────────────
   const handleOpenSettings = React.useCallback((): void => {
     setSettingsOpen(true);
-  }, []);
+    audit.logSettingsPanelToggled(true);
+  }, [audit]);
 
   const handleCloseSettings = React.useCallback((): void => {
     setSettingsOpen(false);
     setActiveView("dashboard");
-  }, []);
+    audit.logSettingsPanelToggled(false);
+  }, [audit]);
 
   const handleSavePropertyManagers = React.useCallback(
     (pms: IPropertyManager[]): void => {
+      const oldCount = state.propertyManagers.length;
+      const newCount = pms.length;
       dispatch({ type: "SET_PROPERTY_MANAGERS", pms });
       repository.savePropertyManagers(pms).catch(console.error);
+
+      // Determine what changed for audit
+      if (newCount > oldCount) {
+        const added = pms.find(
+          (p) => !state.propertyManagers.some((op) => op.id === p.id),
+        );
+        audit.logPmSettingsUpdated("added", added ? `${added.firstName} ${added.lastName}` : "unknown");
+      } else if (newCount < oldCount) {
+        const removed = state.propertyManagers.find(
+          (op) => !pms.some((p) => p.id === op.id),
+        );
+        audit.logPmSettingsUpdated("deleted", removed ? `${removed.firstName} ${removed.lastName}` : "unknown");
+      } else {
+        audit.logPmSettingsUpdated("edited", `${newCount} PMs`);
+      }
     },
-    [repository],
+    [repository, state.propertyManagers, audit],
   );
 
   // ─── Render ────────────────────────────────────────────
@@ -724,7 +784,11 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
             <Pivot
               selectedKey={activeTab}
               onLinkClick={(item) => {
-                if (item?.props.itemKey) setActiveTab(item.props.itemKey);
+                if (item?.props.itemKey) {
+                  const fromView = activeTab;
+                  setActiveTab(item.props.itemKey);
+                  audit.logViewSwitched(fromView, item.props.itemKey);
+                }
               }}
             >
               <PivotItem headerText="Tables" itemKey="tables" itemIcon="Table" />

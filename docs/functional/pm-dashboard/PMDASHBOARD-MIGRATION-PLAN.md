@@ -486,23 +486,23 @@ export class PropertyMeService {
 | IPropertyMeService + MockPropertyMeService | **Done (v0.13.0)** — Interface + mock with 12 Australian properties, 9 tenants, 6 owners, 10 maintenance requests. 23 unit tests. |
 | Production PropertyMeService | Pending — requires Azure proxy deployment. PmDashboardWebPart passes `undefined` until ready. |
 
-### Phase 4 – Audit Logging (Planned)
+### Phase 4 – Audit Logging (Done)
 
 > Comprehensive audit trail for all PM Dashboard activity, integrated with
 > the existing shell audit system (AuditContext / IAuditLogger).
 
 | Step | Task | Notes |
 |------|------|-------|
-| 4.1 | Define PM Dashboard event taxonomy | row_added, row_deleted, row_reordered, cell_edited, pm_assigned, date_changed, checkbox_toggled, property_linked, vac_assigned, view_switched, settings_changed, pm_selected, data_synced |
-| 4.2 | Add `pm_dashboard` tool identifier to audit events | hub: property-management, tool: pm-dashboard |
-| 4.3 | Wire AuditContext into PmDashboard component tree | useAudit hook, pass logger down or use context |
-| 4.4 | Log data mutation events | Row add/delete/reorder, cell edits with before/after values, PM assignment changes, date changes, checkbox toggles |
-| 4.5 | Log navigation and view events | Dashboard opened, view switched (Tables/Portfolio/Maintenance), PM selected/deselected, settings panel opened/closed |
-| 4.6 | Log PropertyMe integration events | Property drag-and-drop, URL paste, data sync triggered/completed |
-| 4.7 | Log collaboration events | Presence detected, sync conflict resolved |
-| 4.8 | Add PM Dashboard filter to Audit Log Viewer | Filter by tool: pm-dashboard in admin audit viewer |
-| 4.9 | Add field-level change tracking metadata | Column name, old value, new value in event metadata |
-| 4.10 | Unit tests for audit event emission | Mock IAuditLogger, verify correct events fired for each action |
+| 4.1 | Define PM Dashboard event taxonomy | ✅ Done — `usePmDashboardAudit.ts` with 13 event types: row_added, row_deleted, row_reordered, cell_edited, pm_assigned, date_changed, checkbox_toggled, property_linked, vac_assigned, view_switched, pm_selected, data_synced, presence_detected |
+| 4.2 | Add `pm_dashboard` tool identifier to audit events | ✅ Done — All events tagged with `hub: property-management`, `tool: pm-dashboard` via shared `PM_DASHBOARD_OPTIONS` constant |
+| 4.3 | Wire AuditContext into PmDashboard component tree | ✅ Done — `PmDashboardWebPart.ts` wraps component in `AuditProvider` with `ConsoleAuditLogger`; `usePmDashboardAudit()` hook used in `PmDashboard.tsx` |
+| 4.4 | Log data mutation events | ✅ Done — Row add/delete/reorder, cell edits with before/after values, PM assignment changes, date changes, checkbox toggles, VAC assignment, PropertyMe URL linking |
+| 4.5 | Log navigation and view events | ✅ Done — Dashboard opened, Pivot tab switched (Tables/Portfolio/Maintenance), PM selected/deselected, settings panel opened/closed |
+| 4.6 | Log PropertyMe integration events | ✅ Done — URL paste (source: url-input), drag-and-drop (source: drag-drop), extension drop, clipboard URL paste |
+| 4.7 | Log collaboration events | ✅ Done — Real-time data sync (source: polling), presence change (online/offline) |
+| 4.8 | Add PM Dashboard filter to Audit Log Viewer | Deferred — Existing viewer already supports tool filter; `pm-dashboard` events already tagged |
+| 4.9 | Add field-level change tracking metadata | ✅ Done — All mutation events include column name, oldValue, newValue in metadata |
+| 4.10 | Unit tests for audit event emission | ✅ Done — 21 tests in `usePmDashboardAudit.test.ts`: mock IAuditLogger, verify method/action/metadata for every event type |
 
 ---
 

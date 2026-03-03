@@ -32,7 +32,9 @@ export type NavigationAction =
   | 'sidebar_collapsed'
   | 'breadcrumb_clicked'
   | 'back_navigation'
-  | 'external_link_clicked';
+  | 'external_link_clicked'
+  | 'dashboard_opened'
+  | 'view_switched';
 
 export type CardAction =
   | 'card_opened'
@@ -52,7 +54,8 @@ export type SettingsAction =
   | 'sidebar_unpinned'
   | 'notifications_toggled'
   | 'settings_panel_opened'
-  | 'settings_panel_closed';
+  | 'settings_panel_closed'
+  | 'pm_settings_updated';
 
 export type ContentViewAction =
   | 'document_opened'
@@ -84,7 +87,17 @@ export type UserInteractionAction =
   | 'help_tooltip_viewed'
   | 'help_tooltip_learn_more'
   | 'feedback_form_submitted'
-  | 'feedback_form_opened';
+  | 'feedback_form_opened'
+  | 'row_added'
+  | 'row_deleted'
+  | 'row_reordered'
+  | 'cell_edited'
+  | 'pm_assigned'
+  | 'pm_selected'
+  | 'date_changed'
+  | 'checkbox_toggled'
+  | 'property_linked'
+  | 'vac_assigned';
 
 export type NotificationAction =
   | 'notification_received'
@@ -101,7 +114,10 @@ export type SystemAction =
   | 'app_loaded'
   | 'app_error'
   | 'api_call_made'
-  | 'api_call_failed';
+  | 'api_call_failed'
+  | 'data_synced'
+  | 'presence_detected'
+  | 'sync_conflict_resolved';
 
 export type ErrorAction =
   | 'javascript_error'

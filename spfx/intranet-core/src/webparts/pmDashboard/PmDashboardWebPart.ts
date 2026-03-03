@@ -14,6 +14,8 @@ import type { IPmDashboardProps } from "./components/IPmDashboardProps";
 import type { IDashboardRepository } from "./services/IDashboardRepository";
 import type { IPresenceRepository } from "./services/IPresenceRepository";
 import { getSPFI, createDashboardRepository, createPresenceRepository } from "./services/RepositoryFactory";
+import { AuditProvider, ConsoleAuditLogger } from "../intranetShell/components/AuditContext";
+import type { IAuditLogger } from "../intranetShell/components/AuditContext";
 
 export interface IPmDashboardWebPartProps {
   description: string;
@@ -23,6 +25,7 @@ export default class PmDashboardWebPart extends BaseClientSideWebPart<IPmDashboa
   private _isDarkTheme: boolean = false;
   private _repository!: IDashboardRepository;
   private _presenceRepository!: IPresenceRepository;
+  private _auditLogger!: IAuditLogger;
 
   protected async onInit(): Promise<void> {
     await super.onInit();
@@ -31,10 +34,11 @@ export default class PmDashboardWebPart extends BaseClientSideWebPart<IPmDashboa
     const sp = getSPFI(this.context);
     this._repository = createDashboardRepository(sp);
     this._presenceRepository = createPresenceRepository(sp);
+    this._auditLogger = new ConsoleAuditLogger();
   }
 
   public render(): void {
-    const element: React.ReactElement<IPmDashboardProps> = React.createElement(
+    const dashboard: React.ReactElement<IPmDashboardProps> = React.createElement(
       PmDashboard,
       {
         userDisplayName: this.context.pageContext.user.displayName,
@@ -43,6 +47,11 @@ export default class PmDashboardWebPart extends BaseClientSideWebPart<IPmDashboa
         repository: this._repository,
         presenceRepository: this._presenceRepository,
       },
+    );
+
+    const element = React.createElement(
+      AuditProvider,
+      { logger: this._auditLogger, children: dashboard } as React.Attributes & { logger: IAuditLogger; children: React.ReactNode },
     );
 
     ReactDom.render(element, this.domElement);
