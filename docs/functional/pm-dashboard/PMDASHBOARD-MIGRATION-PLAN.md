@@ -2,8 +2,8 @@
 
 > **Source:** `D:\Development\Repos\DDRE Intranet\app-pm-dashboard` (standalone vanilla JS app)
 > **Target:** `spfx/intranet-core/src/webparts/pmDashboard/` (SPFx web part)
-> **Branch:** `app/pm-dashboard`
-> **Status:** Planning – no code yet
+> **Branch:** `fix/dashboard-fixes` (current) · `app/pm-dashboard` (original)
+> **Status:** 🟢 Phase 1 Complete · Phase 2 Complete · Phase 3 In Progress · Phase 4 Planned
 
 ---
 
@@ -435,46 +435,44 @@ export class PropertyMeService {
 
 ## 9  Implementation Phases
 
-### Phase 1 – Core Dashboard (this branch)
+### Phase 1 – Core Dashboard (v0.8.0→v0.10.0) ✅
 
 **Milestone:** Fully functional dashboard with all table features in SPFx.
 
-| Step | Task | Est. |
-|------|------|------|
-| 1.1 | Scaffold web part (`PmDashboardWebPart.ts`, manifest, config.json entry, loc strings) | 1h |
-| 1.2 | Define TypeScript models (`types.ts`, `columnSchemas.ts`) | 1h |
-| 1.3 | Implement `dateHelpers.ts` with unit tests | 1h |
-| 1.4 | Implement `pmHelpers.ts` with unit tests | 0.5h |
-| 1.5 | Implement `rowOperations.ts` with unit tests (add, remove, reorder, date-reorder, validate) | 2h |
-| 1.6 | Define `IDashboardRepository` interface | 0.5h |
-| 1.7 | Implement `DexieDashboardRepository` (dev harness) with seed data | 2h |
-| 1.8 | Build `PmSelector` component | 1h |
-| 1.9 | Build `TextCell`, `DateCell`, `DayCell`, `PmCell`, `PropertyCell` | 3h |
-| 1.10 | Build `PropertyRow` and `BlankRow` components | 1.5h |
-| 1.11 | Build `SectionTable` (header, body, add button, column resizing) | 2h |
-| 1.12 | Build `ContextMenu` component | 1h |
-| 1.13 | Add row drag-and-drop with `@dnd-kit/sortable` | 2h |
-| 1.14 | Build root `PmDashboard` with `useReducer`, data loading, three-table layout | 2h |
-| 1.15 | Build `SettingsPanel` (PM CRUD) | 1.5h |
-| 1.16 | SCSS module styles (section colour themes, PM row colours) | 2h |
-| 1.17 | Implement `PropertyMeInput` (URL paste/type → Azure proxy extraction) | 1.5h |
-| 1.18 | AppBridge integration (`useShellBridge` for sidebar nav) | 1h |
-| 1.19 | Editing gating (disabled state cascade when no PM selected) | 1h |
-| 1.20 | Implement `SPListDashboardRepository` | 3h |
-| 1.21 | SharePoint List provisioning (feature XML or `listProvisioning.ts`) | 1.5h |
-| 1.22 | End-to-end testing in dev harness | 2h |
-| 1.23 | Playwright E2E tests | 2h |
-| **Total** | | **~33h** |
+| Step | Task | Status |
+|------|------|--------|
+| 1.1 | Scaffold web part (`PmDashboardWebPart.ts`, manifest, config.json entry, loc strings) | ✅ Done |
+| 1.2 | Define TypeScript models (`types.ts`, `columnSchemas.ts`) | ✅ Done |
+| 1.3 | Implement `dateHelpers.ts` with unit tests | ✅ Done |
+| 1.4 | Implement `pmHelpers.ts` with unit tests | ✅ Done |
+| 1.5 | Implement `rowOperations.ts` with unit tests (add, remove, reorder, date-reorder, validate) | ✅ Done |
+| 1.6 | Define `IDashboardRepository` interface | ✅ Done |
+| 1.7 | Implement `DexieDashboardRepository` (dev harness) with seed data | ✅ Done |
+| 1.8 | Build `PmSelector` component | ✅ Done |
+| 1.9 | Build `TextCell`, `DateCell`, `DayCell`, `PmCell`, `PropertyCell`, `CheckboxCell`, `VacCell` | ✅ Done |
+| 1.10 | Build `PropertyRow` and `BlankRow` components | ✅ Done |
+| 1.11 | Build `SectionTable` (header, body, add button, column resizing) | ✅ Done |
+| 1.12 | Build `ContextMenu` component | ✅ Done |
+| 1.13 | Add row drag-and-drop with `@dnd-kit/sortable` | ✅ Done |
+| 1.14 | Build root `PmDashboard` with `useReducer`, data loading, two-table layout | ✅ Done |
+| 1.15 | Build `SettingsPanel` (PM CRUD) | ✅ Done |
+| 1.16 | SCSS module styles (section colour themes, PM row colours, white separators) | ✅ Done |
+| 1.17 | Implement `PropertyMeInput` (URL paste/type → Azure proxy extraction) | ✅ Done |
+| 1.18 | AppBridge integration (`useShellBridge` for sidebar nav) | ✅ Done |
+| 1.19 | Editing gating (disabled state cascade when no PM selected) | ✅ Done |
+| 1.20 | Implement `SPListDashboardRepository` | ✅ Done |
+| 1.21 | SharePoint List provisioning (`listProvisioning.ts` + `RepositoryFactory`) | ✅ Done |
+| 1.22 | End-to-end testing in dev harness | ✅ Done |
+| 1.23 | Playwright E2E tests | ✅ Done |
 
-### Phase 2 – Real-Time & PropertyMe Enhancement
+### Phase 2 – Real-Time Collaboration (v0.11.0→v0.12.0)
 
 | Task | Notes |
 |------|-------|
-| Azure SignalR integration for real-time sync | Via Azure proxy |
-| Online user presence indicators | SignalR presence channel |
-| PropertyMe drag-and-drop from browser extension | Update extension to post to SPFx iframe |
-| User dot blinking | SignalR events |
-| Per-PM column widths in SP List | Move from localStorage |
+| Per-PM column widths | **Done (v0.11.0)** — Column widths saved per PM per section. |
+| PropertyMe drag-and-drop from browser extension | **Done (v0.11.1)** — Update extension to post to SPFx iframe. |
+| Real-time polling sync | **Done (v0.11.2)** — Polling-based multi-user sync. |
+| User presence indicators | **Done (v0.11.3→v0.11.5)** — Online user dots with blinking on changes. |
 | Remove Lost Managements section | **Done (v0.12.0)** — Removed `"lost"` from `DashboardSection` union, `IDashboardData`, column schemas, seed data, component rendering, mappers, and tests. SP List `Lost` field retained for backward compat. |
 
 ### Phase 3 – Advanced Features
@@ -487,6 +485,24 @@ export class PropertyMeService {
 | View switcher (Pivot tabs) | **Done (v0.13.0)** — Fluent UI Pivot: Tables (existing vacates/entries), Portfolio, Maintenance. |
 | IPropertyMeService + MockPropertyMeService | **Done (v0.13.0)** — Interface + mock with 12 Australian properties, 9 tenants, 6 owners, 10 maintenance requests. 23 unit tests. |
 | Production PropertyMeService | Pending — requires Azure proxy deployment. PmDashboardWebPart passes `undefined` until ready. |
+
+### Phase 4 – Audit Logging (Planned)
+
+> Comprehensive audit trail for all PM Dashboard activity, integrated with
+> the existing shell audit system (AuditContext / IAuditLogger).
+
+| Step | Task | Notes |
+|------|------|-------|
+| 4.1 | Define PM Dashboard event taxonomy | row_added, row_deleted, row_reordered, cell_edited, pm_assigned, date_changed, checkbox_toggled, property_linked, vac_assigned, view_switched, settings_changed, pm_selected, data_synced |
+| 4.2 | Add `pm_dashboard` tool identifier to audit events | hub: property-management, tool: pm-dashboard |
+| 4.3 | Wire AuditContext into PmDashboard component tree | useAudit hook, pass logger down or use context |
+| 4.4 | Log data mutation events | Row add/delete/reorder, cell edits with before/after values, PM assignment changes, date changes, checkbox toggles |
+| 4.5 | Log navigation and view events | Dashboard opened, view switched (Tables/Portfolio/Maintenance), PM selected/deselected, settings panel opened/closed |
+| 4.6 | Log PropertyMe integration events | Property drag-and-drop, URL paste, data sync triggered/completed |
+| 4.7 | Log collaboration events | Presence detected, sync conflict resolved |
+| 4.8 | Add PM Dashboard filter to Audit Log Viewer | Filter by tool: pm-dashboard in admin audit viewer |
+| 4.9 | Add field-level change tracking metadata | Column name, old value, new value in event metadata |
+| 4.10 | Unit tests for audit event emission | Mock IAuditLogger, verify correct events fired for each action |
 
 ---
 
@@ -534,18 +550,18 @@ This is a one-time operation. The script should be idempotent (skip existing ite
 
 Phase 1 is complete when:
 
-- [ ] All 26 UI features from §2.2 work in the SPFx web part
-- [ ] PM selector controls all editing (gating)
-- [ ] Three-table layout renders with colour-coded sections
-- [ ] Rows are editable inline (text, date picker, PM dropdown, property link)
-- [ ] Rows can be added (property + blank), removed, and reordered via drag-and-drop
-- [ ] Context menu provides all four actions
-- [ ] Settings panel allows full PM CRUD with delete warning
-- [ ] PropertyMe URLs can be added via text input and are extracted via Azure proxy
-- [ ] Data persists to SharePoint Lists (or Dexie in dev harness)
-- [ ] Date changes trigger automatic row reordering
-- [ ] Per-PM row colours display correctly with contrast text
-- [ ] `npm run lint` passes with zero warnings
-- [ ] `npm run test` passes
-- [ ] Dev harness works at `http://localhost:3027/`
-- [ ] Australian English used in all UI text
+- [x] All 26 UI features from §2.2 work in the SPFx web part
+- [x] PM selector controls all editing (gating)
+- [x] Two-table layout renders with colour-coded sections (Lost removed in v0.12.0)
+- [x] Rows are editable inline (text, date picker, PM dropdown, property link)
+- [x] Rows can be added (property + blank), removed, and reordered via drag-and-drop
+- [x] Context menu provides all four actions
+- [x] Settings panel allows full PM CRUD with delete warning
+- [x] PropertyMe URLs can be added via text input and are extracted via Azure proxy
+- [x] Data persists to SharePoint Lists (or Dexie in dev harness)
+- [x] Date changes trigger automatic row reordering
+- [x] Per-PM row colours display correctly with contrast text
+- [x] `npm run lint` passes with zero warnings
+- [x] `npm run test` passes (604 tests)
+- [x] Dev harness works at `http://localhost:3027/`
+- [x] Australian English used in all UI text

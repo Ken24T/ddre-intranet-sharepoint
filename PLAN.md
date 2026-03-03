@@ -779,9 +779,11 @@ Marketing budget tracking and reporting for sales & marketing teams.
 
 ### app-pm-dashboard
 
-> **Status:** 🟢 Phase 1 Complete · Phase 2 Complete · Phase 3 In Progress
+> **Status:** 🟢 Phase 1 Complete · Phase 2 Complete · Phase 3 In Progress · Phase 4 Planned
 >
 > **Hub:** Property Management
+>
+> **Detailed plan:** `docs/functional/pm-dashboard/PMDASHBOARD-MIGRATION-PLAN.md`
 
 PropertyMe data visualisation dashboard.
 
@@ -821,6 +823,15 @@ PropertyMe data visualisation dashboard.
 - [x] Dev harness wired with MockPropertyMeService
 - [x] 23 unit tests for MockPropertyMeService
 - [ ] Production PropertyMeService (when Azure proxy is deployed)
+
+#### Phase 4 – Audit Logging (Planned)
+
+- [ ] Event taxonomy, tool identifier, AuditContext wiring
+- [ ] Data mutation, navigation, PropertyMe, and collaboration event logging
+- [ ] Audit Log Viewer filter + field-level change tracking
+- [ ] Unit tests for audit event emission
+
+> See `docs/functional/pm-dashboard/PMDASHBOARD-MIGRATION-PLAN.md` §9 Phase 4 for full detail.
 
 ### app-qrcoder
 
