@@ -82,6 +82,10 @@ export const VacCell: React.FC<IVacCellProps> = ({
   const cellRef = React.useRef<HTMLDivElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
 
+  // Keep refs in sync so callbacks always see latest state
+  const stateRef = React.useRef({ selectedInitials: "", day: "", month: "" });
+  stateRef.current = { selectedInitials, day, month };
+
   // Sync local state when value prop changes externally
   React.useEffect(() => {
     const parsed = parseVacValue(value);
@@ -90,13 +94,14 @@ export const VacCell: React.FC<IVacCellProps> = ({
     setMonth(parsed.month);
   }, [value]);
 
-  const commitAndClose = (): void => {
-    const newValue = buildVacValue(selectedInitials, day, month);
+  const commitAndClose = React.useCallback((): void => {
+    const s = stateRef.current;
+    const newValue = buildVacValue(s.selectedInitials, s.day, s.month);
     if (newValue !== value) {
       onChange(newValue);
     }
     setShowPopover(false);
-  };
+  }, [value, onChange]);
 
   // Close popover on outside click or scroll
   React.useEffect(() => {
@@ -108,7 +113,6 @@ export const VacCell: React.FC<IVacCellProps> = ({
         cellRef.current && !cellRef.current.contains(target) &&
         popoverRef.current && !popoverRef.current.contains(target)
       ) {
-        // Commit on close
         commitAndClose();
       }
     };
@@ -123,7 +127,7 @@ export const VacCell: React.FC<IVacCellProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("scroll", handleScroll, true);
     };
-  });
+  }, [showPopover, commitAndClose]);
 
   const handleCellClick = (): void => {
     if (readOnly) return;
@@ -251,6 +255,7 @@ export const VacCell: React.FC<IVacCellProps> = ({
             <button
               type="button"
               className={styles.vacPopoverDone}
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={commitAndClose}
             >
               Done
@@ -259,6 +264,7 @@ export const VacCell: React.FC<IVacCellProps> = ({
               <button
                 type="button"
                 className={styles.vacPopoverClear}
+                onMouseDown={(e) => e.stopPropagation()}
                 onClick={handleClear}
               >
                 Clear
