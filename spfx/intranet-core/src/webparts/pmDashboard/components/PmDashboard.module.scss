@@ -180,19 +180,24 @@
 
 .dashboardTable th {
   padding: 4px 6px;
-  text-align: left;
+  text-align: center;
   font-weight: 600;
   font-size: 11px;
   text-transform: uppercase;
   color: "[theme:bodySubtext, default: #605e5c]";
-  background-color: "[theme:neutralLighterAlt, default: #faf9f8]";
+  background-color: "[theme:neutralLight, default: #edebe9]";
   border-bottom: 1px solid "[theme:neutralLight, default: #edebe9]";
+  border-right: 2px solid #ffffff;
   white-space: nowrap;
   position: sticky;
   top: 0;
   z-index: 5;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.dashboardTable th:last-child {
+  border-right: none;
 }
 
 /* Column resize handle */
@@ -220,6 +225,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   width: 100%;
 }
 
