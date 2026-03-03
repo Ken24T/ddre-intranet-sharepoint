@@ -197,6 +197,7 @@ export const VacCell: React.FC<IVacCellProps> = ({
           className={styles.vacPopover}
           style={{ top: popoverPos.top, left: popoverPos.left }}
           onKeyDown={handleKeyDown}
+          onMouseDown={(e) => e.stopPropagation()}
         >
           <div className={styles.vacPopoverSection}>
             <label className={styles.vacPopoverLabel}>Who</label>

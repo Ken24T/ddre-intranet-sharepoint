@@ -88,6 +88,7 @@ export const PmCell: React.FC<IPmCellProps> = ({
           ref={dropdownRef}
           className={styles.pmDropdown}
           style={{ top: dropdownPos.top, left: dropdownPos.left }}
+          onMouseDown={(e) => e.stopPropagation()}
         >
           {propertyManagers.map((pm) => {
             const initials = `${pm.firstName[0] || ""}${pm.lastName[0] || ""}`.toUpperCase();
