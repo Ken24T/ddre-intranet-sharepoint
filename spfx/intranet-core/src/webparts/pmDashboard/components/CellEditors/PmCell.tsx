@@ -38,14 +38,13 @@ export const PmCell: React.FC<IPmCellProps> = ({
 
   // Close dropdown on outside click or scroll
   React.useEffect(() => {
-    if (!showDropdown) return;
+    if (!showDropdown) return undefined;
 
     const handleClickOutside = (e: MouseEvent): void => {
       const target = e.target as Node;
-      if (
-        badgeRef.current && !badgeRef.current.contains(target) &&
-        dropdownRef.current && !dropdownRef.current.contains(target)
-      ) {
+      const insideBadge = badgeRef.current ? badgeRef.current.contains(target) : false;
+      const insideDropdown = dropdownRef.current ? dropdownRef.current.contains(target) : false;
+      if (!insideBadge && !insideDropdown) {
         setShowDropdown(false);
       }
     };
@@ -54,9 +53,13 @@ export const PmCell: React.FC<IPmCellProps> = ({
       setShowDropdown(false);
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("scroll", handleScroll, true);
+    const timerId = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("scroll", handleScroll, true);
+    }, 0);
+
     return () => {
+      clearTimeout(timerId);
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("scroll", handleScroll, true);
     };
