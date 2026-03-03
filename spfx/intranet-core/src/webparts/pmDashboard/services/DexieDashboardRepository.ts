@@ -15,6 +15,7 @@ import {
   SEED_PROPERTY_MANAGERS,
   SEED_DASHBOARD_DATA,
 } from "../models/seedData";
+import { migrateColumns } from "../models/migrateColumns";
 
 const DASHBOARD_KEY = "main";
 
@@ -51,7 +52,13 @@ export class DexieDashboardRepository implements IDashboardRepository {
     if (!record) {
       return { vacates: [], entries: [] };
     }
-    return record.data;
+
+    const data = record.data;
+    const migrated = migrateColumns(data);
+    if (migrated !== data) {
+      await this.saveData(migrated);
+    }
+    return migrated;
   }
 
   async saveData(data: IDashboardData): Promise<void> {

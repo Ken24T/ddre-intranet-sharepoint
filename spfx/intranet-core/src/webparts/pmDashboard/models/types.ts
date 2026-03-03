@@ -50,9 +50,6 @@ export interface IColumnIndex {
 
 /** Vacates-specific column indices */
 export interface IVacatesColumnIndex extends IColumnIndex {
-  readonly sts: number;
-  readonly sign: number;
-  readonly key: number;
   readonly vac: number;
   readonly comments: number;
 }
@@ -64,6 +61,7 @@ export interface IEntriesColumnIndex extends IColumnIndex {
   readonly bond: number;
   readonly twoWks: number;
   readonly ecr: number;
+  readonly bag: number;
   readonly ecrBy: number;
   readonly comments: number;
 }

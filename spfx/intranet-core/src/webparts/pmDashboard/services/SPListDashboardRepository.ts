@@ -42,6 +42,7 @@ import {
   SEED_PROPERTY_MANAGERS,
   SEED_DASHBOARD_DATA,
 } from "../models/seedData";
+import { migrateColumns } from "../models/migrateColumns";
 
 const DATA_KEY = "main";
 
@@ -121,7 +122,12 @@ export class SPListDashboardRepository implements IDashboardRepository {
       return { vacates: [], entries: [] };
     }
 
-    return mapDataFromSP(items[0]);
+    const data = mapDataFromSP(items[0]);
+    const migrated = migrateColumns(data);
+    if (migrated !== data) {
+      await this.saveData(migrated);
+    }
+    return migrated;
   }
 
   async saveData(data: IDashboardData): Promise<void> {

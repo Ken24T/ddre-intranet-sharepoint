@@ -442,7 +442,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
 
       // Audit: determine event type from column
       if (oldValue !== value) {
-        const CHECKBOX_COLUMNS = ["STS", "Sign", "KEY", "Signed", "BOND", "2WKS", "ECR"];
+        const CHECKBOX_COLUMNS = ["Signed", "BOND", "2WKS", "ECR", "Bag"];
         const isCheckbox = CHECKBOX_COLUMNS.indexOf(columnName) >= 0;
         if (isCheckbox) {
           audit.logCheckboxToggled(section, rowId, columnName, value === "✓");

@@ -9,12 +9,13 @@ import type {
   DashboardSection,
   IVacatesColumnIndex,
   IEntriesColumnIndex,
+  SectionColumnWidths,
 } from "./types";
 
 /** Ordered column header labels for each section */
 export const SECTION_COLUMNS: Record<DashboardSection, readonly string[]> = {
-  vacates: ["Date", "Property", "STS", "Sign", "KEY", "VAC", "PM", "Comments"] as const,
-  entries: ["Date", "Day", "Signed", "BOND", "2WKS", "Property", "ECR", "ECR BY", "PM", "Comments"] as const,
+  vacates: ["Date", "Property", "VAC", "PM", "Comments"] as const,
+  entries: ["Date", "Day", "Signed", "BOND", "2WKS", "Property", "ECR", "Bag", "ECR BY", "PM", "Comments"] as const,
 };
 
 /** Column count per section (for creating empty rows) */
@@ -27,12 +28,9 @@ export const SECTION_COLUMN_COUNTS: Record<DashboardSection, number> = {
 export const VACATES_COLS: IVacatesColumnIndex = {
   date: 0,
   property: 1,
-  sts: 2,
-  sign: 3,
-  key: 4,
-  vac: 5,
-  pm: 6,
-  comments: 7,
+  vac: 2,
+  pm: 3,
+  comments: 4,
 };
 
 /** Named column indices for the Entries section */
@@ -44,9 +42,10 @@ export const ENTRIES_COLS: IEntriesColumnIndex = {
   twoWks: 4,
   property: 5,
   ecr: 6,
-  ecrBy: 7,
-  pm: 8,
-  comments: 9,
+  bag: 7,
+  ecrBy: 8,
+  pm: 9,
+  comments: 10,
 };
 
 /**
@@ -80,6 +79,36 @@ export function getPropertyColumnIndex(section: DashboardSection): number {
       return ENTRIES_COLS.property;
   }
 }
+
+/**
+ * Default column widths (px) per section.
+ *
+ * Columns with a default width get a fixed initial size;
+ * columns omitted from the map take the remaining space
+ * (shared equally).  These defaults ensure `table-layout: fixed`
+ * produces reasonable proportions even before the user
+ * has resized anything.
+ */
+export const DEFAULT_COLUMN_WIDTHS: Record<DashboardSection, SectionColumnWidths> = {
+  vacates: {
+    [VACATES_COLS.date]: 60,
+    [VACATES_COLS.vac]: 90,
+    [VACATES_COLS.pm]: 40,
+    // Property & Comments take remaining space
+  },
+  entries: {
+    [ENTRIES_COLS.date]: 60,
+    [ENTRIES_COLS.day]: 40,
+    [ENTRIES_COLS.signed]: 44,
+    [ENTRIES_COLS.bond]: 44,
+    [ENTRIES_COLS.twoWks]: 44,
+    [ENTRIES_COLS.ecr]: 36,
+    [ENTRIES_COLS.bag]: 36,
+    [ENTRIES_COLS.ecrBy]: 90,
+    [ENTRIES_COLS.pm]: 40,
+    // Property & Comments take remaining space
+  },
+};
 
 /**
  * Create an empty columns array for a given section.

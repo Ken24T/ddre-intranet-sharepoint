@@ -24,9 +24,18 @@ import { PmCell } from "../CellEditors/PmCell";
 import { CheckboxCell } from "../CellEditors/CheckboxCell";
 import { PropertyCell } from "../CellEditors/PropertyCell";
 import { VacCell } from "../CellEditors/VacCell";
+import { ComboCell } from "../CellEditors/ComboCell";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import styles from "../PmDashboard.module.scss";
+
+/** Preset options for the Vacates "Comments" combo dropdown. */
+const VACATE_REASON_OPTIONS: string[] = [
+  "End of Lease",
+  "Break Lease",
+  "Owner Selling",
+  "Renovations",
+];
 
 export interface IPropertyRowProps {
   row: IPropertyRow;
@@ -118,27 +127,6 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
           readOnly={readOnly}
         />
       </td>
-      <td className={styles.colCheckbox}>
-        <CheckboxCell
-          value={row.columns[VACATES_COLS.sts] || ""}
-          onChange={handleCellChange(VACATES_COLS.sts)}
-          readOnly={readOnly}
-        />
-      </td>
-      <td className={styles.colCheckbox}>
-        <CheckboxCell
-          value={row.columns[VACATES_COLS.sign] || ""}
-          onChange={handleCellChange(VACATES_COLS.sign)}
-          readOnly={readOnly}
-        />
-      </td>
-      <td className={styles.colCheckbox}>
-        <CheckboxCell
-          value={row.columns[VACATES_COLS.key] || ""}
-          onChange={handleCellChange(VACATES_COLS.key)}
-          readOnly={readOnly}
-        />
-      </td>
       <td className={styles.colVac}>
         <VacCell
           value={row.columns[VACATES_COLS.vac] || ""}
@@ -156,10 +144,11 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
         />
       </td>
       <td className={styles.colComments}>
-        <TextCell
+        <ComboCell
           value={row.columns[VACATES_COLS.comments] || ""}
+          options={VACATE_REASON_OPTIONS}
           onChange={handleCellChange(VACATES_COLS.comments)}
-          placeholder="Comments"
+          placeholder="Reason"
           readOnly={readOnly}
         />
       </td>
@@ -214,11 +203,19 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
           readOnly={readOnly}
         />
       </td>
-      <td className={styles.colEcrBy}>
-        <TextCell
+      <td className={styles.colCheckbox}>
+        <CheckboxCell
+          value={row.columns[ENTRIES_COLS.bag] || ""}
+          onChange={handleCellChange(ENTRIES_COLS.bag)}
+          readOnly={readOnly}
+        />
+      </td>
+      <td className={styles.colVac}>
+        <VacCell
           value={row.columns[ENTRIES_COLS.ecrBy] || ""}
+          rowPmInitials={row.pm || ""}
+          propertyManagers={propertyManagers}
           onChange={handleCellChange(ENTRIES_COLS.ecrBy)}
-          placeholder="ECR BY"
           readOnly={readOnly}
         />
       </td>

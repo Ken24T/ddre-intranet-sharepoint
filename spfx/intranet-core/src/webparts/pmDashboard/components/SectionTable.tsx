@@ -28,7 +28,7 @@ import type {
   SectionColumnWidths,
 } from "../models/types";
 import type { IPropertyMeDropResult } from "../models/propertyMeDragHelpers";
-import { SECTION_COLUMNS } from "../models/columnSchemas";
+import { SECTION_COLUMNS, DEFAULT_COLUMN_WIDTHS } from "../models/columnSchemas";
 import { PropertyRowComponent } from "./Rows/PropertyRow";
 import { BlankRow } from "./Rows/BlankRow";
 import { useColumnResize } from "./useColumnResize";
@@ -125,6 +125,7 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
   const { getHeaderStyle, onResizeStart } = useColumnResize({
     columnCount: columns.length,
     widths: columnWidths || {},
+    defaultWidths: DEFAULT_COLUMN_WIDTHS[section],
     onChange: handleResize,
   });
 
@@ -291,10 +292,21 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
                           onPointerDown={(e) => {
                             e.preventDefault();
                             const th = (e.target as HTMLElement).closest("th");
-                            const startWidth = th
-                              ? th.getBoundingClientRect().width
-                              : 80;
-                            onResizeStart(idx, e.clientX, startWidth);
+                            const headerRow = th?.parentElement;
+
+                            // Snapshot ALL column widths (border-box) so
+                            // the hook can lock non-involved columns and
+                            // compute adjacent-column compensation.
+                            const allWidths: Record<number, number> = {};
+                            if (headerRow) {
+                              const ths = headerRow.querySelectorAll("th");
+                              // Skip first <th> (drag-handle column at DOM index 0)
+                              for (let i = 1; i < ths.length; i++) {
+                                allWidths[i - 1] = ths[i].getBoundingClientRect().width;
+                              }
+                            }
+
+                            onResizeStart(idx, e.clientX, allWidths);
                           }}
                         />
                       </div>

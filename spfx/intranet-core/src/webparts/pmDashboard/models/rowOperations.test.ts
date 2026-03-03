@@ -21,7 +21,7 @@ function makeRow(id: string, date: string, pm: string = "KB", blank?: boolean): 
   return {
     id,
     pm,
-    columns: [date, "123 Test St", "", "", "", "", pm, ""],
+    columns: [date, "123 Test St", "", pm, ""],
   };
 }
 
@@ -29,7 +29,7 @@ function makeEntriesRow(id: string, date: string, pm: string = "KB"): IPropertyR
   return {
     id,
     pm,
-    columns: [date, "Mon", "", "", "", "123 Test St", "", "", pm, ""],
+    columns: [date, "Mon", "", "", "", "123 Test St", "", "", "", pm, ""],
   };
 }
 
@@ -41,16 +41,16 @@ describe("rowOperations", () => {
       expect(row.id).toBeTruthy();
       expect(row.pm).toBe("KB");
       expect(row.columns[0]).toBe("15/03");
-      expect(row.columns[6]).toBe("KB"); // PM column
-      expect(row.columns).toHaveLength(8);
+      expect(row.columns[3]).toBe("KB"); // PM column
+      expect(row.columns).toHaveLength(5);
     });
 
     it("creates an entries row with auto-calculated Day", () => {
       const row = createPropertyRow("entries", "SD", "02/03");
       expect(row.columns[0]).toBe("02/03");
       expect(row.columns[1]).toBeTruthy(); // Day should be calculated
-      expect(row.columns[8]).toBe("SD"); // PM column
-      expect(row.columns).toHaveLength(10);
+      expect(row.columns[9]).toBe("SD"); // PM column
+      expect(row.columns).toHaveLength(11);
     });
 
     it("uses today's date when no date is provided", () => {
@@ -242,7 +242,7 @@ describe("rowOperations", () => {
       const rows = [makeRow("a", "01/03", "KB")];
       const result = updateRowPm(rows, "a", "vacates", "SD");
       expect(result[0].pm).toBe("SD");
-      expect(result[0].columns[6]).toBe("SD"); // PM column in vacates
+      expect(result[0].columns[3]).toBe("SD"); // PM column in vacates
     });
   });
 
