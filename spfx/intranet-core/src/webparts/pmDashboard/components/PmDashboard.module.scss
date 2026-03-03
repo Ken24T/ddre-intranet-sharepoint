@@ -1106,6 +1106,16 @@
   background: #001490;
 }
 
+.vacPopoverDone:disabled {
+  background: #a19f9d;
+  cursor: not-allowed;
+}
+
+.vacDateInputInvalid {
+  border-color: #a4262c;
+  box-shadow: 0 0 0 1px #a4262c;
+}
+
 .vacPopoverClear {
   padding: 4px 10px;
   background: transparent;

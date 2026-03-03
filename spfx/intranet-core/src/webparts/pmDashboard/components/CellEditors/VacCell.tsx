@@ -96,6 +96,13 @@ export const VacCell: React.FC<IVacCellProps> = ({
 
   const commitAndClose = React.useCallback((): void => {
     const s = stateRef.current;
+    // Validate day (1-31) and month (1-12) before committing
+    const dayNum = s.day ? parseInt(s.day, 10) : 0;
+    const monthNum = s.month ? parseInt(s.month, 10) : 0;
+    const dayOk = s.day === "" || (dayNum >= 1 && dayNum <= 31);
+    const monthOk = s.month === "" || (monthNum >= 1 && monthNum <= 12);
+    if (!dayOk || !monthOk) return; // Don't close with invalid values
+
     const newValue = buildVacValue(s.selectedInitials, s.day, s.month);
     if (newValue !== value) {
       onChange(newValue);
@@ -157,13 +164,25 @@ export const VacCell: React.FC<IVacCellProps> = ({
 
   const handleDayChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const v = e.target.value.replace(/[^0-9]/g, "");
-    if (v.length <= 2) setDay(v);
+    if (v.length <= 2) {
+      const num = parseInt(v, 10);
+      // Allow empty (clearing) or 1-31
+      if (v === "" || (num >= 0 && num <= 31)) setDay(v);
+    }
   };
 
   const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const v = e.target.value.replace(/[^0-9]/g, "");
-    if (v.length <= 2) setMonth(v);
+    if (v.length <= 2) {
+      const num = parseInt(v, 10);
+      // Allow empty (clearing) or 1-12
+      if (v === "" || (num >= 0 && num <= 12)) setMonth(v);
+    }
   };
+
+  /** Check whether current day/month values are valid. */
+  const isDayValid = day === "" || (parseInt(day, 10) >= 1 && parseInt(day, 10) <= 31);
+  const isMonthValid = month === "" || (parseInt(month, 10) >= 1 && parseInt(month, 10) <= 12);
 
   const handleKeyDown = (e: React.KeyboardEvent): void => {
     if (e.key === "Enter") {
@@ -232,7 +251,7 @@ export const VacCell: React.FC<IVacCellProps> = ({
             <div className={styles.vacDateRow}>
               <input
                 type="text"
-                className={styles.vacDateInput}
+                className={`${styles.vacDateInput} ${!isDayValid ? styles.vacDateInputInvalid : ""}`}
                 value={day}
                 onChange={handleDayChange}
                 placeholder="DD"
@@ -242,7 +261,7 @@ export const VacCell: React.FC<IVacCellProps> = ({
               <span className={styles.vacDateSeparator}>/</span>
               <input
                 type="text"
-                className={styles.vacDateInput}
+                className={`${styles.vacDateInput} ${!isMonthValid ? styles.vacDateInputInvalid : ""}`}
                 value={month}
                 onChange={handleMonthChange}
                 placeholder="MM"
@@ -256,6 +275,7 @@ export const VacCell: React.FC<IVacCellProps> = ({
             <button
               type="button"
               className={styles.vacPopoverDone}
+              disabled={!isDayValid || !isMonthValid}
               onMouseDown={(e) => e.stopPropagation()}
               onClick={commitAndClose}
             >
