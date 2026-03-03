@@ -2,10 +2,12 @@
  * PmCell – Property manager badge cell.
  *
  * Shows the PM's initials on a coloured background.
- * Clicking opens the PM selector dropdown.
+ * Clicking opens a portal-rendered dropdown to select a PM,
+ * ensuring visibility regardless of parent overflow styles.
  */
 
 import * as React from "react";
+import * as ReactDOM from "react-dom";
 import type { IPropertyManager } from "../../models/types";
 import { getContrastColor, getPmColor } from "../../models/pmHelpers";
 import styles from "../PmDashboard.module.scss";
@@ -27,29 +29,50 @@ export const PmCell: React.FC<IPmCellProps> = ({
   readOnly,
 }) => {
   const [showDropdown, setShowDropdown] = React.useState(false);
-  const cellRef = React.useRef<HTMLDivElement>(null);
+  const [dropdownPos, setDropdownPos] = React.useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const badgeRef = React.useRef<HTMLSpanElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   const bgColor = getPmColor(value, propertyManagers) || "#cccccc";
   const textColor = getContrastColor(bgColor);
 
-  // Close dropdown on outside click
+  // Close dropdown on outside click or scroll
   React.useEffect(() => {
     if (!showDropdown) return;
 
     const handleClickOutside = (e: MouseEvent): void => {
-      if (cellRef.current && !cellRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        badgeRef.current && !badgeRef.current.contains(target) &&
+        dropdownRef.current && !dropdownRef.current.contains(target)
+      ) {
         setShowDropdown(false);
       }
     };
 
+    const handleScroll = (): void => {
+      setShowDropdown(false);
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("scroll", handleScroll, true);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("scroll", handleScroll, true);
+    };
   }, [showDropdown]);
 
   const handleBadgeClick = React.useCallback((): void => {
     if (readOnly) return;
+    if (!showDropdown && badgeRef.current) {
+      const rect = badgeRef.current.getBoundingClientRect();
+      setDropdownPos({
+        top: rect.bottom + 2,
+        left: rect.right,
+      });
+    }
     setShowDropdown((prev) => !prev);
-  }, [readOnly]);
+  }, [readOnly, showDropdown]);
 
   const handleSelect = React.useCallback(
     (initials: string): void => {
@@ -59,24 +82,13 @@ export const PmCell: React.FC<IPmCellProps> = ({
     [onChange],
   );
 
-  return (
-    <div ref={cellRef} className={styles.pmCellWrapper}>
-      <span
-        className={styles.pmBadge}
-        style={{ backgroundColor: bgColor, color: textColor }}
-        onClick={handleBadgeClick}
-        role="button"
-        tabIndex={0}
-        title={value || "Select PM"}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") handleBadgeClick();
-        }}
-      >
-        {value || "?"}
-      </span>
-
-      {showDropdown && (
-        <div className={styles.pmDropdown}>
+  const dropdown = showDropdown
+    ? ReactDOM.createPortal(
+        <div
+          ref={dropdownRef}
+          className={styles.pmDropdown}
+          style={{ top: dropdownPos.top, left: dropdownPos.left }}
+        >
           {propertyManagers.map((pm) => {
             const initials = `${pm.firstName[0] || ""}${pm.lastName[0] || ""}`.toUpperCase();
             const pmBg = pm.color || "#cccccc";
@@ -105,8 +117,28 @@ export const PmCell: React.FC<IPmCellProps> = ({
               </button>
             );
           })}
-        </div>
-      )}
+        </div>,
+        document.body,
+      )
+    : null;
+
+  return (
+    <div className={styles.pmCellWrapper}>
+      <span
+        ref={badgeRef}
+        className={styles.pmBadge}
+        style={{ backgroundColor: bgColor, color: textColor }}
+        onClick={handleBadgeClick}
+        role="button"
+        tabIndex={0}
+        title={value || "Select PM"}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") handleBadgeClick();
+        }}
+      >
+        {value || "?"}
+      </span>
+      {dropdown}
     </div>
   );
 };

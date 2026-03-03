@@ -388,19 +388,18 @@
 }
 
 .pmDropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 1000;
+  position: fixed;
+  z-index: 10000;
+  transform: translateX(-100%);
   background: #ffffff;
-  border: 1px solid #edebe9;
+  border: 1px solid #d2d0ce;
   border-radius: 6px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   padding: 6px;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  min-width: 140px;
+  min-width: 150px;
   white-space: nowrap;
 }
 
