@@ -89,6 +89,11 @@ const SECTION_HEADER_STYLES: Record<DashboardSection, string> = {
   entries: styles.sectionHeaderEntries,
 };
 
+const SECTION_TH_STYLES: Record<DashboardSection, string> = {
+  vacates: styles.thVacates,
+  entries: styles.thEntries,
+};
+
 export const SectionTable: React.FC<ISectionTableProps> = ({
   section,
   title,
@@ -228,9 +233,9 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
             <table className={styles.dashboardTable}>
               <thead>
                 <tr>
-                  <th style={{ width: 20 }} />
+                  <th style={{ width: 20 }} className={SECTION_TH_STYLES[section]} />
                   {columns.map((col, idx) => (
-                    <th key={col} style={getHeaderStyle(idx)}>
+                    <th key={col} style={getHeaderStyle(idx)} className={SECTION_TH_STYLES[section]}>
                       <div className={styles.thInner}>
                         <span>{col}</span>
                         <div

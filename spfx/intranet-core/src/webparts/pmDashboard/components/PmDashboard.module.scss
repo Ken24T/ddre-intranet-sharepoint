@@ -173,7 +173,8 @@
 
 .dashboardTable {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 12px;
   table-layout: fixed;
 }
@@ -185,7 +186,7 @@
   font-size: 11px;
   text-transform: uppercase;
   color: "[theme:bodySubtext, default: #605e5c]";
-  background-color: "[theme:neutralLight, default: #edebe9]";
+  background-color: "[theme:neutralLighterAlt, default: #faf9f8]";
   border-bottom: 1px solid "[theme:neutralLight, default: #edebe9]";
   border-right: 2px solid #ffffff;
   white-space: nowrap;
@@ -200,13 +201,22 @@
   border-right: none;
 }
 
+/* Section-tinted column headers */
+.thVacates {
+  background-color: #fdf3cd !important;
+}
+
+.thEntries {
+  background-color: #d4f5df !important;
+}
+
 /* Column resize handle */
 .resizeHandle {
   position: absolute;
-  right: 0;
+  right: -8px;
   top: 0;
   bottom: 0;
-  width: 5px;
+  width: 12px;
   cursor: col-resize;
   background: transparent;
   touch-action: none;
@@ -232,10 +242,15 @@
 .dashboardTable td {
   padding: 2px 4px;
   border-bottom: 1px solid "[theme:neutralLighter, default: #f3f2f1]";
+  border-right: 2px solid #ffffff;
   vertical-align: middle;
   min-width: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.dashboardTable td:last-child {
+  border-right: none;
 }
 
 /* Column-specific widths */
