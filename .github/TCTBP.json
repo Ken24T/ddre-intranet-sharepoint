@@ -19,7 +19,7 @@
     }
   },
   "workflow": {
-    "shipOrder": ["preflight", "test", "problems", "bump", "commit", "tag", "push"],
+    "shipOrder": ["preflight", "problems", "test", "bump", "commit", "tag", "push"],
     "handoffOrder": ["preflight", "stage", "test-gate", "commit", "ship-if-needed", "merge", "push", "verify-sync", "checkout-branch", "summary"],
     "handbackOrder": ["preflight", "fetch", "detect-branch", "pull", "verify-sync", "verification-gate", "summary"],
     "statusOrder": ["fetch", "report", "recommend"],

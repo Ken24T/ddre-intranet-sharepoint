@@ -390,7 +390,7 @@ Approval rules:
 
 ## SHIP Workflow
 
-> **SHIP** = Preflight → Test → Problems → Bump → Commit → Tag → Push
+> **SHIP** = Preflight → Problems → Test → Bump → Commit → Tag → Push
 >
 > The agent may proceed through **Bump → Commit → Tag** without pausing unless a core invariant fails.
 
@@ -402,19 +402,21 @@ Approval rules:
 
 ---
 
-### 2. Test
-
-Run repo test commands per Project Profile. Stop on failure.
-
-**Skip condition:** If the change set is **docs-only or infrastructure-only**, skip this step entirely (there is no code to test). The test command for this repo is `npm test` (Heft/Jest) run from `spfx/intranet-core/`.
-
----
-
-### 3. Problems
+### 2. Problems
 
 Ensure lint, build, and test diagnostics are clean (zero warnings if enforced).
 
 **Docs/infra-only changes:** Skip code-level checks (e.g. `eslint`, `typecheck`) but still run editor/IDE diagnostics (e.g. VS Code Problems tab) to catch syntax errors, markdown lint issues, and JSON validation errors in the changed files.
+
+**Rationale:** Problems are checked before tests so that any fixes applied at this stage are captured by the subsequent test run.
+
+---
+
+### 3. Test
+
+Run repo test commands per Project Profile. Stop on failure.
+
+**Skip condition:** If the change set is **docs-only or infrastructure-only**, skip this step entirely (there is no code to test). The test command for this repo is `npm test` (Heft/Jest) run from `spfx/intranet-core/`.
 
 ---
 
