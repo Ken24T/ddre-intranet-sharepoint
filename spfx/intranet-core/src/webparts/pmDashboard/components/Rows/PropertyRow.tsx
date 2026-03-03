@@ -23,6 +23,7 @@ import { DayCell } from "../CellEditors/DayCell";
 import { PmCell } from "../CellEditors/PmCell";
 import { CheckboxCell } from "../CellEditors/CheckboxCell";
 import { PropertyCell } from "../CellEditors/PropertyCell";
+import { VacCell } from "../CellEditors/VacCell";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import styles from "../PmDashboard.module.scss";
@@ -136,10 +137,11 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
         />
       </td>
       <td className={styles.colVac}>
-        <TextCell
+        <VacCell
           value={row.columns[VACATES_COLS.vac] || ""}
+          rowPmInitials={row.pm || ""}
+          propertyManagers={propertyManagers}
           onChange={handleCellChange(VACATES_COLS.vac)}
-          placeholder="VAC"
           readOnly={readOnly}
         />
       </td>

@@ -15,3 +15,6 @@ export type { ICheckboxCellProps } from "./CheckboxCell";
 
 export { PropertyCell } from "./PropertyCell";
 export type { IPropertyCellProps } from "./PropertyCell";
+
+export { VacCell } from "./VacCell";
+export type { IVacCellProps } from "./VacCell";

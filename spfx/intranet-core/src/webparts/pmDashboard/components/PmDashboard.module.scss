@@ -260,8 +260,8 @@
 }
 
 .colVac {
-  width: 70px;
-  min-width: 70px;
+  width: 90px;
+  min-width: 90px;
 }
 
 .colEcrBy {
@@ -950,4 +950,172 @@
   display: flex;
   gap: 8px;
   align-items: flex-start;
+}
+
+/* ─── VacCell ─────────────────────────────────────────── */
+
+.vacCellWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  min-height: 24px;
+  padding: 1px 2px;
+  border-radius: 3px;
+}
+
+.vacCellWrapper:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.vacCellFilled {
+  cursor: pointer;
+}
+
+.vacCellDisplay {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.vacCellEmpty {
+  color: #a19f9d;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+/* Popover rendered via portal */
+.vacPopover {
+  position: fixed;
+  z-index: 10000;
+  transform: translateX(-100%);
+  background: #ffffff;
+  border: 1px solid #d2d0ce;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.vacPopoverSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vacPopoverLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #605e5c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vacPmGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.vacPmOption {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border: 2px solid transparent;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.1s;
+}
+
+.vacPmOption:hover {
+  border-color: #a19f9d;
+}
+
+.vacPmOptionActive {
+  border-color: #001cad;
+}
+
+.vacPmBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 24px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.vacDateRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vacDateInput {
+  width: 36px;
+  padding: 4px 6px;
+  border: 1px solid #d2d0ce;
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: center;
+  outline: none;
+}
+
+.vacDateInput:focus {
+  border-color: #001cad;
+  box-shadow: 0 0 0 1px #001cad;
+}
+
+.vacDateSeparator {
+  color: #605e5c;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.vacPopoverActions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  padding-top: 4px;
+  border-top: 1px solid #edebe9;
+}
+
+.vacPopoverDone {
+  padding: 4px 14px;
+  background: #001cad;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vacPopoverDone:hover {
+  background: #001490;
+}
+
+.vacPopoverClear {
+  padding: 4px 10px;
+  background: transparent;
+  color: #a4262c;
+  border: 1px solid #a4262c;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.vacPopoverClear:hover {
+  background: #fde7e9;
 }
