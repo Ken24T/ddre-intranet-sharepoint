@@ -365,6 +365,15 @@
   width: 55px;
 }
 
+/* Calendar popover for DateCell */
+.datePopover {
+  background: #ffffff;
+  border: 1px solid "[theme:neutralLight, default: #edebe9]";
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  padding: 4px;
+}
+
 .dayCell {
   color: "[theme:bodySubtext, default: #605e5c]";
   font-size: 11px;
