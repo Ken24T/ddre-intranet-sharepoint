@@ -38,6 +38,8 @@ export interface IPropertyRowProps {
   onContextMenu: (e: React.MouseEvent, rowId: string) => void;
   /** When true, all editing and drag are disabled. */
   readOnly?: boolean;
+  /** Shows a horizontal drop indicator line above or below this row. */
+  dropIndicator?: "above" | "below";
 }
 
 export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
@@ -49,6 +51,7 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
   onDateChange,
   onContextMenu,
   readOnly = false,
+  dropIndicator,
 }) => {
   const {
     attributes,
@@ -246,10 +249,14 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
     }
   };
 
+  const rowClassNames = [styles.propertyRow];
+  if (dropIndicator === "above") rowClassNames.push(styles.dropIndicatorAbove);
+  if (dropIndicator === "below") rowClassNames.push(styles.dropIndicatorBelow);
+
   return (
     <tr
       ref={setNodeRef}
-      className={styles.propertyRow}
+      className={rowClassNames.join(" ")}
       style={rowStyle}
       onContextMenu={handleContextMenu}
     >

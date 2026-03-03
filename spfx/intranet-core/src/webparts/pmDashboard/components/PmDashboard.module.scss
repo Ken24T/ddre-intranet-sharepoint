@@ -333,6 +333,40 @@
   background-color: "[theme:neutralLight, default: #edebe9]" !important;
 }
 
+/* ─── Drop indicator guide ────────────────────────────── */
+
+.dropIndicatorAbove {
+  position: relative;
+}
+
+.dropIndicatorAbove::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--hub-accent, #001cad);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.dropIndicatorBelow {
+  position: relative;
+}
+
+.dropIndicatorBelow::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--hub-accent, #001cad);
+  z-index: 5;
+  pointer-events: none;
+}
+
 /* ─── Cells ───────────────────────────────────────────── */
 
 .cell {

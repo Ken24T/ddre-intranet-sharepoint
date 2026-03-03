@@ -107,11 +107,15 @@ export class PollingRealtimeService implements IRealtimeService {
     if (colour) {
       this._colour = colour;
     }
-    // Immediately heartbeat with new PM selection
+    // Immediately heartbeat with new PM selection, then refresh
+    // presence so the PresenceBar dot colour updates without
+    // waiting for the next poll cycle.
     if (this.presenceRepository && this._currentUserId) {
-      this._sendHeartbeat().catch((err) => {
-        console.error("[PollingRealtimeService] Heartbeat after PM change failed:", err);
-      });
+      this._sendHeartbeat()
+        .then(() => this._checkPresence())
+        .catch((err) => {
+          console.error("[PollingRealtimeService] Heartbeat after PM change failed:", err);
+        });
     }
   }
 
@@ -129,11 +133,15 @@ export class PollingRealtimeService implements IRealtimeService {
         // Ignore — next poll will detect the change
       });
 
-    // Send an immediate heartbeat with the lastChanged timestamp
+    // Send an immediate heartbeat with the lastChanged timestamp,
+    // then refresh presence so the blink animation appears without
+    // waiting for the next poll cycle.
     if (this.presenceRepository && this._currentUserId) {
-      this._sendHeartbeat().catch((err) => {
-        console.error("[PollingRealtimeService] Heartbeat after change failed:", err);
-      });
+      this._sendHeartbeat()
+        .then(() => this._checkPresence())
+        .catch((err) => {
+          console.error("[PollingRealtimeService] Heartbeat after change failed:", err);
+        });
     }
   }
 

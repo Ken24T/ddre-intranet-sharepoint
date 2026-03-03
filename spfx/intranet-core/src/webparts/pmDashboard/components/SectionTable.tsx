@@ -15,7 +15,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import type { DragEndEvent } from "@dnd-kit/core";
+import type { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
 import {
   SortableContext,
   sortableKeyboardCoordinates,
@@ -152,13 +152,58 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
 
   const rowIds = React.useMemo(() => rows.map((r) => r.id), [rows]);
 
+  // ─── Drop indicator state ─────────────────────────────
+  const [dragActiveId, setDragActiveId] = React.useState<string | null>(null);
+  const [dragOverId, setDragOverId] = React.useState<string | null>(null);
+
+  const handleDragStart = React.useCallback(
+    (event: DragStartEvent): void => {
+      setDragActiveId(event.active.id as string);
+    },
+    [],
+  );
+
+  const handleDragOver = React.useCallback(
+    (event: DragOverEvent): void => {
+      const overId = event.over ? (event.over.id as string) : null;
+      setDragOverId(overId);
+    },
+    [],
+  );
+
   const handleDragEnd = React.useCallback(
     (event: DragEndEvent): void => {
+      setDragActiveId(null);
+      setDragOverId(null);
       const { active, over } = event;
       if (!over || active.id === over.id) return;
       onReorder(section, active.id as string, over.id as string);
     },
     [section, onReorder],
+  );
+
+  const handleDragCancel = React.useCallback((): void => {
+    setDragActiveId(null);
+    setDragOverId(null);
+  }, []);
+
+  /**
+   * Determine the drop indicator position for a given row.
+   * Shows a line above or below the hovered row to indicate
+   * where the dragged row will be inserted.
+   */
+  const getDropIndicator = React.useCallback(
+    (rowId: string): "above" | "below" | undefined => {
+      if (!dragActiveId || !dragOverId || dragActiveId === dragOverId) return undefined;
+      if (rowId !== dragOverId) return undefined;
+
+      const activeIdx = rowIds.indexOf(dragActiveId);
+      const overIdx = rowIds.indexOf(dragOverId);
+      if (activeIdx === -1 || overIdx === -1) return undefined;
+
+      return activeIdx < overIdx ? "below" : "above";
+    },
+    [dragActiveId, dragOverId, rowIds],
   );
 
   const handleCellChange = React.useCallback(
@@ -224,7 +269,10 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
         >
           <SortableContext
             items={rowIds}
@@ -283,6 +331,7 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
                         onDateChange={handleDateChange}
                         onContextMenu={handleContextMenu}
                         readOnly={readOnly}
+                        dropIndicator={getDropIndicator(row.id)}
                       />
                     ),
                   )
