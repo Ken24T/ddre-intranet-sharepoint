@@ -148,7 +148,6 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
           value={row.columns[VACATES_COLS.pm] || ""}
           propertyManagers={propertyManagers}
           onChange={handlePmChange}
-          readOnly={readOnly}
         />
       </td>
       <td className={styles.colComments}>
@@ -223,7 +222,6 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
           value={row.columns[ENTRIES_COLS.pm] || ""}
           propertyManagers={propertyManagers}
           onChange={handlePmChange}
-          readOnly={readOnly}
         />
       </td>
       <td className={styles.colComments}>

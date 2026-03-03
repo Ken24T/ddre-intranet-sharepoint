@@ -351,6 +351,10 @@
 }
 
 .checkboxCell {
+  display: block;
+  width: 100%;
+  min-height: 20px;
+  line-height: 20px;
   text-align: center;
   cursor: pointer;
   user-select: none;
