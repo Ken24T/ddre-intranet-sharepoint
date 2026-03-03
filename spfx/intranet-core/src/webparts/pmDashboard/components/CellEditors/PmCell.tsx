@@ -53,13 +53,9 @@ export const PmCell: React.FC<IPmCellProps> = ({
       setShowDropdown(false);
     };
 
-    const timerId = setTimeout(() => {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("scroll", handleScroll, true);
-    }, 0);
-
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("scroll", handleScroll, true);
     return () => {
-      clearTimeout(timerId);
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("scroll", handleScroll, true);
     };
@@ -91,6 +87,7 @@ export const PmCell: React.FC<IPmCellProps> = ({
           ref={dropdownRef}
           className={styles.pmDropdown}
           style={{ top: dropdownPos.top, left: dropdownPos.left }}
+          onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
         >
           {propertyManagers.map((pm) => {

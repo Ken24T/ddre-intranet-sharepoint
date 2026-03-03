@@ -109,7 +109,6 @@ export const VacCell: React.FC<IVacCellProps> = ({
 
     const handleClickOutside = (e: MouseEvent): void => {
       const target = e.target as Node;
-      // Check if click is inside the cell or the portal popover
       const insideCell = cellRef.current ? cellRef.current.contains(target) : false;
       const insidePopover = popoverRef.current ? popoverRef.current.contains(target) : false;
       if (!insideCell && !insidePopover) {
@@ -121,15 +120,9 @@ export const VacCell: React.FC<IVacCellProps> = ({
       commitAndClose();
     };
 
-    // Delay listener registration so the portal has time to mount
-    // and popoverRef.current is set before we start checking contains()
-    const timerId = setTimeout(() => {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("scroll", handleScroll, true);
-    }, 0);
-
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("scroll", handleScroll, true);
     return () => {
-      clearTimeout(timerId);
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("scroll", handleScroll, true);
     };
@@ -203,6 +196,7 @@ export const VacCell: React.FC<IVacCellProps> = ({
           className={styles.vacPopover}
           style={{ top: popoverPos.top, left: popoverPos.left }}
           onKeyDown={handleKeyDown}
+          onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
         >
           <div className={styles.vacPopoverSection}>
