@@ -124,16 +124,38 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
       </td>
       <td className={styles.colCheckbox}>
         <CheckboxCell
-          value={row.columns[VACATES_COLS.vac] || ""}
-          onChange={handleCellChange(VACATES_COLS.vac)}
+          value={row.columns[VACATES_COLS.sts] || ""}
+          onChange={handleCellChange(VACATES_COLS.sts)}
           readOnly={readOnly}
         />
       </td>
-      <td className={styles.colReason}>
+      <td className={styles.colCheckbox}>
+        <CheckboxCell
+          value={row.columns[VACATES_COLS.sign] || ""}
+          onChange={handleCellChange(VACATES_COLS.sign)}
+          readOnly={readOnly}
+        />
+      </td>
+      <td className={styles.colCheckbox}>
+        <CheckboxCell
+          value={row.columns[VACATES_COLS.key] || ""}
+          onChange={handleCellChange(VACATES_COLS.key)}
+          readOnly={readOnly}
+        />
+      </td>
+      <td className={styles.colVac}>
         <TextCell
-          value={row.columns[VACATES_COLS.reason] || ""}
-          onChange={handleCellChange(VACATES_COLS.reason)}
-          placeholder="Reason"
+          value={row.columns[VACATES_COLS.vac] || ""}
+          onChange={handleCellChange(VACATES_COLS.vac)}
+          placeholder="VAC"
+          readOnly={readOnly}
+        />
+      </td>
+      <td className={styles.colComments}>
+        <TextCell
+          value={row.columns[VACATES_COLS.comments] || ""}
+          onChange={handleCellChange(VACATES_COLS.comments)}
+          placeholder="Comments"
           readOnly={readOnly}
         />
       </td>
@@ -186,6 +208,21 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
           value={row.columns[ENTRIES_COLS.pm] || ""}
           propertyManagers={propertyManagers}
           onChange={handlePmChange}
+          readOnly={readOnly}
+        />
+      </td>
+      <td className={styles.colCheckbox}>
+        <CheckboxCell
+          value={row.columns[ENTRIES_COLS.ecr] || ""}
+          onChange={handleCellChange(ENTRIES_COLS.ecr)}
+          readOnly={readOnly}
+        />
+      </td>
+      <td className={styles.colEcrBy}>
+        <TextCell
+          value={row.columns[ENTRIES_COLS.ecrBy] || ""}
+          onChange={handleCellChange(ENTRIES_COLS.ecrBy)}
+          placeholder="ECR BY"
           readOnly={readOnly}
         />
       </td>

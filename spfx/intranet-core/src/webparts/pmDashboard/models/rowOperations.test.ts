@@ -21,7 +21,7 @@ function makeRow(id: string, date: string, pm: string = "KB", blank?: boolean): 
   return {
     id,
     pm,
-    columns: [date, "123 Test St", pm, "", ""],
+    columns: [date, "123 Test St", pm, "", "", "", "", ""],
   };
 }
 
@@ -29,7 +29,7 @@ function makeEntriesRow(id: string, date: string, pm: string = "KB"): IPropertyR
   return {
     id,
     pm,
-    columns: [date, "Mon", "", "", "", "123 Test St", pm, ""],
+    columns: [date, "Mon", "", "", "", "123 Test St", pm, "", "", ""],
   };
 }
 
@@ -42,7 +42,7 @@ describe("rowOperations", () => {
       expect(row.pm).toBe("KB");
       expect(row.columns[0]).toBe("15/03");
       expect(row.columns[2]).toBe("KB"); // PM column
-      expect(row.columns).toHaveLength(5);
+      expect(row.columns).toHaveLength(8);
     });
 
     it("creates an entries row with auto-calculated Day", () => {
@@ -50,7 +50,7 @@ describe("rowOperations", () => {
       expect(row.columns[0]).toBe("02/03");
       expect(row.columns[1]).toBeTruthy(); // Day should be calculated
       expect(row.columns[6]).toBe("SD"); // PM column
-      expect(row.columns).toHaveLength(8);
+      expect(row.columns).toHaveLength(10);
     });
 
     it("uses today's date when no date is provided", () => {
@@ -219,7 +219,7 @@ describe("rowOperations", () => {
   describe("updateRowColumns", () => {
     it("replaces a row's columns", () => {
       const rows = [makeRow("a", "01/03")];
-      const newCols = ["01/03", "New Address", "SD", "Y", "Moving"];
+      const newCols = ["01/03", "New Address", "SD", "", "", "", "Y", "Moving"];
       const result = updateRowColumns(rows, "a", newCols);
       expect(result[0].columns).toEqual(newCols);
       expect(result[0].columns).not.toBe(newCols); // Should be a copy

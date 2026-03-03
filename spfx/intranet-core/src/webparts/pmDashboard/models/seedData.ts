@@ -50,56 +50,56 @@ export const SEED_DASHBOARD_DATA: IDashboardData = {
     {
       id: "seed-v1",
       pm: "KB",
-      columns: ["15/03", "42 Smith Street, Richmond", "KB", "Y", "Relocating"],
+      columns: ["15/03", "42 Smith Street, Richmond", "KB", "", "", "", "KB 15/3", "Relocating"],
     },
     {
       id: "seed-v2",
       pm: "CY",
-      columns: ["15/03", "7/18 Chapel Street, Windsor", "CY", "", "End of lease"],
+      columns: ["15/03", "7/18 Chapel Street, Windsor", "CY", "Y", "", "", "", "End of lease"],
     },
     { id: "seed-v-blank1", pm: "", columns: [], blank: true },
     {
       id: "seed-v3",
       pm: "CW",
-      columns: ["20/03", "156 High Street, Prahran", "CW", "Y", "Selling"],
+      columns: ["20/03", "156 High Street, Prahran", "CW", "Y", "Y", "", "CW 20/3", "Selling"],
     },
     {
       id: "seed-v4",
       pm: "ES",
-      columns: ["22/03", "3/9 Park Avenue, South Yarra", "ES", "", "Moving interstate"],
+      columns: ["22/03", "3/9 Park Avenue, South Yarra", "ES", "", "", "Y", "", "Moving interstate"],
     },
     {
       id: "seed-v5",
       pm: "HS",
-      columns: ["25/03", "88 Commercial Road, Toorak", "HS", "Y", ""],
+      columns: ["25/03", "88 Commercial Road, Toorak", "HS", "Y", "Y", "Y", "HS 25/3", ""],
     },
   ],
   entries: [
     {
       id: "seed-e1",
       pm: "KB",
-      columns: ["10/03", "Tue", "Y", "Y", "", "22 Albert Road, South Melbourne", "KB", "New tenant from interstate"],
+      columns: ["10/03", "Tue", "Y", "Y", "", "22 Albert Road, South Melbourne", "KB", "", "", "New tenant from interstate"],
     },
     {
       id: "seed-e2",
       pm: "CW",
-      columns: ["10/03", "Tue", "Y", "Y", "Y", "5/44 Barkly Street, St Kilda", "CW", ""],
+      columns: ["10/03", "Tue", "Y", "Y", "Y", "5/44 Barkly Street, St Kilda", "CW", "Y", "CW", ""],
     },
     { id: "seed-e-blank1", pm: "", columns: [], blank: true },
     {
       id: "seed-e3",
       pm: "ES",
-      columns: ["14/03", "Sat", "", "", "", "91 Fitzroy Street, St Kilda", "ES", "Waiting on references"],
+      columns: ["14/03", "Sat", "", "", "", "91 Fitzroy Street, St Kilda", "ES", "", "", "Waiting on references"],
     },
     {
       id: "seed-e4",
       pm: "CY",
-      columns: ["17/03", "Tue", "Y", "", "", "12 Acland Street, St Kilda", "CY", "Bond pending"],
+      columns: ["17/03", "Tue", "Y", "", "", "12 Acland Street, St Kilda", "CY", "Y", "CY", "Bond pending"],
     },
     {
       id: "seed-e5",
       pm: "HS",
-      columns: ["21/03", "Sat", "", "", "", "67 Carlisle Street, Balaclava", "HS", ""],
+      columns: ["21/03", "Sat", "", "", "", "67 Carlisle Street, Balaclava", "HS", "", "", ""],
     },
   ],
 };

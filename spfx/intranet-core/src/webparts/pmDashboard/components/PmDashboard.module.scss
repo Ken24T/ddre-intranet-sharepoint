@@ -259,7 +259,16 @@
   text-align: center;
 }
 
-.colReason,
+.colVac {
+  width: 70px;
+  min-width: 70px;
+}
+
+.colEcrBy {
+  width: 70px;
+  min-width: 70px;
+}
+
 .colComments {
   min-width: 100px;
 }

@@ -2,8 +2,8 @@
  * PM Dashboard – Core Type Definitions
  *
  * These types mirror the standalone app's data model while adding
- * TypeScript strictness. The column schemas use the post-migration
- * layout (legacy ST/Sign/KEY/ECR columns removed).
+ * TypeScript strictness. The column schemas match the original
+ * PM Dashboard Excel spreadsheet layout.
  */
 
 /** The two table sections in the dashboard */
@@ -50,8 +50,11 @@ export interface IColumnIndex {
 
 /** Vacates-specific column indices */
 export interface IVacatesColumnIndex extends IColumnIndex {
+  readonly sts: number;
+  readonly sign: number;
+  readonly key: number;
   readonly vac: number;
-  readonly reason: number;
+  readonly comments: number;
 }
 
 /** Entries-specific column indices */
@@ -60,6 +63,8 @@ export interface IEntriesColumnIndex extends IColumnIndex {
   readonly signed: number;
   readonly bond: number;
   readonly twoWks: number;
+  readonly ecr: number;
+  readonly ecrBy: number;
   readonly comments: number;
 }
 

@@ -1,8 +1,8 @@
 /**
  * PM Dashboard – Column schemas and indices per section.
  *
- * These are the post-migration column layouts. The standalone app's
- * `migrateData()` removed legacy columns (ST, Sign, KEY, ECR, ECR BY).
+ * These column layouts match the original PM Dashboard Excel
+ * spreadsheet (sheet "PM Dashboard").
  */
 
 import type {
@@ -13,8 +13,8 @@ import type {
 
 /** Ordered column header labels for each section */
 export const SECTION_COLUMNS: Record<DashboardSection, readonly string[]> = {
-  vacates: ["Date", "Property", "PM", "VAC", "Reason"] as const,
-  entries: ["Date", "Day", "Signed", "BOND", "2WKS", "Property", "PM", "Comments"] as const,
+  vacates: ["Date", "Property", "PM", "STS", "Sign", "KEY", "VAC", "Comments"] as const,
+  entries: ["Date", "Day", "Signed", "BOND", "2WKS", "Property", "PM", "ECR", "ECR BY", "Comments"] as const,
 };
 
 /** Column count per section (for creating empty rows) */
@@ -28,8 +28,11 @@ export const VACATES_COLS: IVacatesColumnIndex = {
   date: 0,
   property: 1,
   pm: 2,
-  vac: 3,
-  reason: 4,
+  sts: 3,
+  sign: 4,
+  key: 5,
+  vac: 6,
+  comments: 7,
 };
 
 /** Named column indices for the Entries section */
@@ -41,7 +44,9 @@ export const ENTRIES_COLS: IEntriesColumnIndex = {
   twoWks: 4,
   property: 5,
   pm: 6,
-  comments: 7,
+  ecr: 7,
+  ecrBy: 8,
+  comments: 9,
 };
 
 /**

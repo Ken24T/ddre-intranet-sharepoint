@@ -31,6 +31,7 @@ import {
 } from "../models/rowOperations";
 import { getDayOfWeek } from "../models/dateHelpers";
 import { getInitials } from "../models/pmHelpers";
+import { getPropertyColumnIndex } from "../models/columnSchemas";
 import { SectionTable } from "./SectionTable";
 import { ContextMenu, type IContextMenuAction } from "./ContextMenu";
 import { PmSelector } from "./PmSelector";
@@ -497,7 +498,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
       const newRow = createPropertyRow(section, activePm);
       // Set property address from extraction
       if (result.address) {
-        newRow.columns[1] = result.address; // Property column (index 1 for vacates)
+        newRow.columns[getPropertyColumnIndex(section)] = result.address;
       }
       newRow.propertyUrl = result.url;
 
@@ -517,7 +518,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
 
       // Set property address from extraction
       if (result.address) {
-        newRow.columns[1] = result.address;
+        newRow.columns[getPropertyColumnIndex(section)] = result.address;
       }
       newRow.propertyUrl = result.url;
 
