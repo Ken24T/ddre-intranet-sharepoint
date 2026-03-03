@@ -60,7 +60,7 @@ export const PmCell: React.FC<IPmCellProps> = ({
   );
 
   return (
-    <div ref={cellRef} style={{ position: "relative" }}>
+    <div ref={cellRef} className={styles.pmCellWrapper}>
       <span
         className={styles.pmBadge}
         style={{ backgroundColor: bgColor, color: textColor }}
@@ -76,56 +76,27 @@ export const PmCell: React.FC<IPmCellProps> = ({
       </span>
 
       {showDropdown && (
-        <div
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            zIndex: 100,
-            background: "#ffffff",
-            border: "1px solid #edebe9",
-            borderRadius: 4,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-            padding: 4,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            minWidth: 80,
-          }}
-        >
+        <div className={styles.pmDropdown}>
           {propertyManagers.map((pm) => {
             const initials = `${pm.firstName[0] || ""}${pm.lastName[0] || ""}`.toUpperCase();
             const pmBg = pm.color || "#cccccc";
             const pmText = getContrastColor(pmBg);
+            const isActive = initials === value;
             return (
               <button
                 key={pm.id}
                 type="button"
+                className={styles.pmDropdownItem}
                 onClick={() => handleSelect(initials)}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "4px 8px",
-                  border: "none",
-                  background: initials === value ? "#f3f2f1" : "transparent",
-                  cursor: "pointer",
-                  borderRadius: 3,
-                  fontSize: 12,
+                  background: isActive ? "#e8e6e4" : undefined,
                 }}
               >
                 <span
+                  className={styles.pmDropdownBadge}
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 24,
-                    height: 20,
-                    borderRadius: 3,
                     backgroundColor: pmBg,
                     color: pmText,
-                    fontSize: 10,
-                    fontWeight: 600,
                   }}
                 >
                   {initials}

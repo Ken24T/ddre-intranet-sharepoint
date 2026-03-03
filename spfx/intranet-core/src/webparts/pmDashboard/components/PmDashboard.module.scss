@@ -376,6 +376,62 @@
   cursor: pointer;
 }
 
+.pmBadge:hover {
+  filter: brightness(0.88);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12);
+}
+
+.pmCellWrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.pmDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1000;
+  background: #ffffff;
+  border: 1px solid #edebe9;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+  white-space: nowrap;
+}
+
+.pmDropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.pmDropdownItem:hover {
+  background: #f3f2f1;
+}
+
+.pmDropdownBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
 .propertyLink {
   color: "[theme:themePrimary, default: #001CAD]";
   text-decoration: none;
