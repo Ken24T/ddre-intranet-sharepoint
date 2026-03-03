@@ -91,21 +91,21 @@ export function getPropertyColumnIndex(section: DashboardSection): number {
  */
 export const DEFAULT_COLUMN_WIDTHS: Record<DashboardSection, SectionColumnWidths> = {
   vacates: {
-    [VACATES_COLS.date]: 60,
-    [VACATES_COLS.vac]: 90,
-    [VACATES_COLS.pm]: 40,
+    [VACATES_COLS.date]: 50,
+    [VACATES_COLS.vac]: 65,
+    [VACATES_COLS.pm]: 36,
     // Property & Comments take remaining space
   },
   entries: {
-    [ENTRIES_COLS.date]: 60,
-    [ENTRIES_COLS.day]: 40,
-    [ENTRIES_COLS.signed]: 44,
-    [ENTRIES_COLS.bond]: 44,
-    [ENTRIES_COLS.twoWks]: 44,
-    [ENTRIES_COLS.ecr]: 36,
-    [ENTRIES_COLS.bag]: 36,
-    [ENTRIES_COLS.ecrBy]: 90,
-    [ENTRIES_COLS.pm]: 40,
+    [ENTRIES_COLS.date]: 50,
+    [ENTRIES_COLS.day]: 34,
+    [ENTRIES_COLS.signed]: 38,
+    [ENTRIES_COLS.bond]: 38,
+    [ENTRIES_COLS.twoWks]: 38,
+    [ENTRIES_COLS.ecr]: 32,
+    [ENTRIES_COLS.bag]: 32,
+    [ENTRIES_COLS.ecrBy]: 65,
+    [ENTRIES_COLS.pm]: 36,
     // Property & Comments take remaining space
   },
 };

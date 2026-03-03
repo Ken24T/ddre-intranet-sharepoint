@@ -65,6 +65,18 @@
   position: relative;
 }
 
+/* Vacates has fewer columns — give it less space */
+.sectionCardVacates {
+  composes: sectionCard;
+  flex: 2 1 0;
+}
+
+/* Entries has more columns — give it more space */
+.sectionCardEntries {
+  composes: sectionCard;
+  flex: 3 1 0;
+}
+
 /* Drop zone overlay for PropertyMe drag-and-drop */
 .dropZoneOverlay {
   position: absolute;

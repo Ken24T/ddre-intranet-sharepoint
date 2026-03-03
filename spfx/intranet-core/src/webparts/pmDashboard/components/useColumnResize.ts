@@ -177,23 +177,23 @@ export function useColumnResize(
         // Active columns (dragged + adjacent) → use live values.
         const live = liveWidths[colIndex];
         if (live !== undefined) {
-          return { width: live, minWidth: MIN_COL_WIDTH };
+          return { width: live };
         }
         // Other columns → use snapshot to prevent any redistribution.
         const snap = snapRef.current[colIndex];
         if (snap !== undefined) {
-          return { width: snap, minWidth: MIN_COL_WIDTH };
+          return { width: snap };
         }
       }
 
       // No active drag → stored width or default.
       const stored = widths[colIndex];
       if (stored !== undefined) {
-        return { width: stored, minWidth: MIN_COL_WIDTH };
+        return { width: stored };
       }
       const defaultW = defaultWidths ? defaultWidths[colIndex] : undefined;
       if (defaultW !== undefined) {
-        return { width: defaultW, minWidth: MIN_COL_WIDTH };
+        return { width: defaultW };
       }
       return undefined;
     },

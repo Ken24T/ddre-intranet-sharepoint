@@ -39,6 +39,7 @@ export interface ISettingsPanelProps {
   onDismiss: () => void;
   propertyManagers: IPropertyManager[];
   onSave: (pms: IPropertyManager[]) => void;
+  onResetColumnWidths?: () => void;
 }
 
 interface IPmFormState {
@@ -60,6 +61,7 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
   onDismiss,
   propertyManagers,
   onSave,
+  onResetColumnWidths,
 }) => {
   const [localPms, setLocalPms] = React.useState<IPropertyManager[]>([]);
   const [editingId, setEditingId] = React.useState<string | null>(null);
@@ -265,6 +267,21 @@ export const SettingsPanel: React.FC<ISettingsPanelProps> = ({
           <PrimaryButton text="Save Changes" onClick={handleSave} />
           <DefaultButton text="Discard" onClick={onDismiss} />
         </Stack>
+
+        {/* Column Width Reset */}
+        {onResetColumnWidths && (
+          <Stack
+            tokens={{ childrenGap: 4 }}
+            style={{ marginTop: 24, borderTop: "1px solid #edebe9", paddingTop: 16 }}
+          >
+            <Label>Column Widths</Label>
+            <DefaultButton
+              text="Reset Column Widths"
+              iconProps={{ iconName: "ResetDevice" }}
+              onClick={onResetColumnWidths}
+            />
+          </Stack>
+        )}
       </div>
     </Panel>
   );

@@ -84,6 +84,11 @@ export interface ISectionTableProps {
   readOnly?: boolean;
 }
 
+const SECTION_CARD_STYLES: Record<DashboardSection, string> = {
+  vacates: styles.sectionCardVacates,
+  entries: styles.sectionCardEntries,
+};
+
 const SECTION_HEADER_STYLES: Record<DashboardSection, string> = {
   vacates: styles.sectionHeaderVacates,
   entries: styles.sectionHeaderEntries,
@@ -238,7 +243,7 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
 
   return (
     <div
-      className={styles.sectionCard}
+      className={SECTION_CARD_STYLES[section]}
       onDragOver={dropHandlers.onDragOver}
       onDragEnter={dropHandlers.onDragEnter}
       onDragLeave={dropHandlers.onDragLeave}
@@ -287,28 +292,32 @@ export const SectionTable: React.FC<ISectionTableProps> = ({
                     <th key={col} style={getHeaderStyle(idx)} className={SECTION_TH_STYLES[section]}>
                       <div className={styles.thInner}>
                         <span>{col}</span>
-                        <div
-                          className={styles.resizeHandle}
-                          onPointerDown={(e) => {
-                            e.preventDefault();
-                            const th = (e.target as HTMLElement).closest("th");
-                            const headerRow = th?.parentElement;
+                        {/* No resize handle on the last column — use the
+                            previous column's handle to resize this boundary. */}
+                        {idx < columns.length - 1 && (
+                          <div
+                            className={styles.resizeHandle}
+                            onPointerDown={(e) => {
+                              e.preventDefault();
+                              const th = (e.target as HTMLElement).closest("th");
+                              const headerRow = th?.parentElement;
 
-                            // Snapshot ALL column widths (border-box) so
-                            // the hook can lock non-involved columns and
-                            // compute adjacent-column compensation.
-                            const allWidths: Record<number, number> = {};
-                            if (headerRow) {
-                              const ths = headerRow.querySelectorAll("th");
-                              // Skip first <th> (drag-handle column at DOM index 0)
-                              for (let i = 1; i < ths.length; i++) {
-                                allWidths[i - 1] = ths[i].getBoundingClientRect().width;
+                              // Snapshot ALL column widths (border-box) so
+                              // the hook can lock non-involved columns and
+                              // compute adjacent-column compensation.
+                              const allWidths: Record<number, number> = {};
+                              if (headerRow) {
+                                const ths = headerRow.querySelectorAll("th");
+                                // Skip first <th> (drag-handle column at DOM index 0)
+                                for (let i = 1; i < ths.length; i++) {
+                                  allWidths[i - 1] = ths[i].getBoundingClientRect().width;
+                                }
                               }
-                            }
 
-                            onResizeStart(idx, e.clientX, allWidths);
-                          }}
-                        />
+                              onResizeStart(idx, e.clientX, allWidths);
+                            }}
+                          />
+                        )}
                       </div>
                     </th>
                   ))}

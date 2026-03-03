@@ -93,7 +93,8 @@ type DashboardAction =
       section: DashboardSection;
       colIndex: number;
       width: number;
-    };
+    }
+  | { type: "RESET_COLUMN_WIDTHS" };
 
 function dashboardReducer(
   state: DashboardState,
@@ -158,6 +159,9 @@ function dashboardReducer(
       };
       return { ...state, columnWidths: updated, columnWidthsDirty: true };
     }
+
+    case "RESET_COLUMN_WIDTHS":
+      return { ...state, columnWidths: {}, columnWidthsDirty: true };
 
     default:
       return state;
@@ -726,6 +730,10 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
     [repository, state.propertyManagers, audit],
   );
 
+  const handleResetColumnWidths = React.useCallback((): void => {
+    dispatch({ type: "RESET_COLUMN_WIDTHS" });
+  }, []);
+
   // ─── Render ────────────────────────────────────────────
 
   if (state.loading) {
@@ -912,6 +920,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
         onDismiss={handleCloseSettings}
         propertyManagers={state.propertyManagers}
         onSave={handleSavePropertyManagers}
+        onResetColumnWidths={handleResetColumnWidths}
       />
     </div>
   );
