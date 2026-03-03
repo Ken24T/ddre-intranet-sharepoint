@@ -779,11 +779,13 @@ Marketing budget tracking and reporting for sales & marketing teams.
 
 ### app-pm-dashboard
 
-> **Status:** � Phase 1 Complete
+> **Status:** 🟢 Phase 1 Complete · Phase 2 Complete · Phase 3 In Progress
 >
 > **Hub:** Property Management
 
 PropertyMe data visualisation dashboard.
+
+#### Phase 1 – Core Dashboard (v0.8.0→v0.10.0)
 
 - [x] Define requirements in `apps/app-pm-dashboard/`
 - [x] Create web part at `spfx/intranet-core/src/webparts/pmDashboard/`
@@ -800,6 +802,25 @@ PropertyMe data visualisation dashboard.
 - [x] SPListDashboardRepository (SharePoint List implementation)
 - [x] SharePoint List provisioning (listProvisioning + RepositoryFactory)
 - [x] Playwright E2E tests
+
+#### Phase 2 – Real-Time Collaboration (v0.11.0→v0.12.0)
+
+- [x] Per-PM column widths (v0.11.0)
+- [x] PropertyMe drag-and-drop from browser extension (v0.11.1)
+- [x] Real-time polling sync (v0.11.2)
+- [x] User presence indicators (v0.11.3–v0.11.5)
+- [x] Remove Lost Managements section (v0.12.0)
+
+#### Phase 3 – PropertyMe Analytics & Portfolio (v0.13.0)
+
+- [x] IPropertyMeService interface + MockPropertyMeService with Australian seed data
+- [x] KPI summary bar (active properties, occupancy, rent collected/outstanding, maintenance, tenants)
+- [x] View switcher (Pivot tabs: Tables | Portfolio | Maintenance)
+- [x] Portfolio view (property grid, search/filter, detail panel with tenant/owner info)
+- [x] Maintenance view (request list with status/priority badges and filters)
+- [x] Dev harness wired with MockPropertyMeService
+- [x] 23 unit tests for MockPropertyMeService
+- [ ] Production PropertyMeService (when Azure proxy is deployed)
 
 ### app-qrcoder
 
