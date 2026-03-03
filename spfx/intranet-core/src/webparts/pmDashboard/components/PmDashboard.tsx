@@ -7,7 +7,7 @@
  */
 
 import * as React from "react";
-import { Spinner, SpinnerSize, MessageBar, MessageBarType, IconButton } from "@fluentui/react";
+import { Spinner, SpinnerSize, MessageBar, MessageBarType, IconButton, Pivot, PivotItem } from "@fluentui/react";
 import type { IPmDashboardProps } from "./IPmDashboardProps";
 import type {
   IDashboardData,
@@ -44,6 +44,10 @@ import { PresenceBar } from "./PresenceBar";
 import { PollingRealtimeService } from "../services/PollingRealtimeService";
 import { useShellBridge } from "./useShellBridge";
 import type { PmDashboardView } from "./useShellBridge";
+import { SummaryBar } from "./Widgets/SummaryBar";
+import { PortfolioView } from "./Widgets/PortfolioView";
+import { MaintenanceView } from "./Widgets/MaintenanceView";
+import type { DashboardSummary } from "../services/IPropertyMeService";
 import styles from "./PmDashboard.module.scss";
 
 // ─────────────────────────────────────────────────────────────
@@ -198,6 +202,7 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
   presenceRepository,
   userDisplayName,
   userEmail,
+  propertyMeService,
 }) => {
   const [state, dispatch] = React.useReducer(dashboardReducer, INITIAL_STATE);
   const [contextMenu, setContextMenu] =
@@ -205,6 +210,44 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const saveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const mountedRef = React.useRef(true);
+
+  // ─── Pivot tab state ───────────────────────────────────
+  const [activeTab, setActiveTab] = React.useState<string>("tables");
+
+  // ─── PropertyMe summary data ───────────────────────────
+  const [pmSummary, setPmSummary] = React.useState<DashboardSummary | undefined>();
+  const [pmSummaryLoading, setPmSummaryLoading] = React.useState(false);
+  const [pmSummaryError, setPmSummaryError] = React.useState<string | undefined>();
+
+  // Load PropertyMe summary on mount if service available
+  React.useEffect(() => {
+    if (!propertyMeService) return;
+
+    let cancelled = false;
+    setPmSummaryLoading(true);
+    setPmSummaryError(undefined);
+
+    propertyMeService
+      .getDashboardSummary()
+      .then((summary) => {
+        if (!cancelled) {
+          setPmSummary(summary);
+          setPmSummaryLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setPmSummaryError(
+            err instanceof Error ? err.message : "Failed to load metrics",
+          );
+          setPmSummaryLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [propertyMeService]);
 
   // ─── AppBridge (sidebar navigation) ────────────────────
   const [activeView, setActiveView] = React.useState<PmDashboardView>("dashboard");
@@ -664,47 +707,129 @@ export const PmDashboard: React.FC<IPmDashboardProps> = ({
         </div>
       </div>
 
-      {/* PropertyMe URL Input */}
-      <PropertyMeInput
-        onAdd={handlePropertyMeAdd}
-        disabled={!state.selectedPm}
-      />
+      {/* KPI Summary Bar */}
+      {propertyMeService && (
+        <SummaryBar
+          summary={pmSummary}
+          loading={pmSummaryLoading}
+          error={pmSummaryError}
+        />
+      )}
 
-      {/* Section Tables */}
-      <div className={styles.sectionsContainer}>
-        <SectionTable
-          section="vacates"
-          title="Vacates"
-          rows={state.data.vacates}
-          propertyManagers={state.propertyManagers}
-          onCellChange={handleCellChange}
-          onPmChange={handlePmChange}
-          onDateChange={handleDateChange}
-          onContextMenu={handleContextMenu}
-          onAddRow={handleAddRow}
-          onReorder={handleReorder}
-          readOnly={!state.selectedPm}
-          columnWidths={getColumnWidths("vacates")}
-          onColumnResize={handleColumnResize}
-          onPropertyMeDrop={handlePropertyMeDrop}
-        />
-        <SectionTable
-          section="entries"
-          title="Entries"
-          rows={state.data.entries}
-          propertyManagers={state.propertyManagers}
-          onCellChange={handleCellChange}
-          onPmChange={handlePmChange}
-          onDateChange={handleDateChange}
-          onContextMenu={handleContextMenu}
-          onAddRow={handleAddRow}
-          onReorder={handleReorder}
-          readOnly={!state.selectedPm}
-          columnWidths={getColumnWidths("entries")}
-          onColumnResize={handleColumnResize}
-          onPropertyMeDrop={handlePropertyMeDrop}
-        />
-      </div>
+      {/* View Tabs */}
+      {propertyMeService ? (
+        <>
+          <div className={styles.viewTabs}>
+            <Pivot
+              selectedKey={activeTab}
+              onLinkClick={(item) => {
+                if (item?.props.itemKey) setActiveTab(item.props.itemKey);
+              }}
+            >
+              <PivotItem headerText="Tables" itemKey="tables" itemIcon="Table" />
+              <PivotItem headerText="Portfolio" itemKey="portfolio" itemIcon="Home" />
+              <PivotItem headerText="Maintenance" itemKey="maintenance" itemIcon="Toolbox" />
+            </Pivot>
+          </div>
+
+          {activeTab === "tables" && (
+            <>
+              {/* PropertyMe URL Input */}
+              <PropertyMeInput
+                onAdd={handlePropertyMeAdd}
+                disabled={!state.selectedPm}
+              />
+
+              {/* Section Tables */}
+              <div className={styles.sectionsContainer}>
+                <SectionTable
+                  section="vacates"
+                  title="Vacates"
+                  rows={state.data.vacates}
+                  propertyManagers={state.propertyManagers}
+                  onCellChange={handleCellChange}
+                  onPmChange={handlePmChange}
+                  onDateChange={handleDateChange}
+                  onContextMenu={handleContextMenu}
+                  onAddRow={handleAddRow}
+                  onReorder={handleReorder}
+                  readOnly={!state.selectedPm}
+                  columnWidths={getColumnWidths("vacates")}
+                  onColumnResize={handleColumnResize}
+                  onPropertyMeDrop={handlePropertyMeDrop}
+                />
+                <SectionTable
+                  section="entries"
+                  title="Entries"
+                  rows={state.data.entries}
+                  propertyManagers={state.propertyManagers}
+                  onCellChange={handleCellChange}
+                  onPmChange={handlePmChange}
+                  onDateChange={handleDateChange}
+                  onContextMenu={handleContextMenu}
+                  onAddRow={handleAddRow}
+                  onReorder={handleReorder}
+                  readOnly={!state.selectedPm}
+                  columnWidths={getColumnWidths("entries")}
+                  onColumnResize={handleColumnResize}
+                  onPropertyMeDrop={handlePropertyMeDrop}
+                />
+              </div>
+            </>
+          )}
+
+          {activeTab === "portfolio" && (
+            <PortfolioView service={propertyMeService} />
+          )}
+
+          {activeTab === "maintenance" && (
+            <MaintenanceView service={propertyMeService} />
+          )}
+        </>
+      ) : (
+        <>
+          {/* No PropertyMe service — show tables only (original layout) */}
+          <PropertyMeInput
+            onAdd={handlePropertyMeAdd}
+            disabled={!state.selectedPm}
+          />
+
+          <div className={styles.sectionsContainer}>
+            <SectionTable
+              section="vacates"
+              title="Vacates"
+              rows={state.data.vacates}
+              propertyManagers={state.propertyManagers}
+              onCellChange={handleCellChange}
+              onPmChange={handlePmChange}
+              onDateChange={handleDateChange}
+              onContextMenu={handleContextMenu}
+              onAddRow={handleAddRow}
+              onReorder={handleReorder}
+              readOnly={!state.selectedPm}
+              columnWidths={getColumnWidths("vacates")}
+              onColumnResize={handleColumnResize}
+              onPropertyMeDrop={handlePropertyMeDrop}
+            />
+            <SectionTable
+              section="entries"
+              title="Entries"
+              rows={state.data.entries}
+              propertyManagers={state.propertyManagers}
+              onCellChange={handleCellChange}
+              onPmChange={handlePmChange}
+              onDateChange={handleDateChange}
+              onContextMenu={handleContextMenu}
+              onAddRow={handleAddRow}
+              onReorder={handleReorder}
+              readOnly={!state.selectedPm}
+              columnWidths={getColumnWidths("entries")}
+              onColumnResize={handleColumnResize}
+              onPropertyMeDrop={handlePropertyMeDrop}
+            />
+          </div>
+        </>
+      )}
 
       {/* Context Menu */}
       {contextMenu.visible && (

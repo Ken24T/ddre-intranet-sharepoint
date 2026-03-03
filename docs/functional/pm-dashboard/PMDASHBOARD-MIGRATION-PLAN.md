@@ -481,9 +481,12 @@ export class PropertyMeService {
 
 | Task | Notes |
 |------|-------|
-| Dashboard analytics / KPIs | PropertyMe API aggregate queries |
-| Property portfolio widget views | As described in `apps/app-pm-dashboard/README.md` |
-| Maintenance request tracking | PropertyMe maintenance endpoints |
+| Dashboard analytics / KPIs | **Done (v0.13.0)** — SummaryBar component with 6 stat cards: active properties, occupancy rate, rent collected/outstanding, open maintenance, total tenants. Colour-coded accent borders (blue/green/amber/red). |
+| Property portfolio widget views | **Done (v0.13.0)** — PortfolioView with property card grid, search by address/suburb, status filter (active/inactive/all), and Fluent UI Panel for property detail (tenant, owner info). |
+| Maintenance request tracking | **Done (v0.13.0)** — MaintenanceView with request list, status filter dropdown, priority/status badges, property address lookup. |
+| View switcher (Pivot tabs) | **Done (v0.13.0)** — Fluent UI Pivot: Tables (existing vacates/entries), Portfolio, Maintenance. |
+| IPropertyMeService + MockPropertyMeService | **Done (v0.13.0)** — Interface + mock with 12 Australian properties, 9 tenants, 6 owners, 10 maintenance requests. 23 unit tests. |
+| Production PropertyMeService | Pending — requires Azure proxy deployment. PmDashboardWebPart passes `undefined` until ready. |
 
 ---
 
