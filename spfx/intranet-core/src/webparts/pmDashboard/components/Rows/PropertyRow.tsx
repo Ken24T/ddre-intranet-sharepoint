@@ -114,14 +114,6 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
           readOnly={readOnly}
         />
       </td>
-      <td className={styles.colPm}>
-        <PmCell
-          value={row.columns[VACATES_COLS.pm] || ""}
-          propertyManagers={propertyManagers}
-          onChange={handlePmChange}
-          readOnly={readOnly}
-        />
-      </td>
       <td className={styles.colCheckbox}>
         <CheckboxCell
           value={row.columns[VACATES_COLS.sts] || ""}
@@ -148,6 +140,14 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
           value={row.columns[VACATES_COLS.vac] || ""}
           onChange={handleCellChange(VACATES_COLS.vac)}
           placeholder="VAC"
+          readOnly={readOnly}
+        />
+      </td>
+      <td className={styles.colPm}>
+        <PmCell
+          value={row.columns[VACATES_COLS.pm] || ""}
+          propertyManagers={propertyManagers}
+          onChange={handlePmChange}
           readOnly={readOnly}
         />
       </td>
@@ -203,14 +203,6 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
           readOnly={readOnly}
         />
       </td>
-      <td className={styles.colPm}>
-        <PmCell
-          value={row.columns[ENTRIES_COLS.pm] || ""}
-          propertyManagers={propertyManagers}
-          onChange={handlePmChange}
-          readOnly={readOnly}
-        />
-      </td>
       <td className={styles.colCheckbox}>
         <CheckboxCell
           value={row.columns[ENTRIES_COLS.ecr] || ""}
@@ -223,6 +215,14 @@ export const PropertyRowComponent: React.FC<IPropertyRowProps> = ({
           value={row.columns[ENTRIES_COLS.ecrBy] || ""}
           onChange={handleCellChange(ENTRIES_COLS.ecrBy)}
           placeholder="ECR BY"
+          readOnly={readOnly}
+        />
+      </td>
+      <td className={styles.colPm}>
+        <PmCell
+          value={row.columns[ENTRIES_COLS.pm] || ""}
+          propertyManagers={propertyManagers}
+          onChange={handlePmChange}
           readOnly={readOnly}
         />
       </td>

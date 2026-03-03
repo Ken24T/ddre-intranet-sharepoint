@@ -13,8 +13,8 @@ import type {
 
 /** Ordered column header labels for each section */
 export const SECTION_COLUMNS: Record<DashboardSection, readonly string[]> = {
-  vacates: ["Date", "Property", "PM", "STS", "Sign", "KEY", "VAC", "Comments"] as const,
-  entries: ["Date", "Day", "Signed", "BOND", "2WKS", "Property", "PM", "ECR", "ECR BY", "Comments"] as const,
+  vacates: ["Date", "Property", "STS", "Sign", "KEY", "VAC", "PM", "Comments"] as const,
+  entries: ["Date", "Day", "Signed", "BOND", "2WKS", "Property", "ECR", "ECR BY", "PM", "Comments"] as const,
 };
 
 /** Column count per section (for creating empty rows) */
@@ -27,11 +27,11 @@ export const SECTION_COLUMN_COUNTS: Record<DashboardSection, number> = {
 export const VACATES_COLS: IVacatesColumnIndex = {
   date: 0,
   property: 1,
-  pm: 2,
-  sts: 3,
-  sign: 4,
-  key: 5,
-  vac: 6,
+  sts: 2,
+  sign: 3,
+  key: 4,
+  vac: 5,
+  pm: 6,
   comments: 7,
 };
 
@@ -43,9 +43,9 @@ export const ENTRIES_COLS: IEntriesColumnIndex = {
   bond: 3,
   twoWks: 4,
   property: 5,
-  pm: 6,
-  ecr: 7,
-  ecrBy: 8,
+  ecr: 6,
+  ecrBy: 7,
+  pm: 8,
   comments: 9,
 };
 
