@@ -2,11 +2,13 @@
 
 ## Purpose
 
-This agent governs **milestone and shipping actions** for any repository. It exists to safely execute the **SHIP workflow** (Preflight → Test → Problems → Bump → Commit → Tag → Push) with strong guard rails, auditability, and human approval at irreversible steps.
+This agent governs **milestone, shipping, sync, and deployment actions** for the DDRE Intranet repository. It exists to safely execute the **SHIP workflow** (Preflight → Test → Problems → Bump → Commit → Tag → Push) together with the repo's multi-machine sync and deployment actions, using strong guard rails, auditability, and human approval at irreversible steps.
 
 > **Naming:** "TCTBP" is a legacy acronym (Test, Commit, Tag, Bump, Push) kept for backward compatibility. The canonical term is **SHIP**. The execution order is documented in the SHIP Workflow section below.
 
-This agent is **not** for exploratory coding or refactoring. It is activated only when the user signals a milestone (e.g. “ship”, “prepare release”, “tctbp”).
+Quick reference: see [TCTBP Cheatsheet.md](TCTBP%20Cheatsheet.md) for the short operator view of triggers, gates, and repo-specific expectations.
+
+This agent is **not** for exploratory coding or refactoring. It is activated only when the user signals a milestone or explicit sync/deploy action (for example `ship`, `handover`, `resume`, or `deploy`).
 
 ---
 
@@ -92,7 +94,7 @@ $stats = git diff <default-branch>@{1}..<default-branch> --stat | Select-Object 
 
 This gate applies to:
 - Branch workflow step 3 (merge to default branch)
-- Handoff workflow step 6 (merge to default branch)
+- Handover workflow step 6 (merge to default branch)
 - Any manual merge the agent performs
 
 ### Pre-Push Deletion Audit
@@ -138,12 +140,13 @@ Activate this agent only when the user explicitly uses a clear cue (case-insensi
 - `ship`
 - `ship please`
 - `shipping`
-- `tctbp`
 - `prepare release`
-- `handoff`
-- `handoff please`
-- `handback`
-- `handback please`
+- `deploy`
+- `deploy please`
+- `handover`
+- `handover please`
+- `resume`
+- `resume please`
 - `status`
 - `status please`
 - `abort`
@@ -209,9 +212,9 @@ Versioning interaction:
 
 ---
 
-## Handoff Workflow (Sync for multi-machine work)
+## Handover Workflow
 
-Trigger: `handoff` / `handoff please`
+Trigger: `handover` / `handover please`
 
 Purpose: Cleanly sync work so development can continue on another computer.
 
@@ -235,7 +238,7 @@ Behaviour (safe, deterministic):
 
 5. **Ship if needed**
    - If there are commits since the last `vX.Y.Z` tag on this branch, run the full SHIP workflow.
-   - If tests already passed at step 3 in this handoff, the SHIP test step may be skipped.
+   - If tests already passed at step 3 in this handover, the SHIP test step may be skipped.
    - If changes are **docs-only or infrastructure-only** (plans, runbooks, internal guidance), skip bump/tag and continue.
    - Otherwise continue without bump/tag when no new commits since last tag.
 
@@ -266,16 +269,16 @@ Behaviour (safe, deterministic):
 
 Approval rules:
 
-- Using the `handoff` trigger grants approval to push the **feature branch**, the default branch, and tags **for this workflow only**.
+- Using the `handover` trigger grants approval to push the **feature branch**, the default branch, and tags **for this workflow only**.
 - Any other remote push still requires explicit approval.
 
 ---
 
-## Handback Workflow (Resume on another machine)
+## Resume Workflow
 
-Trigger: `handback` / `handback please`
+Trigger: `resume` / `resume please`
 
-Purpose: Restore the working environment on a different computer after a handoff, so development continues from exactly where it left off.
+Purpose: Restore the working environment on a different computer after a handover, so development continues from exactly where it left off.
 
 Behaviour (read-only, never pushes):
 
@@ -288,7 +291,7 @@ Behaviour (read-only, never pushes):
    - Run `git fetch --all --prune --tags` to sync all remote state.
 
 3. **Detect and checkout the active feature branch**
-   - Auto-detect the branch from the last handoff: inspect remote branches sorted by most recent commit (`git branch -r --sort=-committerdate`), filter out `origin/<default-branch>` and `origin/HEAD`, and select the top result.
+   - Auto-detect the branch from the last handover: inspect remote branches sorted by most recent commit (`git branch -r --sort=-committerdate`), filter out `origin/<default-branch>` and `origin/HEAD`, and select the top result.
    - **Confirmation:** Explicitly state the detected branch and its last commit date, and ask the user to confirm before checking it out (mitigates the "committer date vs push date" edge case).
    - If already on the correct branch, skip checkout.
    - If on the default branch or a different branch, checkout the detected feature branch and set up tracking.
@@ -318,7 +321,7 @@ Behaviour (read-only, never pushes):
 
 Approval rules:
 
-- Handback is entirely read-only — it fetches, checks out, and pulls but never pushes.
+- Resume is entirely read-only — it fetches, checks out, and pulls but never pushes.
 - No approval is required for any step.
 
 ---
@@ -345,12 +348,12 @@ Behaviour:
 
 3. **Recommend next step(s)**
    - Provide 1–3 actionable recommendations with a one-line reason for each.
-   - Use this priority order when multiple are valid (highest priority first): `abort` → `handback` → `ship` → `handoff` → `none`.
+    - Use this priority order when multiple are valid (highest priority first): `abort` → `resume` → `ship` → `handover` → `none`.
    - Recommendation rules:
      - `abort`: partial workflow state detected (e.g. merge in progress, bump/tag mismatch, previous workflow failed mid-way).
-     - `handback`: local/remote branch SHA mismatch or default branch not synced with origin.
-     - `ship`: unshipped commits since last tag, or version/tag drift detected.
-     - `handoff`: branch is ahead or working tree is dirty and user likely needs to move machines.
+       - `resume`: local/remote branch SHA mismatch or default branch not synced with origin.
+       - `ship`: unshipped commits since last tag, version/tag drift detected, or shipped user-facing changes lack release note updates.
+       - `handover`: branch is ahead or working tree is dirty and the user likely needs to move machines.
      - `none`: repo is clean, synced, and no SHIP is needed.
    - Never execute recommended actions automatically from `status`; only report recommendations.
 
@@ -362,19 +365,20 @@ No approval required. No changes made.
 
 Trigger: `abort`
 
-Purpose: Inspect and recover from a partially completed SHIP or handoff (e.g. bump committed but push failed, tag created but commit is wrong).
+Purpose: Inspect and recover from a partially completed SHIP, sync, or deploy workflow (for example bump committed but push failed, tag created but commit is wrong, or deployment state is ambiguous).
 
 Behaviour:
 
 1. **Inspect state**
    - Report current branch, working tree, last commit, last tag.
-   - Identify whether a partial operation is in progress (e.g. version bumped but not tagged, tagged but not pushed, merge started but not completed).
+   - Identify whether a partial operation is in progress (e.g. version bumped but not tagged, tagged but not pushed, merge started but not completed, release notes updated without the matching version or tag, deploy stopped after build but before validation).
 
 2. **Propose recovery**
-   - List specific recovery actions with consequences:
+    - List specific recovery actions with consequences:
      - Revert the bump commit (`git revert` or `git reset --soft HEAD~1`).
      - Delete a local tag (`git tag -d vX.Y.Z`).
      - Abort a merge (`git merge --abort`).
+       - Re-run post-deploy validation or redeploy from the last known-good shipped commit when deployment state is unclear.
    - Never execute recovery actions without explicit user approval.
 
 3. **Execute approved actions**
@@ -388,9 +392,49 @@ Approval rules:
 
 ---
 
+## Deploy Workflow
+
+Trigger: `deploy` / `deploy please`
+
+Purpose: Build the packaged SPFx solution and deploy it to the SharePoint App Catalog safely.
+
+Behaviour:
+
+1. **Preflight**
+   - Confirm current branch, working tree state, and working directory.
+   - Stop immediately if `HEAD` is detached.
+   - Confirm the branch is clean and synced with origin.
+
+2. **Verification gate**
+   - Run the normal SPFx verification gates from `spfx/intranet-core`.
+   - Stop immediately on failure.
+
+3. **Documentation impact**
+   - Review deployment and packaging docs when the deployable artefact, App Catalog steps, or environment configuration changes.
+   - Record either `Docs updated` or `No docs impact` with a short reason.
+
+4. **Runtime build**
+   - Build `spfx/intranet-core/sharepoint/solution/intranet-core.sppkg` using `npm run build` from `spfx/intranet-core`.
+
+5. **Deploy target**
+   - Upload the `.sppkg` to the SharePoint App Catalog.
+   - Confirm deployment and make the solution available to the target site collection according to governance.
+
+6. **Post-deploy validation**
+   - Confirm the DDRE Intranet app is available in Site contents.
+   - Add the relevant web part to a modern page and verify it loads correctly.
+   - Confirm environment-aware proxy endpoints are used without tenant-specific hard-coding.
+
+Approval rules:
+
+- Using `deploy` grants approval to run the repo-defined deployment steps for that workflow only.
+- If deployment also requires SHIP or a sync step, those workflows keep their normal approval rules.
+
+---
+
 ## SHIP Workflow
 
-> **SHIP** = Preflight → Test → Problems → Bump → Commit → Tag → Push
+> **SHIP** = Preflight → Test → Problems → Docs Impact → Bump → Commit → Tag → Push
 >
 > The agent may proceed through **Bump → Commit → Tag** without pausing unless a core invariant fails.
 
@@ -418,7 +462,16 @@ Ensure lint, build, and test diagnostics are clean (zero warnings if enforced).
 
 ---
 
-### 4. Bump Version
+### 4. Docs Impact
+
+- Classify the changeset using the documentation rules in `TCTBP.json`.
+- Review the required docs for user-visible features, configuration changes, packaging changes, or roadmap/status updates.
+- Update `releaseNotes.ts` for user-visible shipped changes when appropriate.
+- If no documentation updates are needed, explicitly record `No docs impact` with a short reason before version bumping.
+
+---
+
+### 5. Bump Version
 
 **Versioning rules:**
 
@@ -432,7 +485,7 @@ The bump must be applied to all files listed in `versionFiles` in `TCTBP.json` *
 
 ---
 
-### 5. Commit
+### 6. Commit
 
 - Stage relevant changes
 - Propose a conventional commit message
@@ -444,7 +497,7 @@ This repo does not use `CHANGELOG.md`. User-facing release notes go in `releaseN
 
 ---
 
-### 6. Tag
+### 7. Tag
 
 - Tag format: `vX.Y.Z` (example: `v0.5.27`)
 - One tag per shipped commit
@@ -452,13 +505,13 @@ This repo does not use `CHANGELOG.md`. User-facing release notes go in `releaseN
 
 ---
 
-### 7. Push (Approval Required)
+### 8. Push (Approval Required)
 
 - **Run Pre-Push Deletion Audit** (see Code-Loss Prevention). Warn if the push is net-negative.
 - Push current branch only
 - Never push to protected branches
 
-**SHIP within handoff:** When SHIP runs as part of a handoff workflow, the handoff's push rules override this step. The handoff pushes all three (feature branch, main, tags) as a single operation — see Handoff Workflow step 7.
+**SHIP within handover:** When SHIP runs as part of a handover workflow, the handover push rules override this step. The handover pushes all three (feature branch, main, tags) as a single operation — see Handover Workflow step 7.
 
 ---
 
@@ -479,7 +532,7 @@ This keeps iteration fast during development and avoids unnecessary long build t
 - Commits and local tags
 - Branch switching and merging
 - **Non-destructive remote reads** (`fetch`, logs, diffs)
-- **Handback operations** (fetch, checkout, pull) — entirely read-only, no approval needed
+- **Resume operations** (fetch, checkout, pull) — entirely read-only, no approval needed
 
 ### Require Explicit Approval
 
@@ -503,7 +556,7 @@ On any failure:
 - Never rewrite history without approval
 - Suggest using `abort` trigger for guided recovery if the failure left partial state
 
-**Merge Conflicts:** If a workflow stops due to a merge conflict (e.g. during Handoff or Branch creation), instruct the user to resolve the conflict manually, commit the resolution, and then re-trigger the workflow to complete the remaining steps.
+**Merge Conflicts:** If a workflow stops due to a merge conflict (e.g. during Handover or Branch creation), instruct the user to resolve the conflict manually, commit the resolution, and then re-trigger the workflow to complete the remaining steps.
 
 ---
 

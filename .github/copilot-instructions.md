@@ -115,7 +115,13 @@ When writing Jasper's dialogue or messages, use a warm, encouraging tone that ma
 
 ## Shipping Workflow
 
-For SHIP/TCTBP activation, steps, approvals, and versioning rules, see the TCTBP agent guidance in [TCTBP Agent.md](TCTBP Agent.md).
+For SHIP/TCTBP activation, steps, approvals, deploy semantics, and versioning rules, use these files together:
+
+- `TCTBP.json` — authoritative workflow policy and repo profile
+- `TCTBP Agent.md` — detailed behavioural rules and guard rails
+- `TCTBP Cheatsheet.md` — quick operator reference
+
+When the workflow files change, keep `.github/TCTBP.json`, `.github/TCTBP Agent.md`, `.github/TCTBP Cheatsheet.md`, and the prompt files in `.github/prompts/` aligned.
 
 ## File Organisation
 

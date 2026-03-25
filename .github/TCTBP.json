@@ -2,53 +2,230 @@
   "schemaVersion": 3,
   "governance": {
     "sourceOfTruth": "TCTBP.json",
-    "fallbackDocument": "TCTBP Agent.md"
+    "fallbackDocument": "TCTBP Agent.md",
+    "templateMode": false
   },
   "project": {
+    "name": "DDRE Intranet SharePoint",
+    "description": "SharePoint Online intranet monorepo using SPFx 1.22.1, React 17, and Azure-backed proxy integrations.",
     "defaultBranch": "main",
     "packageManager": "npm",
-    "versionFiles": ["spfx/intranet-core/package.json", "spfx/intranet-core/config/package-solution.json"],
-    "versionNotes": "package-solution.json uses 4-part format X.Y.Z.0; see scripts/release.ps1 for bump logic"
+    "versionFiles": [
+      "spfx/intranet-core/package.json",
+      "spfx/intranet-core/package-lock.json",
+      "spfx/intranet-core/config/package-solution.json"
+    ],
+    "versionNotes": "package-solution.json uses 4-part format X.Y.Z.0; keep package.json, package-lock.json, and package-solution.json aligned with scripts/release.ps1.",
+    "locale": "en-AU"
+  },
+  "profile": {
+    "commands": {
+      "format": "cd spfx/intranet-core && npm run format:check",
+      "test": "cd spfx/intranet-core && npm test",
+      "lint": "cd spfx/intranet-core && npm run lint",
+      "build": "cd spfx/intranet-core && npm run build",
+      "releaseBuild": "cd spfx/intranet-core && npm run build"
+    },
+    "qualityGates": {
+      "requireZeroProblems": true,
+      "requireTestsBeforeShip": true,
+      "requireLintBeforeShip": true,
+      "requireBuildBeforeShip": true
+    },
+    "versioning": {
+      "sourceOfTruth": "spfx/intranet-core/package.json",
+      "tagFormat": "v{version}"
+    }
   },
   "activation": {
-    "triggers": ["ship", "ship please", "shipping", "tctbp", "prepare release", "handoff", "handoff please", "handback", "handback please", "status", "status please", "abort"],
+    "triggers": [
+      "ship",
+      "ship please",
+      "shipping",
+      "prepare release",
+      "deploy",
+      "deploy please",
+      "handover",
+      "handover please",
+      "resume",
+      "resume please",
+      "status",
+      "status please",
+      "abort"
+    ],
     "caseInsensitive": true,
     "branchCommand": {
       "enabled": true,
-      "pattern": "^branch\\s+(.+)$"
+      "pattern": "^branch\\s+(.+)$",
+      "stopIfTargetBranchExistsLocal": true,
+      "stopIfTargetBranchExistsRemote": true,
+      "stopIfTargetBranchEqualsDefault": true,
+      "stopIfTargetBranchInvalid": true
     }
   },
   "workflow": {
-    "shipOrder": ["preflight", "test", "problems", "bump", "commit", "tag", "push"],
-    "handoffOrder": ["preflight", "stage", "test-gate", "commit", "ship-if-needed", "merge", "push", "verify-sync", "checkout-branch", "summary"],
-    "handbackOrder": ["preflight", "fetch", "detect-branch", "pull", "verify-sync", "verification-gate", "summary"],
+    "shipOrder": ["preflight", "test", "problems", "docs-impact", "bump", "commit", "tag", "push"],
+    "handoverOrder": ["preflight", "stage", "test-gate", "docs-impact", "commit", "ship-if-needed", "merge", "push", "verify-sync", "checkout-branch", "summary"],
+    "resumeOrder": ["preflight", "fetch", "detect-branch", "pull", "verify-sync", "verification-gate", "summary"],
     "statusOrder": ["fetch", "report", "recommend"],
     "abortOrder": ["inspect", "propose", "execute"],
+    "deployOrder": ["preflight", "sync-prerequisite", "verification-gate", "docs-impact", "runtime-build", "deploy-target", "post-deploy-validation", "summary"],
     "requireApproval": ["push", "delete-branch", "force-push", "rewrite-history", "modify-remotes"]
+  },
+  "shipReport": {
+    "enabled": true,
+    "stage": "preflight",
+    "format": "table",
+    "columns": ["Origin", "Local", "Status", "Action(s)"],
+    "recommendedRows": [
+      "branch-and-upstream",
+      "head-commit",
+      "last-shipped-tag",
+      "commits-ahead-behind",
+      "working-tree",
+      "version-source",
+      "docs-impact",
+      "push-readiness"
+    ]
+  },
+  "statusReport": {
+    "enabled": true,
+    "stage": "report",
+    "format": "table",
+    "columns": ["Origin", "Local", "Status", "Action(s)"],
+    "recommendedRows": [
+      "branch-and-upstream",
+      "head-commit",
+      "default-branch-state",
+      "last-shipped-tag",
+      "commits-ahead-behind",
+      "working-tree",
+      "version-source",
+      "ship-readiness",
+      "handover-readiness"
+    ]
   },
   "statusRecommendations": {
     "enabled": true,
-    "suggestions": ["abort", "handback", "ship", "handoff", "none"],
-    "priorityNote": "Array is ordered by priority: fix broken state first, then sync, then ship, then handoff.",
+    "suggestions": ["abort", "resume", "ship", "handover", "none"],
+    "priorityNote": "Array is ordered by priority: recover partial state first, then resume/sync, then ship, then handover.",
     "rules": {
-      "handback": "Suggest when local branch SHA does not match origin or default branch is behind remote.",
-      "handoff": "Suggest when working tree has local changes or current branch is ahead of origin and user is moving machines.",
-      "ship": "Suggest when there are unshipped commits since last tag or version/tag drift exists.",
-      "abort": "Suggest when a partial workflow state is detected (e.g. merge in progress, bump/tag mismatch, failed prior workflow).",
-      "none": "Suggest when branch is clean, synced, and no SHIP is needed."
+      "resume": "Suggest when the active work branch or default branch does not match origin, or when resuming on another machine would require a clean fast-forward.",
+      "handover": "Suggest when the active branch is cleanly ahead of origin or the working tree has local changes that need a durable multi-machine checkpoint.",
+      "ship": "Suggest when there are unshipped commits since the last reachable vX.Y.Z tag, version/tag drift exists, or release notes are missing for a user-visible shipped change.",
+      "abort": "Suggest when a partial workflow state is detected, such as merge in progress, bump/tag mismatch, unpublished release tag, or failed prior workflow.",
+      "none": "Suggest when the branch is clean, synced, and no SHIP or handover is needed."
     }
   },
   "docsInfraPolicy": {
     "skipSteps": ["test"],
     "keepSteps": ["preflight", "problems", "commit", "push"],
-    "filePatterns": ["*.md", "*.json", "*.yaml", "*.yml", "*.ps1", "docs/**", ".github/**", "apps/**", "contracts/**", "scripts/**", "LICENSE*", "CONTRIBUTING*"],
+    "filePatterns": [
+      "*.md",
+      "*.json",
+      "*.yaml",
+      "*.yml",
+      "*.ps1",
+      "docs/**",
+      ".github/**",
+      "apps/**",
+      "contracts/**",
+      "scripts/**",
+      "LICENSE*",
+      "CONTRIBUTING*"
+    ],
     "excludeWhenCodePresent": ["*.ts", "*.tsx"],
-    "comment": "For docs/infra-only changes: skip npm test (Heft/Jest), keep editor diagnostics (e.g. markdown lint, ESLint)"
+    "comment": "For docs/infra-only changes: skip npm test (Heft/Jest), keep editor diagnostics and config validation."
+  },
+  "documentation": {
+    "requireImpactAssessment": true,
+    "blockShipIfUnassessed": true,
+    "allowNoDocChangeWithReason": true,
+    "changeTypes": [
+      "user-visible-feature",
+      "ui-or-interaction",
+      "config-or-settings",
+      "packaging-or-metadata",
+      "roadmap-or-status",
+      "internal-only"
+    ],
+    "rules": [
+      {
+        "changeType": "user-visible-feature",
+        "review": [
+          "README.md",
+          "PLAN.md",
+          "spfx/intranet-core/src/webparts/intranetShell/components/data/releaseNotes.ts",
+          ".github/TCTBP Cheatsheet.md"
+        ]
+      },
+      {
+        "changeType": "ui-or-interaction",
+        "review": [
+          "README.md",
+          "PLAN.md",
+          ".github/TCTBP Cheatsheet.md"
+        ]
+      },
+      {
+        "changeType": "config-or-settings",
+        "review": [
+          "README.md",
+          "docs/runbooks/local-dev.md",
+          "docs/runbooks/how-to-deploy.md",
+          ".github/copilot-instructions.md"
+        ]
+      },
+      {
+        "changeType": "packaging-or-metadata",
+        "review": [
+          "docs/runbooks/release.md",
+          "docs/runbooks/how-to-deploy.md",
+          "scripts/release.ps1",
+          "spfx/intranet-core/package.json",
+          "spfx/intranet-core/config/package-solution.json"
+        ]
+      },
+      {
+        "changeType": "roadmap-or-status",
+        "review": [
+          "PLAN.md",
+          ".github/TCTBP Cheatsheet.md"
+        ]
+      },
+      {
+        "changeType": "internal-only",
+        "review": []
+      }
+    ],
+    "comment": "Also review any app-specific plan, architecture, or runbook directly affected by the change."
   },
   "build": {
     "defaultProfile": "dev",
     "releaseOnlyWhenRequested": true,
-    "comment": "Default to dev builds (npm run build uses Heft). Production builds bundle and package .sppkg."
+    "comment": "Use normal SPFx verification by default. npm run build produces the packaged .sppkg and is also the runtime deployment artefact build when deployment is requested."
+  },
+  "deploy": {
+    "preferredTriggers": ["deploy", "deploy please"],
+    "purpose": "Build the intranet-core .sppkg and deploy it to the SharePoint App Catalog when explicitly requested.",
+    "stopIfDetachedHead": true,
+    "requireCleanTree": true,
+    "requireSyncedBranch": true,
+    "requireShipFirst": false,
+    "requireRollbackPlanForDestructiveDeploy": true,
+    "buildCommand": "cd spfx/intranet-core && npm run build",
+    "migrationCommand": null,
+    "targets": {
+      "sharePointAppCatalog": {
+        "description": "Upload spfx/intranet-core/sharepoint/solution/intranet-core.sppkg to the SharePoint App Catalog and confirm deployment.",
+        "installCommand": "Upload intranet-core.sppkg to the SharePoint App Catalog and deploy it to the target site collection.",
+        "postDeployValidation": [
+          "Confirm the DDRE Intranet app is available in Site contents.",
+          "Add the target web part to a modern page and verify it loads correctly.",
+          "Confirm environment-aware proxy endpoints are being used with no tenant-specific hard-coding."
+        ]
+      }
+    }
   },
   "versioning": {
     "scheme": "semver",
