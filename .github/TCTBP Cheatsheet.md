@@ -44,7 +44,7 @@ Use when:
 
 - you want a formal shipped version
 - version and tag state needs to be updated
-- the repo should be published as a release milestone
+- the repo should be recorded as a release milestone
 
 Notes:
 
@@ -139,13 +139,13 @@ Use when:
 
 - a prior workflow stopped part-way through
 - version, tag, merge, or push state looks inconsistent
-- branch publication and release state disagree
+- branch sync state and release state disagree
 - a version bump, release note update, or tag exists without the rest of the release state
 
 Recovery expectations:
 
 - inspect concrete partial states before proposing action
-- preserve unpublished work before cleanup when needed
+- preserve unpushed work before cleanup when needed
 - never rewrite history or force-push without explicit extra confirmation
 
 ### `branch <new-branch-name>`

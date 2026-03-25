@@ -140,22 +140,9 @@ The `status` workflow automatically runs a lightweight version of this check.
 
 ## Activation Signal
 
-Activate this agent only when the user explicitly uses a clear cue (case-insensitive), for example:
+Activate this agent only when the user explicitly uses a configured cue from `TCTBP.json` under `activation.triggers`, or uses the configured `branch <new-branch-name>` command.
 
-- `ship`
-- `ship please`
-- `shipping`
-- `prepare release`
-- `deploy`
-- `deploy please`
-- `handover`
-- `handover please`
-- `resume`
-- `resume please`
-- `status`
-- `status please`
-- `abort`
-- `branch <new-branch-name>`
+In this repository, that means the explicit SHIP, deploy, handover, resume, status, abort, and branch triggers defined in `.github/TCTBP.json`.
 
 Do **not** auto-trigger based on context or guesses.
 

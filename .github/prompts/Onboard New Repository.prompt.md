@@ -35,10 +35,10 @@ Customise these files for the new repository:
 3. If a field truly does not apply, remove it cleanly or use `null` only where the template already allows it.
 4. Keep the TCTBP workflow generic, durable, and safe.
 5. Do not hard-code language, framework, package manager, deployment target, or docs paths unless they were explicitly provided.
-6. Preserve the no-code-loss guarantees across `ship`, `publish`, `handover`, `resume`, `branch`, `deploy`, `status`, and `abort`.
+6. Preserve the no-code-loss guarantees across `ship`, `handover`, `resume`, `branch`, `deploy`, `status`, and `abort`.
 7. Keep the behavioural guidance in Markdown aligned with the machine-readable profile in `.github/TCTBP.json`.
 8. Validate JSON and Markdown after editing.
-9. Keep the trigger semantics distinct: `ship` for formal release, `publish` for safe branch publication without release side effects, `handover` for end-of-day shared-state publication plus metadata refresh, and `resume` for start-of-day restore.
+9. Keep the trigger semantics distinct: `ship` for formal release, `handover` for end-of-session shared-state sync, `resume` for start-of-session restore, and `branch <new-branch-name>` for safe branch closeout and next-branch creation.
 
 ## What You Must Not Guess
 
@@ -75,7 +75,7 @@ Project details:
 - Release build command: <RELEASE_BUILD_COMMAND_OR_NULL>
 - Deploy target name: <DEPLOY_TARGET_NAME_OR_NONE>
 - Deploy target description: <DEPLOY_TARGET_DESCRIPTION_OR_NONE>
-- Install or publish command(s): <INSTALL_COMMANDS_OR_NONE>
+- Install or deploy command(s): <INSTALL_COMMANDS_OR_NONE>
 - Post-deploy check(s): <POST_DEPLOY_CHECKS_OR_NONE>
 - User guide path: <USER_GUIDE_PATH_OR_NULL>
 - Feature overview path: <FEATURE_OVERVIEW_PATH_OR_NULL>
@@ -97,10 +97,9 @@ Read the TCTBP template files, customise them for this repository using the proj
 When adapting the workflow, preserve the intended trigger separation:
 
 - `ship` creates formal release state when the repo wants version and tag semantics
-- `publish` pushes a clean current branch safely without version, tag, or handover metadata side effects
-- `handover` is the end-of-session branch-plus-metadata sync path
+- `handover` is the end-of-session sync path for durable shared state
 - `resume` is the start-of-session restore path
-- `branch <new-branch-name>` should assume the source branch has already been published or shipped before closeout continues
+- `branch <new-branch-name>` closes out the current branch safely and starts the next one from an updated default branch
 
 When you finish:
 
