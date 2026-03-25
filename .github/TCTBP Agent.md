@@ -56,6 +56,11 @@ If any invariant fails, the agent must **stop immediately**, explain the failure
 
 These safeguards exist because a single destructive sync (`83f8404`) once silently deleted 71 files and 13,313 lines of code. Any workflow that merges into the default branch or pushes to a remote **must** run these checks.
 
+Workspace runtime reinforcement:
+
+- `.github/hooks/tctbp-safety.json` routes risky git terminal commands through an explicit approval prompt before execution.
+- `scripts/tctbp-pretool-hook.js` is intentionally narrow: it only escalates destructive or history-rewriting git commands and otherwise stays out of normal coding flow.
+
 ### Safety Snapshot (before every merge to default branch)
 
 Before merging **any** branch into the default branch, create a lightweight safety tag:

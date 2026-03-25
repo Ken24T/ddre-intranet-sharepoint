@@ -117,11 +117,13 @@ When writing Jasper's dialogue or messages, use a warm, encouraging tone that ma
 
 For SHIP/TCTBP activation, steps, approvals, deploy semantics, and versioning rules, use these files together:
 
+- `.github/agents/TCTBP.agent.md` — runtime entry point for explicit SHIP/TCTBP trigger routing
+- `.github/hooks/tctbp-safety.json` — runtime approval hook for destructive git terminal commands
 - `TCTBP.json` — authoritative workflow policy and repo profile
 - `TCTBP Agent.md` — detailed behavioural rules and guard rails
 - `TCTBP Cheatsheet.md` — quick operator reference
 
-When the workflow files change, keep `.github/TCTBP.json`, `.github/TCTBP Agent.md`, `.github/TCTBP Cheatsheet.md`, and the prompt files in `.github/prompts/` aligned.
+When the workflow files change, keep `.github/agents/TCTBP.agent.md`, `.github/hooks/tctbp-safety.json`, `.github/TCTBP.json`, `.github/TCTBP Agent.md`, `.github/TCTBP Cheatsheet.md`, and the prompt files in `.github/prompts/` aligned.
 
 ## File Organisation
 
