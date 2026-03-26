@@ -1,5 +1,5 @@
 ---
-description: "Use when the user explicitly asks for ship, ship please, shipping, prepare release, deploy, deploy please, handover, handover please, resume, resume please, status, status please, abort, or branch <new-branch-name> in the DDRE Intranet repository."
+description: "Use when the user explicitly asks for ship, ship please, shipping, prepare release, publish, publish please, deploy, deploy please, handover, handover please, resume, resume please, status, status please, abort, branch, or branch <new-branch-name> in the DDRE Intranet repository."
 name: "TCTBP"
 tools: [read, search, execute, edit, todo]
 argument-hint: "Explicit SHIP/TCTBP workflow request or branch command"
@@ -19,7 +19,7 @@ If these sources differ, follow `.github/TCTBP.json`.
 
 ## Activation Boundary
 
-- Only handle work when the user explicitly invokes a configured SHIP/TCTBP trigger or the configured `branch <new-branch-name>` command.
+- Only handle work when the user explicitly invokes a configured SHIP/TCTBP trigger or the configured `branch` / `branch <new-branch-name>` command.
 - Do not auto-trigger from vague context.
 - If the request is ordinary coding work, state briefly that the default coding agent should handle it.
 

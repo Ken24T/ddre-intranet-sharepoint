@@ -53,6 +53,26 @@ Notes:
 - This repo keeps user-facing release notes in `spfx/intranet-core/src/webparts/intranetShell/components/data/releaseNotes.ts`, not `CHANGELOG.md`.
 - Stops if the branch is dirty, missing an upstream, behind origin, or diverged from origin.
 
+### `publish` / `publish please`
+
+Purpose:
+Safely publish the current clean branch to `origin` without release semantics.
+
+Attempts to:
+
+- preflight the current branch state
+- fetch and compare local versus origin
+- allow first publication by creating the upstream when needed
+- push the current branch when it is clean and ahead
+- verify that the branch is now synced
+
+Notes:
+
+- Does not bump version
+- Does not create a tag
+- Does not perform merge or deploy actions
+- Stops if the branch is dirty, behind, diverged, or detached
+
 ### `handover` / `handover please`
 
 Purpose:
@@ -148,16 +168,18 @@ Recovery expectations:
 - preserve unpushed work before cleanup when needed
 - never rewrite history or force-push without explicit extra confirmation
 
-### `branch <new-branch-name>`
+### `branch` and `branch <new-branch-name>`
 
 Purpose:
-Close out current work cleanly and start the next branch.
+Close out current work cleanly and either stop on `main` or start the next branch.
 
 Safety expectation:
 
 - never discards local work to complete the transition
 - never uses stash, reset, rebase, force-push, or destructive checkout as part of the branch workflow
 - requires branch safety checks before merge or cleanup
+- bare `branch` closes out the current branch and leaves the repo on updated `main`
+- `branch <new-branch-name>` creates and switches to the requested next branch after closeout
 
 ## Docs Impact Reminder
 
@@ -195,8 +217,10 @@ Repo-specific docs commonly reviewed:
 ## Quick Choice
 
 - Need a release version or tag: use `ship`
+- Need to publish the current clean branch without release side effects: use `publish`
 - Need to stop on one machine and continue on another: use `handover`
 - Need to restore the working branch on another machine: use `resume`
 - Need the packaged SPFx solution built and deployed: use `deploy`
 - Need a quick repo state check: use `status`
 - Need to recover from partial workflow state: use `abort`
+- Need to close out current work and stop on `main`: use `branch`

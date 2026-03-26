@@ -1,9 +1,10 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 8,
   "governance": {
     "sourceOfTruth": "TCTBP.json",
     "fallbackDocument": "TCTBP Agent.md",
-    "templateMode": false
+    "templateMode": false,
+    "templateInstructions": "This repository uses the TCTBP workflow as a repo-specific profile. Preserve the DDRE Intranet repo's SPFx build and version alignment rules, code-loss-prevention safeguards, SharePoint deployment model, release-notes workflow, documentation paths, and Australian English conventions when updating these files."
   },
   "project": {
     "name": "DDRE Intranet SharePoint",
@@ -43,6 +44,8 @@
       "ship please",
       "shipping",
       "prepare release",
+      "publish",
+      "publish please",
       "deploy",
       "deploy please",
       "handover",
@@ -56,15 +59,30 @@
     "caseInsensitive": true,
     "branchCommand": {
       "enabled": true,
-      "pattern": "^branch\\s+(.+)$",
+      "pattern": "^branch(?:\\s+(.+))?$",
+      "allowCloseoutWithoutNewBranch": true,
       "stopIfTargetBranchExistsLocal": true,
       "stopIfTargetBranchExistsRemote": true,
       "stopIfTargetBranchEqualsDefault": true,
       "stopIfTargetBranchInvalid": true
     }
   },
+  "publish": {
+    "preferredTriggers": ["publish", "publish please"],
+    "requireFetchedOriginInPreflight": true,
+    "stopIfDetachedHead": true,
+    "requireCleanTree": true,
+    "stopIfBranchMissingUpstream": false,
+    "createUpstreamOnFirstPublish": true,
+    "stopIfBranchBehindUpstream": true,
+    "stopIfBranchDiverged": true,
+    "pushTagsWhenPresent": false,
+    "purpose": "Safely publish the current clean branch to origin, including first publication when no upstream exists yet, without bumping version, creating a tag, or changing deployment state."
+  },
   "workflow": {
     "shipOrder": ["preflight", "test", "problems", "docs-impact", "bump", "commit", "tag", "push"],
+    "publishOrder": ["preflight", "fetch", "report", "verify-gate", "push-if-needed", "verify-sync", "summary"],
+    "branchOrder": ["assess-ship", "verify-or-stop", "inspect-source-branch", "sync-default-branch", "confirm-merge-into-default-when-needed", "merge-source-into-default-when-needed", "verify-transition", "create-new-branch-when-requested", "optional-cleanup", "summary"],
     "handoverOrder": ["preflight", "stage", "test-gate", "docs-impact", "commit", "ship-if-needed", "merge", "push", "verify-sync", "checkout-branch", "summary"],
     "resumeOrder": ["preflight", "fetch", "detect-branch", "pull", "verify-sync", "verification-gate", "summary"],
     "statusOrder": ["fetch", "report", "recommend"],
@@ -107,15 +125,53 @@
   },
   "statusRecommendations": {
     "enabled": true,
-    "suggestions": ["abort", "resume", "ship", "handover", "none"],
-    "priorityNote": "Array is ordered by priority: recover partial state first, then resume/sync, then ship, then handover.",
+    "suggestions": ["abort", "resume", "publish", "ship", "handover", "none"],
+    "priorityNote": "Array is ordered by priority: recover partial state first, then resume/sync, then publish, then ship, then handover.",
     "rules": {
       "resume": "Suggest when the active work branch or default branch does not match origin, or when resuming on another machine would require a clean fast-forward.",
+      "publish": "Suggest when the current branch is clean, ahead of origin or missing an upstream, and the user likely wants to sync the branch without release or handover side effects.",
       "handover": "Suggest when the active branch is cleanly ahead of origin or the working tree has local changes that need a durable multi-machine checkpoint.",
       "ship": "Suggest when there are unshipped commits since the last reachable vX.Y.Z tag, version/tag drift exists, or release notes are missing for a user-visible shipped change.",
       "abort": "Suggest when a partial workflow state is detected, such as merge in progress, bump/tag mismatch, unpublished release tag, or failed prior workflow.",
       "none": "Suggest when the branch is clean, synced, and no SHIP or handover is needed."
     }
+  },
+  "branch": {
+    "enabled": true,
+    "purpose": "Safely close out the current branch, reconcile the default branch, and either stop on the default branch or create the next work branch without losing code.",
+    "defaultBranch": "main",
+    "allowCloseoutWithoutNewBranch": true,
+    "stopIfDetachedHead": true,
+    "validateTargetBranchNameBeforeWorkflow": true,
+    "stopIfTargetBranchExistsLocal": true,
+    "stopIfTargetBranchExistsRemote": true,
+    "stopIfTargetBranchEqualsDefault": true,
+    "stopIfTargetBranchInvalid": true,
+    "requiresCleanTreeBeforeSwitch": true,
+    "stopIfDirtyAndShipDeclined": true,
+    "stopIfSourceBranchAheadOfUpstream": true,
+    "stopIfSourceBranchDiverged": true,
+    "stopIfSourceBranchBehindUpstream": true,
+    "stopIfDefaultBranchDiverged": true,
+    "allowFastForwardDefaultBranchWhenClean": true,
+    "mergeSourceIntoDefaultWhenSourceIsNotDefault": true,
+    "requireConfirmationBeforeMergeIntoDefaultWhenSourceIsNotDefault": true,
+    "mergeIntoDefaultIsExpectedOutcome": true,
+    "defaultMergeIntoDefaultAnswer": "yes",
+    "stopIfMergeIntoDefaultDeclined": true,
+    "skipMergeWhenAlreadyOnDefaultBranch": true,
+    "useNonDestructiveMerge": true,
+    "stopOnMergeConflict": true,
+    "requireSourceBranchPublishedBeforeTransition": true,
+    "recommendHandoverWhenSourceBranchUnsynced": true,
+    "requireSourceCommitReachableFromDefaultBeforeCleanup": true,
+    "requireNewBranchCreatedBeforeCleanup": false,
+    "allowLocalBranchDeletion": true,
+    "allowRemoteBranchDeletion": true,
+    "requireExplicitApprovalForPush": true,
+    "requireExplicitApprovalForDeletion": true,
+    "neverUseStashResetOrRebase": true,
+    "summaryMustConfirmNoCodeLossGuards": true
   },
   "docsInfraPolicy": {
     "skipSteps": ["test"],

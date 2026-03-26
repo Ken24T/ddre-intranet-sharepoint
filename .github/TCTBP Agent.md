@@ -140,11 +140,48 @@ The `status` workflow automatically runs a lightweight version of this check.
 
 ## Activation Signal
 
-Activate this agent only when the user explicitly uses a configured cue from `TCTBP.json` under `activation.triggers`, or uses the configured `branch <new-branch-name>` command.
+Activate this agent only when the user explicitly uses a configured cue from `TCTBP.json` under `activation.triggers`, or uses the configured `branch` / `branch <new-branch-name>` command.
 
 In this repository, that means the explicit SHIP, deploy, handover, resume, status, abort, and branch triggers defined in `.github/TCTBP.json`.
 
 Do **not** auto-trigger based on context or guesses.
+
+---
+
+## Publish Workflow
+
+Trigger: `publish` / `publish please`
+
+Purpose: safely publish the current clean branch to origin without creating a release, bumping a version, or creating a tag.
+
+Behaviour (safe and minimal):
+
+1. **Preflight**
+   - Report the current branch, working tree state, and upstream tracking state if one exists.
+   - Stop immediately if `HEAD` is detached.
+   - Stop if the working tree is dirty.
+
+2. **Fetch and inspect remote state**
+   - Fetch from `origin` with tags.
+   - Determine whether the current branch is ahead, behind, up to date, diverged, or unpublished.
+
+3. **Verification gate when policy requires it**
+   - If repo policy requires verification before branch publication, run the configured gates.
+   - If the changeset is docs-only or infrastructure-only, apply the configured lightweight path.
+
+4. **Publish the branch when needed**
+   - If the branch is clean and ahead of origin, push it.
+   - If the branch is clean and has no upstream, create the upstream during the first push.
+   - If the branch is already in sync, report that no push was required.
+   - Never create a version bump, tag, or deployment action as part of `publish`.
+
+5. **Verify sync**
+   - Confirm the local branch matches `origin/<current-branch>`.
+   - If sync cannot be verified, stop and report the discrepancy.
+
+6. **Summary**
+   - Confirm branch name, resulting upstream state, and whether a push occurred.
+   - Explicitly state that `publish` did not perform release, merge, or deploy actions.
 
 ---
 
@@ -168,9 +205,9 @@ When in doubt, treat the changeset as code and run the full verification suite.
 
 ## Branch Workflow (Convenience Command)
 
-### `branch <new-branch-name>`
+### `branch` and `branch <new-branch-name>`
 
-Purpose: Close out the current branch cleanly and start the next one.
+Purpose: Close out the current branch cleanly and either stop on `main` or start the next one.
 
 Behaviour (local-first, remote-safe):
 
@@ -190,10 +227,13 @@ Behaviour (local-first, remote-safe):
    - Stop on conflicts.
    - **Run Merge Deletion Audit** (see Code-Loss Prevention). Stop if thresholds are exceeded and wait for confirmation.
 
-4. **Create and switch to the new branch** from the updated default branch.
+4. **Create and switch to the new branch when requested** from the updated default branch.
+   - In closeout-only mode (`branch`), stop here and leave the repository on the updated default branch.
+   - In next-branch mode (`branch <new-branch-name>`), create and switch to the requested new branch.
 
 5. **Cleanup (Optional)**
    - Ask the user if they want to delete the old feature branch locally and remotely.
+   - In next-branch mode, only offer cleanup after the new branch exists.
 
 6. **Remote safety**
    - Any push requires explicit approval.
