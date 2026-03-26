@@ -125,6 +125,8 @@ For SHIP/TCTBP activation, steps, approvals, deploy semantics, and versioning ru
 
 When the workflow files change, keep `.github/agents/TCTBP.agent.md`, `.github/hooks/tctbp-safety.json`, `.github/TCTBP.json`, `.github/TCTBP Agent.md`, `.github/TCTBP Cheatsheet.md`, and the prompt files in `.github/prompts/` aligned.
 
+The standard TCTBP trigger surface for this repo includes `checkpoint`, bare `branch` for closeout-only mode, and `branch <new-branch-name>` for next-branch creation.
+
 ## File Organisation
 
 - Web parts: `spfx/intranet-core/src/webparts/<name>/`

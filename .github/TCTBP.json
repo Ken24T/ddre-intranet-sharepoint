@@ -44,6 +44,8 @@
       "ship please",
       "shipping",
       "prepare release",
+      "checkpoint",
+      "checkpoint please",
       "publish",
       "publish please",
       "deploy",
@@ -67,6 +69,18 @@
       "stopIfTargetBranchInvalid": true
     }
   },
+  "ship": {
+    "preferredTriggers": ["ship", "ship please", "shipping", "prepare release"],
+    "requireFetchedOriginInPreflight": true,
+    "stopIfDetachedHead": true,
+    "stopIfBranchMissingUpstream": false,
+    "allowShipFromUnpublishedBranch": true,
+    "createUpstreamOnFirstPublish": true,
+    "stopIfBranchBehindUpstream": true,
+    "stopIfBranchDiverged": true,
+    "stopIfWorkingTreeDirty": true,
+    "purpose": "Create a formal shipped version from a clean, fetched branch while keeping the SPFx monorepo version files, release notes, tags, and remote state recoverable and unambiguous."
+  },
   "publish": {
     "preferredTriggers": ["publish", "publish please"],
     "requireFetchedOriginInPreflight": true,
@@ -79,9 +93,33 @@
     "pushTagsWhenPresent": false,
     "purpose": "Safely publish the current clean branch to origin, including first publication when no upstream exists yet, without bumping version, creating a tag, or changing deployment state."
   },
+  "checkpoint": {
+    "preferredTriggers": ["checkpoint", "checkpoint please"],
+    "purpose": "Create a durable local-only checkpoint commit on the current branch so work is preserved without version, tag, metadata, or remote side effects.",
+    "stopIfDetachedHead": true,
+    "stopIfWorkingTreeClean": true,
+    "stopIfWorkingTreeConflicted": true,
+    "stopIfMergeInProgress": true,
+    "stopIfRebaseInProgress": true,
+    "stopIfCherryPickInProgress": true,
+    "stopIfRevertInProgress": true,
+    "stageAllChanges": true,
+    "includeUntracked": true,
+    "requireVerification": false,
+    "allowProblemReportingWithoutBlocking": true,
+    "createCommit": true,
+    "commitMessagePrefix": "checkpoint:",
+    "defaultCommitMessage": "checkpoint: preserve local working state",
+    "pushNever": true,
+    "createTag": false,
+    "bumpVersion": false,
+    "updateMetadata": false,
+    "reuseDuringHandoverWhenCurrent": true
+  },
   "workflow": {
     "shipOrder": ["preflight", "test", "problems", "docs-impact", "bump", "commit", "tag", "push"],
     "publishOrder": ["preflight", "fetch", "report", "verify-gate", "push-if-needed", "verify-sync", "summary"],
+    "checkpointOrder": ["preflight", "inspect", "stage", "commit", "summary"],
     "branchOrder": ["assess-ship", "verify-or-stop", "inspect-source-branch", "sync-default-branch", "confirm-merge-into-default-when-needed", "merge-source-into-default-when-needed", "verify-transition", "create-new-branch-when-requested", "optional-cleanup", "summary"],
     "handoverOrder": ["preflight", "stage", "test-gate", "docs-impact", "commit", "ship-if-needed", "merge", "push", "verify-sync", "checkout-branch", "summary"],
     "resumeOrder": ["preflight", "fetch", "detect-branch", "pull", "verify-sync", "verification-gate", "summary"],
@@ -119,16 +157,46 @@
       "commits-ahead-behind",
       "working-tree",
       "version-source",
+      "handover-metadata",
       "ship-readiness",
       "handover-readiness"
     ]
   },
+  "handoverReport": {
+    "enabled": true,
+    "stage": "summary",
+    "format": "table",
+    "columns": ["Origin", "Local", "Status", "Action(s)"],
+    "recommendedRows": [
+      "current-branch-state",
+      "last-shipped-tag",
+      "metadata-branch-state",
+      "metadata-consistency",
+      "handover-baseline"
+    ],
+    "comment": "At the end of handover, render a concise five-row summary table that confirms the current branch, tag state, metadata branch publication, metadata consistency, and clean synced baseline. Keep it shorter than status and focused on the handover result."
+  },
+  "checkpointReport": {
+    "enabled": true,
+    "stage": "summary",
+    "format": "table",
+    "columns": ["Origin", "Local", "Status", "Action(s)"],
+    "recommendedRows": [
+      "previous-head-commit",
+      "checkpoint-commit",
+      "working-tree-result",
+      "upstream-sync-state",
+      "remote-side-effects"
+    ],
+    "comment": "At the end of checkpoint, render a concise summary table focused on the actual commit transition and the resulting local-only baseline. Include the previous HEAD commit, the new checkpoint commit, the resulting working-tree state, the branch sync state, and an explicit confirmation that remote state did not change. Use 'n/a' where no meaningful origin-side value exists."
+  },
   "statusRecommendations": {
     "enabled": true,
-    "suggestions": ["abort", "resume", "publish", "ship", "handover", "none"],
-    "priorityNote": "Array is ordered by priority: recover partial state first, then resume/sync, then publish, then ship, then handover.",
+    "suggestions": ["abort", "resume", "checkpoint", "publish", "ship", "handover", "none"],
+    "priorityNote": "Array is ordered by priority: recover partial state first, then resume/sync, then local preservation, then publish, then ship, then handover.",
     "rules": {
       "resume": "Suggest when the active work branch or default branch does not match origin, or when resuming on another machine would require a clean fast-forward.",
+      "checkpoint": "Suggest when the current branch has non-ignored uncommitted work that should be preserved locally before publish, handover, ship, or branch-transition work continues.",
       "publish": "Suggest when the current branch is clean, ahead of origin or missing an upstream, and the user likely wants to sync the branch without release or handover side effects.",
       "handover": "Suggest when the active branch is cleanly ahead of origin or the working tree has local changes that need a durable multi-machine checkpoint.",
       "ship": "Suggest when there are unshipped commits since the last reachable vX.Y.Z tag, version/tag drift exists, or release notes are missing for a user-visible shipped change.",
@@ -286,7 +354,8 @@
   "versioning": {
     "scheme": "semver",
     "patchEveryShip": true,
-    "skipForChangeTypes": ["docs-only", "infrastructure-only"],
+    "patchEveryShipForDocsInfrastructureOnly": false,
+    "skipForChangeTypes": [],
     "minorOnFirstShipOfBranch": true,
     "minorBranchPrefixes": ["feature/", "app/"],
     "majorExplicitOnly": true

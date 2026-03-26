@@ -2,13 +2,13 @@
 
 ## Purpose
 
-This agent governs **milestone, shipping, sync, and deployment actions** for the DDRE Intranet repository. It exists to safely execute the **SHIP workflow** (Preflight → Test → Problems → Bump → Commit → Tag → Push) together with the repo's multi-machine sync and deployment actions, using strong guard rails, auditability, and human approval at irreversible steps.
+This agent governs **milestone, checkpointing, shipping, sync, and deployment actions** for the DDRE Intranet repository. It exists to safely execute the **SHIP workflow** together with the repo's local preservation, multi-machine sync, and deployment actions, using strong guard rails, auditability, and human approval at irreversible steps.
 
 > **Naming:** "TCTBP" is a legacy acronym (Test, Commit, Tag, Bump, Push) kept for backward compatibility. The canonical term is **SHIP**. The execution order is documented in the SHIP Workflow section below.
 
 Quick reference: see [TCTBP Cheatsheet.md](TCTBP%20Cheatsheet.md) for the short operator view of triggers, gates, and repo-specific expectations.
 
-This agent is **not** for exploratory coding or refactoring. It is activated only when the user signals a milestone or explicit sync/deploy action (for example `ship`, `handover`, `resume`, or `deploy`).
+This agent is **not** for exploratory coding or refactoring. It is activated only when the user signals a milestone or explicit sync/deploy action (for example `ship`, `checkpoint`, `handover`, `resume`, or `deploy`).
 
 ---
 
@@ -39,7 +39,7 @@ A Project Profile defines:
 ## Core Invariants (Never Break)
 
 1. **Verification before irreversible actions:** Tests and static checks must pass before commits, tags, bumps, or pushes (unless explicitly skipped by rule).
-2. **Problems count must be zero** before any commit (interpreted as: build/lint/test diagnostics are clean). For **docs/infra-only changesets**, this means editor/IDE diagnostics only — see `docsInfraPolicy` in `TCTBP.json`.
+2. **Problems count must be zero** before any release, publication-linked, or shared-state commit (interpreted as: build/lint/test diagnostics are clean), unless `TCTBP.json` explicitly allows a local-only checkpoint commit to preserve work first. For **docs/infra-only changesets**, this means editor/IDE diagnostics only — see `docsInfraPolicy` in `TCTBP.json`.
 3. **All non-destructive actions are allowed by default.**
 4. **Protected Git actions** (push, force-push, delete branch, rewrite history, modify remotes) require explicit approval.
 5. **Pull Requests are not required.** This workflow assumes a **single-developer model** with direct merges.
@@ -182,6 +182,46 @@ Behaviour (safe and minimal):
 6. **Summary**
    - Confirm branch name, resulting upstream state, and whether a push occurred.
    - Explicitly state that `publish` did not perform release, merge, or deploy actions.
+
+---
+
+## Checkpoint Workflow
+
+Trigger: `checkpoint` / `checkpoint please`
+
+Purpose: create a durable local-only checkpoint commit on the current branch without changing version, tags, metadata, deployment state, or remote state.
+
+Behaviour (safe and local-only):
+
+1. **Preflight**
+   - Report the current branch and working tree state.
+   - Stop immediately if `HEAD` is detached.
+   - Stop if the working tree is clean.
+   - Stop if the working tree has unresolved conflicts or if a merge, rebase, cherry-pick, or revert is in progress.
+
+2. **Inspect what will be preserved**
+   - Summarise the tracked and non-ignored untracked changes that will be included.
+   - Make it explicit that ignored files remain ignored and nothing will be pushed.
+
+3. **Stage the checkpoint**
+   - Stage the current non-ignored tracked and untracked changes on the current branch.
+   - Never discard or overwrite local changes during this step.
+
+4. **Create the checkpoint commit**
+   - Create a clearly marked local-only commit using the configured checkpoint message prefix.
+   - Do not run heavyweight verification gates as a blocker for this workflow.
+   - If editor diagnostics are already available, they may be reported for awareness only.
+
+5. **Summary**
+   - Render a concise four-column summary table using `Origin`, `Local`, `Status`, and `Action(s)`.
+   - Keep the table focused on the actual commit transition and the resulting local-only baseline.
+   - Confirm the checkpoint commit SHA and message.
+   - Explicitly state that no push, tag, version bump, metadata update, deployment action, or branch switch occurred.
+
+Approval rules:
+
+- `checkpoint` grants approval only for the local checkpoint commit it creates.
+- `checkpoint` never grants approval for push, tag, metadata, deploy, or branch-deletion actions.
 
 ---
 
@@ -379,11 +419,13 @@ Behaviour:
    - **Code health snapshot:** Compare file count on current branch against the last safety tag or shipped tag. Flag if >5 source files (`.ts`/`.tsx`) are missing.
 
 3. **Recommend next step(s)**
-   - Provide 1–3 actionable recommendations with a one-line reason for each.
-    - Use this priority order when multiple are valid (highest priority first): `abort` → `resume` → `ship` → `handover` → `none`.
+    - Provide 1–3 actionable recommendations with a one-line reason for each.
+    - Use this priority order when multiple are valid (highest priority first): `abort` → `resume` → `checkpoint` → `publish` → `ship` → `handover` → `none`.
    - Recommendation rules:
      - `abort`: partial workflow state detected (e.g. merge in progress, bump/tag mismatch, previous workflow failed mid-way).
        - `resume`: local/remote branch SHA mismatch or default branch not synced with origin.
+       - `checkpoint`: the working tree is dirty and work should be preserved locally before sync or release workflows continue.
+       - `publish`: the branch is clean and ahead of origin, and the user likely wants to sync it without release or handover side effects.
        - `ship`: unshipped commits since last tag, version/tag drift detected, or shipped user-facing changes lack release note updates.
        - `handover`: branch is ahead or working tree is dirty and the user likely needs to move machines.
      - `none`: repo is clean, synced, and no SHIP is needed.
@@ -507,7 +549,8 @@ Ensure lint, build, and test diagnostics are clean (zero warnings if enforced).
 
 **Versioning rules:**
 
-- **Z (patch)** increments on **every SHIP**, **except** when the change set is **docs-only or infrastructure-only** (plans, runbooks, internal guidance).
+- **Z (patch)** increments on **every SHIP** when `versioning.patchEveryShip` is enabled in `TCTBP.json`.
+- When the change set is **docs-only or infrastructure-only**, whether that SHIP still receives a patch bump is controlled by `versioning.patchEveryShipForDocsInfrastructureOnly` in `TCTBP.json`.
 - **Y (minor)** increments on the **first SHIP of a new work branch**, resetting Z to 0, **only when the branch prefix matches `minorBranchPrefixes`** (default: `feature/`, `app/`).
   - Operational definition: "first SHIP on a branch" means no prior shipped tag (`vX.Y.Z`) exists on commits unique to the current branch since it diverged from the default branch.
   - Branches with non-feature prefixes (e.g. `fix/`, `docs/`, `infrastructure/`) receive a **patch** bump on their first SHIP, not a minor bump.

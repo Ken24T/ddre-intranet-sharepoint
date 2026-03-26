@@ -48,7 +48,7 @@ Use when:
 
 Notes:
 
-- Patch bump happens on every ship unless the changes are docs-only or infrastructure-only.
+- Patch bump behaviour is controlled by `.github/TCTBP.json` through `versioning.patchEveryShip` and `versioning.patchEveryShipForDocsInfrastructureOnly`.
 - Minor bump happens on the first ship of `feature/` and `app/` branches.
 - This repo keeps user-facing release notes in `spfx/intranet-core/src/webparts/intranetShell/components/data/releaseNotes.ts`, not `CHANGELOG.md`.
 - Stops if the branch is dirty, missing an upstream, behind origin, or diverged from origin.
@@ -72,6 +72,25 @@ Notes:
 - Does not create a tag
 - Does not perform merge or deploy actions
 - Stops if the branch is dirty, behind, diverged, or detached
+
+### `checkpoint` / `checkpoint please`
+
+Purpose:
+Create a durable local-only checkpoint commit on the current branch without release or sync side effects.
+
+Attempts to:
+
+- stop if `HEAD` is detached, the tree is clean, conflicts exist, or a merge/rebase/cherry-pick/revert is in progress
+- stage the current non-ignored tracked and new files
+- create a clearly marked non-release local commit
+- end with a concise four-column table covering the previous HEAD, new checkpoint commit, resulting working-tree state, sync state, and explicit local-only outcome
+
+Notes:
+
+- Does not push
+- Does not bump version
+- Does not create a tag
+- Does not update handover metadata or deployment state
 
 ### `handover` / `handover please`
 
@@ -217,6 +236,7 @@ Repo-specific docs commonly reviewed:
 ## Quick Choice
 
 - Need a release version or tag: use `ship`
+- Need a durable local-only save before publishing or handing over: use `checkpoint`
 - Need to publish the current clean branch without release side effects: use `publish`
 - Need to stop on one machine and continue on another: use `handover`
 - Need to restore the working branch on another machine: use `resume`
